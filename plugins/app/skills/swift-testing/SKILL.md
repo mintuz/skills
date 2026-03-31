@@ -1,11 +1,11 @@
 ---
 name: swift-testing
-description: WHEN writing tests in Swift with the Swift Testing framework; NOT XCTest.
+description: "WHEN writing tests in Swift with the Swift Testing framework; NOT for XCTest or Objective-C tests; creates @Test-annotated functions, writes #expect and #require assertions, validates thrown errors with #expect(throws:), structures test suites with @Suite, and applies macro-driven testing patterns."
 ---
 
 # Swift Testing Framework: Basics
 
-Guidance for starting with Swift Testing (Testing framework) and writing clear, macro-driven tests.
+Guidance for writing clear, macro-driven tests with Swift Testing.
 
 ## Core Concepts
 
@@ -13,7 +13,6 @@ Guidance for starting with Swift Testing (Testing framework) and writing clear, 
 - Name tests freely; use `@Test("Display Name")` to set the navigator title.
 - `#expect` is the primary assertion; pass a boolean expression to assert truthy outcomes.
 - Async/throwing tests are supported via `async`/`throws` on the test function.
-- Works alongside XCTest in the same project.
 
 ## Example: Simple Test
 

@@ -1,6 +1,6 @@
 ---
 name: react
-description: WHEN building React components/pages/apps; enforces scalable architecture, state management, API layer, performance patterns.
+description: "WHEN building React components, pages, or apps with JSX/TSX; NOT for non-React frontends or server-only code; creates feature-based folder structures, implements hooks and state management with React Query/Zustand, builds API integration layers, applies code splitting and memoization, and enforces component composition patterns."
 ---
 
 # React Best Practices
@@ -29,86 +29,34 @@ Production-grade React development with feature-based architecture, type-safe st
 | Testing pyramid and strategy         | [testing-strategy.md](./references/testing-strategy.md)       |
 | Project tooling standards            | [project-standards.md](./references/project-standards.md)     |
 
-## When to Use Each Guide
+## Canonical Feature Module
 
-### Project Structure
+```
+src/features/auth/
+├── components/
+│   └── LoginForm.tsx      # Feature-scoped component
+├── hooks/
+│   └── useAuth.ts         # Custom hook wrapping React Query
+├── api/
+│   └── auth.ts            # Schema → fetcher → hook
+└── index.ts               # Public API (barrel export)
+```
 
-Use [project-structure.md](./references/project-structure.md) when you need:
+```tsx
+// src/features/auth/api/auth.ts — schema-first API pattern
+import { z } from "zod";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api-client";
 
-- Directory organization (app, features, components)
-- Feature module structure
-- Import architecture (unidirectional flow)
-- ESLint boundary enforcement
-- File naming conventions
+const UserSchema = z.object({ id: z.string(), email: z.string() });
+type User = z.infer<typeof UserSchema>;
 
-### Component Patterns
+const getUser = async (id: string): Promise<User> =>
+  api.get(`/users/${id}`).then((r) => UserSchema.parse(r.data));
 
-Use [component-patterns.md](./references/component-patterns.md) when you need:
-
-- Colocation principles
-- Composition over props patterns
-- Wrapping third-party components
-- Avoiding nested render functions
-
-### Compound Components
-
-Use [compound-components.md](./references/compound-components.md) when you need:
-
-- Multi-part components (Card, Accordion, etc.)
-- Flexible composition patterns
-- Semantic component structure
-
-### State Management
-
-Use [state-management.md](./references/state-management.md) when you need:
-
-- State category decisions (component, application, server cache)
-- useState vs useReducer guidance
-- Server cache with React Query
-- State placement guidelines
-
-### API Layer
-
-Use [api-layer.md](./references/api-layer.md) when you need:
-
-- API client configuration
-- Request structure (schema, fetcher, hook)
-- Error handling (interceptors, boundaries)
-- Security patterns (auth, sanitization, authorization)
-
-### Performance
-
-Use [performance.md](./references/performance.md) when you need:
-
-- Code splitting strategies
-- State optimization
-- Children optimization patterns
-- Styling performance
-- Image optimization
-
-### useEffect
-
-Use [useeffect.md](./references/useeffect.md) when you need:
-
-- When NOT to use useEffect (most cases)
-- When useEffect IS appropriate (external systems)
-- Dependency array rules
-- Alternatives to useEffect
-
-### Testing Strategy
-
-Use [testing-strategy.md](./references/testing-strategy.md) when you need:
-
-- Testing pyramid (prioritize integration over unit)
-- What to test at each level (unit, integration, E2E)
-- Testing Library principles (query by accessible names)
-
-### Project Standards
-
-Use [project-standards.md](./references/project-standards.md) when you need:
-
-- Required tooling (ESLint, Prettier, TypeScript, Husky)
-- Pre-commit hook configuration
+export const useUser = (id: string) =>
+  useQuery({ queryKey: ["user", id], queryFn: () => getUser(id) });
+```
 
 ## Quick Reference: Decision Trees
 

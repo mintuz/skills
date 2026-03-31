@@ -1,25 +1,11 @@
 ---
 name: commit-messages
-description: WHEN writing git/conventional commits; NOT for PR text; returns concise, why-first commit lines with proper type/scope.
+description: "WHEN writing git/conventional commits; NOT for PR text; analyzes diffs, formats type(scope): subject lines, assesses commit scope for splitting, and returns concise why-first messages with proper conventional commit structure."
 ---
 
 # Commit Messages
 
-Use this skill to generate clear, conventional commit messages that explain the "why" not just the "what". Follow this guide when writing commit messages or helping users structure their commits.
-
-## When to Use
-
-- User asks for help writing a commit message
-- User wants to understand conventional commit format
-- User needs to split a large commit into smaller ones
-- User asks about commit best practices
-
-## Philosophy
-
-- **Why > What** - The diff shows what changed; the message explains why
-- **Atomic commits** - One logical change per commit
-- **Future readers** - Write for someone debugging at 2am in 6 months
-- **Searchable** - Make it easy to find with `git log --grep`
+Generate clear, conventional commit messages that explain the "why" not just the "what".
 
 ## Format
 

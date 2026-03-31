@@ -1,6 +1,6 @@
 ---
 name: typescript
-description: WHEN writing TypeScript, defining types/schemas, or building type-safe apps; outputs strict, schema-first, production-ready code.
+description: "WHEN writing TypeScript, defining types/schemas in .ts/.tsx files, or building type-safe apps with Zod; NOT for plain JavaScript without types; generates schema-first validation with z.infer, creates discriminated unions and branded types, defines strict interfaces and type guards, and enforces immutable patterns with readonly."
 ---
 
 # TypeScript Best Practices
@@ -25,60 +25,26 @@ Production-grade TypeScript development with schema-first design, strict type sa
 | Branded types, utility types, code smells reference                    | [utilities.md](references/utilities.md)               |
 | Common TypeScript patterns with examples                               | [patterns.md](references/patterns.md)                 |
 
-## When to Use Each Guide
+## Inline Example: Schema-First Pattern
 
-### Schemas
+```typescript
+import { z } from "zod";
 
-Use [schemas.md](references/schemas.md) when you need:
+// 1. Define schema at trust boundary
+const UserSchema = z.object({
+  id: z.string().brand<"UserId">(),
+  email: z.string().email(),
+  role: z.enum(["admin", "member"]),
+});
 
-- Schema-first development patterns
-- Decision framework: when schema is required vs optional
-- Trust boundary identification
-- Test data factory patterns with schema validation
-- Examples of schema usage (API responses, business validation)
+// 2. Derive type from schema
+type User = z.infer<typeof UserSchema>;
 
-### Types and Interfaces
-
-Use [types-interfaces.md](references/types-interfaces.md) when you need:
-
-- Type vs interface guidance
-- The any vs unknown decision
-- Type assertion best practices
-- Strict mode configuration
-- tsconfig.json settings
-
-### Immutability
-
-Use [immutability.md](references/immutability.md) when you need:
-
-- Immutability patterns (spread operators)
-- Readonly modifiers
-- Forbidden array methods reference
-- Options objects vs positional parameters
-- Boolean parameter anti-patterns
-- Result types for error handling
-- Early return patterns
-
-### Utilities
-
-Use [utilities.md](references/utilities.md) when you need:
-
-- Branded types for domain concepts
-- Built-in utility types (Pick, Omit, Partial, etc.)
-- Custom utility types
-- Code smell reference tables
-
-### Patterns
-
-Use [patterns.md](references/patterns.md) when you need:
-
-- Schema-first examples at trust boundaries
-- Internal type examples without schemas
-- Schema with test factory patterns
-- Result type for error handling
-- Branded types for domain safety
-- Immutable array operations
-- Options object pattern
+// 3. Validate at boundary, trust internally
+function parseUser(raw: unknown): User {
+  return UserSchema.parse(raw);
+}
+```
 
 ## Quick Reference: Decision Trees
 

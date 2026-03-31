@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: WHEN working in TDD Red-Green-Refactor; NOT ad-hoc coding; write tests first, add minimal code to green, then assess refactoring.
+description: "WHEN working in test-driven development with Red-Green-Refactor; NOT for ad-hoc coding or retrofitting tests; writes failing test cases first, implements minimal passing code, assesses refactoring opportunities, uses factory functions for test data, and enforces behavior-focused testing through public APIs."
 ---
 
 # TDD Best Practices
@@ -59,49 +59,23 @@ With tests green, assess whether refactoring would add value.
 | Critical violations, high priority issues, style improvements    | [violations.md](references/violations.md)               |
 | Behavior testing patterns, test naming, and organization         | [patterns.md](references/patterns.md)                   |
 
-## When to Use Each Guide
+## Inline Example: One TDD Cycle
 
-### Workflow Examples
+```typescript
+// RED — describe desired behavior
+test("applies 10% discount for orders over $100", () => {
+  const order = createOrder({ items: [{ price: 150 }] });
+  expect(calculateTotal(order)).toBe(135);
+});
 
-Use [workflow-examples.md](references/workflow-examples.md) when you need:
+// GREEN — minimal implementation
+function calculateTotal(order: Order): number {
+  const subtotal = order.items.reduce((sum, i) => sum + i.price, 0);
+  return subtotal > 100 ? subtotal * 0.9 : subtotal;
+}
 
-- Complete TDD workflow examples (free shipping, payment validation)
-- Step-by-step RED-GREEN-REFACTOR cycles
-- When to refactor vs when to move on
-- Refactoring assessment criteria
-- Refactoring rules (commit first, preserve API, etc.)
-
-### Test Factories
-
-Use [test-factories.md](references/test-factories.md) when you need:
-
-- Factory function patterns with overrides
-- Why factories beat let/beforeEach
-- Composing factories for complex data
-- Test organization by behavior
-- No 1:1 mapping between tests and implementation
-- Achieving 100% coverage through behavior testing
-
-### Violations
-
-Use [violations.md](references/violations.md) when you need:
-
-- Critical violations reference (production code without test, etc.)
-- High priority issues (let/beforeEach, testing privates, etc.)
-- Style issues (large files, duplication, magic values)
-- Behavior vs implementation examples
-- Quality gates checklist
-
-### Patterns
-
-Use [patterns.md](references/patterns.md) when you need:
-
-- Behavior-focused testing examples
-- Testing through public APIs only
-- Factory patterns with schema validation
-- Composing factories for complex data
-- Descriptive test naming patterns
-- Test organization by business behavior
+// REFACTOR — extract threshold/rate if needed, commit first
+```
 
 ## Quick Reference: Decision Trees
 
