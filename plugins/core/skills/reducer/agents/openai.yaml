@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reducer"
+  short_description: "Reduce system complexity without changing behavior"
+  default_prompt: "Use $reducer to simplify this feature from first principles while preserving behavior and non-functional guarantees."

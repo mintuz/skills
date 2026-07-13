@@ -1,10 +1,10 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-Claude Code plugin marketplace containing seven plugins for software development and personal productivity workflows:
+Codex plugin marketplace containing seven plugins for software development and personal productivity workflows:
 
 - **core** – memory, commit hygiene, refactoring, prompt refinement, and branch review
 - **web** – CSS, React, Tailwind, testing, refactoring, and design practices
@@ -16,45 +16,45 @@ Claude Code plugin marketplace containing seven plugins for software development
 
 ## Plugin Architecture
 
-Plugins extend Claude Code with three types of content:
+Plugins extend Codex with three types of content:
 
 1. **Agents** - Autonomous subprocesses with specialized tools and context (defined in `agents/*.md`)
 2. **Skills** - Knowledge bases that load into context (defined in `skills/*/SKILL.md`)
 3. **Commands** - Slash commands for quick actions (defined in `commands/*.md`)
 
-The marketplace registry (`.claude-plugin/marketplace.json`) indexes all plugins, while each plugin's manifest (`plugin.json`) defines metadata. Skills listed in marketplace.json become user-invocable (e.g., `/skill core:commit-messages`), while unlisted skills are only loaded by other skills or agents.
+The marketplace registry (`.Codex-plugin/marketplace.json`) indexes all plugins, while each plugin's manifest (`plugin.json`) defines metadata. Skills listed in marketplace.json become user-invocable (e.g., `/skill core:commit-messages`), while unlisted skills are only loaded by other skills or agents.
 
 ## Repository Structure
 
 ```
-.claude-plugin/marketplace.json    # Marketplace registry (plugin metadata)
+.Codex-plugin/marketplace.json    # Marketplace registry (plugin metadata)
 plugins/
   core/
-    .claude-plugin/plugin.json
+    .Codex-plugin/plugin.json
     agents/                        # compare-branch, prompt-master, refactor
     commands/                      # init, remember, recall, spec-from-issue
     skills/                        # commit-messages, expectations, learn, pr, writing
   web/
-    .claude-plugin/plugin.json
+    .Codex-plugin/plugin.json
     skills/                        # css, frontend-testing, react, react-testing, refactoring, tdd, web-design
   typescript/
-    .claude-plugin/plugin.json
+    .Codex-plugin/plugin.json
     skills/                        # typescript-best-practices
   system-design/
-    .claude-plugin/plugin.json
+    .Codex-plugin/plugin.json
     agents/                        # mermaid-generator
   product-management/
-    .claude-plugin/plugin.json
+    .Codex-plugin/plugin.json
     agents/                        # prd-creator, status-updates
   app/
-    .claude-plugin/plugin.json
+    .Codex-plugin/plugin.json
     skills/                        # app-intent-driven-development, swift-testing
 ```
 
 Each plugin follows this structure:
 ```
 plugins/[plugin-name]/
-  .claude-plugin/plugin.json       # Plugin manifest (name, version, description)
+  .Codex-plugin/plugin.json       # Plugin manifest (name, version, description)
   agents/                          # Agent definitions (*.md files with YAML frontmatter)
   skills/[skill-name]/SKILL.md     # Knowledge bases
   commands/                        # Slash commands (*.md files)
@@ -115,7 +115,7 @@ Knowledge base content...
 
 ## Available Content Snapshot
 
-- **core:** agents `compare-branch`, `prompt-master`, `refactor`; commands `@init`, `/remember`, `/recall`, `/spec-from-issue`; skills `commit-messages`, `expectations`, `learn`, `pr`, `reducer`, `writing`, `prompt-master`
+- **core:** agents `compare-branch`, `prompt-master`, `refactor`; commands `@init`, `/remember`, `/recall`, `/spec-from-issue`; skills `commit-messages`, `expectations`, `learn`, `pr`, `writing`, `prompt-master`
 - **web:** skills `css`, `frontend-testing`, `react`, `react-testing`, `refactoring`, `tdd`, `web-design`, `tailwind`, `eyes`, `chatgpt-app-sdk`
 - **typescript:** skill `typescript-best-practices`
 - **system-design:** agent `mermaid-generator`
@@ -132,8 +132,8 @@ Knowledge base content...
 **New Command:** Create `.md` in `plugins/[plugin]/commands/`
 
 **New Plugin:**
-1. Create `plugins/[plugin-name]/.claude-plugin/plugin.json` with name, version, description, author, repository, license, keywords
-2. Add entry to `.claude-plugin/marketplace.json`:
+1. Create `plugins/[plugin-name]/.Codex-plugin/plugin.json` with name, version, description, author, repository, license, keywords
+2. Add entry to `.Codex-plugin/marketplace.json`:
    ```json
    {
      "name": "plugin-name",

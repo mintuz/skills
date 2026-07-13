@@ -15,6 +15,7 @@
         "./skills/expectations",
         "./skills/learn",
         "./skills/pr",
+        "./skills/reducer",
         "./skills/writing",
         "./skills/prompt-master"
       ]

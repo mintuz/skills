@@ -40,6 +40,7 @@ Custom agents, skills, and commands for software development workflows.
 | `expectations`    | Working expectations and documentation practices                                             |
 | `learn`           | Document learnings and capture insights into CLAUDE.md                                       |
 | `pr`              | PR descriptions, sizing, and creation with gh CLI                                            |
+| `reducer`         | First-principles system simplification with behavioral equivalence proofs                    |
 | `writing`         | Developer-focused writing: tutorials, how-tos, docs with clear structure                     |
 | `prompt-master`   | Transform simple prompts into comprehensive, XML-tagged instructions with roles and examples |
 
