@@ -41,6 +41,7 @@ Custom agents, skills, and commands for software development workflows.
 | `learn`           | Document learnings and capture insights into CLAUDE.md                                       |
 | `pr`              | PR descriptions, sizing, and creation with gh CLI                                            |
 | `reducer`         | First-principles system simplification with behavioral equivalence proofs                    |
+| `ship-pr`         | Commit, publish, repair, and monitor a GitHub pull request through merge                      |
 | `writing`         | Developer-focused writing: tutorials, how-tos, docs with clear structure                     |
 | `prompt-master`   | Transform simple prompts into comprehensive, XML-tagged instructions with roles and examples |
 
