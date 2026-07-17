@@ -115,7 +115,7 @@ Knowledge base content...
 
 ## Available Content Snapshot
 
-- **core:** agents `compare-branch`, `prompt-master`, `refactor`; commands `@init`, `/remember`, `/recall`, `/spec-from-issue`; skills `commit-messages`, `expectations`, `learn`, `pr`, `reducer`, `writing`, `prompt-master`
+- **core:** agents `compare-branch`, `prompt-master`, `refactor`; commands `@init`, `/remember`, `/recall`, `/spec-from-issue`; skills `commit-messages`, `expectations`, `learn`, `pr`, `reducer`, `ship-pr`, `writing`, `prompt-master`
 - **web:** skills `css`, `frontend-testing`, `react`, `react-testing`, `refactoring`, `tdd`, `web-design`, `tailwind`, `eyes`, `chatgpt-app-sdk`
 - **typescript:** skill `typescript-best-practices`
 - **system-design:** agent `mermaid-generator`
