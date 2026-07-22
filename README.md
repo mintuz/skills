@@ -36,6 +36,7 @@ Custom agents, skills, and commands for software development workflows.
 
 | Skill             | Description                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------- |
+| `accept-review`    | Verify code against acceptance criteria with evidence and an explicit verdict               |
 | `commit-messages` | Conventional commit messages that explain the "why" not just the "what"                      |
 | `expectations`    | Working expectations and documentation practices                                             |
 | `learn`           | Document learnings and capture insights into CLAUDE.md                                       |
