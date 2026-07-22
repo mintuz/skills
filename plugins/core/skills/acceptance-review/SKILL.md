@@ -1,5 +1,5 @@
 ---
-name: accept-review
+name: acceptance-review
 description: WHEN verifying whether a PR, branch, current code, or diff satisfies a GitHub issue, specification, acceptance criteria, or stated outcome; NOT for general code review, diff explanation, or implementation; returns a criterion-by-criterion evidence matrix and verdict.
 ---
 

@@ -11,7 +11,7 @@
       "source": "./plugins/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
-        "./skills/accept-review",
+        "./skills/acceptance-review",
         "./skills/commit-messages",
         "./skills/expectations",
         "./skills/learn",

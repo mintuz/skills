@@ -1,4 +1,0 @@
-interface:
-  display_name: "Acceptance Review"
-  short_description: "Verify implementation against acceptance criteria"
-  default_prompt: "Use $accept-review to verify this branch against the linked issue and report criterion-by-criterion evidence."
