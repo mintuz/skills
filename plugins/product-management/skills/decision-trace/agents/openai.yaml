@@ -1,0 +1,4 @@
+interface:
+  display_name: "Decision Trace"
+  short_description: "Trace decisions from source to current code"
+  default_prompt: "Use $decision-trace to trace this claimed decision from its source through product artifacts and current implementation."
