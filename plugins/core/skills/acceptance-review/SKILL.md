@@ -1,60 +1,57 @@
 ---
 name: acceptance-review
-description: WHEN verifying whether a PR, branch, current code, or diff satisfies a GitHub issue, specification, acceptance criteria, or stated outcome; NOT for general code review, diff explanation, or implementation; returns a criterion-by-criterion evidence matrix and verdict.
+description: WHEN deciding whether a PR, branch, diff, or current code fulfills an issue or specification; NOT for general code review, explanation, or implementation; builds an acceptance contract, proves each criterion, and returns a verdict.
 ---
 
 # Acceptance Review
 
-Verify behavior against an acceptance contract in a read-only pass. If the user also requests fixes, finish and report the review first, then hand the gaps to the applicable implementation workflow.
+Treat the authoritative requirement as a contract and prove it against the implementation. Keep the review read-only; hand requested fixes to an implementation workflow after the verdict.
 
-## 1. Establish the contract
+## 1. Build the contract
 
-Identify the review subject and comparison base, when applicable. Read the authoritative issue, specification, linked decisions, repository instructions, and stated exclusions.
+Resolve the subject, comparison base, authoritative issue or specification, repository rules, linked decisions, and stated exclusions.
 
-Convert every normative requirement into an independently decidable criterion. Preserve source identifiers and wording; split combined requirements only where their outcomes can differ. Record the observable outcome, required surfaces and edge cases, source, assumptions, and exclusions.
+Map every normative statement to one independently decidable criterion. Preserve its source identifier and meaning; split combined statements when their outcomes can differ. Record the observable outcome, affected surfaces and edge cases, assumptions, and exclusions.
 
-**Complete when:** every in-scope requirement appears exactly once in the contract and every ambiguity is explicit.
+**Complete when:** every in-scope normative statement maps exactly once and every ambiguity or exclusion is visible.
 
-## 2. Trace the evidence
+## 2. Build the proof
 
-Inspect the subject, relevant changes, and production code. For each criterion:
+For each criterion, trace the real production path from entry point through state, boundaries, errors, and observable outcome. Search every caller, implementation, and sibling surface that shares the behavior. Compare with the base only to establish regression.
 
-- Trace the real entry point through state, integrations, errors, and user-visible outcomes.
-- Search every caller, implementation, and sibling surface sharing the affected behavior.
-- Compare with the base only when deciding whether behavior regressed.
-- Cite precise files and lines; cite tests by file and case name.
+Keep three evidence lanes:
 
-Keep evidence in separate lanes:
+| Lane | What counts |
+|---|---|
+| Implementation | Production wiring that can produce the outcome |
+| Verification | Executed checks or runtime observations; name the command and result |
+| Claim | Issue/PR prose, commits, names, and comments; intent only, never behavioral proof |
 
-- **Implementation:** production wiring that can produce the required outcome.
-- **Verification:** inspected tests and executed commands or runtime observations; distinguish test presence from a passing run.
-- **Claims:** issue or PR prose, commit messages, names, and comments. Use these for intent, never as proof of behavior.
+Cite the exact file and line for code, and the file and case name for tests. Test presence is not a passing result.
 
-**Complete when:** every criterion has a traced production path or an explicit missing path, and each citation directly supports the criterion.
+**Complete when:** every criterion has a complete traced path or a named break, and every citation directly supports its row.
 
-## 3. Check proportionally
+## 3. Exercise the contract
 
-Run the smallest checks that exercise each observable outcome. Start focused; broaden for shared code, cross-surface behavior, regressions, or higher-risk boundaries. Record each command, result, and what it proves.
+Run the smallest check that exercises each observable outcome. Broaden only for shared code, cross-surface behavior, regression risk, or high-risk boundaries. Record what each result proves. Keep the subject unchanged; make unavailable checks explicit.
 
-Keep the reviewed subject unchanged. If a check is unavailable or cannot run, record why and leave the affected behavior unresolved.
-
-**Complete when:** every criterion has executed evidence, decisive static evidence, or an explicit verification gap.
+**Complete when:** every criterion has executed evidence, decisive static evidence, or a named verification gap.
 
 ## 4. Decide
 
-Assign exactly one status to each criterion:
-
-- **Covered:** the complete production flow supports the criterion and proportionate checks pass; decisive static evidence may substitute when execution adds no information.
-- **Partial:** only some required outcomes, surfaces, or edge cases are supported.
-- **Missing:** the required production flow is absent or disconnected.
-- **Regressed:** comparison evidence establishes that the subject broke previously supported behavior.
-- **Untested:** implementation appears plausible, but neither execution nor static evidence decides the outcome.
+| Status | Meaning |
+|---|---|
+| Covered | The complete production path supports the criterion and proportionate evidence passes |
+| Partial | Some required outcomes, surfaces, or edge cases are unsupported |
+| Missing | The production path is absent or disconnected |
+| Regressed | Comparison evidence proves previously supported behavior broke |
+| Unverified | Available implementation or execution evidence cannot decide the outcome |
 
 Set the overall verdict:
 
 - **Satisfies** only when every criterion is covered.
 - **Does not satisfy** when any criterion is partial, missing, or regressed.
-- **Indeterminate** when no criterion fails but at least one remains untested.
+- **Indeterminate** otherwise.
 
 ## Report
 
@@ -63,4 +60,4 @@ Lead with the verdict, subject, base, and authoritative sources. Then provide:
 | ID | Criterion | Status | Implementation evidence | Verification evidence |
 |----|-----------|--------|-------------------------|-----------------------|
 
-List claims separately when they clarify intent. Follow with gaps, failed or unavailable checks, and the minimum next evidence or implementation needed. Keep unrelated code-review findings out of the report.
+List claims only when they clarify intent. Follow with gaps, unavailable checks, and the minimum evidence or implementation needed to close each row. Keep general code-review findings outside this report.
