@@ -26,7 +26,7 @@ Custom agents, skills, and commands for software development workflows.
 | **web**                | Web development with CSS, React, Tailwind, TDD, testing, and design patterns                 |
 | **typescript**         | TypeScript strict mode, schema-first development, and best practices                         |
 | **system-design**      | Architecture visualization with Mermaid diagrams                                             |
-| **product-management** | PRDs, task management with Task Master MCP, and status updates                               |
+| **product-management** | PRDs, task management, decision tracing, and status updates                                  |
 | **app**                | Swift iOS development with App Intents, Swift Testing, and SwiftUI architecture              |
 | **life**               | Personal life management with GPS method for goal achievement                                |
 
@@ -89,9 +89,10 @@ No standalone skills; see the `mermaid-generator` agent below.
 
 ### Product Management
 
-| Skill            | Description                                                                 |
-| ---------------- | --------------------------------------------------------------------------- |
-| `status-updates` | Team updates and stakeholder comms with scannable structure and honest tone |
+| Skill            | Description                                                                       |
+| ---------------- | --------------------------------------------------------------------------------- |
+| `decision-trace` | Trace claimed decisions from source evidence through artifacts and current code  |
+| `status-updates` | Team updates and stakeholder comms with scannable structure and honest tone       |
 
 ## Agents
 

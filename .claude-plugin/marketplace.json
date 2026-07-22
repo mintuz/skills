@@ -35,7 +35,7 @@
       "name": "product-management",
       "source": "./plugins/product-management",
       "description": "Agents and skills that are specialised in Product Management workflows",
-      "skills": ["./skills/status-updates"]
+      "skills": ["./skills/status-updates", "./skills/decision-trace"]
     },
     {
       "name": "web",
