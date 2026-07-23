@@ -1,48 +1,61 @@
 # TDD Workflow Examples
 
-## Example 1: Adding Free Shipping Feature
+Read this reference when a concrete feature or defect transcript is needed. The commands are illustrative; use the repository's runner and selectors.
 
-**Step 1: RED - Write failing test for simplest behavior**
+## Add one behavior at a time
+
+Requested behavior:
+
+- orders below or at £50 keep their shipping charge;
+- orders above £50 receive free shipping.
+
+Inventory both outcomes, then select the ordinary paid-shipping slice.
+
+### Red 1
 
 ```typescript
-it("should calculate total with shipping cost", () => {
-  const order = getMockOrder({ subtotal: 30, shippingCost: 5.99 });
+it("charges shipping for an order at £50", () => {
+  const result = processOrder(order({ subtotal: 50, shippingCost: 5 }));
 
-  const result = processOrder(order);
-
-  expect(result.total).toBe(35.99);
-  expect(result.shippingCost).toBe(5.99);
+  expect(result.total).toBe(55);
 });
 ```
 
-**Step 2: GREEN - Minimal implementation**
-
-```typescript
-const processOrder = (order: Order): ProcessedOrder => {
-  return {
-    ...order,
-    total: order.subtotal + order.shippingCost,
-  };
-};
+```text
+$ test process-order --test-name-pattern "at £50"
+Expected: 55
+Received: 50
 ```
 
-**Step 3: RED - Add test for free shipping behavior**
+The test reaches its assertion and fails because paid shipping is absent.
+
+### Green 1
 
 ```typescript
-it("should apply free shipping for orders over £50", () => {
-  const order = getMockOrder({ subtotal: 60, shippingCost: 5.99 });
-
-  const result = processOrder(order);
-
-  expect(result.shippingCost).toBe(0);
-  expect(result.total).toBe(60);
+export const processOrder = (order: Order): ProcessedOrder => ({
+  ...order,
+  total: order.subtotal + order.shippingCost,
 });
 ```
 
-**Step 4: GREEN - Add conditional (now both paths tested)**
+The targeted test and affected order suite pass. Return to the inventory and select free shipping.
+
+### Red 2
 
 ```typescript
-const processOrder = (order: Order): ProcessedOrder => {
+it("applies free shipping above £50", () => {
+  const result = processOrder(order({ subtotal: 51, shippingCost: 5 }));
+
+  expect(result).toMatchObject({ shippingCost: 0, total: 51 });
+});
+```
+
+The new test fails with `shippingCost: 5` and `total: 56`; the earlier test remains Green.
+
+### Green 2
+
+```typescript
+export const processOrder = (order: Order): ProcessedOrder => {
   const shippingCost = order.subtotal > 50 ? 0 : order.shippingCost;
 
   return {
@@ -53,157 +66,50 @@ const processOrder = (order: Order): ProcessedOrder => {
 };
 ```
 
-**Step 5: RED - Add edge case test**
+Both slices pass. The `> 50` boundary is demanded by the two tests; another abstraction is not.
+
+### Refactor decision
+
+The rule has one owner and the function is clear: **no refactor needed**. Run the relevant configured checks and report both cycles.
+
+## Reproduce a defect
+
+Reported defect: a declined gateway response is returned as a successful payment.
+
+### Red
+
+Use the public payment API and the existing gateway fake:
 
 ```typescript
-it("should charge shipping for orders exactly at £50", () => {
-  const order = getMockOrder({ subtotal: 50, shippingCost: 5.99 });
+it("returns a decline when the gateway declines the payment", async () => {
+  gateway.declineWith("insufficient funds");
 
-  const result = processOrder(order);
+  const result = await pay(payment());
 
-  expect(result.shippingCost).toBe(5.99);
-  expect(result.total).toBe(55.99);
+  expect(result).toEqual({
+    ok: false,
+    reason: "insufficient funds",
+  });
 });
 ```
 
-**Step 6: REFACTOR - Extract constant (if valuable)**
+The diagnostic Red state is a resolved success result. A thrown fixture error or an unconfigured gateway is test setup failure and must be repaired before production changes.
 
-```typescript
-const FREE_SHIPPING_THRESHOLD = 50;
+### Green
 
-const qualifiesForFreeShipping = (subtotal: number): boolean => {
-  return subtotal > FREE_SHIPPING_THRESHOLD;
-};
+Change the shared response-mapping owner so every caller receives the declined result. Run the regression test, the existing successful-payment test, and the affected payment suite.
 
-const processOrder = (order: Order): ProcessedOrder => {
-  const shippingCost = qualifiesForFreeShipping(order.subtotal)
-    ? 0
-    : order.shippingCost;
+### Refactor decision
 
-  return {
-    ...order,
-    shippingCost,
-    total: order.subtotal + shippingCost,
-  };
-};
-```
+Assess structure only after those contracts are Green. If response mapping now duplicates live domain knowledge, preserve a Green checkpoint and use `refactoring`; otherwise record “no refactor needed.”
 
-## Example 2: Payment Validation
+## Evidence record
 
-**RED → GREEN → RED → GREEN pattern:**
+For either example, a complete report can be compact:
 
-```typescript
-// Test 1: RED
-it("should process valid payments", () => {
-  const payment = getMockPayment({ amount: 100 });
-  const result = processPayment(payment);
+| Slice | Red | Green | Refactor |
+| --- | --- | --- | --- |
+| Shipping at £50 | targeted test failed `50 != 55` | target and order suite passed | no refactor needed |
+| Free shipping above £50 | targeted test failed with shipping `5` | target and order suite passed | no refactor needed |
 
-  expect(result.success).toBe(true);
-});
-
-// GREEN: Minimal implementation
-const processPayment = (payment: Payment): Result<Receipt> => {
-  return { success: true, data: { id: "receipt-123" } };
-};
-
-// Test 2: RED
-it("should reject payments with negative amounts", () => {
-  const payment = getMockPayment({ amount: -100 });
-  const result = processPayment(payment);
-
-  expect(result.success).toBe(false);
-  expect(result.error.message).toBe("Invalid amount");
-});
-
-// GREEN: Add validation
-const processPayment = (payment: Payment): Result<Receipt> => {
-  if (payment.amount < 0) {
-    return { success: false, error: new Error("Invalid amount") };
-  }
-  return { success: true, data: { id: "receipt-123" } };
-};
-
-// Test 3: RED
-it("should reject payments with zero amount", () => {
-  const payment = getMockPayment({ amount: 0 });
-  const result = processPayment(payment);
-
-  expect(result.success).toBe(false);
-});
-
-// GREEN: Adjust condition
-const processPayment = (payment: Payment): Result<Receipt> => {
-  if (payment.amount <= 0) {
-    return { success: false, error: new Error("Invalid amount") };
-  }
-  return { success: true, data: { id: "receipt-123" } };
-};
-```
-
-## The RED-GREEN-REFACTOR Cycle
-
-### RED - Write a Failing Test
-
-Write a test that describes the desired behavior. The test must fail because the behavior doesn't exist yet.
-
-**Rules:**
-- Start with the simplest behavior
-- Test ONE thing at a time
-- Focus on business behavior, not implementation
-- Use descriptive test names that document intent
-- Use factory functions for test data
-
-### GREEN - Minimal Implementation
-
-Write the **minimum** code to make the test pass. Nothing more.
-
-**Rules:**
-- Only enough code to pass the current test
-- Resist "just in case" logic
-- No speculative features
-- If writing more than needed, STOP and question why
-
-### REFACTOR - Assess and Improve
-
-With tests green, assess whether refactoring would add value.
-
-**Rules:**
-- Commit working code FIRST
-- External APIs stay unchanged
-- All tests must still pass
-- Commit refactoring separately
-- Not all code needs refactoring - if clean, move on
-
-## Refactoring Assessment
-
-### When to Refactor
-
-After tests are green, assess whether refactoring would add value:
-
-| Signal | Refactoring Action |
-| --- | --- |
-| Magic numbers repeated | Extract named constants |
-| Unclear names | Improve naming |
-| Complex logic | Extract functions |
-| Knowledge duplication | Create single source of truth |
-| Nested structure | Use early returns |
-| Long functions | Split into smaller functions |
-
-### When NOT to Refactor
-
-Not all code needs refactoring. If the code is already clean:
-
-- Clear function names ✓
-- No magic numbers ✓
-- Simple structure ✓
-- Self-documenting ✓
-
-Then commit and move to the next test.
-
-### Refactoring Rules
-
-1. **Commit working code FIRST** - Never refactor uncommitted code
-2. **Keep tests green** - All tests must pass throughout
-3. **Preserve external API** - Don't change public interfaces
-4. **Commit refactoring separately** - Clean git history
-5. **Small steps** - Refactor incrementally
+Record real commands and outcomes for the repository under change.

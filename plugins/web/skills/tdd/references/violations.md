@@ -1,172 +1,46 @@
-# Common TDD Violations and Code Smells
+# TDD Audit Evidence and Violations
 
-## Critical Violations (Must Fix)
+Read this reference when reviewing whether completed work followed TDD or when a Red-Green cycle cannot produce trustworthy evidence.
 
-| Violation | Problem | Fix |
+## Require temporal evidence
+
+A final test and production diff can prove coverage, but not test-first chronology. Establish sequence from commits, saved command output, CI jobs, or a reproducible test applied to the pre-change production revision. Classify chronology as **unverified** when that evidence is unavailable.
+
+Map every changed production behavior to its public test before judging the cycle.
+
+## Classify findings
+
+| Priority | Evidence | Correction |
 | --- | --- | --- |
-| Production code without failing test | Core TDD principle broken | Delete code, write test first |
-| Multiple tests before making first pass | Batching, not TDD | Focus on one test at a time |
-| More code than needed | Over-engineering | Remove excess, only pass current test |
-| Implementation-focused tests | Brittle, don't verify behavior | Rewrite to test outcomes |
+| Critical | Production behavior changed with evidence that its test was written or run only after implementation | Recreate the pre-change state, establish diagnostic Red, then implement from that test |
+| Critical | The claimed Red failure is syntax, import, fixture, environment, or unrelated baseline failure | Repair the test path until the behavior assertion fails |
+| Critical | Green leaves the targeted or previously passing affected tests failing | Restore the last Green state and satisfy the current slice |
+| High | One Red step batches independent behaviors, so the implementation demanded by each cannot be identified | Split the batch into one behavior slice per cycle |
+| High | Production code remains that no current or previously green behavior test requires | Remove it or introduce the missing behavior through its own Red cycle |
+| High | A test proves a private method or wiring choice instead of the changed public outcome | Move the assertion to the public behavior boundary |
+| High | Refactoring begins without a Green checkpoint or changes observable behavior | Restore Green and route the structural change through `refactoring` |
+| Medium | Shared mutable setup lets order or mutation affect another test | Create fresh data and harness state per test |
 
-### Production Code Without Failing Test
+Style preferences, file layout, coverage percentage, and test count are not TDD chronology evidence by themselves.
 
-**The core TDD principle:** Every single line of production code must be written in response to a failing test.
+## Diagnose the broken phase
 
-```typescript
-// ❌ WRONG - Writing production code first
-const calculateDiscount = (order: Order): number => {
-  if (order.total > 100) {
-    return order.total * 0.1;
-  }
-  return 0;
-};
-
-// ✅ CORRECT - Write the test first
-it("should apply 10% discount for orders over £100", () => {
-  const order = getMockOrder({ total: 150 });
-  const discount = calculateDiscount(order);
-  expect(discount).toBe(15);
-});
-
-// Then write minimal implementation to pass
-const calculateDiscount = (order: Order): number => {
-  if (order.total > 100) {
-    return order.total * 0.1;
-  }
-  return 0;
-};
-```
-
-## High Priority Issues
-
-| Issue | Problem | Fix |
+| Symptom | Broken phase | Evidence to seek |
 | --- | --- | --- |
-| Using `let`/`beforeEach` | Shared mutable state | Use factory functions |
-| Testing private methods | Coupling to implementation | Test through public API |
-| `any` types in tests | Type safety disabled | Use proper types |
-| Missing edge case tests | Incomplete coverage | Add boundary tests |
-| Vague test names | Poor documentation | Use behavior-focused names |
+| New test passes on the old production revision | Red | The slice already existed or the assertion cannot observe it |
+| New test fails before reaching its assertion | Red | Test infrastructure failure rather than behavior gap |
+| Target passes but sibling behavior regresses | Green | The implementation satisfied one example by breaking an earlier contract |
+| Diff contains unrelated policy or abstraction | Green | Production beyond the current test's demand |
+| Tests change to accommodate a structural refactor | Refactor | Observable contract may have changed |
 
-### Testing Implementation Details
+## Report with bounded claims
 
-```typescript
-// ❌ WRONG - Tests implementation details
-it("should call validatePaymentAmount", () => {
-  const spy = jest.spyOn(validator, "validateAmount");
-  processPayment(payment);
+For each finding, cite:
 
-  expect(spy).toHaveBeenCalled(); // Who cares if it's called?
-});
+- changed behavior and production owner;
+- public test or missing test;
+- Red and Green evidence, or the exact evidence gap;
+- consequence;
+- smallest correction.
 
-it("should use the PaymentGateway class", () => {
-  // Testing internal wiring, not behavior
-});
-
-// ✅ CORRECT - Tests business behavior
-it("should reject payments with negative amounts", () => {
-  const payment = getMockPayment({ amount: -100 });
-  const result = processPayment(payment);
-
-  expect(result.success).toBe(false);
-  expect(result.error.message).toBe("Invalid amount");
-});
-
-it("should apply free shipping for orders over £50", () => {
-  const order = getMockOrder({ subtotal: 60, shippingCost: 5.99 });
-  const result = processOrder(order);
-
-  expect(result.shippingCost).toBe(0);
-  expect(result.total).toBe(60);
-});
-```
-
-### Testing Through Public APIs Only
-
-Tests should only interact with the public interface. Internal methods and state are invisible to tests.
-
-```typescript
-// ✅ GOOD - Uses public API
-const result = orderProcessor.processOrder(order);
-expect(result.status).toBe("completed");
-
-// ❌ BAD - Accesses internals
-expect(orderProcessor._internalState.validated).toBe(true);
-expect(orderProcessor.privateValidate).toHaveBeenCalled();
-```
-
-## Style Issues
-
-| Issue | Problem | Fix |
-| --- | --- | --- |
-| Large test files | Hard to navigate | Organize by behavior |
-| Test duplication | Maintenance burden | Extract shared factories |
-| Magic values in tests | Unclear intent | Use named constants or clear values |
-
-### Descriptive Test Names
-
-Test names should document business behavior, not implementation steps.
-
-```typescript
-// ✅ GOOD - Documents behavior
-"should reject payments with negative amounts"
-"should apply free shipping for orders over £50"
-"should charge shipping for orders exactly at £50"
-"should calculate tax based on shipping address"
-
-// ❌ BAD - Describes implementation
-"should call validateAmount method"
-"should set isValid to true"
-"should use the correct formula"
-"should invoke the callback"
-```
-
-## Behavior-Focused Testing Principles
-
-### Test Behavior, Not Implementation
-
-Tests should verify WHAT the code does, not HOW it does it.
-
-```typescript
-// ✅ GOOD - Tests business behavior
-it("should reject payments with negative amounts", () => {
-  const payment = getMockPayment({ amount: -100 });
-  const result = processPayment(payment);
-
-  expect(result.success).toBe(false);
-  expect(result.error.message).toBe("Invalid amount");
-});
-
-it("should apply free shipping for orders over £50", () => {
-  const order = getMockOrder({ subtotal: 60, shippingCost: 5.99 });
-  const result = processOrder(order);
-
-  expect(result.shippingCost).toBe(0);
-  expect(result.total).toBe(60);
-});
-
-// ❌ BAD - Tests implementation details
-it("should call validatePaymentAmount", () => {
-  const spy = jest.spyOn(validator, "validateAmount");
-  processPayment(payment);
-
-  expect(spy).toHaveBeenCalled(); // Who cares if it's called?
-});
-
-it("should use the PaymentGateway class", () => {
-  // Testing internal wiring, not behavior
-});
-```
-
-## Quality Gates
-
-Before committing, verify:
-
-- ✅ All production code has a test that demanded it
-- ✅ Tests verify behavior, not implementation
-- ✅ Implementation is minimal (only what's needed)
-- ✅ Refactoring assessment completed
-- ✅ All tests pass
-- ✅ Factory functions used (no `let`/`beforeEach`)
-- ✅ Test names describe business behavior
-- ✅ Edge cases covered
+The audit is complete when every production behavior change is mapped, every chronology claim is proven or marked unverified, every broken phase is named, and unrelated test-style preferences are excluded.
