@@ -1,167 +1,84 @@
 ---
 name: react
-description: WHEN building React components/pages/apps; enforces scalable architecture, state management, API layer, performance patterns.
+description: WHEN building, changing, debugging, or reviewing React components, hooks, state, effects, data flow, or feature architecture; NOT for React test-only work or framework-specific server rendering and routing; uses local reasoning to preserve pure rendering, clear ownership, repository boundaries, and measured performance.
 ---
 
-# React Best Practices
+# React
 
-Production-grade React development with feature-based architecture, type-safe state management, and performance optimization.
+Use **local reasoning**: each component or Hook should be understandable from its inputs, owned state, rendered output, and explicit synchronization boundaries.
 
-## Core Principles
+## Choose the branch
 
-1. **Easy to get started with** - Clear patterns that new team members can follow
-2. **Simple to understand and maintain** - Readable code with obvious intent
-3. **Clean boundaries** - Clear separation between features and layers
-4. **Early issue detection** - Catch problems at build time, not runtime
-5. **Consistency** - Same patterns throughout the codebase
+| Request | Route |
+| --- | --- |
+| Build or change React UI | Follow all four steps |
+| Design or restructure a React feature | Follow all four steps and load the structure, component, and state references in step 2 |
+| Debug or review React code | Follow all four steps read-only; edit only when implementation is in scope |
+| Investigate React performance | Reproduce and measure in step 1, then load the performance reference |
+| Write or change React tests only | Load `react-testing` for React setup and `frontend-testing` for rendered DOM behavior |
+| Change server components, routing, loaders, or framework data flow | Follow the repository's framework conventions; apply this skill to the client React subtree |
 
-## Quick Reference
+## 1. Establish the render contract
 
-| Topic                                | Guide                                                         |
-| ------------------------------------ | ------------------------------------------------------------- |
-| Directory layout and feature modules | [project-structure.md](./references/project-structure.md)     |
-| Component design patterns            | [component-patterns.md](./references/component-patterns.md)   |
-| Compound components (Card pattern)   | [compound-components.md](./references/compound-components.md) |
-| State categories and solutions       | [state-management.md](./references/state-management.md)       |
-| API client and request structure     | [api-layer.md](./references/api-layer.md)                     |
-| Code splitting and optimization      | [performance.md](./references/performance.md)                 |
-| useEffect guidance and alternatives  | [useeffect.md](./references/useeffect.md)                     |
-| Testing pyramid and strategy         | [testing-strategy.md](./references/testing-strategy.md)       |
-| Project tooling standards            | [project-standards.md](./references/project-standards.md)     |
+Read the repository instructions, package versions, framework conventions, nearby components, callers, state and data boundaries, and affected tests. Reuse its component, styling, validation, data-fetching, error, and test patterns.
 
-## When to Use Each Guide
+For every component or Hook in scope, identify:
 
-### Project Structure
+- its public inputs and user-visible output;
+- the event or data change that updates it;
+- the closest owner for each state value;
+- each external system it synchronizes with;
+- its loading, empty, error, and success states where applicable.
 
-Use [project-structure.md](./references/project-structure.md) when you need:
+For a performance request, capture a reproducible symptom and baseline measurement before proposing an optimization.
 
-- Directory organization (app, features, components)
-- Feature module structure
-- Import architecture (unidirectional flow)
-- ESLint boundary enforcement
-- File naming conventions
+**Complete when:** every scoped component and Hook has a known render contract, owner, synchronization boundary, and existing coverage status.
 
-### Component Patterns
+## 2. Load only the matching reference
 
-Use [component-patterns.md](./references/component-patterns.md) when you need:
+Read every reference whose condition matches before choosing the design:
 
-- Colocation principles
-- Composition over props patterns
-- Wrapping third-party components
-- Avoiding nested render functions
+| Condition | Required reference |
+| --- | --- |
+| Placing a feature or enforcing import boundaries | [Project structure](references/project-structure.md) |
+| Designing a component API, composition, colocation, or dependency wrapper | [Component patterns](references/component-patterns.md) |
+| Building a multi-part shared component with coordinated subcomponents | [Compound components](references/compound-components.md) |
+| Choosing, lifting, sharing, or deriving state | [State management](references/state-management.md) |
+| Adding, changing, or removing an Effect | [Effects](references/useeffect.md) |
+| Defining API requests, server data, validation, authorization, or error boundaries | [API layer](references/api-layer.md) |
+| Addressing a measured render, loading, image, or bundle problem | [Performance](references/performance.md) |
+| Choosing test levels or coverage boundaries | [Testing strategy](references/testing-strategy.md), then load `react-testing` and `frontend-testing` for implementation |
+| Establishing or changing lint, format, typecheck, or commit tooling | [Project standards](references/project-standards.md) |
 
-### Compound Components
+Treat the repository's installed framework and libraries as the default. Use a reference's named dependency as an example unless that dependency already exists or the task explicitly includes adopting it.
 
-Use [compound-components.md](./references/compound-components.md) when you need:
+**Complete when:** every design decision is backed by repository precedent or a matching reference, and each new dependency or convention is explicitly in scope.
 
-- Multi-part components (Card, Accordion, etc.)
-- Flexible composition patterns
-- Semantic component structure
+## 3. Implement through React's boundaries
 
-### State Management
+Keep rendering pure and idempotent from props, state, and context. Treat props, state, Hook arguments, Hook results, and values passed to JSX as immutable snapshots. Call Hooks at the top level of React components or custom Hooks, and render components through JSX.
 
-Use [state-management.md](./references/state-management.md) when you need:
+Keep each state value with its closest owner, derive renderable values during render, and update event-driven state in the event that caused it. Use an Effect as an escape hatch for synchronizing with an external system; include every reactive dependency and return cleanup when the synchronization creates a subscription or resource.
 
-- State category decisions (component, application, server cache)
-- useState vs useReducer guidance
-- Server cache with React Query
-- State placement guidelines
+Expose the smallest component and feature API that supports current callers. Colocate feature-specific UI and logic, compose shared behavior at an existing boundary, and preserve semantic HTML, keyboard behavior, focus, accessible names, and visible feedback.
 
-### API Layer
+Preserve the repository's data and error boundaries. Represent every applicable loading, empty, error, and success state, and keep authorization enforcement at its trusted boundary even when the UI also hides unavailable actions.
 
-Use [api-layer.md](./references/api-layer.md) when you need:
+**Complete when:** every scoped render contract is implemented without duplicated state, hidden render side effects, broken Hook rules, or a new boundary that current behavior does not require.
 
-- API client configuration
-- Request structure (schema, fetcher, hook)
-- Error handling (interceptors, boundaries)
-- Security patterns (auth, sanitization, authorization)
+## 4. Prove the change
 
-### Performance
+Run the smallest affected test first, then the relevant test suite, typecheck, lint, and build commands available in the repository. For changed user-visible behavior, apply `react-testing` and `frontend-testing` and prove the behavior through the rendered DOM.
 
-Use [performance.md](./references/performance.md) when you need:
+Inspect every scoped component and Hook for:
 
-- Code splitting strategies
-- State optimization
-- Children optimization patterns
-- Styling performance
-- Image optimization
+- pure rendering and immutable inputs;
+- one owner for each state value;
+- Effects justified by an external system, with complete dependencies and cleanup;
+- loading, empty, error, and success behavior where applicable;
+- stable public APIs, repository import boundaries, and accessible interaction;
+- measured evidence for every performance optimization.
 
-### useEffect
+For review or debug-only work, return findings with file and behavior evidence. For implementation work, report the commands and outcomes.
 
-Use [useeffect.md](./references/useeffect.md) when you need:
-
-- When NOT to use useEffect (most cases)
-- When useEffect IS appropriate (external systems)
-- Dependency array rules
-- Alternatives to useEffect
-
-### Testing Strategy
-
-Use [testing-strategy.md](./references/testing-strategy.md) when you need:
-
-- Testing pyramid (prioritize integration over unit)
-- What to test at each level (unit, integration, E2E)
-- Testing Library principles (query by accessible names)
-
-### Project Standards
-
-Use [project-standards.md](./references/project-standards.md) when you need:
-
-- Required tooling (ESLint, Prettier, TypeScript, Husky)
-- Pre-commit hook configuration
-
-## Quick Reference: Decision Trees
-
-### Where should this component live?
-
-```
-Is it used by multiple features?
-├── Yes → src/components/
-└── No → Is it specific to one feature?
-    ├── Yes → src/features/[feature]/components/
-    └── No → Colocate with the component that uses it
-```
-
-### What state solution should I use?
-
-```
-Is this data from an API?
-├── Yes → React Query / SWR
-└── No → Is it form data?
-    ├── Yes → React Hook Form
-    └── No → Is it URL state (filters, pagination)?
-        ├── Yes → React Router
-        └── No → Is it needed globally?
-            ├── Yes → Zustand / Jotai / Context
-            └── No → useState / useReducer
-```
-
-### Should I create a new feature folder?
-
-```
-Does this functionality have:
-- Its own routes/pages?
-- Its own API endpoints?
-- Components not shared elsewhere?
-├── Yes to 2+ → Create feature folder
-└── Otherwise → Add to existing feature or shared
-```
-
-### Do I need useEffect?
-
-```
-Why does this code need to run?
-
-"Because the component was displayed"
-├── Is it synchronizing with an external system?
-│   ├── Yes → useEffect is appropriate
-│   └── No → Probably don't need useEffect
-│
-"Because the user did something"
-└── Put it in the event handler, not useEffect
-
-"Because I need to compute a value"
-└── Calculate during render (or useMemo if expensive)
-
-See useeffect.md for detailed guidance.
-```
+**Complete when:** every scoped render contract has passing evidence, every configured check passes, and each unavailable or intentionally omitted check is named.
