@@ -1,69 +1,72 @@
 ---
 name: web-design
-description: WHEN refining UI layout, typography, color, or polish; NOT code implementation; provides concise principles for intentional, legible design.
+description: WHEN choosing, refining, or reviewing a web UI's visual direction, hierarchy, spacing, typography, color, components, interaction states, or visual accessibility; NOT for style implementation or visual defect reproduction; produces an observable, accessible design contract.
 ---
 
 # Web Design
 
-Focus on clear hierarchy, generous spacing, and restrained styling to make interfaces feel intentional.
+Turn intent into a **design contract**: the hierarchy, visual system, states, and acceptance checks a reviewer can observe without reading the implementation.
 
-## Visual Hierarchy & Focus
+## Choose the branch
 
-- Group related elements by proximity and aligned edges; avoid scattered, evenly-spaced elements that compete for attention.
-- Add hierarchy with weight before color: `font-weight: 600` and size changes beat random accent colors.
-- Reduce noise: fewer borders; use spacing, background tints, or subtle dividers instead of heavy outlines.
+| Request | Route |
+| --- | --- |
+| Choose or refine visual direction, including for an implementation | Follow all four steps; implementation remains with the matching companion skill |
+| Review a mockup, screenshot, specification, or existing UI | Follow all four steps read-only; report evidence and a corrective design contract |
+| Match a supplied reference or design system | Treat it as the baseline, then check real content, responsive behavior, states, and accessibility |
+| A runnable UI looks wrong or differs from a reference | Use `web:eyes` for a repeatable visual checkpoint, then follow this skill if the intended direction is unresolved |
+| The direction is settled and only implementation remains | Use `web:css`, `web:tailwind`, or `web:react` according to the code boundary |
 
-## Layout & Spacing
+## 1. Establish the design contract
 
-- Use a consistent scale (4px or 8px).
-- Make vertical rhythm obvious: larger gaps between sections than between labels/inputs.
-- Set max widths for readability (e.g. `max-width: 1280px` for pages, `68-70ch` for text blocks).
-- Pad clickable areas generously (12–16px vertical, 16–24px horizontal) so touch targets feel confident.
+Read the repository instructions, request, existing design system, tokens, components, real content, and supplied artifacts. Inspect the current rendered state when a design decision depends on it.
 
-## Typography
+For every surface in scope, identify:
 
-- Pick one font family; use weight/size/letter-spacing for contrast instead of juggling many fonts.
-- Define a small scale of text styles (e.g., `32/40`, `24/32`, `18/28`, `16/24`, `14/20`) and reuse them.
-- Use letter-spacing for uppercase labels; use color to de-emphasize metadata instead of shrinking excessively.
+- the user goal, primary visual anchor, and intended reading order;
+- the tone and existing visual language to preserve or deliberately change;
+- supported viewports, content extremes, and interaction states;
+- fixed product, brand, platform, and accessibility requirements;
+- which supplied details are requirements and which are inspiration.
 
-```css
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 12px;
-  color: #6c7280;
-}
-```
+**Complete when:** every in-scope surface has a named visual anchor, reading order, source of truth, state inventory, content and viewport bounds, and explicit constraints.
 
-## Color & Contrast
+## 2. Shape one visual system
 
-- Start with neutrals; let a single accent color carry primary actions. Avoid pure black/white—use softened grays for warmth.
-- Build palettes by lightening/darkening the same hue; use low-saturation tints for surfaces and bolder shades for actions.
-- Ensure contrast for text on tints; add a subtle border when a tinted panel touches a white background.
-- Use color for meaning (success/info/warn/danger) plus an icon or text so color-blind users are covered.
+Preserve the existing system unless the request explicitly changes it. Make decisions in this order so each layer reinforces the layers above it:
 
-## Depth, Shape & Elevation
+| Layer | Design contract |
+| --- | --- |
+| Hierarchy | Give each surface one dominant anchor; group related content through proximity and aligned edges; use scale, weight, and position before adding color or containers. |
+| Layout and spacing | Use the established spacing scale; make section gaps larger than internal gaps; constrain reading measure; define how the composition reflows at each supported boundary. |
+| Typography | Reuse the established family and text roles; assign a small type hierarchy with legible line height; keep supporting text quiet and legible. |
+| Color | Assign semantic roles to the existing palette; reserve emphasis for primary actions and status; pair color-coded meaning with text or an icon. |
+| Components and depth | Reuse component patterns and tokens; keep control labels visible and feedback close to its control; keep radius, border, shadow, and icon treatments consistent; use spacing and surface contrast before extra decoration. |
+| States and motion | Specify every applicable default, hover, focus, active, disabled, loading, empty, error, and success state; keep feedback close to its cause and respect reduced-motion preferences. |
+| Accessibility | Meet [WCAG 2.2 AA](https://www.w3.org/TR/WCAG22/): visible and unobscured focus, text and non-text contrast, meaning independent of color, reflow at 320 CSS px, and targets at least 24 by 24 CSS px or covered by a documented exception. |
 
-- Prefer soft, diffuse shadows for elevation; combine slight offset with low opacity blur. Avoid harsh, opaque drop shadows.
-- Keep radii consistent (e.g., 8–12px across inputs, cards, modals). Match inner elements to the parent radius.
-- Separate stacked surfaces with either a light border or a faint shadow but not both.
+Prefer one strong decision over several competing accents. When content overlays imagery, specify the treatment that preserves contrast across the image's full range.
 
-## Components That Feel Designed
+**Complete when:** every layer has one coherent decision, every decision uses an existing token or names a necessary addition, and all state and accessibility requirements reinforce the hierarchy.
 
-- Buttons: one clear primary, a low-emphasis secondary (ghost/text), and a destructive variant. Use consistent padding and radius.
-- Forms: pair clear labels with inputs; avoid placeholder-as-label; show inline validation close to the field; use generous vertical spacing.
-- Lists/tables: increase row height, soften alternating backgrounds, and highlight the primary cell with weight/color.
-- Icons: keep stroke weight consistent; pair icons with labels unless the meaning is universal. Balance visual weight with padding.
+## 3. Write the observable specification
 
-## States, Feedback & Empty Space
+Describe the result as observable relationships rather than implementation:
 
-- Design hover, active, focus, loading, error, and success states. A primary button should have at least hover + active + disabled styles.
-- Use skeletons or subtle shimmer for loading instead of spinners alone; provide friendly empty states with a short “what to do next.”
-- Clarify errors with color, icon, and text; reserve red for errors and use calmer hues for neutral info.
-- Give content room to breathe—whitespace is a design tool, not wasted space.
+- the visual anchor and reading order for each surface;
+- layout, spacing, type, color, component, and state decisions;
+- responsive changes at each supported boundary;
+- exact before-and-after deltas for a refinement or review;
+- acceptance checks for real content, interaction states, and accessibility.
 
-## Compositional Polish
+Use measurements when they make a result checkable; prefer existing token names when the system already defines them. For a review finding, state the evidence, affected layer, user consequence, and corrective decision.
 
-- Use consistent gaps, radii, shadows, and border colors across the entire UI to create harmony.
-- Replace visual clutter (dividers, lines, boxes) with spacing and alignment; let one strong anchor (title or primary action) lead.
-- When stacking elements on images, add a dark or light overlay to keep text legible.
+**Complete when:** every requirement from step 1 maps to a design decision and acceptance check, every review finding has evidence and a correction, and every unresolved choice is named.
+
+## 4. Assess and hand off
+
+For a static artifact, assess every acceptance check visible in it. For a runnable UI, use `web:eyes` to compare the same content, viewport, and state; let `web:css` own cascade and layout rules, `web:tailwind` own utility and token APIs, and `web:react` own component behavior and state.
+
+Check narrow and wide viewports, short and extreme content, applicable interaction states, keyboard focus, zoom and reflow, contrast, target size, color independence, and reduced motion. Mark each acceptance check **pass**, **fail**, **not applicable**, or **unverified**, and name unavailable evidence.
+
+**Complete when:** every acceptance check has a status, every failure has an owning implementation boundary, and every design decision is explicit.
