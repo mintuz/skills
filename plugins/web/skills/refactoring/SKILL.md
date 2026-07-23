@@ -1,124 +1,75 @@
 ---
 name: refactoring
-description: WHEN tests are green and you need a refactor plan; NOT for new feature delivery; commit-first safety with prioritized improvements.
+description: WHEN assessing code after green tests, deciding whether duplicated code should share an abstraction, or implementing or reviewing a behavior-preserving refactor; NOT for new behavior, defect fixes, or whole-system mechanism reduction; protects a green baseline and selects the smallest valuable structural slice.
 ---
 
 # Refactoring
 
-Refactoring is the third step of TDD. After GREEN, assess if refactoring adds value.
+Use a **green baseline**: passing evidence for the observable behavior that must remain unchanged while internal structure improves.
 
-## When to Refactor
+## Choose the branch
 
-- Always assess after green
-- Only refactor if it improves the code
-- **Commit working code BEFORE refactoring** (critical safety net)
+| Request | Route |
+| --- | --- |
+| Assess after the TDD Green step | Follow steps 1 and 2; finish with a ranked assessment or “no refactor needed” |
+| Decide whether to abstract similar code | Follow steps 1 and 2; apply the change-together test |
+| Implement a requested refactor | Follow all four steps |
+| Review a completed refactor | Follow steps 1, 2, and 4 read-only against the pre-refactor revision |
+| Refactor front-end UI or React tests | Load `frontend-testing` and, for React, `react-testing`; use their behavior contracts as the green baseline, then follow all four steps |
+| Add behavior or fix a defect | Use `tdd` until the changed behavior is green, then return here |
+| Reduce branches, state, dependencies, layers, or moving parts across a whole system | Use `reducer` |
 
-### Commit Before Refactoring - WHY
+## 1. Lock the green baseline
 
-Having a working baseline before refactoring:
+Read the repository instructions, current diff and recent commits, target code, every caller, sibling implementation, public entry point, and affected tests. Reuse the repository's existing test and static-analysis commands.
 
-- Allows reverting if refactoring breaks things
-- Provides safety net for experimentation
-- Makes refactoring less risky
-- Shows clear separation in git history
+For each affected behavior, record:
 
-**Workflow:**
+- the entry point and callers;
+- the observable outcome, side effects, errors, and ordering;
+- the passing test or other stable oracle that proves it.
 
-1. GREEN: Tests pass
-2. COMMIT: Save working code
-3. REFACTOR: Improve structure
-4. COMMIT: Save refactored code
+Run the smallest affected test first, then the relevant suite. Implementation requires a committed green checkpoint before structure changes begin. When committing is outside the current authority, complete the assessment and request that checkpoint before editing.
 
-## Priority Classification
+**Complete when:** every affected behavior has a passing oracle or named proof gap; implementation has no affected proof gaps and the green baseline commit is recorded.
 
-| Priority | Action | Examples |
-|----------|--------|----------|
-| Critical | Fix now | Mutations, knowledge duplication, >3 levels nesting |
-| High | This session | Magic numbers, unclear names, >30 line functions |
-| Nice | Later | Minor naming, single-use helpers |
-| Skip | Don't change | Already clean code |
+## 2. Select the smallest valuable slice
 
-## DRY = Knowledge, Not Code
+Inspect the complete caller path and classify each opportunity:
 
-**Abstract when**:
+| Priority | Evidence | Action |
+| --- | --- | --- |
+| Critical | One live policy has multiple owners, or shared state or control ownership makes the current change unsafe | Refactor first |
+| High | The change removes clear comprehension or change cost from live code | Refactor this session |
+| Nice | The change offers a local readability gain without current leverage | Defer |
+| Skip | The change is cosmetic, speculative, or couples code that only looks alike | Leave the code as-is |
 
-- Same business concept (semantic meaning)
-- Would change together if requirements change
-- Obvious why grouped together
+Apply the **change-together test** before sharing an abstraction: the code represents the same business knowledge, its requirements would change together, and one owner is clearer than separate owners. Similar structure with independent reasons to change stays separate.
 
-**Keep separate when**:
+For each Critical or High candidate, name the behavior preserved, structural problem, smallest coherent change, affected callers, expected value, risk, and verification. Judge impact from real callers, change history, and affected behavior; numeric thresholds are weak evidence.
 
-- Different concepts that look similar (structural)
-- Would evolve independently
-- Coupling would be confusing
+**Complete when:** every candidate is classified and the result is either “no refactor needed” with evidence or an ordered plan whose first slice has exact boundaries and proof.
 
-## Example Assessment
+## 3. Refactor in green slices
 
-```typescript
-// After GREEN:
-const processOrder = (order: Order): ProcessedOrder => {
-  const itemsTotal = order.items.reduce((sum, item) => sum + item.price, 0);
-  const shipping = itemsTotal > 50 ? 0 : 5.99;
-  return { ...order, total: itemsTotal + shipping, shippingCost: shipping };
-};
+For each authorized slice:
 
-// ASSESSMENT:
-// ⚠️ High: Magic numbers 50, 5.99 → extract constants
-// ✅ Skip: Structure is clear enough
-// DECISION: Extract constants only
-```
+1. Confirm the affected tests are green before the slice.
+2. Make one coherent structural change while preserving public APIs, outcomes, side effects, errors, and ordering.
+3. Keep behavior-facing tests unchanged. For test-code refactors, preserve `frontend-testing` behavior contracts and `react-testing` render harnesses where applicable.
+4. Run the smallest affected test immediately and inspect every caller.
+5. Remove superseded code, imports, branches, helpers, and comments.
 
-## Speculative Code is a TDD Violation
+Keep new helpers private to the narrowest existing owner. A failed oracle ends the slice; restore only that slice to the last green state before continuing.
 
-If code isn't driven by a failing test, don't write it.
+**Complete when:** every selected slice passes its affected tests, every caller uses the intended structure, all superseded code is removed, and every remaining addition serves the selected slice.
 
-**Key lesson**: Every line must have a test that demanded its existence.
+## 4. Prove and report
 
-❌ **Speculative code examples:**
+Run the affected tests, relevant full suite, and configured type, lint, format, and build checks. Compare the final public surface and observable outcomes with the green baseline, then inspect the complete diff for behavior changes and unrelated edits.
 
-- "Just in case" logic
-- Features not yet needed
-- Code written "for future flexibility"
-- Untested error handling paths
+Commit the refactor separately from feature or defect work. When a commit is requested, load `commit-messages` for its wording.
 
-**What to do**: Delete speculative code. Add behavior tests instead.
+Report the green baseline, priority decision, structure changed or intentionally retained, behavior-preservation evidence, and commands and outcomes. For a review, cite each behavior change or unsupported claim with file evidence.
 
----
-
-## When NOT to Refactor
-
-Don't refactor when:
-
-- ❌ Code works correctly (no bug to fix)
-- ❌ No test demands the change (speculative refactoring)
-- ❌ Would change behavior (that's a feature, not refactoring)
-- ❌ Premature optimization
-- ❌ Code is "good enough" for current phase
-
-**Remember**: Refactoring should improve code structure without changing behavior.
-
----
-
-## Commit Messages for Refactoring
-
-```
-refactor: extract scenario validation logic
-refactor: simplify error handling flow
-refactor: rename ambiguous parameter names
-```
-
-**Format**: `refactor: <what was changed>`
-
-**Note**: Refactoring commits should NOT be mixed with feature commits.
-
----
-
-## Refactoring Checklist
-
-- [ ] All tests pass without modification
-- [ ] No new public APIs added
-- [ ] Code more readable than before
-- [ ] Committed separately from features
-- [ ] Committed BEFORE refactoring (safety net)
-- [ ] No speculative code added
-- [ ] Behavior unchanged (tests prove this)
+**Complete when:** every affected behavior matches the green baseline, every configured check passes, the refactor is isolated from behavior changes, and each unavailable verification is named.
