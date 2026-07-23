@@ -1,127 +1,89 @@
 ---
 name: status-updates
-description: WHEN writing team updates, progress reports, or stakeholder comms; delivers scannable structure, honest framing, and warm recognition.
+description: WHEN writing or revising team status updates, progress reports, sprint or retrospective summaries, launch updates, or stakeholder communications; NOT for PRDs or incident postmortems; produces evidence-backed, audience-shaped updates with explicit risks, asks, next steps, and recognition.
 ---
 
-# Status Updates Playbook
+# Status Updates
 
-Guidelines for writing team updates that are easy to scan, honest about challenges, and generous with recognition.
+Treat a status update as an evidence ledger shaped for one audience. Preserve the distinction between activity, delivery, and impact; make uncertainty visible; and give the reader a clear next action.
 
-## Philosophy
+## 1. Set the brief
 
-- **Outcomes first** - Lead with results and impact, not activity; tie to goals/OKRs
-- **Scannable** - Emoji-anchored sections, bullet points, short paragraphs
-- **Quantify** - Metrics, deltas, dates, owners—show progress with numbers
-- **Honest** - Acknowledge challenges directly, then reframe with context
-- **Warm** - Credit individuals by name, use inclusive language
-- **Evidence-backed** - Link to production, docs, metrics to show not tell
-- **Close the loop** - Note delta from last update and what's next
+Establish:
 
-## Quick Reference
+- audience and channel
+- reporting period and goal, roadmap item, or OKR
+- purpose: inform, secure a decision, unblock work, or build trust
+- requested length and voice
 
-| Task | Guide |
-|------|-------|
-| Voice and tone patterns | [tone-profile.md](tone-profile.md) |
-| PR evidence gathering | [pr-evidence.md](pr-evidence.md) |
+Use supplied context for clear inferences. Ask one concise batch of questions for missing facts that would materially change the update. Mark non-blocking gaps as `[needed: fact]` and continue.
 
-## When to Use
+**Complete when:** audience, channel, period, and purpose are known or explicitly inferred, and every material unknown is answered or marked.
 
-- Team or stakeholder progress updates
-- Manager/exec communications
-- Slack channel announcements
-- Sprint summaries or retrospectives
-- Launch communications
+## 2. Build the evidence ledger
 
-## Intake Questions
+Gather the supplied notes, prior update, delivery artifacts, metrics, decisions, and feedback. Include evidenced glue work such as reviews, mentoring, incident response, documentation, and coordination. Track each candidate claim with its status, impact, evidence, owner, and date. Use precise states such as `shipped`, `in progress`, `blocked`, and `planned`.
 
-Ask these before drafting to ensure the update hits the right notes:
+When recent GitHub work is relevant, read [pr-evidence.md](pr-evidence.md) for its evidence categories. Use fields supported by the current `gh search prs --help`, then inspect relevant PRs individually for changed files and merge state. Treat PR metadata as evidence of activity; verify deployment, adoption, and impact independently. Label estimates and inferences, and retain conflicting evidence as a gap.
 
-**Essential:**
+**Complete when:** every candidate claim has supporting evidence or an explicit qualifier, and every delivery or impact claim has proof beyond activity.
 
-- Audience & channel (manager, exec, peers? email, Slack, doc?)
-- Time window (which two weeks? tie to OKRs/roadmap item?)
-- Desired outcome (inform, influence decision, unblock, build trust?)
+## 3. Select the signal
 
-**Evidence gathering:**
+Rank material for this audience:
 
-- GitHub username (to pull authored PRs from past 14 days)
-- Impact evidence (metrics, user/business outcomes, shipped artifacts?)
+1. outcomes and change since the previous update
+2. risks, blockers, decisions, and asks
+3. next milestones and dependencies
+4. specific recognition
 
-**Framing:**
+Collapse related activity into one outcome where the evidence supports it. Frame a challenge as current state → consequence → response → owner/date or ask. Credit a named contribution and its effect when the evidence supports both.
 
-- Risks/blockers (what needs escalation, by when?)
-- Length/tone preference (bullets vs paragraph, RAG color?)
+**Complete when:** every material outcome, risk, ask, and next step is accounted for, and each included item explains why this audience should care.
 
-**Recognition:**
+## 4. Draft for the channel
 
-- Glue work to highlight (reviews, incidents, mentoring, docs, coordination?)
-- Who to thank or spotlight?
+Lead with the most important outcome. Use short sections and outcome-first bullets with evidence links beside the claims they support. Shape emphasis by audience:
 
-If details are missing, ask concise clarifying questions before drafting.
+- **Executives and managers:** impact, trajectory, material risk, and decisions needed
+- **Teams and Slack:** progress, dependencies, owners, next steps, and recognition
+- **Launch updates:** readiness, evidence, caveats, and the next milestone
 
-## Core Patterns
+Use channel-native section anchors—bold labels in Slack and headings in documents—including emoji when the channel and requested voice support them. Use backticks for technical identifiers. When the requester wants the warm, playful, emoji-anchored house voice, read [tone-profile.md](tone-profile.md) before drafting.
 
-### Structure
+A useful default shape is:
 
-1. **Friendly hook** (optional): Seasonal reference or greeting
-2. **Section headers**: Emoji prefix + bold title
-3. **Bullet points**: Outcome-first, with inline evidence links
-4. **Named recognition**: Specific individuals at section end
-5. **Forward momentum**: End with what's next
+```markdown
+[Outcome headline and reporting period]
 
-### Framing Challenges
+## Outcomes
+- [State] [outcome] → [impact] ([evidence])
 
-Never bury bad news. Acknowledge it, then provide context:
+## Risks, decisions, and asks
+- [Current state] → [consequence]; [response and owner/date or ask]
 
-> "Great progress and some less-than-ideal timeline changes. We'll cover the good first, as it's very easy to lose sight of just how much work is being shipped every day"
+## Next
+- [Next outcome or milestone] — [owner/date]
 
-**Pattern:** [Bad news] + [acknowledge feeling] + "There is [context] though:" + [reframing bullets]
+## Recognition
+- [Name] — [specific contribution and effect]
+```
 
-### Evidence and Links
+Keep the sections supported by the evidence and combine adjacent sections when that improves scanning.
 
-Weave links naturally into claims:
+**Complete when:** one scan reveals what changed, why it matters, what is at risk or needed, and what happens next.
 
-> "shipped to production, to the X page ([our fastest growing page](link))"
+## 5. Verify and return
 
-Use footnotes for caveats that would clutter the main flow.
+Check the draft against the ledger:
 
-## Do's and Don'ts
+- every factual claim has adjacent evidence or a visible qualifier
+- names, metrics, links, dates, owners, and delivery states match their sources
+- estimates, inference, and unknowns are distinguishable from facts
+- bad news is visible with its consequence, response, and escalation need
+- prior commitments are closed, updated, or carried forward
+- recognition names a specific contribution and its effect
 
-**Do:**
+Return the usable update first. If marked gaps remain, follow it with the shortest list of facts needed to resolve them.
 
-- Open with a hook before diving in
-- Use emoji for visual hierarchy (one per section)
-- Credit individuals by name
-- Link to evidence
-- Use `backticks` for technical terms
-- End with momentum
-
-**Don't:**
-
-- Bury or avoid bad news
-- Use emoji as decoration
-- Give vague thanks ("thanks everyone")
-- Write dense paragraphs
-- Over-explain technical concepts
-
-For detailed voice characteristics and replication techniques, see [tone-profile.md](tone-profile.md).
-
----
-
-## Writing Guidance
-
-**Phrasing:**
-
-- Use verbs + outcomes: "Shipped X → improved Y by Z%" not "Worked on X"
-- Keep bullets single-line; front-load result, back-load detail
-- Include dates/owners for risks and asks
-
-**Progression:**
-
-- Note delta from last update ("Previously blocked, now shipped")
-- Mention decisions made and decisions pending (with decision-maker)
-
-**Dependencies:**
-
-- Call out dependencies you're unblocking for others
-- Call out dependencies you need unblocked
+**Complete when:** every draft claim traces to the ledger, every material gap is visible, and each unresolved placeholder is clearly marked for follow-up.
