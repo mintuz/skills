@@ -1,152 +1,62 @@
 ---
 name: css
-description: WHEN authoring CSS/styles/layout for web UI; outputs production-ready, accessible, maintainable CSS.
+description: WHEN authoring, debugging, reviewing, or refactoring CSS, styles, or web layout; NOT for visual direction or framework-specific component logic; traces each visual requirement through layout, cascade, responsive states, and accessibility checks.
 ---
 
-# CSS Best Practices
+# CSS
 
-Production-grade CSS development with architectural principles, proper specificity management, and maintainable patterns.
+Treat each visual requirement as a **cascade contract**: the intended result must survive the active layout algorithm, selector weight, source order, content, viewport, and user settings.
 
-## Core Principles
+## Choose the branch
 
-1. **Single Responsibility** - Each class handles one concern only
-2. **Open/Closed** - Open for extension, closed for modification
-3. **Immutable CSS** - Utilities and objects never change after creation
-4. **Behavior over implementation** - Focus on what the code does, not how
-5. **Accessibility first** - Semantic HTML before ARIA, proper contrast and sizing
+| Request | Route |
+| --- | --- |
+| Author or fix styles | Follow all four steps; begin a bug fix with a failing visual reproduction |
+| Review styles | Follow steps 1, 2, and 4 read-only; report each broken contract with evidence |
+| Refactor styles | Capture current behavior, read the refactoring reference in step 2, then follow all four steps |
+| Tailwind, CSS-in-JS, or a preprocessor | Apply this skill to the emitted CSS behavior and use the framework's own guidance for its API |
 
-## Quick Reference
+## 1. Frame the cascade contract
 
-| Topic                                                    | Guide                                                                   |
-| -------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Specificity hierarchy, safe techniques, !important rules | [specificity.md](references/specificity.md)                             |
-| rem vs px, margins, layout algorithms                    | [units-margins.md](references/units-margins.md)                         |
-| @extend vs mixins, refactoring workflow, code smells     | [preprocessors-refactoring.md](references/preprocessors-refactoring.md) |
-| Architectural principles and common code patterns        | [patterns.md](references/patterns.md)                                   |
+Read the repository instructions, touched markup and styles, relevant component callers, build configuration, browser support, and existing tokens, utilities, cascade layers, and naming conventions.
 
-## When to Use Each Guide
+For each requested change, record the target element, intended visual result, interaction states, relevant viewport or container sizes, content extremes, and user settings. For a defect, reproduce it and trace the computed value through layout, inheritance, cascade layer, selector weight, and source order before editing.
 
-### Specificity
+**Complete when:** every requested result has an observable contract, and the current owner and cause of each affected style are known.
 
-Use [specificity.md](references/specificity.md) when you need:
+## 2. Choose the rule and owner
 
-- Specificity hierarchy and calculations
-- Safe techniques (self-chaining, attribute selectors)
-- Anti-patterns (IDs, deep nesting, qualified selectors)
-- !important rules (proactive vs reactive)
-- Shorthand property gotchas
-- Alternatives to reactive !important
+Read every matching reference before deciding that branch:
 
-### Units and Margins
+| Branch | Required reference |
+| --- | --- |
+| Class, component, utility, token, or extension architecture | [patterns.md](references/patterns.md) |
+| Selector conflicts, specificity, `!important`, or shorthand properties | [specificity.md](references/specificity.md) |
+| Units, line height, spacing, margins, layout, stacking, or inline images | [units-margins.md](references/units-margins.md) |
+| Sass `@extend` or mixins, imports, dead CSS, code smells, or refactoring | [preprocessors-refactoring.md](references/preprocessors-refactoring.md) |
 
-Use [units-margins.md](references/units-margins.md) when you need:
+Use semantic HTML for structure and add ARIA where native semantics cannot express the contract. Prefer existing design tokens and the native layout algorithm that owns the relationship. Layout parents own external spacing; components own their internal presentation. Keep classes low-specificity and single-purpose, extend stable bases with variants, and reserve immutable utilities for deliberate global overrides.
 
-- rem vs px decision framework
-- Line-height best practices
-- Margin encapsulation rules
-- Single-direction margin patterns
-- Margin collapse behavior
-- Layout algorithm awareness (Flow, Flexbox, Grid)
-- Common gotchas (z-index, magic space under images)
+**Complete when:** each contract has one clear styling owner, a reference-backed cascade strategy, and units that match the required scaling behavior.
 
-### Preprocessors and Refactoring
+## 3. Implement the smallest stable change
 
-Use [preprocessors-refactoring.md](references/preprocessors-refactoring.md) when you need:
+Reuse the existing styling surface, tokens, utilities, and cascade position. Keep state and responsive rules beside the component behavior they modify, and apply every matched reference decision.
 
-- @extend vs mixins guidance
-- Avoiding & concatenation
-- CSS @import performance issues
-- Finding dead CSS with beacons
-- The Three I's refactoring workflow
-- Code smell reference tables
+Preserve unaffected visual behavior. Add only declarations that serve a contract from step 1.
 
-### Patterns
+**Complete when:** every contract maps to a rule or markup change, every declaration has one reason to exist, and every reset or override is intentional.
 
-Use [patterns.md](references/patterns.md) when you need:
+## 4. Prove the rendered behavior
 
-- Single Responsibility Principle examples
-- Open/Closed Principle patterns
-- Immutable CSS patterns and prefixes
-- Component without margin examples
-- Utility class patterns
-- Self-chaining for specificity
-- CSS custom properties for design scales
+Run the smallest relevant formatter, lint, and build checks, then inspect the rendered result in a browser. Exercise:
 
-## Quick Reference: Decision Trees
+- default, hover, focus, active, disabled, error, loading, and empty states that exist;
+- the smallest and largest supported viewport plus each touched breakpoint or container boundary;
+- short, long, missing, and localized content where layout can change;
+- keyboard focus, zoom or enlarged text, contrast, reflow, and reduced motion when animation is present;
+- neighboring components and reused utilities for cascade leakage.
 
-### Should I use !important?
+Inspect computed styles for changed cascade behavior. For refactors, compare the before and after contract; for reviews, cite the selector, declaration, rendered consequence, and failed check.
 
-```
-Is this a utility class that must be immutable?
-├── Yes → Use !important (proactive)
-└── No → Is there a specificity conflict?
-    ├── Yes → Try: self-chain, attribute selector, or restructure cascade
-    └── No → Don't use !important
-```
-
-### Should I use px or rem?
-
-```
-Should this scale with user font preferences?
-├── Yes → Use rem
-│   Examples: font-size, vertical text margins, media queries
-└── No → Use px
-    Examples: borders, box-shadows, horizontal padding
-```
-
-### Should I use shorthand?
-
-```
-Am I intentionally setting ALL related properties?
-├── Yes → Shorthand is fine
-└── No → Use longhand to avoid unintentional resets
-```
-
-### Should component have margin?
-
-```
-Is this a layout component (grid, stack, container)?
-├── Yes → Margin/gap is appropriate
-└── No → Move spacing to parent or use utility classes
-```
-
-### @extend or mixin?
-
-```
-Are these selectors thematically related (same component)?
-├── Yes → @extend might be acceptable
-└── No → Use mixin (safer, doesn't disrupt source order)
-```
-
-### How should I refactor this CSS?
-
-```
-Step 1: Identify - Is this frequently used and problematic?
-├── Yes → Continue
-└── No → Skip refactoring, focus elsewhere
-
-Step 2: Isolate - Build new version separately
-├── Use CodePen/jsFiddle
-└── Don't build on top of existing CSS
-
-Step 3: Implement - Reintegrate carefully
-├── Component fixes → component's partial
-└── Legacy conflicts → shame.css
-```
-
-## Summary Checklist
-
-Before committing CSS, verify:
-
-- [ ] Classes follow single responsibility (structure separate from cosmetics)
-- [ ] No ID selectors for styling
-- [ ] No reactive !important (only proactive for utilities)
-- [ ] Components have no margin (spacing controlled by parent)
-- [ ] Using rem for font-size and scalable spacing
-- [ ] Using px for borders, shadows, and fixed visual elements
-- [ ] Longhand properties when only setting one value
-- [ ] No deep nesting (4+ levels)
-- [ ] No qualified selectors (e.g., `ul.nav`)
-- [ ] Layout algorithm appropriate for context (Flow, Flex, Grid)
-- [ ] Accessible color contrast ratios
-- [ ] Semantic HTML before adding ARIA
+**Complete when:** every contract from step 1 is observed in the browser, automated checks pass, accessibility behavior holds, and any unavailable verification is named.
