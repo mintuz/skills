@@ -1,208 +1,85 @@
 ---
 name: commit-messages
-description: WHEN writing git/conventional commits; NOT for PR text; returns concise, why-first commit lines with proper type/scope.
+description: WHEN writing or reviewing Git/Conventional Commit messages or deciding commit boundaries; NOT for pull request text; returns atomic, why-first messages with repository-compatible type, scope, body, and breaking-change metadata.
 ---
 
 # Commit Messages
 
-Use this skill to generate clear, conventional commit messages that explain the "why" not just the "what". Follow this guide when writing commit messages or helping users structure their commits.
+Treat each commit as an atomic explanation: the header names the outcome, and the optional body preserves why it was necessary.
 
-## When to Use
+## 1. Establish the change set
 
-- User asks for help writing a commit message
-- User wants to understand conventional commit format
-- User needs to split a large commit into smaller ones
-- User asks about commit best practices
+Read the repository's commit conventions, then inspect the staged diff and recent commit history when available. Otherwise use the diff or change description the user supplied.
 
-## Philosophy
+Map every change to one logical intent. Split changes when they have different reasons, Conventional Commit types, release effects, or revert boundaries. Keep inseparable implementation, tests, and documentation together. Order prerequisite refactors before behavior that depends on them.
 
-- **Why > What** - The diff shows what changed; the message explains why
-- **Atomic commits** - One logical change per commit
-- **Future readers** - Write for someone debugging at 2am in 6 months
-- **Searchable** - Make it easy to find with `git log --grep`
+**Complete when:** every change belongs to exactly one independently understandable commit and the commit order is explicit.
 
-## Format
+## 2. Choose the header
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
+Use the repository's established types and scopes first. Otherwise use:
 
-```
-type(scope): subject
+| Type | Intent |
+| --- | --- |
+| `feat` | Add user-visible behavior |
+| `fix` | Correct user-visible behavior |
+| `docs` | Change documentation only |
+| `style` | Change formatting without behavior |
+| `refactor` | Change code structure without behavior |
+| `perf` | Improve performance |
+| `test` | Add or correct tests |
+| `build` | Change dependencies or the build system |
+| `ci` | Change continuous integration |
+| `chore` | Maintain the repository without changing product or test behavior |
 
-body (optional)
+Format the header as:
 
-footer (optional)
-```
-
-## Types
-
-| Type       | When to Use                                    | Example                               |
-| ---------- | ---------------------------------------------- | ------------------------------------- |
-| `feat`     | New feature for the user                       | `feat(auth): add password reset flow` |
-| `fix`      | Bug fix for the user                           | `fix(cart): correct quantity calc`    |
-| `docs`     | Documentation only changes                     | `docs: update API examples`           |
-| `style`    | Formatting, white-space (not CSS)              | `style: format with biome`            |
-| `refactor` | Code change that neither fixes nor adds        | `refactor: extract validation utils`  |
-| `perf`     | Performance improvement                        | `perf: memoize expensive calculation` |
-| `test`     | Adding or updating tests                       | `test: add auth integration tests`    |
-| `build`    | Build system or dependencies                   | `build: upgrade to node 22`           |
-| `ci`       | CI configuration                               | `ci: add playwright to pipeline`      |
-| `chore`    | Other changes that don't modify src/test files | `chore: update .gitignore`            |
-
-## Rules
-
-### Subject Line
-
-| Rule                         | Good                                  | Bad                  |
-| ---------------------------- | ------------------------------------- | -------------------- |
-| Imperative mood              | `add user profile`                    | `added user profile` |
-| No capitalization            | `fix login bug`                       | `Fix login bug`      |
-| No period                    | `update readme`                       | `update readme.`     |
-| Be specific                  | `fix redirect loop on session expiry` | `fix bug`            |
-| Max 50 chars (72 hard limit) | Keep it concise                       | Don't write essays   |
-
-### Scope (optional)
-
-- Component or area: `feat(auth):`, `fix(api):`, `test(cart):`
-- Keep consistent within project
-- Omit if change spans multiple areas
-
-### Body (when needed)
-
-- Wrap at 72 characters
-- Explain **why** this change was necessary
-- Include context that isn't obvious from the diff
-- Reference issues: `Fixes #123` or `Relates to #456`
-
-### Breaking Changes
-
-```
-feat(api)!: change authentication endpoint
-
-BREAKING CHANGE: /auth/login now requires email instead of username.
-Migration: Update all clients to send email field.
+```text
+type[(scope)][!]: imperative description
 ```
 
-## Commit Scope Assessment
+- Use `feat` for a feature and `fix` for a bug fix.
+- Add a stable noun scope only when one codebase area owns the change.
+- Add `!` immediately before `:` for a breaking change.
+- Write a specific, lowercase, imperative description with no final period.
+- Follow the repository's length limit; otherwise aim for 50 characters and keep the header within 72.
 
-Before writing the message, assess whether the staged changes should be one commit or multiple.
+**Complete when:** the header identifies the change's primary intent, matches repository convention, and contains no vague terms such as `stuff`, `changes`, or `update code`.
 
-### Signs to Split
+## 3. Preserve the why
 
-| Signal                      | Action                       |
-| --------------------------- | ---------------------------- |
-| Changes to unrelated files  | Split by feature/area        |
-| Multiple types (feat + fix) | Separate commits             |
-| "and" in your subject line  | Probably two commits         |
-| > 10 files changed          | Consider splitting           |
-| Mix of refactor + feature   | Refactor first, then feature |
+Add a body only when the header cannot preserve relevant motivation, constraints, trade-offs, or non-obvious effects. Start it after a blank line, wrap at 72 characters when repository style requires it, and avoid narrating the diff.
 
-### Good Split Example
+Add issue references and other trailers after another blank line. Represent a breaking change with `!`, a `BREAKING CHANGE: description` footer, or both; include migration guidance when consumers must act.
 
-Instead of:
+```text
+feat(api)!: require email for authentication
 
+Email is now the stable login identifier across identity providers.
+
+BREAKING CHANGE: clients must send `email` instead of `username`.
 ```
-feat: add user profile and fix login redirect and update tests
-```
 
-Split into:
+**Complete when:** every non-obvious reason and required consumer action is present once, and the body and footers add information beyond the header.
 
-```
-fix(auth): prevent redirect loop on session expiry
-feat(profile): add user profile page
-test(auth): add session expiry tests
-```
+## 4. Return the result
+
+For one atomic commit, return the complete ready-to-paste message in a single code block. For a mixed change set, recommend the split and return each commit in order with its change boundary and complete message. When reviewing an existing message, identify the violated rule and provide the corrected message. When the user asks only for guidance, answer from the rules above without inventing a change set.
+
+**Complete when:** every proposed commit has a final message with no placeholders, every mapped change is represented exactly once, and any split can be staged without mixing intents.
 
 ## Examples
 
-### Good
+```text
+fix(auth): prevent redirect loop after session expiry
 
-```
-feat(cart): add quantity selector to cart items
-
-Allow users to update item quantities directly from the cart
-instead of navigating back to the product page.
-
-Closes #234
+Clear the saved redirect when the session expires so login does not
+return the user to the protected route.
 ```
 
-```
-fix(auth): prevent redirect loop on expired session
+```text
+refactor(validation): share request schemas
 
-Session expiry was triggering a redirect to login, which then
-redirected back to the protected route, causing an infinite loop.
-
-Now we clear the redirect URL when session expires.
-```
-
-```
-refactor: extract validation logic to shared utilities
-
-Consolidates duplicate Zod schemas from three API routes into
-a single source of truth in lib/validation.
-
-No behavior changes.
-```
-
-```
-perf(search): debounce search input to reduce API calls
-
-Search was firing on every keystroke, causing 10+ requests
-for a typical query. Now waits 300ms after typing stops.
-
-Reduces search API calls by ~80% based on local testing.
-```
-
-### Bad
-
-| Message                 | Problem                 |
-| ----------------------- | ----------------------- |
-| `fixed stuff`           | Too vague - what stuff? |
-| `Updated the code`      | Obvious - adds no value |
-| `WIP`                   | Not ready to commit     |
-| `fix: Fix the bug`      | Redundant, no detail    |
-| `misc changes`          | Meaningless             |
-| `feat: add new feature` | What feature?           |
-| `refactor code`         | What code? Why?         |
-
-## Output Format
-
-When generating commit messages, provide the complete message ready to use:
-
-```
-type(scope): clear subject line
-
-Optional body explaining the motivation for this change.
-Include context that helps future readers understand why
-this was done, not just what was done.
-
-Fixes #123
-```
-
-If the commit should be split, recommend splitting with specific guidance:
-
-```markdown
-**Recommendation: Split this commit**
-
-The staged changes include multiple unrelated changes:
-
-1. [Change type 1] - [files affected]
-2. [Change type 2] - [files affected]
-
-**Suggested commits:**
-
-1. First commit:
-```
-
-type(scope): first change
-
-```
-
-2. Second commit:
-```
-
-type(scope): second change
-
-```
-
-**To split:** Use `git reset HEAD` then stage files for each commit separately.
+Keep route validation rules in one place so fixes cannot drift between
+handlers.
 ```
