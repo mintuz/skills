@@ -1,98 +1,85 @@
 ---
 name: chatgpt-app-sdk
-description: WHEN building ChatGPT apps using the OpenAI Apps SDK and MCP; create conversational, composable experiences with proper UX, UI, state management, and server patterns.
+description: WHEN building, debugging, testing, or deploying a ChatGPT app with the Apps SDK and MCP; NOT for ordinary OpenAI API clients, standalone chat UIs, or generic MCP servers; traces each user intent through tools, server, optional UI, and observed ChatGPT behavior.
 ---
 
-# ChatGPT Apps SDK Best Practices
+# ChatGPT Apps SDK
 
-Build ChatGPT apps using the OpenAI Apps SDK, Model Context Protocol (MCP), and component-based UI patterns.
+Treat each user intent as an end-to-end contract between conversation, model-selected tools, the MCP server, and optional UI. The conversation is the primary interface; add a component only when interaction or visual structure improves the outcome.
 
-## Quick Reference
+## 1. Establish the contract
 
-| Topic                                           | Guide                                                       |
-| ----------------------------------------------- | ----------------------------------------------------------- |
-| Display modes, visual design, accessibility     | [ui-guidelines.md](./references/ui-guidelines.md)           |
-| MCP architecture, tools, and server patterns    | [mcp-server.md](./references/mcp-server.md)                 |
-| React patterns and window.openai API            | [ui-components.md](./references/ui-components.md)           |
-| React hooks (useOpenAiGlobal, useWidgetState)   | [react-integration.md](./references/react-integration.md)   |
-| Three-tier state architecture and best practice | [state-management.md](./references/state-management.md)     |
+Read the repository instructions, existing server and component code, installed MCP packages, and deployment configuration. List the user intents in scope and, for each one, record:
 
-## Critical Setup Requirements
+- the prompt or UI action that starts it;
+- the tool, input, output, and side effect;
+- whether text/structured data is sufficient or a component is justified;
+- the authoritative owner of business, UI, and persisted user state;
+- auth, confirmation, error, retry, and empty-state behavior;
+- the observable result to verify.
 
-| Issue               | Prevention                                            |
-| ------------------- | ----------------------------------------------------- |
-| CORS blocking       | Enable `https://chatgpt.com` origin on endpoints      |
-| Widget 404s         | Use `ui://widget/` prefix format for widget resources |
-| Plain text display  | Set MIME type to `text/html+skybridge` for widgets    |
-| Tool not suggested  | Use action-oriented descriptions in tool definitions  |
-| Missing widget data | Pass initial data via `_meta.initialData` field       |
-| CSP script blocking | Reference external scripts from allowed CDN origins   |
+**Complete when:** every requested intent has one traceable contract and every unresolved product decision is explicit.
 
-## Decision Trees
+## 2. Load the live contract
 
-### What display mode should I use?
+Apps SDK contracts evolve. Read the current official page for every branch the change touches:
 
-```
-Is this a multi-step workflow or deep exploration?
-├── Yes → Fullscreen
-└── No → Is this a parallel activity (game, live session)?
-    ├── Yes → Picture-in-Picture (PiP)
-    └── No → Inline
-        ├── Single item with quick action → Inline Card
-        └── 3-8 similar items → Inline Carousel
-```
+| Branch | Current official reference |
+|---|---|
+| Baseline or first app | [Quickstart](https://developers.openai.com/apps-sdk/quickstart) |
+| Tools, resources, payloads, CSP, or server state | [Build your MCP server](https://developers.openai.com/apps-sdk/build/mcp-server) |
+| Component UI, bridge events, layout, or UI state | [Build your ChatGPT UI](https://developers.openai.com/apps-sdk/build/chatgpt-ui) |
+| Portable UI or `window.openai` usage | [MCP Apps compatibility](https://developers.openai.com/apps-sdk/mcp-apps-in-chatgpt) |
+| Authentication or authorization | [Authentication](https://developers.openai.com/apps-sdk/build/auth) |
+| End-to-end verification | [Test your integration](https://developers.openai.com/apps-sdk/deploy/testing) |
+| Submission or broad distribution | [App guidelines](https://developers.openai.com/apps-sdk/app-guidelines) |
 
-### Where should state live?
+Reconcile those contracts with the installed SDK version and existing app before editing. Prefer the MCP Apps standard form where an equivalent exists; use ChatGPT-specific extensions only for capabilities the app actually needs.
 
-```
-Is this data from your API/database?
-├── Yes → MCP Server (Business Data)
-│   Return in structuredContent from tool calls
-└── No → Is it user preference/cross-session data?
-    ├── Yes → Backend Storage (via OAuth)
-    └── No → Widget State (UI-scoped)
-        Use window.openai.widgetState / useWidgetState
-```
+**Complete when:** every version-sensitive field, method, MIME type, and metadata key is supported by the live host contract and installed packages, or the required package change is explicit.
 
-### Should this be a separate tool?
+## 3. Shape the tool surface
 
-```
-Is this action:
-- Atomic and standalone?
-- Invokable by the model via natural language?
-- Returning structured data?
-├── Yes → Create public tool (model-accessible)
-└── No → Is it only for widget interactions?
-    ├── Yes → Use private tool ("openai/visibility": "private")
-    └── No → Handle within existing tool logic
-```
+Give each tool one user intent and a precise name, title, description, input schema, output schema, and truthful impact annotations. Keep required inputs explicit; memory and client hints are optional context, never authority.
 
-### What should go in structuredContent vs \_meta?
+Keep the surface composable:
 
-```
-Does the model need this data to:
-- Understand results?
-- Generate follow-ups?
-- Reason about next steps?
-├── Yes → structuredContent (concise, model-readable)
-└── No → _meta (large datasets, widget-only data)
-```
+- return concise, model-readable facts in `structuredContent`;
+- use `content` for optional narration;
+- place widget-only detail in `_meta`;
+- keep handlers safe under retries;
+- separate data tools from render tools when attaching UI to every call would remount the component or hinder model reasoning;
+- restrict app-only tools with the current visibility metadata when the model should not select them.
 
-### Should I use custom UI or just text?
+**Complete when:** every intent maps to the smallest tool set that can complete it, and the model can distinguish each tool from its siblings using the descriptors alone.
 
-```
-Does this require:
-- User input beyond text?
-- Structured data visualization?
-- Interactive selection/filtering?
-├── Yes → Custom UI component
-└── No → Return plain text/markdown in content
-```
+## 4. Implement the server boundary
 
-# Official Documentation
+Register component templates with the current MCP Apps resource MIME type and connect render tools through the current resource URI metadata. Version a template URI when a breaking component change must bypass cached bundles.
 
-- MCP Specification: https://modelcontextprotocol.io
-- TypeScript MCP SDK: https://github.com/modelcontextprotocol/typescript-sdk
-- OpenAI Apps SDK: https://developers.openai.com/apps-sdk
-- MCP Apps Extension: http://blog.modelcontextprotocol.io/posts/2025-11-21-mcp-apps
-- ChatGPT Component Library: https://openai.github.io/apps-sdk-ui
+Enforce schemas, authentication, authorization, and destructive-action confirmation on the server. Treat tool inputs, client hints, and model-visible context as untrusted. Keep secrets out of tool results and widget state; declare the narrow CSP and network domains the component needs.
+
+**Complete when:** each contract runs from tool selection through authoritative server behavior to a schema-valid result, including failure and retry paths.
+
+## 5. Implement the UI branch
+
+When a component is justified, render from validated tool results and use the MCP Apps bridge for baseline host communication. Feature-detect `window.openai` extensions and keep the core flow functional without them unless the requested capability is ChatGPT-specific.
+
+Keep business data server-owned, durable user data in authenticated backend storage, model-relevant context explicit, and transient view state inside the component. Preserve state deliberately across refreshes. Match the host theme and locale, support keyboard and screen-reader use, and choose the smallest display mode that fits the task.
+
+**Complete when:** the component handles initial, loading, empty, success, error, approval, and refreshed-result states without becoming a second source of business truth.
+
+## 6. Prove the conversation
+
+Run the repository's smallest relevant checks, test the server with MCP Inspector, then exercise the app in ChatGPT developer mode. Cover:
+
+- direct and paraphrased prompts for every intent;
+- nearby prompts that should select another tool or no tool;
+- missing, invalid, and unauthorized inputs;
+- retries and repeated side-effecting requests;
+- component rendering, CSP, bridge events, tool calls, and state refreshes;
+- narration that remains useful with and without the component.
+
+Record commands, results, and any unavailable environment check.
+
+**Complete when:** every contract from step 1 has observed evidence, tool selection is unambiguous, side effects are guarded, and the text and component paths agree on the result.
