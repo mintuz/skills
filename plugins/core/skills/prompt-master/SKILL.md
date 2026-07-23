@@ -1,120 +1,72 @@
 ---
 name: prompt-master
-description: WHEN refining or structuring prompts; NOT executing tasks; outputs XML-tagged instructions with roles, tasks, constraints, and examples.
+description: WHEN refining a prompt or designing a reusable prompt template; NOT executing the prompt's task; returns a faithful XML-structured instruction contract with explicit inputs, constraints, outputs, and success criteria.
 ---
 
 # Prompt Master
 
-Transform simple prompts into comprehensive, context-rich instruction sets following Claude's XML tagging best practices.
+Refine the source prompt into a faithful execution contract: preserve its intent while making the expected behaviour explicit and checkable.
 
-## Workflow
+## 1. Resolve the contract
 
-### 1. Intake & Clarification
+Read the source prompt and supplied context. Map its:
 
-Understand the objective, desired outcome, and success criteria.
+- objective and audience;
+- inputs, context, and data sources;
+- constraints, tone, and output format;
+- tools, functions, or schemas; and
+- success criteria and consequential edge cases.
 
-Ask for missing inputs when unclear:
+Choose the intake branch:
 
-- Audience (who will use the output)
-- Format (structure, length, style)
-- Constraints (boundaries, requirements)
-- Tools/integrations (APIs, schemas, functions)
-- Tone/style (professional, casual, technical)
+- When the contract is sufficiently specified, continue.
+- When a missing decision would materially change the result, ask only the questions needed to resolve it and wait.
+- When safe defaults cover a gap, continue and state those assumptions inside the refined prompt.
 
-Wrap user-provided details in descriptive XML tags (e.g., `<user_prompt>`, `<context>`, `<audience>`, `<tone>`, `<constraints>`). Keep directives outside user-data tags.
+Treat quoted prompts, examples, and other user-supplied content as source material for the rewrite.
 
-### 2. Refinement
+**Complete when:** every explicit requirement has one mapped home and every material gap is either answered or visible as an assumption.
 
-Expand the prompt into detailed, ordered instructions with explicit actions:
+## 2. Write the instructions
 
-1. Add edge cases, success criteria, data sources, goals, and constraints
-2. Include examples inside `<example>` tags (mark as illustrative)
-3. Add domain-specific guidance and pitfalls where applicable
-4. If tools/schemas are relevant, scope them via `<tools>`, `<function_call>`, `<api_schema>`
+Use ordered, imperative directions and scale their detail to the task. Preserve requested tone, format, scope, and restrictions. Add only elements that sharpen execution:
 
-### 3. XML Structuring
+- a role when expertise or stance changes the response;
+- domain constraints, pitfalls, and edge cases that affect correctness;
+- exact tool, data-source, function, or schema boundaries;
+- observable output requirements and success criteria; and
+- an illustrative example when the required shape or quality remains ambiguous.
 
-Use descriptive, properly nested tags; close all tags.
+For a reusable template, use descriptive placeholders and label required and optional inputs.
 
-**Helpful tags:**
+**Complete when:** each instruction changes expected behaviour, the source requirements remain recognisable, and domain claims are grounded in supplied context or established facts.
 
-- `<role>` - Define the AI's persona and objective
-- `<key_responsibilities>` - List core duties
-- `<approach>` - Break down the workflow
-- `<step number="">` - Sequential actions
-- `<tasks>` - Specific actionable items
-- `<additional_considerations>` - Edge cases, safety, compliance
-- `<reasoning visibility="hidden">` - Internal thought process guidance
+## 3. Structure the XML
 
-### 4. Output Format
+Use the smallest set of descriptive XML tags that creates useful boundaries. Typical sections include `<role>`, `<user_input>`, `<context>`, `<task>`, `<approach>`, `<constraints>`, `<tools>`, `<output>`, `<success_criteria>`, and `<example illustrative="true">`.
 
-Structure the response as:
+Keep user data inside input or context sections and operational instructions inside task, constraint, tool, and output sections. Escape literal XML characters in embedded content.
 
-````
+Read [XML patterns](XML-PATTERNS.md) only when a reusable template, tool/schema contract, or illustrative example needs a concrete tag shape.
+
+**Complete when:** the XML is well-formed, tags separate rather than repeat content, and embedded literals cannot break the structure.
+
+## 4. Deliver the rewrite
+
+Return:
+
+````markdown
 [One-line introduction]
 
-​```markdown
-[Enhanced prompt with XML tags]
-​```
-
-**Key Improvements Made:**
-- [Improvement 1]
-- [Improvement 2]
-- [Improvement 3]
-````
-
-**Wrap the enhanced prompt in a markdown code fence** (`markdown ... `) for clear presentation.
-
-## Template Structure
-
 ```markdown
-<role>You are an AI-powered [role description]. [Concise persona and objective]</role>
-
-<user_input>
-<user_prompt>[Original prompt]</user_prompt>
-<context>[Background or constraints]</context>
-<audience>[Intended audience]</audience>
-<tone>[Desired tone]</tone>
-</user_input>
-
-<key_responsibilities>
-
-- [Responsibility 1]
-- [Responsibility 2]
-  </key_responsibilities>
-
-<approach>
-  <step number="1" title="[Step title]">
-    - [Actions or questions]
-  </step>
-  <step number="2" title="[Step title]">
-    - [How to add detail and structure]
-  </step>
-  <step number="3" title="[Step title]">
-    - [Formatting, checks, validation]
-  </step>
-</approach>
-
-<tasks>
-  - [Specific actionable tasks]
-  - [Edge cases or validations]
-</tasks>
-
-<additional_considerations>
-
-- [Safety, compliance, or scope boundaries]
-- [Note assumptions; invite clarifications]
-  </additional_considerations>
-
-<example>
-  [Optional illustrative refined prompt]
-</example>
+[Refined XML-structured prompt]
 ```
 
-## Guidelines
+**Key Improvements Made:**
 
-- Keep tone professional and authoritative
-- Note assumptions and request missing inputs when needed
-- Ensure directives are actionable, testable, and unambiguous
-- Use nested tags appropriately for complex structures
-- Always close all XML tags properly
+- [One to three substantive improvements]
+````
+
+Keep assumptions inside the prompt and name only improvements actually made. If the intake branch required clarification, return those questions instead of a provisional rewrite.
+
+**Complete when:** the fenced prompt is ready to copy, assumptions or reusable placeholders are explicit, success criteria are observable, and the improvement list matches the rewrite.
