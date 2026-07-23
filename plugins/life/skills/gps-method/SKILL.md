@@ -1,195 +1,86 @@
 ---
 name: gps-method
-description: Evidence-based goal achievement framework using Goal, Plan, and System methodology. Use when users want to set goals, create actionable plans, build execution systems, or diagnose why they're struggling to make progress on existing goals. Triggers include requests to "set a goal", "help me achieve", "create a plan", "why am I not making progress", or similar goal-setting and achievement queries.
+description: WHEN defining a goal, turning one into an actionable plan and execution system, or diagnosing stalled progress; NOT for standalone task lists without a goal; creates or repairs a Goal, Plan, System map.
 ---
 
-# GPS Method - Goal Achievement Framework
+# GPS Method
 
-An evidence-based framework for achieving any goal through systematic breakdown and execution. GPS stands for **Goal, Plan, and System**.
+Treat a goal as a GPS map:
 
-## How This Works
+- **Goal** sets the destination.
+- **Plan** selects a credible route.
+- **System** keeps movement visible and repeatable.
 
-The GPS method serves two purposes:
+Build in that order. Diagnose in the same order and repair the first weak component before changing anything downstream.
 
-1. **Goal Creation**: Guide users through defining clear goals and building actionable systems to achieve them
-2. **Progress Diagnosis**: When users struggle, identify exactly where the breakdown is occurring
+## Choose the branch
 
-## Workflow Overview
+- **Create:** the user has a new, vague, or undocumented goal.
+- **Diagnose:** the user has a goal but progress has stalled or execution is inconsistent.
 
-Guide users through this sequence:
+For an existing stalled goal, diagnose before rebuilding it.
 
-### Mode 1: Creating a New Goal
+**Complete when:** one branch is selected from the user's situation; if the situation is ambiguous, the user has identified whether they need a new map or a repair.
 
-1. **Define the Goal** - Establish destination with specificity, motivation, and constraints
-2. **Build the Plan** - Identify major moves, assess feasibility, and forecast obstacles
-3. **Design the System** - Set up tracking, reminders, and accountability mechanisms
-4. **Document Everything** - Create a structured goal document for reference
+## Create a GPS map
 
-### Mode 2: Diagnosing Existing Goals
+Read [`references/goal-template.md`](references/goal-template.md) before using this branch; it is the required output schema. Load [`references/example-goals.md`](references/example-goals.md) only when the user asks for inspiration, a field remains abstract after one attempt, or a quality benchmark is needed.
 
-When a user is struggling with progress:
+### 1. Set the Goal
 
-1. **Identify which component is broken** (Goal, Plan, or System)
-2. **Ask diagnostic questions** specific to that component
-3. **Recommend targeted fixes** based on the diagnosis
+Establish:
 
-## Creating a New Goal
+- a specific outcome with an observable measure and a target date or review horizon;
+- the user's intrinsic reason for pursuing it;
+- anti-goals: the time, money, health, relationships, or values the pursuit must protect.
 
-### Step 1: Define the Goal (The Destination)
+**Complete when:** one sentence states the outcome, measure, and horizon; the motivation belongs to the user; and the boundaries are explicit.
 
-Guide the user through three factors:
+### 2. Build the Plan
 
-**Specificity and Concreteness**
+1. Choose three to five major moves that plausibly produce the outcome.
+2. Score confidence from 0–100% on both:
+   - **Theory:** will these moves produce the result?
+   - **Practice:** will the user consistently do them?
+3. When either score is below 80%, reduce the scope, change the moves, add support, or define a small test, then score again. Record any uncertainty the user deliberately accepts.
+4. Run a crystal-ball forecast: imagine the goal missed at the horizon, name the three most likely causes, and pair each with a pre-emptive response.
 
-- Avoid vague goals like "start a business" or "get fit"
-- Ask: "Can you make this more specific and measurable?"
-- Push for quantifiable outcomes: "reduce visceral fat by 50%" or "build a business making $100k/year"
+**Complete when:** three to five concrete moves connect to the goal, both confidence scores are at least 80% or accepted uncertainty is explicit, and each forecasted failure has a response.
 
-**Emotional Compulsion (The Why)**
+### 3. Design the System
 
-- Explore intrinsic motivations
-- Ask: "Why does this matter to you personally?"
-- Watch for "should" goals driven by external pressure (fame, status, obligation)
-- Help distinguish between genuine desire and external expectations
+Define:
 
-**Anti-Goals (Constraints)**
+- **Tracking:** the result measure, leading actions, tool, and review cadence;
+- **Reminders:** a time, event, or environmental cue for each recurring move;
+- **Accountability:** a person, group, or mechanism, its check-in cadence, and the response to a missed commitment.
 
-- Identify what they want to avoid while pursuing the goal
-- Ask: "What would you NOT be willing to sacrifice for this?"
-- Examples: "not working weekends", "not sacrificing family time", "not going into debt"
+Prefer the lowest-friction system the user will actually maintain.
 
-### Step 2: Build the Plan (The Roadmap)
+**Complete when:** every recurring move has a cue or schedule, progress has a visible review cadence, and accountability has a named mechanism.
 
-Guide the user through three components:
+### 4. Deliver the map
 
-**Major Moves (3-5 Primary Actions)**
+Fill the goal template in the user's language. Mark assumptions and unresolved choices instead of inventing commitments. End with the first scheduled action and first review date.
 
-- Ask: "What are the 3-5 main things you need to do to achieve this?"
-- Push for concrete, actionable steps
-- Example for weight loss: specific calorie targets, protein intake, number of weekly workouts
-- Example for business: revenue target, customer acquisition strategy, product timeline
+**Complete when:** every template field contains user-grounded content or an explicit open question, and the user has a concrete next action.
 
-**Realistic Assessment**
+## Diagnose a stalled goal
 
-- Test if the plan works in theory: "Will these actions actually produce the result?"
-- Test if the plan works in practice: "Are you actually likely to follow through?"
-- Use 80% confidence threshold: if below 80% on either, rethink the plan
-- Ask directly: "On a scale of 0-100%, how confident are you this will work?"
+Read [`references/diagnostic-guide.md`](references/diagnostic-guide.md) before using this branch. Ask only the questions needed to decide the current gate.
 
-**Crystal Ball Method (Mental Forecasting)**
+### 1. Find the first break
 
-- Have them imagine they failed in 6 months
-- Ask: "What are the top 3 reasons this didn't work out?"
-- For each failure reason, create a preemptive strategy
-- This builds in resilience before obstacles arise
+Test the Goal, Plan, and System gates in order. Stop at the first gate that fails. If all three pass, inspect execution quality, timeline assumptions, measurement lag, and external constraints.
 
-### Step 3: Design the System (The Execution)
+**Complete when:** one broken component or deeper constraint is named with evidence from the user's actual behavior or results.
 
-Guide the user through three mechanisms:
+### 2. Repair and verify
 
-**Tracking**
+Apply the smallest targeted repair, update the affected part of the GPS map, and set an observable check and review date. Re-run the repaired gate, then continue through the remaining gates.
 
-- Ask: "How will you monitor progress?"
-- Suggest specific tools: Google Sheet, app, scale, journal
-- Explain: awareness of numbers nudges better micro-decisions
-- Make it as frictionless as possible
+**Complete when:** the diagnosis, repair, and evidence that will confirm or reject the repair are explicit.
 
-**Reminders**
+## Response contract
 
-- Ask: "How will you remember to work on this daily?"
-- Suggest options:
-  - Write goals down each morning
-  - Vision board in visible location
-  - Calendar blocks for major moves
-  - Phone reminders at key times
-- The brain forgets resolutions without cues
-
-**Accountability**
-
-- Ask: "Who can help hold you accountable?"
-- Options: accountability buddy, squad, mentor, coach, public commitment
-- Most people struggle with self-accountability alone
-- External pressure and support are critical when motivation wanes
-
-## Documenting the Goal
-
-Create a structured document using this template (see `references/goal-template.md` for full version):
-
-```markdown
-# [Goal Name]
-
-## Goal (The Destination)
-
-**Specific Target**: [Quantifiable outcome]
-**Why This Matters**: [Intrinsic motivation]
-**Anti-Goals**: [What you won't sacrifice]
-
-## Plan (The Roadmap)
-
-**Major Moves**:
-
-1. [Action 1]
-2. [Action 2]
-3. [Action 3]
-
-**Confidence Assessment**:
-
-- Theory (will it work?): [X]%
-- Practice (will I do it?): [X]%
-
-**Failure Forecast**:
-
-- Potential obstacle 1 → Mitigation strategy
-- Potential obstacle 2 → Mitigation strategy
-- Potential obstacle 3 → Mitigation strategy
-
-## System (The Execution)
-
-**Tracking**: [How you'll measure]
-**Reminders**: [How you'll remember]
-**Accountability**: [Who will help]
-```
-
-## Diagnosing Existing Goals
-
-When a user is struggling, run through this diagnostic:
-
-**Question 1: Is the Goal clear?**
-
-- Can they articulate it in one specific sentence?
-- If not → Work on Goal definition first
-
-**Question 2: Do they believe the Plan will work?**
-
-- Are they confident in the major moves (theory)?
-- Are they confident they'll actually do them (practice)?
-- If not → Revise the Plan
-
-**Question 3: Are they executing the System?**
-
-- Are they tracking?
-- Are they using reminders?
-- Do they have accountability?
-- If not → Strengthen the System
-
-See `references/diagnostic-guide.md` for detailed troubleshooting questions.
-
-## The GPS Analogy
-
-Help users understand through the literal GPS metaphor:
-
-- **Goal** = Destination you type into the GPS
-- **Plan** = Specific route chosen (highways vs. side streets)
-- **System** = Dashboard and steering wheel that keep you on the road and monitor fuel
-
-Without all three, you can't reliably reach your destination.
-
-## Examples
-
-For inspiration and quality standards, see `references/example-goals.md` for complete GPS breakdowns across different domains:
-
-- Fitness goals
-- Business goals
-- Learning goals
-- Relationship goals
-- Creative projects
+For creation, return the completed GPS template, open questions or assumptions, and the next action. For diagnosis, return the first broken component, supporting evidence, targeted repair, updated map fields, and the next check.
