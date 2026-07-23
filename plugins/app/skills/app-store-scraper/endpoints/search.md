@@ -1,97 +1,47 @@
 # App Search
 
-Search for apps using keywords and filters.
+Use Search for keyword discovery. Search results are provider-ranked candidates, not an exhaustive catalog.
 
-## Endpoint
+Apple documents the parameters and limits in [Constructing Searches](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/Searching.html).
 
-```bash
-https://itunes.apple.com/search
-```
+## Request
 
-## Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `term` | string | Yes | Search query |
-| `country` | string | No | Market code (default: `us`) |
-| `media` | string | No | Set to `software` for apps |
-| `entity` | string | No | Set to `software` for apps |
-| `limit` | number | No | Max results (default: 50, max: 200) |
-| `lang` | string | No | Language preference |
-
-## Examples
-
-### Basic Search
+Choose `software` for iOS/iPadOS or `macSoftware` for macOS:
 
 ```bash
-curl -s "https://itunes.apple.com/search?term=photo%20editor&country=us&media=software&entity=software&limit=10" | \
-  jq '.results[] | {
-    name: .trackName,
-    id: .trackId,
-    developer: .artistName,
-    rating: .averageUserRating,
-    price: .price
-  }'
+curl --fail-with-body --silent --show-error --get \
+  'https://itunes.apple.com/search' \
+  --data-urlencode "term=${TERM}" \
+  --data-urlencode "country=${COUNTRY}" \
+  --data-urlencode 'media=software' \
+  --data-urlencode "entity=${ENTITY}" \
+  --data-urlencode "limit=${LIMIT}"
 ```
 
-### Search with Pagination
+`limit` accepts 1 through 200 and defaults to 50. The API exposes no offset, so client-side slicing only narrows the returned window; it does not fetch later catalog results. The documented `lang` values are `en_us` and `ja_jp`.
 
-```bash
-# iTunes API doesn't support offset, so fetch max and slice client-side
-curl -s "https://itunes.apple.com/search?term=fitness&country=us&media=software&entity=software&limit=100" | \
-  jq '.results[20:30][] | {name: .trackName, id: .trackId}'
+## Validate and select
+
+Require an object with numeric `resultCount` and array `results`. Preserve response order unless the user requests another sort.
+
+```jq
+.results
+| to_entries
+| map({
+    rank: (.key + 1),
+    appId: .value.trackId,
+    name: .value.trackName,
+    bundleId: .value.bundleId,
+    developerId: .value.artistId,
+    developer: .value.artistName,
+    category: .value.primaryGenreName,
+    rating: .value.averageUserRating,
+    ratingCount: .value.userRatingCount,
+    price: .value.price,
+    currency: .value.currency
+  })
 ```
 
-### Extract Only App IDs
+Apply requested category, price, rating, or developer filters after validating the response. Report the original limit and the number remaining after filters.
 
-```bash
-curl -s "https://itunes.apple.com/search?term=games&country=us&media=software&entity=software&limit=50" | \
-  jq '.results[].trackId'
-```
-
-### Search by Category Keywords
-
-```bash
-# Search for productivity apps
-curl -s "https://itunes.apple.com/search?term=productivity&country=us&media=software&entity=software&limit=30" | \
-  jq '.results[] | select(.primaryGenreName == "Productivity") | {
-    name: .trackName,
-    rating: .averageUserRating
-  }'
-```
-
-## Response Structure
-
-Same as App Lookup endpoint, but returns array in `results` field.
-
-```json
-{
-  "resultCount": 50,
-  "results": [
-    {
-      "trackId": 553834731,
-      "trackName": "App Name",
-      "bundleId": "com.example.app",
-      "artistName": "Developer Name",
-      "price": 0.0,
-      "averageUserRating": 4.5,
-      ...
-    }
-  ]
-}
-```
-
-## Limitations
-
-- No server-side pagination (no offset parameter)
-- Maximum 200 results per request
-- Results must be filtered and sorted client-side
-- Search algorithm is controlled by Apple
-
-## Use Cases
-
-- Discover apps by keyword
-- Find apps in specific categories
-- Get competitor analysis data
-- Build app recommendation systems
-- Extract app IDs for batch processing
+**Complete when:** the search term, entity, storefront, and returned window are explicit; provider rank is preserved or the replacement sort is named; and truncation at 200 is reported.

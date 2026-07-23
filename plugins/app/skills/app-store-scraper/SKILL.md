@@ -1,247 +1,70 @@
 ---
 name: app-store-scraper
 description: >
-  WHEN scraping iOS/macOS App Store data (apps, reviews, ratings, search);
-  NOT for installing or testing apps; retrieves structured JSON data using iTunes/App Store APIs with curl and jq formatting
+  WHEN retrieving public iOS/macOS App Store metadata, search results, charts, developer portfolios, reviews, ratings, suggestions, or similar-app candidates;
+  NOT for App Store Connect analytics, authenticated owner data, or installing/testing apps;
+  routes each storefront-scoped request through the matching Apple endpoint and returns validated structured data
 ---
 
 # App Store Scraper
 
-Comprehensive toolkit for retrieving structured data from Apple's App Store and iTunes APIs using curl and jq. All endpoints return JSON that can be parsed and formatted for analysis.
+Treat each retrieval as a **query contract**: one data branch, explicit identifiers and storefronts, a bounded result set, and a schema check before analysis.
 
-## Quick Start
+## 1. Lock the query contract
 
-**Tools Required:**
-- `curl` for HTTP requests
-- `jq` for JSON parsing and formatting
+Extract:
 
-**Example:**
-```bash
-# Get app details
-curl -s "https://itunes.apple.com/lookup?id=553834731&entity=software" | \
-  jq '.results[0] | {name: .trackName, rating: .averageUserRating}'
-```
+- branch: metadata, search, chart, developer portfolio, reviews, ratings, suggestions, or similar apps;
+- identifier: numeric app ID, bundle ID, developer ID, or search term;
+- platform: iOS/iPadOS or macOS when it changes the entity;
+- storefront: two-letter country code for every regional result;
+- coverage: result limit, pages, apps, countries, and sort order;
+- output: requested fields, format, grouping, and derived comparisons.
 
-## Decision Trees
+Default an omitted storefront to `us`, a list/search limit to the endpoint's default, and reviews to page 1 sorted by most recent. Ask for a missing identifier or any choice that materially changes the query.
 
-Use these decision trees to quickly find the right endpoint for your needs.
+**Complete when:** every requested output field and comparison maps to an identifier, storefront, branch, and finite coverage bound.
 
-### 🎯 Decision Tree 1: What Data Do You Need?
+## 2. Route each branch
 
-```
-What information do you need?
-│
-├─ App Metadata (name, price, developer, description)
-│  ├─ I know the app ID → [App Lookup](endpoints/app-lookup.md)
-│  ├─ I know the bundle ID → [App Lookup](endpoints/app-lookup.md)
-│  └─ I need to search by keyword → [App Search](endpoints/search.md)
-│
-├─ App Discovery
-│  ├─ Browse top apps or categories → [App Lists/Feeds](endpoints/lists.md)
-│  ├─ Search by keyword → [App Search](endpoints/search.md)
-│  ├─ Find all apps by a developer → [Developer Apps](endpoints/developer.md)
-│  ├─ Get search suggestions → [Search Suggestions](endpoints/suggestions.md)
-│  └─ Find similar apps → [Similar Apps](endpoints/similar.md)
-│
-└─ User Feedback
-   ├─ Read user reviews → [Reviews](endpoints/reviews.md)
-   └─ Get rating distribution (1-5 stars) → [Ratings Histogram](endpoints/ratings.md)
-```
+| Request | Reference | Source class |
+| --- | --- | --- |
+| App metadata by app ID or bundle ID; bulk app lookup | [App lookup](endpoints/app-lookup.md) | Documented Search API |
+| Keyword discovery and filtering | [Search](endpoints/search.md) | Documented Search API |
+| Apps returned for a developer ID | [Developer portfolio](endpoints/developer.md) | Documented Lookup API |
+| Top free, top paid, top grossing, new, or category charts | [Charts](endpoints/lists.md) | Apple RSS feed; legacy fallback for unsupported charts |
+| Public written reviews | [Reviews](endpoints/reviews.md) | Undocumented RSS endpoint |
+| One-to-five-star distribution | [Ratings](endpoints/ratings.md) | Undocumented storefront endpoint |
+| App Store query completions | [Suggestions](endpoints/suggestions.md) | Undocumented plist endpoint |
+| Related-app candidates | [Similar apps](endpoints/similar.md) | API proxy or authorized HTML heuristic |
 
-### 🔍 Decision Tree 2: How Do You Identify the App?
+Read the selected reference completely before constructing its request. Also read App lookup when the selected branch needs ID resolution or metadata enrichment. For a request spanning branches, keep one query contract per branch and join records by `trackId` or `artistId`.
 
-```
-How do you identify the app?
-│
-├─ I have the numeric app ID (e.g., 553834731)
-│  ├─ Get app details → [App Lookup](endpoints/app-lookup.md)
-│  ├─ Get reviews → [Reviews](endpoints/reviews.md)
-│  ├─ Get ratings breakdown → [Ratings Histogram](endpoints/ratings.md)
-│  └─ Find similar apps → [Similar Apps](endpoints/similar.md)
-│
-├─ I have the bundle ID (e.g., com.apple.Numbers)
-│  └─ Get app details → [App Lookup](endpoints/app-lookup.md)
-│
-├─ I have the developer ID
-│  └─ Get all apps by developer → [Developer Apps](endpoints/developer.md)
-│
-├─ I only know the app name
-│  └─ Search by keyword → [App Search](endpoints/search.md)
-│
-└─ I want to explore
-   ├─ Browse by category → [App Lists/Feeds](endpoints/lists.md)
-   └─ Get search suggestions → [Search Suggestions](endpoints/suggestions.md)
-```
+**Complete when:** each contract has one primary endpoint, its source class is explicit, and every required disclosed reference has been read.
 
-### 📊 Decision Tree 3: What Action Do You Want to Perform?
+## 3. Execute defensively
 
-```
-What do you want to do?
-│
-├─ Analyze a Specific App
-│  ├─ Get comprehensive metadata → [App Lookup](endpoints/app-lookup.md)
-│  ├─ Read user feedback → [Reviews](endpoints/reviews.md)
-│  ├─ Analyze rating distribution → [Ratings Histogram](endpoints/ratings.md)
-│  └─ Find competitors/alternatives → [Similar Apps](endpoints/similar.md)
-│
-├─ Market Research
-│  ├─ Track top apps in categories → [App Lists/Feeds](endpoints/lists.md)
-│  ├─ Analyze developer portfolios → [Developer Apps](endpoints/developer.md)
-│  └─ Search by keyword/category → [App Search](endpoints/search.md)
-│
-└─ Monitor Changes
-   ├─ Track rating changes → [Ratings Histogram](endpoints/ratings.md)
-   ├─ Monitor new reviews → [Reviews](endpoints/reviews.md)
-   └─ Watch top charts → [App Lists/Feeds](endpoints/lists.md)
-```
+Use `curl --fail-with-body --silent --show-error --location`. Keep user-supplied values in quoted `--data-urlencode` arguments. Parse JSON with `jq`; convert the suggestions plist with macOS `plutil` before using `jq`.
 
-### 🌍 Decision Tree 4: Regional & Multi-App Queries
+For documented Search and Lookup requests, follow Apple's [iTunes Search API](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/) contract. Its archived documentation specifies approximately 20 calls per minute, subject to change, and recommends caching for large sites. Serialize multi-call runs within that bound; honor `Retry-After` on `429`, and retry only transient transport or `5xx` failures.
 
-```
-Do you need region-specific or multi-app data?
-│
-├─ Multi-Region Analysis
-│  ├─ Compare ratings across regions → [Ratings Histogram](endpoints/ratings.md)
-│  └─ Get reviews from different regions → [Reviews](endpoints/reviews.md)
-│
-├─ Bulk Operations
-│  ├─ Lookup multiple apps → [App Lookup](endpoints/app-lookup.md)
-│  └─ Search and filter results → [App Search](endpoints/search.md)
-│
-└─ Category Browsing
-   └─ Browse by specific categories → [App Lists/Feeds](endpoints/lists.md)
-```
+Treat RSS, ratings, and suggestions schemas as volatile. Validate the root type and required fields before selecting values. Treat an empty result as data only after the payload passes its branch schema; otherwise report the response as an endpoint failure.
 
-## 📚 Documentation Index
+The HTML branch requires an authorized basis and compliance with the applicable site terms. Apple's [Website Terms of Use](https://www.apple.com/legal/internet-services/terms/site.html) prohibit page scraping; use the API proxies in Similar apps unless the user supplies a separate authorized basis.
 
-### Endpoints (API-Based)
+**Complete when:** every requested app, storefront, and page has either a schema-valid response or an explicit failure with its HTTP or parsing evidence.
 
-Reliable, structured API endpoints that return JSON:
+## 4. Verify coverage and return
 
-| Endpoint | Description | File |
-|----------|-------------|------|
-| **App Lookup** | Get detailed app info by ID or bundle ID | [endpoints/app-lookup.md](endpoints/app-lookup.md) |
-| **App Search** | Search apps by keyword with filters | [endpoints/search.md](endpoints/search.md) |
-| **App Lists/Feeds** | Browse top apps and categories | [endpoints/lists.md](endpoints/lists.md) |
-| **Developer Apps** | Get all apps by a specific developer | [endpoints/developer.md](endpoints/developer.md) |
-| **Reviews** | Fetch paginated user reviews | [endpoints/reviews.md](endpoints/reviews.md) |
-| **Ratings Histogram** | Get 1-5 star rating breakdown | [endpoints/ratings.md](endpoints/ratings.md) |
-| **Search Suggestions** | Get autocomplete search hints | [endpoints/suggestions.md](endpoints/suggestions.md) |
+Before analysis:
 
-### Endpoints (Web Scraping)
+- confirm returned app, developer, and storefront identifiers match the contract;
+- preserve provider order for search and chart rankings;
+- join bulk results by identifier rather than response position;
+- distinguish zero results, missing regional availability, truncated coverage, and endpoint failure;
+- label values inferred from an undocumented schema or HTML heuristic;
+- account for every requested app, country, page, field, and comparison.
 
-Requires HTML parsing, less reliable:
+Return the requested shape plus the storefront, retrieval time, source class, and any truncation, unavailable data, or failed branch. Include raw payloads only when requested.
 
-| Endpoint | Description | File |
-|----------|-------------|------|
-| **Similar Apps** | Find related apps (web scraping) | [endpoints/similar.md](endpoints/similar.md) |
-
-## Common Use Cases
-
-### Use Case 1: Competitive Analysis
-
-```bash
-# 1. Search for competitor apps
-curl -s "https://itunes.apple.com/search?term=note%20taking&media=software&entity=software&limit=10"
-
-# 2. Get detailed info for top results
-# 3. Compare ratings, features, pricing
-# 4. Analyze user reviews
-
-See: [App Search](endpoints/search.md) → [App Lookup](endpoints/app-lookup.md) → [Reviews](endpoints/reviews.md)
-```
-
-### Use Case 2: App Monitoring
-
-```bash
-# 1. Get current app state
-# 2. Track rating changes over time
-# 3. Monitor new reviews
-# 4. Alert on rating drops
-
-See: [App Lookup](endpoints/app-lookup.md) → [Ratings Histogram](endpoints/ratings.md) → [Reviews](endpoints/reviews.md)
-```
-
-### Use Case 3: Market Research
-
-```bash
-# 1. Browse top apps in category
-# 2. Analyze pricing trends
-# 3. Study feature patterns
-# 4. Identify gaps in market
-
-See: [App Lists/Feeds](endpoints/lists.md) → [App Search](endpoints/search.md)
-```
-
-### Use Case 4: Developer Portfolio Analysis
-
-```bash
-# 1. Find developer ID from an app
-# 2. Get all apps by developer
-# 3. Compare performance across portfolio
-# 4. Track developer strategy
-
-See: [App Lookup](endpoints/app-lookup.md) → [Developer Apps](endpoints/developer.md)
-```
-
-## Quick Reference
-
-### Essential Parameters
-
-- **country** - Market code (default: `us`)
-- **entity** - Always use `software` for apps
-- **limit** - Max results (varies by endpoint)
-- **lang** - Language preference (e.g., `en-US`, `ja-JP`)
-
-### Common Country Codes
-
-| Code | Country | Code | Country |
-|------|---------|------|---------|
-| `us` | United States | `gb` | United Kingdom |
-| `de` | Germany | `fr` | France |
-| `jp` | Japan | `au` | Australia |
-| `ca` | Canada | `es` | Spain |
-| `it` | Italy | `br` | Brazil |
-| `in` | India | `mx` | Mexico |
-| `kr` | South Korea | `cn` | China |
-
-### Common Commands
-
-```bash
-# Get app by ID
-curl -s "https://itunes.apple.com/lookup?id=553834731&entity=software" | jq '.results[0]'
-
-# Search apps
-curl -s "https://itunes.apple.com/search?term=weather&media=software&entity=software&limit=10"
-
-# Top free apps
-curl -s "https://itunes.apple.com/us/rss/topfreeapplications/limit=25/json"
-
-# Recent reviews
-curl -s "https://itunes.apple.com/us/rss/customerreviews/page=1/id=553834731/sortby=mostrecent/json"
-```
-
-## Best Practices
-
-1. **Validate responses** before processing with `jq empty`
-2. **Implement caching** to reduce API load
-3. **Add rate limiting** (1-2s between requests)
-4. **Batch requests** when possible using comma-separated IDs
-5. **Handle errors gracefully** with retries and fallbacks
-
-## API Limitations
-
-- **Rate limiting**: No official limits, but be respectful (1-2s between requests)
-- **Pagination**: Limited on some endpoints (max 200 results for search)
-- **History**: Only current version data available via API
-- **Web scraping**: Required for similar apps (unreliable, structure may change)
-
-## External Resources
-
-- [iTunes Search API Documentation](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/)
-- [RSS Feed Generator](https://rss.applemarketingtools.com/)
-- [jq Documentation](https://jqlang.github.io/jq/)
-
----
-
-**Start Here:** Use the decision trees above to find the right endpoint for your needs, then follow the links to detailed documentation.
+**Complete when:** every requested unit is accounted for, every reported value traces to a validated response field, and every limitation is attached to the affected result.

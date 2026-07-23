@@ -1,134 +1,45 @@
-# Developer Apps
+# Developer Portfolio
 
-Retrieve all apps published by a specific developer.
+Use Lookup with a developer `artistId` to retrieve the software records Apple returns for that developer in one storefront.
 
-## Endpoint
+If only an app ID or bundle ID is known, use [App lookup](app-lookup.md) first and take its `artistId`.
 
-```bash
-https://itunes.apple.com/lookup
-```
+## Request
 
-## Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Developer/Artist ID |
-| `country` | string | No | Market code (default: `us`) |
-| `entity` | string | No | Set to `software` for apps |
-
-## Examples
-
-### Get All Apps by Developer
+Choose `software` for iOS/iPadOS or `macSoftware` for macOS:
 
 ```bash
-curl -s "https://itunes.apple.com/lookup?id=284882215&country=us&entity=software" | \
-  jq '.results[] | select(.wrapperType == "software") | {
-    name: .trackName,
-    id: .trackId,
-    bundleId: .bundleId,
-    category: .primaryGenreName,
-    rating: .averageUserRating
-  }'
+curl --fail-with-body --silent --show-error --get \
+  'https://itunes.apple.com/lookup' \
+  --data-urlencode "id=${DEVELOPER_ID}" \
+  --data-urlencode "country=${COUNTRY}" \
+  --data-urlencode "entity=${ENTITY}"
 ```
 
-### Get Developer ID from an App
+## Validate and select
 
-```bash
-# First lookup an app to get developer ID
-DEV_ID=$(curl -s "https://itunes.apple.com/lookup?bundleId=com.apple.Numbers" | \
-  jq -r '.results[0].artistId')
+The response can contain an artist record followed by software records. Select by schema:
 
-echo "Developer ID: $DEV_ID"
-
-# Then fetch all apps by that developer
-curl -s "https://itunes.apple.com/lookup?id=${DEV_ID}&entity=software" | \
-  jq '.results[] | select(.wrapperType == "software") | .trackName'
-```
-
-### Count Developer's Portfolio
-
-```bash
-curl -s "https://itunes.apple.com/lookup?id=284882215&entity=software" | \
-  jq '[.results[] | select(.wrapperType == "software")] | length'
-```
-
-### Get Developer's Top-Rated Apps
-
-```bash
-curl -s "https://itunes.apple.com/lookup?id=284882215&entity=software" | \
-  jq '.results[] | select(.wrapperType == "software") | {
-    name: .trackName,
-    rating: .averageUserRating,
-    ratingCount: .userRatingCount
-  } | select(.rating >= 4.0)' | \
-  jq -s 'sort_by(.rating) | reverse'
-```
-
-### List Developer's Free vs Paid Apps
-
-```bash
-curl -s "https://itunes.apple.com/lookup?id=284882215&entity=software" | \
-  jq '.results[] | select(.wrapperType == "software") | {
-    name: .trackName,
-    price: .price,
-    type: (if .price == 0 then "Free" else "Paid" end)
-  }'
-```
-
-## Response Structure
-
-Returns the same structure as App Lookup, with multiple app results:
-
-```json
-{
-  "resultCount": 15,
-  "results": [
-    {
-      "wrapperType": "software",
-      "artistId": 284882215,
-      "artistName": "Developer Name",
-      "trackId": 553834731,
-      "trackName": "App Name",
-      ...
+```jq
+[
+  .results[]
+  | select(.wrapperType == "software")
+  | select((.artistId | tostring) == $developerId)
+  | {
+      appId: .trackId,
+      name: .trackName,
+      bundleId,
+      category: .primaryGenreName,
+      rating: .averageUserRating,
+      ratingCount: .userRatingCount,
+      price,
+      currency
     }
-  ]
-}
+]
 ```
 
-## Important Notes
+Pass `--arg developerId "$DEVELOPER_ID"` to `jq`. Require an object with numeric `resultCount` and array `results`; then verify any artist record and every selected software record use the requested `artistId`.
 
-- First result may contain developer info (not an app)
-- Filter for `wrapperType == "software"` to get only apps
-- Some developers may have apps in multiple countries
-- Developer ID (artistId) is different from app ID (trackId)
+Lookup publishes no developer-portfolio pagination contract. Describe the output as the records returned for this storefront rather than proof of a developer's globally exhaustive portfolio.
 
-## Finding Developer IDs
-
-### Method 1: From an App
-
-```bash
-curl -s "https://itunes.apple.com/lookup?id=553834731" | \
-  jq -r '.results[0] | "Developer: \(.artistName)\nID: \(.artistId)"'
-```
-
-### Method 2: From Bundle ID
-
-```bash
-curl -s "https://itunes.apple.com/lookup?bundleId=com.example.app" | \
-  jq -r '.results[0].artistId'
-```
-
-### Method 3: From Search
-
-```bash
-curl -s "https://itunes.apple.com/search?term=developer%20name&media=software&entity=software&limit=1" | \
-  jq -r '.results[0].artistId'
-```
-
-## Use Cases
-
-- Analyze developer portfolios
-- Track competitor app releases
-- Monitor developer rating trends
-- Build developer profile pages
-- Discover related apps from same developer
+**Complete when:** the developer ID is resolved, all selected software records match it and the storefront, and provider coverage is stated without an unsupported completeness claim.

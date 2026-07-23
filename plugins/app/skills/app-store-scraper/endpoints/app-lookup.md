@@ -1,93 +1,57 @@
 # App Lookup
 
-Retrieve detailed information for a specific app using its numeric ID or bundle identifier.
+Use Lookup for metadata by numeric app ID or bundle ID, and for bulk enrichment after another branch returns app IDs. Use `software` for iOS/iPadOS and `macSoftware` for macOS.
 
-## Endpoint
+Apple documents Lookup in the [iTunes Search API](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/LookupExamples.html).
 
-```bash
-https://itunes.apple.com/lookup
-```
+## Request
 
-## Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes* | Numeric app ID (trackId) |
-| `bundleId` | string | Yes* | Bundle identifier (e.g., com.example.app) |
-| `country` | string | No | Market code (default: `us`) |
-| `entity` | string | No | Filter type (use `software` for apps) |
-| `lang` | string | No | Language preference |
-
-*Use either `id` OR `bundleId`, not both
-
-## Examples
-
-### Lookup by App ID
+By app ID:
 
 ```bash
-curl -s "https://itunes.apple.com/lookup?id=553834731&country=us&entity=software" | \
-  jq '.results[0] | {
-    name: .trackName,
-    developer: .artistName,
-    bundleId: .bundleId,
-    version: .version,
-    price: .price,
-    rating: .averageUserRating,
-    ratingCount: .userRatingCount,
-    description: .description,
-    releaseDate: .releaseDate,
-    size: .fileSizeBytes,
-    languages: .languageCodesISO2A
-  }'
+curl --fail-with-body --silent --show-error --get \
+  'https://itunes.apple.com/lookup' \
+  --data-urlencode "id=${APP_ID}" \
+  --data-urlencode "country=${COUNTRY}" \
+  --data-urlencode "entity=${ENTITY}"
 ```
 
-### Lookup by Bundle ID
+By bundle ID:
 
 ```bash
-curl -s "https://itunes.apple.com/lookup?bundleId=com.apple.Numbers&country=us&entity=software" | \
-  jq '.results[0] | {
-    name: .trackName,
-    appId: .trackId,
-    developer: .artistName,
-    category: .primaryGenreName
-  }'
+curl --fail-with-body --silent --show-error --get \
+  'https://itunes.apple.com/lookup' \
+  --data-urlencode "bundleId=${BUNDLE_ID}" \
+  --data-urlencode "country=${COUNTRY}" \
+  --data-urlencode "entity=${ENTITY}"
 ```
 
-### Lookup Multiple Apps
+For bulk lookup, pass comma-separated numeric IDs in `id`. Match the response back to the request by `trackId`; response position is not the join key.
 
-```bash
-curl -s "https://itunes.apple.com/lookup?id=553834731,361309726&country=us&entity=software" | \
-  jq '.results[] | {name: .trackName, id: .trackId}'
-```
+## Validate and select
 
-## Key Response Fields
+Require an object with numeric `resultCount` and array `results`. A valid zero count means the app is unavailable for that identifier and storefront.
 
-```json
-{
-  "trackId": 553834731,
-  "trackName": "App Name",
-  "bundleId": "com.example.app",
-  "artistName": "Developer Name",
-  "artistId": 12345,
-  "price": 0.0,
-  "currency": "USD",
-  "version": "1.0.0",
-  "averageUserRating": 4.5,
-  "userRatingCount": 1234,
-  "description": "Full app description...",
-  "releaseDate": "2024-01-01T00:00:00Z",
-  "fileSizeBytes": "52428800",
-  "contentAdvisoryRating": "4+",
-  "languageCodesISO2A": ["EN", "ES", "FR"],
-  "genres": ["Productivity", "Business"],
-  "primaryGenreName": "Productivity"
+For an ID lookup, require one result whose stringified `trackId` equals the requested ID. For a bundle lookup, compare `bundleId` exactly. Useful fields include:
+
+```jq
+.results[] | {
+  appId: .trackId,
+  name: .trackName,
+  bundleId,
+  developerId: .artistId,
+  developer: .artistName,
+  version,
+  price,
+  currency,
+  rating: .averageUserRating,
+  ratingCount: .userRatingCount,
+  category: .primaryGenreName,
+  releaseDate: .currentVersionReleaseDate,
+  description
 }
 ```
 
-## Use Cases
+For a bulk request, report every missing requested ID separately.
 
-- Get comprehensive app metadata
-- Lookup apps by bundle identifier
-- Fetch multiple apps in a single request
-- Retrieve developer ID for further queries
-- Check app availability in different countries
+**Complete when:** each requested identifier has one matching storefront record or an explicit unavailable result, and every selected field exists or is reported missing.

@@ -1,129 +1,61 @@
-# App Lists & Feeds
+# App Charts
 
-Browse curated App Store collections and categories.
+Use Apple's current RSS Builder for top-free and top-paid charts. Use the legacy feed only for a requested chart or category the current builder does not expose.
 
-## Endpoint
+## Current RSS Builder
 
-```bash
-https://itunes.apple.com/{country}/rss/{collection}/[genre={category}]/limit={limit}/json
-```
-
-## Collections
-
-Common collection values:
-
-- `topfreeapplications` - Top Free Apps
-- `toppaidapplications` - Top Paid Apps
-- `topgrossingapplications` - Top Grossing Apps
-- `newapplications` - New Apps
-- `newfreeapplications` - New Free Apps
-
-## Categories
-
-Common genre IDs (use as `genre={id}`):
-
-| ID | Category | ID | Category |
-|----|----------|----|----------|
-| `6014` | Games | `6000` | Business |
-| `6015` | Finance | `6016` | Health & Fitness |
-| `6017` | Lifestyle | `6018` | Medical |
-| `6020` | Music | `6021` | Navigation |
-| `6023` | Photo & Video | `6024` | Productivity |
-| `6026` | Social Networking | `6027` | Sports |
-| `6012` | Travel | `6002` | Utilities |
-
-## Examples
-
-### Top Free Apps (All Categories)
+The [Apple RSS Builder](https://rss.marketingtools.apple.com/) generates App Store chart feeds.
 
 ```bash
-curl -s "https://itunes.apple.com/us/rss/topfreeapplications/limit=25/json" | \
-  jq '.feed.entry[] | {
-    name: .["im:name"].label,
-    id: .id.attributes["im:id"],
-    developer: .["im:artist"].label,
-    category: .category.attributes.label
-  }'
+curl --fail-with-body --silent --show-error --location \
+  "https://rss.marketingtools.apple.com/api/v2/${COUNTRY}/apps/${CHART}/${LIMIT}/apps.json"
 ```
 
-### Top Free Games
+Use `top-free` or `top-paid` for `CHART`, and a builder-supported limit such as 10, 25, or 50. Require `.feed.results` to be an array:
 
-```bash
-curl -s "https://itunes.apple.com/us/rss/topfreeapplications/genre=6014/limit=50/json" | \
-  jq '.feed.entry[] | {
-    name: .["im:name"].label,
-    id: .id.attributes["im:id"],
-    price: .["im:price"].attributes.amount
-  }'
+```jq
+.feed.results
+| to_entries
+| map({
+    rank: (.key + 1),
+    appId: .value.id,
+    name: .value.name,
+    developer: .value.artistName,
+    releaseDate: .value.releaseDate,
+    genres: .value.genres,
+    url: .value.url
+  })
 ```
 
-### New Apps in Productivity
+Preserve array order as chart rank.
 
-```bash
-curl -s "https://itunes.apple.com/us/rss/newapplications/genre=6024/limit=10/json" | \
-  jq '.feed.entry[] | {
-    name: .["im:name"].label,
-    id: .id.attributes["im:id"],
-    releaseDate: .["im:releaseDate"].label
-  }'
+## Legacy chart fallback
+
+The legacy endpoint remains useful for top grossing, new-app, and genre-specific requests, but its contract is undocumented and volatile:
+
+```text
+https://itunes.apple.com/{country}/rss/{collection}/[genre={genre_id}/]limit={limit}/json
 ```
 
-### Top Grossing Apps
+Known collections include `topfreeapplications`, `toppaidapplications`, `topgrossingapplications`, `newapplications`, and `newfreeapplications`. Common genres include Games `6014`, Business `6000`, Finance `6015`, Health & Fitness `6016`, Productivity `6024`, Social Networking `6026`, Travel `6012`, and Utilities `6002`.
 
-```bash
-curl -s "https://itunes.apple.com/us/rss/topgrossingapplications/limit=20/json" | \
-  jq '.feed.entry[] | {
-    name: .["im:name"].label,
-    id: .id.attributes["im:id"],
-    category: .category.attributes.label
-  }'
+Normalize a singleton or array before assigning ranks:
+
+```jq
+(.feed.entry // [])
+| if type == "array" then . else [.] end
+| to_entries
+| map({
+    rank: (.key + 1),
+    appId: .value.id.attributes["im:id"],
+    name: .value["im:name"].label,
+    developer: .value["im:artist"].label,
+    category: .value.category.attributes.label,
+    price: .value["im:price"].attributes.amount,
+    currency: .value["im:price"].attributes.currency
+  })
 ```
 
-## Response Structure
+Use [App lookup](app-lookup.md) to enrich chart IDs. Join by app ID while retaining the feed's rank.
 
-```json
-{
-  "feed": {
-    "title": {"label": "Top Free Applications"},
-    "updated": {"label": "2024-01-01T12:00:00-07:00"},
-    "entry": [
-      {
-        "im:name": {"label": "App Name"},
-        "im:image": [
-          {"label": "icon_url_small", "attributes": {"height": "53"}},
-          {"label": "icon_url_medium", "attributes": {"height": "75"}},
-          {"label": "icon_url_large", "attributes": {"height": "100"}}
-        ],
-        "im:artist": {"label": "Developer Name"},
-        "category": {"attributes": {"label": "Category", "im:id": "6024"}},
-        "id": {"attributes": {"im:id": "553834731"}},
-        "im:releaseDate": {"label": "2024-01-01T00:00:00-07:00"},
-        "im:price": {"attributes": {"amount": "0.00", "currency": "USD"}},
-        "link": {"attributes": {"href": "https://apps.apple.com/..."}}
-      }
-    ]
-  }
-}
-```
-
-## Combining with Lookup
-
-RSS feeds provide limited metadata. Get full details by extracting IDs and using lookup:
-
-```bash
-# Get top free app IDs
-IDS=$(curl -s "https://itunes.apple.com/us/rss/topfreeapplications/limit=10/json" | \
-  jq -r '.feed.entry[].id.attributes["im:id"]' | tr '\n' ',')
-
-# Get full details
-curl -s "https://itunes.apple.com/lookup?id=$IDS&entity=software" | \
-  jq '.results[] | {name: .trackName, rating: .averageUserRating, description: .description}'
-```
-
-## Use Cases
-
-- Track top-performing apps
-- Monitor category trends
-- Discover newly released apps
-- Analyze competitive positioning
-- Build app ranking dashboards
+**Complete when:** the chart, storefront, feed version, limit, and optional genre are explicit; every entry has a stable rank and app ID; and legacy-feed use is labeled.
