@@ -1,142 +1,89 @@
 ---
 name: local-ai-models
-description: Comprehensive guide for implementing on-device AI models on iOS using Foundation Models and MLX Swift frameworks. Use WHEN building iOS apps with (1) Local LLM inference, (2) Vision Language Models (VLMs), (3) Text embeddings, (4) Image generation, (5) Tool/function calling, (6) Multi-turn conversations, (7) Custom model integration, or (8) Structured generation.
+description: >
+  WHEN building, integrating, or evaluating on-device generative AI in Swift apps with Apple Foundation Models or MLX Swift for local LLMs, VLMs, embeddings, image generation, guided or structured output, tool calling, streaming, or multi-turn chat;
+  NOT for cloud-only inference, generic Core ML models, or model training with no Apple-app integration;
+  routes each feature through a verified runtime capability and proves availability, privacy, performance, and output on target hardware
 ---
 
-# iOS On-Device AI Models
+# On-Device Generative AI for Swift
 
-Production-ready guide for implementing on-device AI models in iOS apps using Apple's Foundation Models framework and MLX Swift.
+Use a **capability contract**: define the behavior and device constraints first, prove that the current runtime supports them, then implement only the selected branch.
 
-## When to Use This Skill
+## 1. Lock the capability contract
 
-- Implementing local LLM inference in iOS apps
-- Building chat interfaces with Foundation Models
-- Integrating Vision Language Models (VLMs)
-- Adding text embeddings or image generation
-- Implementing tool/function calling with LLMs
-- Managing multi-turn conversations
-- Optimizing memory usage for on-device models
-- Supporting internationalization in AI features
+Record:
 
-## Core Principles
+- task and modality: text, image input, image output, embedding, structured value, or tool action;
+- conversation behavior: single turn, retained context, streaming, cancellation, and reset;
+- input and output schemas, quality examples, failure thresholds, and safety constraints;
+- target platforms, OS versions, devices, locales, and deployment environment;
+- privacy and connectivity promises, including model downloads and any tool or telemetry traffic;
+- storage, memory, context, latency, energy, and app-size budgets;
+- unavailable-device, unsupported-locale, missing-model, and offline fallbacks.
 
-1. **Availability First** - Always check model availability before initialization
-2. **Stream Responses** - Provide progressive UI updates for better UX
-3. **Session Persistence** - Reuse LanguageModelSession for multi-turn conversations (Foundation Models)
-4. **Memory Awareness** - Use quantized models and monitor memory usage
-5. **Async Everything** - Load models asynchronously, never block the main thread
-6. **Locale Support** - Use supportsLocale(_:) and locale instructions for Foundation Models
+Inspect the project before asking for these values. Reuse its deployment targets, package resolution, model owner, UI state flow, and test conventions.
 
-## Quick Reference
+**Complete when:** every requested feature has an observable output, a target device and OS, a resource budget, a data-flow promise, and a fallback.
 
-### Framework Comparison
+## 2. Prove the live capability map
 
-| Topic                              | Guide                                                       |
-| ---------------------------------- | ----------------------------------------------------------- |
-| Framework comparison and selection | [framework-selection.md](references/framework-selection.md) |
+Read [framework selection](references/framework-selection.md), then verify the candidate against the installed SDK, the project's resolved package revision, and current primary documentation:
 
-### Foundation Models (Apple's Framework)
+- [Foundation Models documentation](https://developer.apple.com/documentation/foundationmodels) and [updates](https://developer.apple.com/documentation/updates/foundationmodels);
+- [MLX Swift](https://github.com/ml-explore/mlx-swift), [MLX Swift LM](https://github.com/ml-explore/mlx-swift-lm), and [MLX Swift examples](https://github.com/ml-explore/mlx-swift-examples).
 
-| Topic                           | Guide                                                                               |
-| ------------------------------- | ----------------------------------------------------------------------------------- |
-| Setup and configuration         | [foundation-models/setup.md](references/foundation-models/setup.md)                 |
-| Chat patterns and conversations | [foundation-models/chat-patterns.md](references/foundation-models/chat-patterns.md) |
+Treat bundled code as a pattern, not API-version authority. Follow the symbols and platform requirements exposed by the project's resolved toolchain. Record any bundled example that conflicts with them.
 
-### MLX Swift (Advanced Features)
+Route each capability to the smallest branch that proves it:
 
-| Topic                                    | Guide                                                                       |
-| ---------------------------------------- | --------------------------------------------------------------------------- |
-| Setup and configuration                  | [mlx-swift/setup.md](references/mlx-swift/setup.md)                         |
-| Chat patterns with custom models         | [mlx-swift/chat-patterns.md](references/mlx-swift/chat-patterns.md)         |
-| Vision Language Models (VLMs)            | [mlx-swift/vision-patterns.md](references/mlx-swift/vision-patterns.md)     |
-| Tool calling, embeddings, structured gen | [mlx-swift/advanced-patterns.md](references/mlx-swift/advanced-patterns.md) |
-| Model quantization with MLX-LM           | [mlx-swift/quantization.md](references/mlx-swift/quantization.md)           |
+| Capability | Read completely |
+| --- | --- |
+| Apple on-device system model, availability, locale, guided output, or tools | [Foundation Models setup](references/foundation-models/setup.md), then current Apple documentation |
+| Foundation Models chat, streaming, cancellation, or multi-turn sessions | [Foundation Models chat patterns](references/foundation-models/chat-patterns.md) |
+| Custom MLX text or vision model and package/model loading | [MLX Swift setup](references/mlx-swift/setup.md) |
+| MLX text generation, chat, parameters, or model retention | [MLX Swift chat patterns](references/mlx-swift/chat-patterns.md) |
+| MLX image or video understanding | [MLX Swift vision patterns](references/mlx-swift/vision-patterns.md) |
+| MLX tools, embeddings, structured output, or batching | [MLX Swift advanced patterns](references/mlx-swift/advanced-patterns.md) |
+| MLX image generation | Current [MLX Swift examples](https://github.com/ml-explore/mlx-swift-examples) |
+| Model conversion or quantization | [MLX-LM quantization](references/mlx-swift/quantization.md) |
 
-### Shared (Both Frameworks)
+Choose Foundation Models only when the selected model and current OS satisfy the contract. Choose MLX Swift when the contract requires custom weights or MLX-specific control. Use both only when separate capabilities require separate runtimes.
 
-| Topic                           | Guide                                                           |
-| ------------------------------- | --------------------------------------------------------------- |
-| Best practices and optimization | [shared/best-practices.md](references/shared/best-practices.md) |
-| Error handling and recovery     | [shared/error-handling.md](references/shared/error-handling.md) |
-| Testing strategies              | [shared/testing.md](references/shared/testing.md)               |
+**Complete when:** every capability maps to one verified runtime and version, every model source and license is known, and mixed-framework use has a requirement that one runtime cannot satisfy.
 
-## Quick Decision Trees
+## 3. Implement the selected branch
 
-### Which framework should I use?
+Also read the shared reference that governs each changed concern:
 
-```
-Do you need advanced features like:
-- Vision Language Models (VLMs)
-- Image generation
-- Custom models beyond the system model
-├── Yes → MLX Swift (references/mlx-swift/)
-└── No → Is this a standard chat interface?
-    ├── Yes → Foundation Models (simpler, recommended)
-    └── No → Check framework-selection.md for guidance
-```
+| Concern | Read completely |
+| --- | --- |
+| Lifecycle, memory, generation, locale, or performance | [Best practices](references/shared/best-practices.md) |
+| Availability, model loading, generation, tool, or decoding failures | [Error handling](references/shared/error-handling.md) |
+| Unit, integration, performance, or device checks | [Testing](references/shared/testing.md) |
 
-### Where should I start?
+Keep one owner for each loaded model and one session per retained conversation. Load and generate with structured concurrency, propagate cancellation, and isolate UI mutation to the app's existing main-actor boundary. Load `app:swiftui-architecture` before changing SwiftUI state flow.
 
-```
-New to on-device AI?
-└── Start with Foundation Models:
-    1. Read framework-selection.md
-    2. Follow foundation-models/setup.md
-    3. Implement foundation-models/chat-patterns.md
+Check runtime availability before exposing the feature. Bound input, context, output, and concurrent work; release custom models when their lifecycle ends. Prefer the current framework's typed generation and tool APIs over parsing prompt-shaped JSON. Validate tool arguments, tool results, generated structures, downloaded model artifacts, and user-visible failure states at their trust boundaries.
 
-Need advanced features?
-└── Use MLX Swift:
-    1. Read framework-selection.md
-    2. Follow mlx-swift/setup.md
-    3. Choose pattern:
-       - Chat: mlx-swift/chat-patterns.md
-       - Vision: mlx-swift/vision-patterns.md
-       - Advanced: mlx-swift/advanced-patterns.md
-```
+Keep local data local: logging, analytics, downloads, and tool calls are separate data flows even when inference is on-device. Make each flow match the capability contract.
 
-### Where should my model loading code live?
+**Complete when:** the implementation builds against the resolved SDK and packages, owns model/session state for the intended lifetime, exposes cancellation and fallbacks, and has no unaccounted network or persistence path.
 
-```
-Is this model shared across features?
-├── Yes → Create @Observable service in app/services/
-└── No → Is it feature-specific?
-    ├── Yes → Create @Observable class in feature/
-    └── No → Load inline with @State (simple cases only)
-```
+## 4. Verify on target hardware
 
-### How should I handle conversations?
+Load `app:swift-testing` before adding or changing Swift tests. Run:
 
-```
-Foundation Models:
-└── Reuse LanguageModelSession for context
-    (references/foundation-models/chat-patterns.md #multi-turn)
+1. deterministic tests for app logic around a fake model boundary;
+2. integration checks for availability, loading, streaming, cancellation, structured output, tools, and recovery used by the selected branch;
+3. representative prompt and modality evaluations with pass criteria from the capability contract;
+4. Release-device measurements for latency, peak memory, storage, energy-sensitive work, and first-run download behavior;
+5. supported and unavailable device, OS, locale, connectivity, and model-state scenarios promised by the feature.
 
-MLX Swift:
-└── Implement custom context management
-    (references/mlx-swift/chat-patterns.md)
-```
+Test behavior rather than exact prose. Re-run prompt evaluations when the system model, OS, custom weights, tokenizer, quantization, or MLX package revision changes.
 
-### What generation parameters should I use?
+**Complete when:** every contract item has passing evidence on each promised target, every unavailable path reaches its fallback, and each unmet quality or resource threshold is reported against the affected model and version.
 
-```
-What's the use case?
+## Handoff
 
-Factual answers (summaries, facts)
-└── temperature: 0.1-0.3
-
-Balanced (chat, Q&A)
-└── temperature: 0.6-0.8
-
-Creative (storytelling, ideas)
-└── temperature: 0.9-1.2
-
-See references/shared/best-practices.md for details
-```
-
-## Resources
-
-- [MLX Swift Examples](https://github.com/ml-explore/mlx-swift-examples)
-- [Foundation Models Docs](https://developer.apple.com/documentation/foundationmodels)
-- [Hugging Face Model Hub](https://huggingface.co/models)
-- [MLX-LM Quantization](https://github.com/ml-explore/mlx-examples/tree/main/llms)
-- [MLX Community Models](https://huggingface.co/mlx-community)
+Report the chosen runtime and model, resolved SDK/package/model versions, model source and license, target devices and OS versions, data flows and fallbacks, changed files, build and test commands, device evaluation and resource results, and remaining blocked contract items.

@@ -446,5 +446,5 @@ Recommended models for iOS:
 ## Next Steps
 
 - For tool calling and embeddings: [advanced-patterns.md](advanced-patterns.md)
-- For optimization: [best-practices.md](best-practices.md)
-- For testing: [testing.md](testing.md)
+- For optimization: [../shared/best-practices.md](../shared/best-practices.md)
+- For testing: [../shared/testing.md](../shared/testing.md)
