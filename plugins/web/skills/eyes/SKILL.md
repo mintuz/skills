@@ -1,52 +1,58 @@
 ---
 name: eyes
-description: WHEN users express dissatisfaction with visual appearance or behavior; use Playwright MCP to capture screenshots and collaborate on UI fixes with a structured feedback loop.
+description: WHEN a rendered web UI looks wrong, behaves visually wrong, or differs from a reference; NOT for visual direction without a runnable UI or code-only styling guidance; uses Playwright evidence to agree and verify visual fixes.
 ---
 
-# Eyes - Visual Feedback Loop
+# Eyes
 
-Use Playwright MCP to capture screenshots and collaborate with users on visual refinements. Always confirm before making changes.
+Run an **evidence loop**: capture the current state, agree on an observable visual delta, obtain approval, then capture the same state after the change.
 
-## Workflow
+## Choose the branch
 
-1. **Capture current state** — Use Playwright MCP `browser_take_screenshot` to capture the current page or element to better understand the users questions or requirements.
+| Report | Evidence |
+| --- | --- |
+| Appearance defect or refinement | The affected page or element at the reported viewport |
+| Hover, focus, animation, or interaction defect | The exact interaction state before and after the trigger |
+| Responsive defect | The failing width plus the nearest supported widths on either side |
+| Difference from a reference | Both renders at matching viewport, content, and UI state |
 
-2. **Gather specific feedback** — Ask what needs adjustment: "Looking at this screenshot, what specifically would you like changed?"
+## 1. Capture the visual checkpoint
 
-3. **Propose changes clearly** — Describe intended modifications with specifics:
-   - Bad: "I'll fix the spacing"
-   - Good: "I'll increase the gap between cards from 16px to 24px and add 32px padding to the container"
+Use Playwright MCP to reproduce the report:
 
-4. **Confirm before implementing** — Use AskUserQuestion to get explicit approval. Never modify code without confirmation.
+- reach the page with `browser_navigate`;
+- set the relevant viewport with `browser_resize`;
+- enter the reported state with `browser_click`, `browser_hover`, and `browser_wait_for`;
+- capture the page or affected element with `browser_take_screenshot`;
+- use `browser_snapshot` when structure, semantics, or focus order matters;
+- use `browser_console_messages` when runtime behavior may explain the visual state.
 
-5. **Verify with comparison** — After changes, capture a new screenshot to confirm the fix has been made.
+Use `browser_install` if Playwright reports that its configured browser is unavailable. Record the URL, viewport, target element, content, interaction state, and wait condition so the checkpoint can be repeated.
 
-## Playwright MCP Tools
+**Complete when:** the issue is visible in a screenshot at a repeatable checkpoint, or the exact reproduction gap is named.
 
-Use these Playwright MCP tools for the visual feedback loop:
+## 2. Agree on the visual delta
 
-- `browser_navigate` — Navigate to a URL
-- `browser_take_screenshot` — Take a screenshot of the current page
-- `browser_snapshot` — Capture accessibility snapshot of the current page (useful for understanding structure)
-- `browser_click` — Perform click on a web page
-- `browser_hover` — Hover over element on page
-- `browser_wait_for` — Wait for text appearance/disappearance or specified duration
-- `browser_console_messages` — Returns all console messages (useful for debugging)
-- `browser_resize` — Resize the browser window (useful for responsive testing)
-- `browser_install` — Install the browser specified in the config
+Present the screenshot and describe the observed state. If the intended result is unclear, ask what specifically should change. Translate the answer into observable terms: target, property, current value or behavior, intended value or behavior, viewport, and interaction state.
 
-## Related Skills
+Propose the smallest specific change. Prefer “increase the card gap from 16px to 24px” over “fix the spacing.”
 
-When implementing visual changes, load these skills for guidance:
+Use `web:web-design` when the visual direction itself needs refinement. Use `web:css` when the approved result requires style or layout implementation.
 
-- **`web:css`** — CSS architecture, spacing, units, and selector patterns
-- **`web:web-design`** — Visual hierarchy, typography, color, and component polish
+**Complete when:** every reported problem has one observable before/after delta and one specific proposed change.
 
-## Before/After Comparison
+## 3. Obtain approval and implement
 
-After implementing changes:
+Use AskUserQuestion to request explicit approval of the proposed change. Keep the code unchanged until the user approves that proposal.
 
-1. Take a new screenshot of the same element/page
-2. Present both screenshots side by side
-3. Ask: "Does this match what you were looking for?"
-4. If not, repeat the feedback loop
+After approval, implement only the agreed delta and run the smallest relevant code checks.
+
+**Complete when:** the implementation matches the approved proposal and its relevant checks pass.
+
+## 4. Verify the same checkpoint
+
+Repeat the URL, viewport, target, content, interaction, and wait condition from step 1. Capture the after screenshot, inspect any relevant accessibility snapshot or console messages, and present the before and after screenshots side by side.
+
+Ask whether the result matches the agreed delta. A rejected result returns to step 2 with the new screenshot as the current state.
+
+**Complete when:** every approved delta is visible in a matched before/after comparison and the user confirms the result; name any unavailable verification.
