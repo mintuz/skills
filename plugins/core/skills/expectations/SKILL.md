@@ -1,76 +1,40 @@
 ---
 name: expectations
-description: WHEN setting working agreements/TDD rules for this codebase; clarifies boundaries and documentation expectations.
+description: WHEN setting repository working agreements or changing behavior under strict TDD; NOT for test-framework mechanics or standalone documentation; enforces red-green-refactor, verification, and durable-learning gates.
 ---
 
 # Expectations
 
-## When Working with Code
+Use one working agreement for every behavior change: establish the observable outcome, then move through **red → green → refactor**. Apply the repository's own conventions wherever they are stricter.
 
-1. **ALWAYS FOLLOW TDD** - No production code without a failing test. Non-negotiable.
-2. **Think deeply** before making any edits
-3. **Understand the full context** of the code and requirements
-4. **Ask clarifying questions** when requirements are ambiguous
-5. **Think from first principles** - don't make assumptions
-6. **Assess refactoring after every green** - but only refactor if it adds value
-7. **Keep project docs current** - Update CLAUDE.md when introducing meaningful changes
+## 1. Establish the outcome
 
-## Documentation Framework
+Read the requirements, relevant code, tests, callers, and project guidance before editing. Separate known constraints from assumptions and resolve repository evidence first. Ask the user when an unresolved choice would change observable behavior, scope, or risk.
 
-**At the end of every significant change, ask: "What do I wish I'd known at the start?"**
+**Complete when:** the intended behavior, affected surfaces, applicable conventions, and any unresolved choice are explicit.
 
-Document if ANY of these are true:
+## 2. Go red
 
-- Would save future developers >30 minutes
-- Prevents a class of bugs or errors
-- Reveals non-obvious behavior or constraints
-- Captures architectural rationale or trade-offs
-- Documents domain-specific knowledge
-- Identifies effective patterns or anti-patterns
-- Clarifies tool setup or configuration gotchas
+Write the smallest test that expresses the next behavior through a public boundary. Run it and confirm that it fails because the behavior is absent. Production edits begin only after this failure is observed.
 
-## Types of Learnings to Capture
+**Complete when:** the focused test fails for the intended behavioral reason rather than setup, syntax, or an unrelated defect.
 
-- **Gotchas**: Unexpected behavior discovered (e.g., "API returns null instead of empty array")
-- **Patterns**: Approaches that worked particularly well
-- **Anti-patterns**: Approaches that seemed good but caused problems
-- **Decisions**: Architectural choices with rationale and trade-offs
-- **Edge cases**: Non-obvious scenarios that required special handling
-- **Tool knowledge**: Setup, configuration, or usage insights
+## 3. Go green
 
-## Documentation Format
+Make the minimum production change that satisfies the red test. Reuse existing patterns, keep the increment small, maintain coverage for changed behavior, and satisfy strict type rules when the project uses them. Run the focused test and its nearest related tests.
 
-```markdown
-#### Gotcha: [Descriptive Title]
+**Complete when:** the new behavior and its local regression surface pass without speculative production code.
 
-**Context**: When this occurs
-**Issue**: What goes wrong
-**Solution**: How to handle it
+## 4. Refactor deliberately
 
-// CORRECT - Solution
-const example = "correct approach";
+After every green, assess whether a behavior-preserving change would improve clarity, remove duplicated knowledge, or simplify structure. Refactor only when that value is concrete, preserve public behavior, and rerun the affected tests.
 
-// WRONG - What causes the problem
-const wrong = "incorrect approach";
-```
+**Complete when:** the assessment is explicit, every valuable refactor is finished, and the affected tests remain green.
 
-## Code Change Principles
+## 5. Close the change
 
-- **Start with a failing test** - always. No exceptions.
-- After making tests pass, always assess refactoring opportunities
-- After refactoring, verify all tests and static analysis pass, then commit
-- Respect the existing patterns and conventions
-- Maintain test coverage for all behavior changes
-- Keep changes small and incremental
-- Ensure all TypeScript strict mode requirements are met
-- Provide rationale for significant design decisions
+Run the proportionate full test suite and static analysis. Review the final diff against the requested scope and update any project documentation affected by the behavior. Explain significant decisions and trade-offs, and identify any deviation from these agreements with its reason.
 
-**If you find yourself writing production code without a failing test, STOP immediately and write the test first.**
+For every significant change, ask: **"What do I wish I'd known at the start?"** When the answer reveals durable project knowledge, invoke `core:learn`; that skill owns the significance threshold, placement, and format.
 
-## Communication
-
-- Be explicit about trade-offs in different approaches
-- Explain the reasoning behind significant design decisions
-- Flag any deviations from guidelines with justification
-- Suggest improvements that align with these principles
-- When unsure, ask for clarification rather than assuming
+**Complete when:** tests and static analysis pass, every changed file is intentional, affected documentation is current, and `core:learn` is complete for each qualifying insight or the change is explicitly judged non-qualifying. Create a requested commit only after this gate.
