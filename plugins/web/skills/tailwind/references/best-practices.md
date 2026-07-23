@@ -1,134 +1,60 @@
-# Best Practices
+# Implementation constraints
 
-Guidelines for building maintainable Tailwind CSS design systems.
+Apply every matching constraint to authored or reviewed utility markup.
 
-## Do's ✓
+## Ownership
 
-### Use CSS Variables for Theming
-Enable runtime theme changes without rebuilding:
-```typescript
-colors: {
-  primary: "hsl(var(--primary))",
-}
-```
+- Reuse the repository's existing tokens and utilities before extending the theme.
+- Use semantic tokens for durable product meaning such as surfaces, foregrounds, actions, borders, and status.
+- Use palette utilities when the literal palette value is the contract, and arbitrary values for genuine one-offs tied to a specific requirement.
+- Keep feature-specific class strings with the component. Share a style definition only when current callers use the same semantic contract.
+- Let utilities style controlled markup; use a component class or custom CSS layer when external markup, selectors, or a stable CSS API owns the relationship.
 
-### Compose with CVA
-Create type-safe component variants:
-```typescript
-const buttonVariants = cva("base-styles", {
-  variants: { size: { sm: "...", lg: "..." } }
-})
-```
+## Detection and composition
 
-### Use Semantic Colors
-Name by purpose, not appearance:
-```typescript
-// Good: semantic naming
-<Button variant="primary">Submit</Button>
-<Text className="text-destructive">Error message</Text>
+- Store each class candidate as a complete source string.
+- Map runtime inputs to finite class maps or typed variants.
+- Preserve the repository's formatter or class-order convention.
+- Put caller overrides last only where the component API promises overrides, and verify the merge helper recognizes the conflicts.
+- Keep responsive, theme, state, `aria-*`, and `data-*` variants beside the utility they modify.
 
-// Bad: color-based naming
-<Button className="bg-blue-500">Submit</Button>
-<Text className="text-red-500">Error message</Text>
-```
+## Responsive layout
 
-### Forward Refs
-Enable component composition:
-```typescript
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => <button ref={ref} {...props} />
-)
-```
+- Start with the smallest supported viewport and add breakpoint or container variants when the contract changes.
+- Use the parent layout owner for relationships among siblings and the component for its internal layout.
+- Test every touched boundary plus the smallest and largest supported sizes.
+- Exercise long, short, missing, localized, and user-generated content before adding fixed dimensions.
 
-### Include Accessibility
-Always add ARIA attributes and focus states:
-```typescript
-<button
-  aria-label="Close dialog"
-  className="focus-visible:ring-2"
->
-```
+## States and accessibility
 
-## Don'ts ✗
+- Start with native semantic elements and browser behavior.
+- Give every interactive control a visible `focus-visible` treatment and preserve usable forced-colors behavior.
+- Represent applicable hover, active, disabled, loading, error, selected, expanded, open, and closed states.
+- Pair color meaning with text, iconography, or semantics; verify foreground and surface tokens together in every theme.
+- Keep touch targets, reflow, zoom, keyboard order, accessible names, and reduced motion inside the utility contract.
+- Use accessible primitives for composite widgets; utility classes provide presentation rather than interaction semantics.
 
-### Don't Use Arbitrary Values Frequently
-Extend the theme instead:
-```typescript
-// Bad
-<div className="w-[347px]">
+## Theme integrity
 
-// Good - extend theme
-theme: {
-  extend: {
-    width: { sidebar: '347px' }
-  }
-}
-<div className="w-sidebar">
-```
+- Change paired surface and foreground tokens together.
+- Define every semantic token in every supported theme.
+- Keep the theme marker, storage, server rendering, and first-paint strategy under one application owner.
+- Verify native form controls and browser UI use the intended color scheme where relevant.
 
-### Don't Nest @apply
-Hurts readability and defeats Tailwind's purpose:
-```css
-/* Bad */
-.button {
-  @apply px-4 py-2;
-  @apply rounded-md;
-}
+## Generated output
 
-/* Good - use utilities directly in JSX */
-<button className="px-4 py-2 rounded-md">
-```
+- Confirm representative classes appear in the production CSS.
+- Cover every package containing class strings with the installed version's source-detection mechanism.
+- Measure output before adding safelists, broad source paths, or plugins.
+- Treat formatter, merge-helper, and animation-plugin compatibility as versioned dependencies of Tailwind.
 
-### Don't Skip Focus States
-Keyboard navigation requires visible focus:
-```typescript
-// Bad
-<button className="outline-none">
+## Review ledger
 
-// Good
-<button className="focus-visible:ring-2 focus-visible:ring-ring">
-```
+For every scoped component, account for:
 
-### Don't Hardcode Colors
-Use semantic tokens from theme:
-```typescript
-// Bad
-<div className="bg-blue-500 text-white">
-
-// Good
-<div className="bg-primary text-primary-foreground">
-```
-
-### Don't Forget Dark Mode
-Test both themes during development:
-```typescript
-// Bad - only works in light mode
-<div className="bg-white text-black">
-
-// Good - adapts to theme
-<div className="bg-background text-foreground">
-```
-
-## Additional Guidelines
-
-### Component Organization
-```
-Base styles → Variants → Sizes → States → Overrides
-```
-
-### Responsive Design
-Mobile-first approach:
-```typescript
-// Mobile default, then tablet, then desktop
-<div className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-```
-
-### Animation Performance
-Prefer transform and opacity:
-```typescript
-// Good - GPU accelerated
-<div className="transition-transform hover:scale-105">
-
-// Avoid - causes reflow
-<div className="transition-all hover:w-full">
-```
+- base, variant, size, state, responsive, and theme classes;
+- source detection and generated rules;
+- token and class ownership;
+- cascade and merge behavior;
+- semantic HTML and accessible interaction;
+- rendered behavior at each required boundary.

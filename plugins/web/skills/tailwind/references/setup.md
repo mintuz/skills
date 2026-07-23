@@ -1,62 +1,107 @@
-# Tailwind CSS Setup
+# Setup, migration, tokens, and themes
 
-Initial configuration for Tailwind CSS design systems with semantic tokens and dark mode support.
+The installed Tailwind major version is the compatibility boundary. Keep an existing project on its current version and integration unless migration is requested. Confirm the version from the manifest and lockfile, then follow the matching official framework guide rather than a generic install command.
 
-## Tailwind Configuration
+## Version gate
+
+| Project | Configuration owner |
+| --- | --- |
+| Tailwind v4 | CSS-first configuration with `@import`, `@theme`, `@source`, and `@custom-variant`; load a legacy JavaScript config explicitly with `@config` |
+| Tailwind v3 | `tailwind.config.*` for content and theme configuration, plus `@tailwind` CSS directives |
+| Migration to v4 | The official upgrade guide and tool, followed by a production-output and browser-support comparison |
+
+Current official references:
+
+- [Installation](https://tailwindcss.com/docs/installation)
+- [Upgrade guide](https://tailwindcss.com/docs/upgrade-guide)
+- [Theme variables](https://tailwindcss.com/docs/theme)
+- [Source detection](https://tailwindcss.com/docs/detecting-classes-in-source-files)
+- [Dark mode](https://tailwindcss.com/docs/dark-mode)
+
+## Tailwind v4
+
+Use `@theme` for values that should create utility APIs. Use ordinary CSS variables for runtime values, and connect semantic utilities to them with `@theme inline`:
+
+```css
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--app-background);
+  --color-foreground: var(--app-foreground);
+  --color-primary: var(--app-primary);
+  --color-primary-foreground: var(--app-primary-foreground);
+  --color-destructive: var(--app-destructive);
+  --color-destructive-foreground: var(--app-destructive-foreground);
+  --radius-control: var(--app-radius-control);
+}
+
+:root {
+  --app-background: oklch(1 0 0);
+  --app-foreground: oklch(0.2 0 0);
+  --app-primary: oklch(0.55 0.2 255);
+  --app-primary-foreground: oklch(1 0 0);
+  --app-destructive: oklch(0.58 0.22 27);
+  --app-destructive-foreground: oklch(1 0 0);
+  --app-radius-control: 0.5rem;
+}
+
+.dark {
+  --app-background: oklch(0.2 0 0);
+  --app-foreground: oklch(0.96 0 0);
+  --app-primary: oklch(0.75 0.14 255);
+  --app-primary-foreground: oklch(0.2 0 0);
+  --app-destructive: oklch(0.7 0.19 27);
+  --app-destructive-foreground: oklch(0.2 0 0);
+}
+```
+
+The default `dark` variant follows `prefers-color-scheme`. For an application-owned `.dark` selector, define the variant beside the import:
+
+```css
+@custom-variant dark (&:where(.dark, .dark *));
+```
+
+Place the chosen theme marker on a stable ancestor and initialize it before first paint when the application persists user preference.
+
+Tailwind v4 detects project sources automatically. Register ignored dependencies or monorepo packages relative to the stylesheet:
+
+```css
+@source "../packages/ui";
+```
+
+## Tailwind v3
+
+Keep source globs and theme extensions in the JavaScript or TypeScript config:
 
 ```typescript
-// tailwind.config.ts
 import type { Config } from "tailwindcss";
 
-const config: Config = {
+export default {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   darkMode: "class",
   theme: {
     extend: {
       colors: {
-        // Semantic color tokens
+        background: "hsl(var(--background) / <alpha-value>)",
+        foreground: "hsl(var(--foreground) / <alpha-value>)",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "hsl(var(--primary) / <alpha-value>)",
+          foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
+          foreground: "hsl(var(--destructive-foreground) / <alpha-value>)",
         },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        border: "hsl(var(--border))",
-        ring: "hsl(var(--ring))",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        control: "var(--radius-control)",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-};
-
-export default config;
+} satisfies Config;
 ```
 
-## Global CSS with Design Tokens
-
 ```css
-/* globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -64,55 +109,58 @@ export default config;
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --foreground: 0 0% 12%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --radius-control: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: 0 0% 12%;
+    --foreground: 0 0% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 12%;
+    --destructive: 0 91% 71%;
+    --destructive-foreground: 0 0% 12%;
   }
 }
 ```
 
-## Design Token Hierarchy
+Make every content glob cover the applications and shared packages that contain class strings.
 
+## Token contract
+
+Use three levels only where the product has all three:
+
+```text
+brand value → semantic purpose → component-specific value
+blue-600 → primary → button-primary-background
 ```
-Brand Tokens (abstract)
-    └── Semantic Tokens (purpose)
-        └── Component Tokens (specific)
 
-Example:
-    blue-500 → primary → button-bg
+Prefer semantic utilities such as `bg-primary text-primary-foreground` when a value changes with theme or product meaning. Keep paired foreground and surface tokens together, and update every supported theme in the same change. A component-specific token earns a place only when that component owns a repeated value that cannot be expressed by a semantic or existing Tailwind token.
+
+## Source detection
+
+Tailwind scans source as text. Store every candidate as a complete class name:
+
+```typescript
+const tone = {
+  danger: "bg-red-600 hover:bg-red-500",
+  success: "bg-green-600 hover:bg-green-500",
+} as const;
 ```
 
-## Key Concepts
+Class fragments such as `` `bg-${color}-600` `` have no complete source token. Map runtime inputs to a finite set of complete strings. Use the version's explicit source or safelist mechanism only when the complete classes legitimately live outside scanned source.
 
-- **CSS Variables**: Enable runtime theming without rebuilding
-- **HSL Colors**: Better for programmatic color adjustments
-- **Semantic Naming**: Colors named by purpose (primary) not appearance (blue)
-- **Dark Mode**: Class-based dark mode strategy for client-side control
+## Migration proof
+
+Run the official upgrade path only when migration is in scope. Before accepting it, compare:
+
+- framework and PostCSS or Vite integration;
+- source coverage and representative generated utilities;
+- theme, dark-mode, prefix, important, and plugin behavior;
+- renamed utilities, defaults, and custom CSS;
+- production browser requirements and bundle output;
+- rendered light, dark, responsive, focus, and motion states.

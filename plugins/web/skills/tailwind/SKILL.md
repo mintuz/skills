@@ -1,128 +1,72 @@
 ---
 name: tailwind
-description: WHEN building design systems or component libraries with Tailwind CSS; covers design tokens, CVA patterns and dark mode.
+description: WHEN installing, migrating, configuring, building, changing, debugging, or reviewing Tailwind CSS styles, themes, design tokens, component variants, or class composition; NOT for framework-agnostic CSS behavior or visual direction alone; establishes version-aware utility contracts and proves generated, accessible behavior.
 ---
 
 # Prerequisites
 
-- Load the `web:css` skill for CSS Best Practices.
-- Load the `web:react` skill for React Best Practices.
-- Load the `web:typescript` skill for TypeScript Best Practices.
-- load the `web:web-design` skill for Design Best Practices.
+Load each companion whose condition matches:
 
-# Tailwind Design System
+| Condition | Companion skill |
+| --- | --- |
+| Every Tailwind change | `web:css` for the emitted CSS cascade and rendered layout |
+| Tailwind inside React components | `web:react` for component, state, and accessibility boundaries |
+| Choosing visual direction, hierarchy, spacing, type, or color | `web:web-design` |
+| Defining a TypeScript variant API | `typescript:typescript` |
 
-Build production-ready design systems with Tailwind CSS, including design tokens, component variants, responsive patterns, and accessibility.
+# Tailwind
 
-## Quick Reference
+Treat each requested style as a **utility contract**: the class must be statically detectable, compile under the installed Tailwind version, resolve through the intended token and variant, and produce the required rendered behavior.
 
-| Topic                               | Guide                                             |
-| ----------------------------------- | ------------------------------------------------- |
-| Tailwind config, global CSS, tokens | [setup.md](references/setup.md)                   |
-| CVA pattern with type-safe variants | [cva-components.md](references/cva-components.md) |
-| Animation utilities and Dialog      | [animations.md](references/animations.md)         |
-| Utility functions (cn, focusRing)   | [utilities.md](references/utilities.md)           |
-| Do's and Don'ts for maintainability | [best-practices.md](references/best-practices.md) |
+## Choose the branch
 
-## When to Use This Skill
+| Request | Route |
+| --- | --- |
+| Install, migrate, configure, theme, or extend Tailwind | Follow all four steps and load the setup reference in step 2 |
+| Build or change Tailwind UI | Follow all four steps and load every matching implementation reference |
+| Debug missing or incorrect styles | Reproduce in step 1, then trace class detection, generated CSS, and the cascade |
+| Review Tailwind code | Follow all four steps read-only; report failed utility contracts with evidence |
+| Change raw CSS behavior without Tailwind API work | Use `web:css` |
+| Choose visual direction without implementation | Use `web:web-design` |
 
-- Creating a component library with Tailwind
-- Implementing design tokens and theming
-- Building responsive and accessible components
-- Standardizing UI patterns across a codebase
-- Migrating to or extending Tailwind CSS
+## 1. Establish the utility contracts
 
-## Core Concepts
+Read the repository instructions, package manifest and lockfile, installed Tailwind and plugin versions, framework integration, build configuration, source stylesheet, touched components and callers, existing tokens, class helpers, and tests. Preserve the repository's package manager, Tailwind major version, integration, and naming conventions unless migration or adoption is explicitly in scope.
 
-### Design Token Hierarchy
+For each requested result, record the target element, visual outcome, interaction and responsive states, theme, content extremes, and user settings. For a defect, reproduce it and determine whether the cause is source detection, an unavailable utility, variant state, merge order, generated CSS, or the downstream cascade.
 
-```
-Brand Tokens (abstract)
-    └── Semantic Tokens (purpose)
-        └── Component Tokens (specific)
+**Complete when:** every requested result has an observable utility contract; the installed version, current owner, and generation path are known; and every defect has an identified generated or missing rule and rendered cause.
 
-Example:
-    blue-500 → primary → button-bg
-```
+## 2. Load only the matching reference
 
-### Component Architecture
+Read every reference whose condition matches before choosing the implementation:
 
-```
-Base styles → Variants → Sizes → States → Overrides
-```
+| Condition | Required reference |
+| --- | --- |
+| Installation, migration, framework integration, source detection, tokens, themes, or dark mode | [Setup, migration, tokens, and themes](references/setup.md) |
+| Typed component variants or an existing CVA component API | [CVA components](references/cva-components.md) |
+| Conditional classes, caller overrides, `clsx`, `tailwind-merge`, or `cn` | [Class composition](references/utilities.md) |
+| Transitions, keyframes, entry or exit motion, dialogs, or animation plugins | [Animation](references/animations.md) |
+| Authoring or reviewing utility markup | [Implementation constraints](references/best-practices.md) |
 
-## When to Use Each Guide
+Use the existing utility or semantic token when it expresses the contract. Add a token for a durable, repeated design decision; use an arbitrary value for a genuine one-off requirement. Keep component classes ordered as base, variants, sizes, states, then caller overrides.
 
-### Setup
+**Complete when:** every utility contract has one styling owner, a version-compatible Tailwind API, every matching reference applied, and each new token, helper, dependency, or plugin is required by current scope.
 
-Use [setup.md](references/setup.md) when you need:
+## 3. Implement detectable utilities
 
-- Initial Tailwind configuration
-- CSS variable setup for theming
-- Design token structure
-- Global styles foundation
+Reuse the existing integration, tokens, components, helpers, and installed dependencies. Write complete class names in statically detectable source strings; map dynamic inputs to finite class maps or typed variants. Keep responsive, theme, interaction, `aria-*`, and `data-*` variants beside the base utility they modify.
 
-### CVA Components
+Preserve semantic HTML, keyboard behavior, visible focus, accessible names, contrast, reflow, and reduced-motion behavior. Let an accessible component primitive own dialog, menu, popover, and disclosure behavior while Tailwind owns presentation.
 
-Use [cva-components.md](references/cva-components.md) when you need:
+**Complete when:** every contract maps to detectable classes and generated CSS, every dynamic input maps to complete finite classes, every applicable state has utilities, and each addition has one current reason to exist.
 
-- Type-safe component variants
-- Button, Badge, or similar components
-- Standardized variant APIs
-- Reusable component patterns
+## 4. Prove generated and rendered behavior
 
-### Animations
+Run the smallest relevant test first, then the repository's configured typecheck, lint, format, and production build. Inspect the generated CSS or build output for representative changed utilities, then verify the rendered result in a browser.
 
-Use [animations.md](references/animations.md) when you need:
+Exercise default and applicable hover, focus, active, disabled, loading, error, open, and closed states; the smallest and largest supported viewport plus touched breakpoints; light and dark themes; short and extreme content; keyboard navigation, zoom, contrast, reflow, and reduced motion. For setup or migration, also verify every source package is scanned and compare affected output across the version boundary.
 
-- Entry/exit animations
-- Dialog or modal transitions
-- Tailwind CSS Animate utilities
-- State-based animations
+For a review, cite the source class, generated or missing rule, rendered consequence, and failed check. For implementation, report commands and outcomes.
 
-### Utilities
-
-Use [utilities.md](references/utilities.md) when you need:
-
-- Class name composition (cn function)
-- Common utility patterns
-- Focus ring, disabled state helpers
-
-### Best Practices
-
-Use [best-practices.md](references/best-practices.md) for:
-
-- Guidance on semantic naming
-- Do's and Don'ts
-- Accessibility requirements
-- Performance considerations
-
-## Quick Decision Trees
-
-### Where should colors be defined?
-
-```
-Is this a one-off color?
-├── Yes → Use arbitrary value sparingly (e.g., bg-[#abc123])
-└── No → Is it semantic (primary, destructive)?
-    ├── Yes → Add to semantic tokens in setup.md
-    └── No → Is it a brand color?
-        ├── Yes → Add to theme.extend.colors
-        └── No → Use existing Tailwind color
-```
-
-## Installation
-
-```bash
-# Required packages
-yarn add tailwindcss postcss autoprefixer
-yarn add class-variance-authority clsx tailwind-merge
-yarn add tailwindcss-animate
-```
-
-## Resources
-
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [CVA Documentation](https://cva.style/docs)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [Radix Primitives](https://www.radix-ui.com/primitives)
+**Complete when:** every utility contract is observed in the browser, representative utilities exist in production output, all configured checks pass, accessibility behavior holds, and every unavailable verification is named.

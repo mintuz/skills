@@ -1,97 +1,46 @@
-# Animation Utilities
+# Animation
 
-Tailwind CSS Animate utilities for smooth transitions and motion.
+Use the installed Tailwind utilities first. Classes such as `animate-in`, `fade-in`, and `slide-in-from-*` belong to animation plugins rather than Tailwind core; use them only when the repository already configures the matching plugin or adoption is explicitly in scope.
 
-## Animation Presets
+## Motion contract
 
-```typescript
-// lib/animations.ts
-import { cn } from "./utils";
+Record:
 
-export const fadeIn = "animate-in fade-in duration-300";
-export const fadeOut = "animate-out fade-out duration-300";
-export const slideInFromTop = "animate-in slide-in-from-top duration-300";
-export const slideInFromBottom = "animate-in slide-in-from-bottom duration-300";
-export const slideInFromLeft = "animate-in slide-in-from-left duration-300";
-export const slideInFromRight = "animate-in slide-in-from-right duration-300";
-export const zoomIn = "animate-in zoom-in-95 duration-300";
-export const zoomOut = "animate-out zoom-out-95 duration-300";
+- the state change that starts motion;
+- the element that remains mounted while it runs;
+- the start and end values;
+- the property, duration, easing, and interruption behavior;
+- the reduced-motion result;
+- the component primitive that owns presence and interaction.
 
-// Compound animations
-export const modalEnter = cn(fadeIn, zoomIn, "duration-200");
-export const modalExit = cn(fadeOut, zoomOut, "duration-200");
-export const dropdownEnter = cn(fadeIn, slideInFromTop, "duration-150");
-export const dropdownExit = cn(fadeOut, "slide-out-to-top", "duration-150");
-```
+Prefer opacity and transform when they express the design. Use targeted transition properties so unrelated changes stay immediate.
 
-## Dialog Component Example
+## State-driven transition
+
+When an existing primitive exposes `data-state`, keep the complete classes beside that component:
 
 ```typescript
-// components/ui/dialog.tsx
-import * as DialogPrimitive from "@radix-ui/react-dialog";
-
-const DialogOverlay = forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      "fixed inset-0 z-50 bg-black/80",
-      "data-[state=open]:animate-in data-[state=closed]:animate-out",
-      "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    )}
-    {...props}
-  />
-));
-
-const DialogContent = forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
-        "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
-        "sm:rounded-lg",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </DialogPrimitive.Content>
-  </DialogPortal>
-));
+const dialogMotion = [
+  "transition-[opacity,transform] duration-200 ease-out",
+  "data-[state=open]:scale-100 data-[state=open]:opacity-100",
+  "data-[state=closed]:scale-95 data-[state=closed]:opacity-0",
+  "motion-reduce:transform-none motion-reduce:transition-none",
+].join(" ");
 ```
 
-## Animation Classes
+A transition can animate exit only while the element remains mounted. Use the component primitive's presence lifecycle for deferred unmounting. Let the primitive own focus trapping, restoration, Escape handling, labelling, outside interaction, and portal behavior; Tailwind owns the visual states.
 
-### Entry Animations
-- `animate-in` - Base entry animation
-- `fade-in` - Fade in from transparent
-- `slide-in-from-*` - Slide from direction
-- `zoom-in-*` - Zoom in from scale
+## Keyframes and plugins
 
-### Exit Animations
-- `animate-out` - Base exit animation
-- `fade-out` - Fade out to transparent
-- `slide-out-to-*` - Slide to direction
-- `zoom-out-*` - Zoom out to scale
+For custom keyframes, define them through the installed Tailwind version's theme mechanism and expose one semantic `animate-*` utility. Keep the keyframes beside the token that names them.
 
-### Duration
-- `duration-75` to `duration-1000` - Animation timing
+For an animation plugin:
 
-## Best Practices
+1. Confirm the package, version, and Tailwind integration already exist or are in scope.
+2. Read its current documentation for exact utility names.
+3. Keep plugin classes as complete source strings.
+4. Verify open and closed lifecycle states in production output and the browser.
 
-- Use data attributes for state-based animations
-- Keep animations subtle and fast (150-300ms)
-- Provide reduced motion alternatives
-- Combine animations for rich effects
+## Verification
+
+Exercise entry, exit, rapid reversal, repeated opening, focus movement, scrolling, and reduced motion. Inspect generated rules and confirm the unmounted state occurs after exit completion. Check that motion preserves pointer, keyboard, and screen-reader behavior.

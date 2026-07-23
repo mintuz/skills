@@ -1,12 +1,21 @@
-# Utility Functions
+# Class composition
 
-Helper functions for class name composition and common patterns.
+Start by finding the repository's existing class composition helper and callers. Reuse it and preserve its conflict semantics.
 
-## Class Name Utility (cn)
+## Choose the composition owner
+
+| Need | Owner |
+| --- | --- |
+| A fixed class list | One string |
+| A small condition | A template, array, or existing lightweight helper |
+| Strings, arrays, and object conditions | Existing `clsx` helper |
+| Intentional Tailwind utility overrides | Existing `tailwind-merge` helper configured for the installed Tailwind version |
+| Typed named component variants | The repository's variant pattern or [CVA components](cva-components.md) |
+
+A shared `cn` helper is warranted when current callers need both conditional composition and Tailwind conflict resolution, and its dependencies already exist or adoption is in scope:
 
 ```typescript
-// lib/utils.ts
-import { type ClassValue, clsx } from "clsx";
+import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -14,75 +23,31 @@ export function cn(...inputs: ClassValue[]) {
 }
 ```
 
-### Why cn()?
+`clsx` selects class strings; it does not resolve CSS conflicts. `tailwind-merge` removes recognized conflicting Tailwind groups so later caller utilities can win. Confirm its installed version understands the project's Tailwind version and custom utility families before relying on that behavior.
 
-- **clsx**: Conditionally construct className strings
-- **twMerge**: Intelligently merge Tailwind classes (later classes override earlier ones)
+## Detectable conditions
 
-### Usage Examples
-
-```typescript
-// Conditional classes
-cn("base-class", isActive && "active-class", "another-class");
-
-// Object syntax
-cn("base", { "text-red-500": hasError, "text-green-500": isSuccess });
-
-// Array syntax
-cn(["base", "multiple", "classes"]);
-
-// Merging conflicting classes
-cn("px-2", "px-4"); // Result: "px-4" (later class wins)
-```
-
-## Common Utilities
-
-### Focus Ring
+Keep complete classes at each branch:
 
 ```typescript
-export const focusRing = cn(
-  "focus-visible:outline-none focus-visible:ring-2",
-  "focus-visible:ring-ring focus-visible:ring-offset-2"
+cn(
+  "rounded-control px-4 py-2",
+  selected ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
+  className,
 );
-
-// Usage
-<button className={cn("base-styles", focusRing)}>Click me</button>;
 ```
 
-### Disabled State
+Finite maps are clearer when an input selects a visual contract:
 
 ```typescript
-export const disabled = "disabled:pointer-events-none disabled:opacity-50";
-
-// Usage
-<button className={cn("base-styles", disabled)} disabled={isDisabled}>
-  Submit
-</button>;
+const toneClasses = {
+  info: "border-blue-500 bg-blue-50 text-blue-950",
+  danger: "border-red-500 bg-red-50 text-red-950",
+} as const;
 ```
 
-### Transition
+## Override contract
 
-```typescript
-export const transition = "transition-colors duration-200";
+Place caller classes last only when override behavior is part of the component API. Verify conflicts for responsive, state, arbitrary, important, and custom utilities; source order alone does not guarantee that every unrelated declaration is replaced. Keep invariant accessibility and layout requirements inside the component contract when callers are not meant to change them.
 
-// Usage
-<div className={cn("bg-gray-100 hover:bg-gray-200", transition)}>Hover me</div>;
-```
-
-## Installation
-
-```bash
-yarn add clsx tailwind-merge
-# or
-pnpm add clsx tailwind-merge
-```
-
-## TypeScript Support
-
-The `cn` function accepts:
-
-- Strings
-- Objects (conditional classes)
-- Arrays
-- Nested combinations
-- undefined/null (ignored)
+Keep reusable style strings beside their component or feature. Promote them to a shared module only when multiple current owners use the same semantic contract.

@@ -1,99 +1,78 @@
-# CVA (Class Variance Authority) Components
+# CVA components
 
-Type-safe variant components using Class Variance Authority for consistent component APIs.
+Use Class Variance Authority when it is already installed or adopting it is explicitly in scope, and the component has current named variant axes. A plain class string or finite object map is the smaller owner for a component with one fixed presentation.
 
-## Pattern Overview
+Load `typescript:typescript` for the public variant type and [Class composition](utilities.md) when caller classes are accepted.
 
-CVA provides a type-safe way to define component variants with:
-- Base styles shared across all variants
-- Named variant groups (variant, size, state)
-- Default variants
-- TypeScript inference for props
+## Variant contract
 
-## Button Component Example
+Keep the complete contract in one definition:
 
-```typescript
-// components/ui/button.tsx
-import { cva, type VariantProps } from 'class-variance-authority'
-import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+1. Base classes own invariant layout, typography, focus, and disabled behavior.
+2. Variant axes represent public product choices, not incidental CSS properties.
+3. Sizes own coordinated height, spacing, and icon dimensions.
+4. Compound variants represent real intersections between axes.
+5. Defaults match the component's documented default rendering.
+6. Caller classes come last through the repository's existing merge helper.
+
+Every class string remains complete and statically detectable.
+
+## Pattern
+
+```tsx
+import { cva, type VariantProps } from "class-variance-authority";
+import type { ComponentProps } from "react";
+
+import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  // Base styles
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  [
+    "inline-flex items-center justify-center rounded-control font-medium",
+    "focus-visible:ring-2 focus-visible:ring-primary",
+    "disabled:pointer-events-none disabled:opacity-50",
+  ],
   {
     variants: {
-      variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
+      intent: {
+        primary:
+          "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-md px-3',
-        lg: 'h-11 rounded-md px-8',
-        icon: 'h-10 w-10',
+        sm: "h-9 gap-1.5 px-3 text-sm",
+        md: "h-10 gap-2 px-4 text-sm",
       },
     },
     defaultVariants: {
-      variant: 'default',
-      size: 'default',
+      intent: "primary",
+      size: "md",
     },
-  }
-)
+  },
+);
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+type ButtonProps = ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants>;
+
+export function Button({
+  className,
+  intent,
+  size,
+  type = "button",
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      type={type}
+      className={cn(buttonVariants({ intent, size }), className)}
+      {...props}
+    />
+  );
 }
-
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button'
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Button.displayName = 'Button'
-
-export { Button, buttonVariants }
 ```
 
-## Usage Examples
+Adapt utility names to the installed Tailwind version and repository tokens. Preserve the repository's existing ref convention; add polymorphic `asChild` behavior only when current callers require it and an accessible slot primitive already owns that contract.
 
-```tsx
-// Basic usage
-<Button>Click me</Button>
+## Verification
 
-// With variants
-<Button variant="destructive" size="lg">Delete</Button>
-<Button variant="outline">Cancel</Button>
-<Button variant="ghost" size="sm">Edit</Button>
-
-// With asChild for composition
-<Button asChild>
-  <Link href="/home">Home</Link>
-</Button>
-```
-
-## Component Architecture
-
-```
-Base styles → Variants → Sizes → States → Overrides
-```
-
-## Key Benefits
-
-- **Type Safety**: TypeScript knows valid variant combinations
-- **Consistency**: Centralized variant definitions
-- **Composability**: Easy to combine with other classes via `cn()`
-- **Maintainability**: Single source of truth for component styles
+Render every variant, size, default, and compound combination that callers can select. Check caller overrides, focus-visible and disabled behavior, accessible names, extreme content, supported themes, and representative generated utilities. The public prop type, runtime output, and documentation must describe the same finite set.
