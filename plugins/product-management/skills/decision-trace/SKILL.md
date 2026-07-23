@@ -1,21 +1,21 @@
 ---
 name: decision-trace
-description: WHEN checking what a meeting or transcript decided and whether specs, issues, PRs, and code carry it forward; NOT for summaries, glossaries, or implementation; preserves uncertainty across an evidence chain and reports current implementation status.
+description: WHEN tracing a claimed meeting or transcript decision through specs, issues, PRs, commits, and current code; NOT for summaries, glossaries, or implementation; preserves uncertainty, grades every evidence link, and reports current behavior.
 ---
 
 # Decision Trace
 
-Follow the evidence chain from what people said to what the product does. Classify only explicit resolution as a decision. Keep the trace read-only; hand requested changes to an implementation workflow afterward.
+Treat a claimed decision as an evidence chain from the source record to current behavior. Prove the resolution, each downstream link, and the implementation independently. Keep the trace read-only; finish the report before handing requested changes to an implementation workflow.
 
-## 1. Frame the claim
+## 1. Frame the claim and baseline
 
-Rewrite the claim as a testable statement without strengthening it. Record the source scope, relevant repositories, and the branch, commit, or date that defines “current.” Use the available primary source regardless of provider.
+Rewrite the claim as one or more testable behaviors without strengthening it. Split behaviors whose implementation status can differ. Record the source scope, relevant repositories, and the branch, commit, or date that defines “current.” Use the available primary source regardless of provider.
 
-**Complete when:** the claim, source scope, and current-code reference are explicit, with unavailable inputs recorded as gaps.
+**Complete when:** every claimed behavior, the source scope, and the current-code baseline are explicit, with unavailable inputs recorded as gaps.
 
-## 2. Establish the source record
+## 2. Classify the source record
 
-Read enough of the primary conversation or decision record to capture qualification, objections, later resolution, and superseding statements. Quote only decisive words; attach speaker, date, and a precise locator. Label paraphrase and inference.
+Read the relevant primary-source span from the first claim through its latest qualification, objection, resolution, or superseding statement. Quote only decisive words; attach the speaker, date, and a precise locator. Label each non-quote as paraphrase or inference.
 
 Classify each claim:
 
@@ -26,17 +26,19 @@ Classify each claim:
 | `disagreement` | Incompatible positions remain unresolved |
 | `unknown` | Source, context, attribution, authority, or resolution is insufficient |
 
-Prefer a later explicit resolution while preserving the chronology. Rationale supports a classification but does not prove a decision; silence and missing records remain `unknown`.
+Prefer a later explicit resolution for its stated scope while preserving the chronology. Rationale supports a classification but does not prove a decision; silence and missing records remain `unknown`.
 
-**Complete when:** every material supporting and contradictory excerpt is cited, and each claim has one classification with a stated confidence and evidence gap.
+Grade confidence `high`, `medium`, or `low` in the classification—not in the claimed decision—using source directness, attribution, and relevant-context completeness. Name every reason the grade is below `high`.
 
-## 3. Build the chain
+**Complete when:** every material supporting and contradictory excerpt is cited, and each claim has one classification, confidence grade, and evidence gap or `none`.
+
+## 3. Grade the downstream links
 
 Follow the chain as far as evidence permits:
 
 `source statement → decision record/spec → issue → PR/commit → current code/test`
 
-Read every discovered artifact and cite the exact field, section, diff, commit, path, or line that connects it. Mark each link:
+Read every discovered artifact. Cite the exact field, section, diff, commit, path, or line that connects each expected handoff, then grade it:
 
 - `explicit` — one artifact directly names or implements the other
 - `inferred` — scope and behavior align without a direct link
@@ -44,11 +46,11 @@ Read every discovered artifact and cite the exact field, section, diff, commit, 
 
 Artifact state is not behavioral proof: an approved spec, closed issue, or merged PR does not establish current behavior.
 
-**Complete when:** each discovered artifact is placed in the chain and every transition is evidenced or marked `inferred`/`missing`.
+**Complete when:** every discovered artifact is placed in the chain and every expected transition has one grade supported by exact evidence or a named search gap.
 
 ## 4. Verify current implementation
 
-Trace the current production path, callers, sibling paths, tests, configuration, and feature gates. Compare observable behavior with the classified claim, then run the smallest decisive checks available.
+Trace the current production path, every caller and sibling path that shares the behavior, tests, configuration, and feature gates. Compare observable behavior with each claimed behavior, then run the smallest decisive checks available.
 
 Assign one status per expected behavior:
 
@@ -60,15 +62,15 @@ Assign one status per expected behavior:
 | `diverged` | Current code behaves differently |
 | `unverified` | Available access or evidence cannot decide behavior |
 
-**Complete when:** every behavior implied by the claim maps to current code and verification evidence, or to a named gap.
+**Complete when:** every claimed behavior maps to current code and verification evidence, or to a named gap.
 
-## 5. Report the trace
+## 5. Return the trace
 
-Lead with the verdict, confidence, code reference, and date. Then provide:
+Lead with the source classification, confidence, implementation status, current-code baseline, and date. Then provide:
 
 1. **Source record:** claim, classification, exact evidence, locator, and counterevidence.
-2. **Artifact chain:** each artifact and the evidence quality of every link.
+2. **Artifact chain:** each artifact and the grade of every expected link.
 3. **Implementation matrix:** expected behavior, current code/test evidence, and status.
 4. **Caveats and next work:** missing sources, inferred links, unresolved disagreement, stale branches, absent tests, and the smallest action that would close each gap.
 
-Keep fact, quotation, paraphrase, and inference distinct. End with the smallest evidence-backed next action.
+**Complete when:** every claim, expected link, and behavior is accounted for; quotation, paraphrase, inference, and artifact fact remain distinct; and every gap ends with the smallest evidence-backed next action.
