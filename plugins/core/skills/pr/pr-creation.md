@@ -1,170 +1,57 @@
-# Creating Pull Requests with GitHub CLI
+# Creating a Pull Request with `gh`
 
-Reference for using `gh pr create` to submit pull requests from the command line.
+Use this branch when the title/body are final and the branch is already committed and pushed. Publication beyond creation belongs to `core:ship-pr`.
 
-For PR description templates, see [pr-description.md](pr-description.md).
+## 1. Verify preconditions
 
-## Prerequisites
-
-Before creating a PR:
-
-1. **Committed changes** - All changes must be committed locally
-2. **Branch pushed** - Your branch must be pushed to the remote
-3. **GitHub CLI authenticated** - Run `gh auth status` to verify
-
-## Basic Command
+Resolve the exact base, head, remote, and requested draft state, then run:
 
 ```bash
-gh pr create --title "PR title" --body "PR description"
+gh auth status
+git status --short --branch
+git log <base>..HEAD --oneline
+git diff <base>...HEAD --check
+git rev-parse HEAD
+git rev-parse @{upstream}
+gh pr list --head <head> --state open
 ```
 
-## Recommended Workflow
+The worktree may contain unrelated local work, but the pull request description must represent the committed base-to-head comparison. The local and upstream SHAs must match. Reuse the single open pull request for the head when one exists.
 
-### 1. Verify Branch State
+**Complete when:** authentication works, at least one head commit exists, local HEAD equals its upstream, the finished body reports the verification state truthfully, and the head has zero or one open pull request.
 
-```bash
-# Check current branch and uncommitted changes
-git status
+## 2. Create
 
-# Verify commits are ready
-git log main..HEAD --oneline
-
-# Ensure branch is pushed
-git push -u origin HEAD
-```
-
-### 2. Create PR with HEREDOC
-
-Use a HEREDOC to properly format multi-line PR bodies. Use the appropriate template from [pr-description.md](pr-description.md) based on your PR size:
+Save the finished Markdown body to a temporary file, then create a ready-for-review pull request unless the user or repository policy requires a draft:
 
 ```bash
-gh pr create --title "Your PR title" --body "$(cat <<'EOF'
-# Paste template from pr-description.md here
-# Small PR: 1-3 files
-# Medium PR: 4-15 files
-# Large PR: 15+ files
-EOF
-)"
-```
-
-### 3. Common Options
-
-```bash
-# Create as draft PR
-gh pr create --draft --title "WIP: Feature name" --body "..."
-
-# Assign reviewers
-gh pr create --reviewer username1,username2 --title "..." --body "..."
-
-# Add labels
-gh pr create --label "enhancement" --label "needs-review" --title "..." --body "..."
-
-# Link to milestone
-gh pr create --milestone "v2.0" --title "..." --body "..."
-
-# Specify base branch (if not main/master)
-gh pr create --base develop --title "..." --body "..."
-
-# Open in browser after creation
-gh pr create --web --title "..." --body "..."
-```
-
-## Full Example
-
-This example uses the medium PR template structure from [pr-description.md](pr-description.md):
-
-```bash
-# Push branch first
-git push -u origin feature/user-auth
-
-# Create PR with full options
 gh pr create \
-  --title "Add JWT authentication" \
-  --body "$(cat <<'EOF'
-## Summary
-
-Implements JWT-based authentication for all API endpoints, replacing session-based auth.
-
-## Changes
-
-- Add `AuthMiddleware` for token validation
-- Create `/auth/login` and `/auth/logout` endpoints
-- Add refresh token rotation
-- Update API documentation
-
-## Context
-
-Moving to JWT improves scalability for our microservices architecture and enables stateless authentication.
-
-Closes #123
-Related to #100
-
-## Testing
-
-### Automated
-
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-
-### Manual Testing
-
-Steps for reviewers to verify:
-
-1. Login with valid credentials → receive tokens
-2. Access protected endpoint with token → success
-3. Access with expired token → 401 response
-4. Refresh token → new access token issued
-
-## Screenshots
-
-N/A - API changes only
-
-## Checklist
-
-- [ ] Code follows project conventions
-- [ ] Self-reviewed changes
-- [ ] No secrets committed
-- [ ] Documentation updated
-EOF
-)" \
-  --reviewer alice,bob \
-  --label "enhancement" \
-  --label "auth"
+  --base <base> \
+  --head <head> \
+  --title "<title>" \
+  --body-file <body-file>
 ```
 
-## After Creation
+Add `--draft`, `--reviewer`, `--label`, `--assignee`, or `--milestone` only when the request or repository policy supplies those values.
 
-The command outputs the PR URL. You can also:
+When an open pull request already exists, update it only when the request includes revision; otherwise return its URL and current metadata.
+
+**Complete when:** `gh pr create` or the existing pull request yields one URL for the intended head.
+
+## 3. Verify
 
 ```bash
-# View PR in browser
-gh pr view --web
-
-# Check PR status
-gh pr status
-
-# List your open PRs
-gh pr list --author @me
+gh pr view <url> \
+  --json url,state,isDraft,baseRefName,headRefName,headRefOid,title,body
 ```
 
-## Troubleshooting
+Compare every returned field with the request, final reviewer brief, and local HEAD. Correct editable metadata with `gh pr edit`; report an uneditable mismatch with the safest concrete resolution.
 
-### "no commits between main and HEAD"
+**Complete when:** GitHub reports one open pull request with the intended base, head SHA, title, body, and draft state.
 
-Your branch has no new commits. Ensure you've committed changes and are on the correct branch.
+## Failure branches
 
-### "pull request already exists"
-
-A PR already exists for this branch. Use `gh pr view` to see it or `gh pr edit` to modify.
-
-### Authentication errors
-
-Run `gh auth login` to re-authenticate with GitHub.
-
-### Wrong base branch
-
-Use `--base` flag to specify the correct target branch:
-
-```bash
-gh pr create --base develop --title "..." --body "..."
-```
+- **No commits between base and head:** resolve the comparison; there is no review unit to create.
+- **Missing upstream or SHA mismatch:** hand off commit/push work to `core:ship-pr`.
+- **Authentication failure:** report the failing account and the exact `gh auth login` action required.
+- **Multiple open pull requests:** stop with their URLs; selecting or closing one requires explicit direction.

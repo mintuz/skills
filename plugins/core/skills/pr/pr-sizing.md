@@ -1,109 +1,61 @@
-# PR Sizing Guidelines
+# PR Sizing and Splitting
 
-How to assess pull request size and decide whether to split into smaller PRs.
+Use **review-unit coherence** as the decision: one pull request should have one reason to exist and one reviewable verification story.
 
-## Size Categories
+## Size signals
 
-| Size   | Files Changed | Lines Changed | Approach                                             |
-| ------ | ------------- | ------------- | ---------------------------------------------------- |
-| Small  | 1-3 files     | < 100 lines   | Summary + Changes + Testing checklist                |
-| Medium | 4-15 files    | 100-500 lines | Full template with context and manual testing steps  |
-| Large  | 15+ files     | 500+ lines    | Consider splitting; if unavoidable, add risk section |
+Use counts as attention signals; coherence decides the review unit:
 
-## Signs a PR Should Be Split
+| Signal | Small | Medium | Large |
+| --- | ---: | ---: | ---: |
+| Authored files | 1–3 | 4–15 | 16+ |
+| Changed lines | Under 100 | 100–500 | Over 500 |
+| Description | Summary, changes, validation | Add context and focused review guidance | Add risk, rollout, and rollback detail |
 
-- Changes span unrelated features
-- Mix of refactoring and new features
-- Multiple tickets/issues addressed
-- Reviewers need different expertise for different parts
-- Contains both infrastructure and application changes
-- Hard to write a single coherent summary
+Count generated output separately from authored changes; review its generator and reproducibility.
 
-## Benefits of Smaller PRs
+## Coherence gate
 
-- **Faster reviews** - Reviewers can focus and complete in one session
-- **Better feedback** - Easier to spot issues in focused changes
-- **Lower risk** - Smaller blast radius if something goes wrong
-- **Cleaner history** - Each PR tells a clear story
-- **Easier rollback** - Can revert specific changes independently
+Keep one pull request when the changed areas:
 
-## How to Split a Large PR
+- deliver one observable outcome;
+- share one motivation and acceptance boundary;
+- must land together to keep the repository valid; and
+- can be verified and rolled back as one unit.
 
-### By Feature/Concern
+Recommend a split when the comparison contains independent features, tickets, refactors, release risks, reviewer groups, or rollback boundaries. Prefer these cuts:
 
-```
-Original: "Add user dashboard with analytics and notifications"
+1. **Prerequisite then behavior:** preparatory refactor or schema work before the feature that consumes it.
+2. **Independent concern:** one feature, fix, or infrastructure change per unit.
+3. **Dependency layer:** a minimal ordered stack when later units depend on earlier ones.
 
-Split into:
-- PR 1: Add dashboard layout and navigation
-- PR 2: Add analytics widgets
-- PR 3: Add notification system
-```
+Each unit must build on its stated base and include the tests and documentation needed to review that unit.
 
-### By Layer
+## Coupled exceptions
 
-```
-Original: "Add payment processing"
+Keep a large unit intact when repository validity requires the areas to land together, such as an atomic migration, inseparable generated artifacts, tightly coupled API and consumer changes, or initial project bootstrap. Name the coupling and compensate with focused review order, risk, deployment, and rollback guidance.
 
-Split into:
-- PR 1: Add database schema and migrations
-- PR 2: Add API endpoints
-- PR 3: Add frontend components
-```
+## Return the decision
 
-### Refactor-Then-Feature
-
-```
-Original: "Refactor auth module and add OAuth support"
-
-Split into:
-- PR 1: Refactor auth module (no behavior change)
-- PR 2: Add OAuth support (builds on clean foundation)
-```
-
-## Recommending a Split
-
-When a PR should be split, provide this guidance:
+For one pull request, report:
 
 ```markdown
-**Recommendation: Consider splitting this PR**
-
-This PR contains multiple unrelated changes:
-
-1. [Change set 1] - [files/scope]
-2. [Change set 2] - [files/scope]
-
-Suggested split:
-
-- PR 1: [Description] - ~X files
-- PR 2: [Description] - ~Y files
-
-Benefits of splitting:
-
-- Easier to review
-- Faster to merge
-- Cleaner git history
-- Lower risk per PR
-
----
-
-If you prefer to proceed as a single PR, here's the description:
-
-[Full PR description]
+**Decision:** Keep as one PR — [single reason to exist]
+**Size:** [small | medium | large] — [authored files and changed lines]
+**Coupling:** [why the areas belong together]
+**Review order:** [area → area]
 ```
 
-## When Large PRs Are Acceptable
+For a split, report:
 
-Sometimes splitting isn't practical:
+```markdown
+**Decision:** Split into [N] PRs — [independent reasons]
 
-- **Generated code** - Auto-generated files that must stay in sync
-- **Atomic migrations** - Database changes that must deploy together
-- **Tightly coupled changes** - Where splitting would break the build
-- **Initial project setup** - Bootstrapping a new service/module
+1. **[Title]**
+   - Base: [branch or preceding PR]
+   - Scope: [changed areas]
+   - Outcome: [independently reviewable result]
+   - Verification: [checks]
+```
 
-In these cases, use the large PR template with extra attention to:
-
-- Risk level assessment
-- Detailed testing steps
-- Rollback plan
-- Deployment notes
+Account for every changed area exactly once and state every stack dependency.

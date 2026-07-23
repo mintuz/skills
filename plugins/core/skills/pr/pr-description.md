@@ -1,218 +1,73 @@
-# PR Description Writing
+# PR Title and Description
 
-Guidelines for creating comprehensive pull request descriptions that help reviewers understand and evaluate changes efficiently.
+Write a **reviewer brief** from the outcome, motivation, and review boundaries; leave line-level implementation detail to the diff.
 
-## Analyzing Commits
+## Title
 
-Look for:
+Name the observable outcome in imperative form, following repository conventions. Use a stable area or product noun when it improves scanning. Keep stack position, issue numbers, and draft status in GitHub metadata or the body unless repository convention puts them in titles.
 
-- Patterns in commit messages (types, scopes)
-- Logical groupings of changes
-- Breaking change indicators (`!`, `BREAKING CHANGE`)
-- Issue references (`#123`, `Fixes #456`)
+## Adaptive template
 
-## GitHub Issue Linking
-
-When commits reference issues, enrich the description with:
-
-- Issue titles for "Closes #X" links
-- Related work from issue searches
-- Verification that referenced issues are still open
-
-## Templates
-
-### Small PR (1-3 files)
+Start with the core sections and add conditional sections only when they carry reviewer information:
 
 ```markdown
 ## Summary
 
-[1-2 sentences on what this does and why]
+[Observable outcome and why it matters in one short paragraph.]
 
 ## Changes
 
-- [Key change 1]
-- [Key change 2]
+- [Meaningful behavior or implementation boundary]
 
-## Testing
+## Validation
 
-- [ ] Tests pass locally
-- [ ] Manual testing performed
-
-[If UI change: screenshot or "N/A"]
+- `[exact command]` — [result and what it proves]
 ```
 
-### Medium PR (4-15 files)
+Add these where the change demands them:
 
 ```markdown
-## Summary
-
-[Brief description of what this PR does and why (2-3 sentences max)]
-
-## Changes
-
-- [Bullet points of key changes]
-- [Focus on user-visible or architectural changes]
-- [Group related changes together]
-
 ## Context
 
-[Why is this change needed? What problem does it solve?]
+[Constraints, linked issue/specification, prior decisions, or stack relationship.]
 
-Closes #123
+## Risk and rollback
 
-## Testing
+- **Risk:** [failure mode and affected surface]
+- **Mitigation:** [evidence or safeguard]
+- **Rollback:** [safe recovery]
 
-### Automated
+## Deployment or migration
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests pass
-- [ ] E2E tests pass (if applicable)
-
-### Manual Testing
-
-Steps for reviewers to verify:
-
-1. [Step one]
-2. [Step two]
-3. [Expected result]
+[Ordering, compatibility window, data handling, downtime, or consumer action.]
 
 ## Screenshots
 
-[Before/after or demo - required for UI changes]
+[Before/after images or interaction recording for visual changes.]
 
-## Checklist
+## Review focus
 
-- [ ] Code follows project conventions
-- [ ] Self-reviewed changes
-- [ ] No secrets committed
-- [ ] Documentation updated (if needed)
+1. [Highest-risk boundary]
+2. [Next dependency in review order]
 ```
 
-### Large PR (15+ files) or Breaking Changes
+Link issues with the repository's intended keyword: use a closing keyword only when merging this pull request should close the issue.
 
-```markdown
-## Summary
+## Evidence rules
 
-[What this PR does - keep it brief]
+- Summarize behavior and boundaries instead of listing files or commits.
+- Report checks in observed terms: command, result, and coverage. Label unexecuted work as a reviewer step or verification gap.
+- Name risks proportionately. Breaking behavior includes affected consumers, migration, deployment order, and rollback.
+- Give visual changes inspectable evidence. State the concrete capture gap when the environment prevents it.
+- Describe a stack with the preceding pull request or branch, dependency reason, and review order.
+- Match the repository template when one exists; retain every required field.
 
-**Risk Level**: [Low | Medium | High]
+## Quality gate
 
-## Changes
+Before returning the title/body, verify that:
 
-### [Area 1]
-
-- [Changes in this area]
-
-### [Area 2]
-
-- [Changes in this area]
-
-## Context
-
-[Why is this change needed?]
-
-Relates to #123
-
-## Architecture
-
-[If significant: brief explanation of design decisions]
-
-## Breaking Changes
-
-[If any - be explicit about what breaks and how to migrate]
-
-### Migration Steps
-
-1. [Step one]
-2. [Step two]
-
-### Rollback Plan
-
-[How to revert if needed]
-
-## Testing
-
-### Automated
-
-- [ ] Unit tests added/updated
-- [ ] Integration tests pass
-- [ ] E2E tests pass
-
-### Manual Testing
-
-1. [Detailed steps]
-2. [Expected outcomes]
-
-### Risk Areas
-
-- **[Area]**: [What could go wrong and how it was mitigated]
-
-## Screenshots
-
-[Before/after comparisons]
-
-## Deployment Notes
-
-[Any special deployment considerations]
-
-## Checklist
-
-- [ ] Code follows project conventions
-- [ ] Self-reviewed changes
-- [ ] No secrets committed
-- [ ] Documentation updated
-- [ ] Breaking changes documented
-- [ ] Rollback plan verified
-```
-
-## Section Writing Guidelines
-
-### Summary
-
-- Lead with user impact or business value
-- One paragraph max
-- Avoid implementation details
-- Use present tense: "Adds..." not "Added..."
-
-### Changes
-
-- Highlight what changed, not how (reviewers read the diff)
-- Group by component/area if many changes
-- Use verb phrases: "Adds...", "Fixes...", "Updates..."
-- Don't list every file; summarize meaningfully
-
-### Context
-
-- Explain the "why" - motivation for this change
-- Link to relevant issues, tickets, or discussions
-- Mention alternatives considered (briefly)
-- Include any relevant constraints or decisions
-
-### Testing
-
-- Be specific about what was tested
-- Include manual testing steps if not obvious
-- Note areas that need extra review attention
-- For UI: always include screenshots/GIFs
-
-### Screenshots
-
-- Required for any UI changes
-- Show before/after for modifications
-- Annotate if helpful
-- Use GIFs for interaction changes
-
-### Migration
-
-- Only include if there are breaking changes
-- Be explicit about steps
-- Include rollback procedure
-- Note any downtime or data impact
-
-## Tone
-
-- Professional but not formal
-- Assume reviewers are busy
-- Make it easy to understand quickly
-- Acknowledge complexity when it exists
-- Be honest about risks and limitations
+- every changed area appears in the summary, changes, validation, or risk story;
+- every factual claim agrees with the base-to-head diff and executed checks;
+- conditional sections are present for material UI, migration, deployment, compatibility, data, security, or rollback concerns;
+- the title and first paragraph explain one coherent reason to merge; and
+- every placeholder is resolved, every heading carries reviewer information, every reported result was observed, and repository-required checkboxes have truthful states.

@@ -1,73 +1,66 @@
 ---
 name: pr
-description: WHEN drafting PR descriptions or sizing/splitting work; NOT for commit messages; provides reviewer-first templates and gh pr steps.
+description: WHEN producing a reviewer-first pull request title/body, sizing or splitting changes, or creating a pull request with gh; NOT for commit messages, pushing branches, CI repair, conflict resolution, or merge monitoring; returns an evidence-backed review unit, finished description, or verified pull request.
 ---
 
-# Pull Request Skills
+# Pull Request
 
-Guidelines for creating comprehensive pull request descriptions and submitting PRs efficiently.
+Turn the complete base-to-head change into a **reviewer brief**: one coherent reason to change, the evidence needed to assess it, and a proportionate verification story.
 
-## Philosophy
+Load only the references whose conditions fire:
 
-- **Reviewer-first** - Optimize for the person reviewing, not the author
-- **Context over detail** - Explain why, link to how
-- **Scannable** - Busy reviewers skim; make it easy
-- **Actionable** - Clear testing steps, obvious risks
-- **Honest** - Flag complexity, don't hide it
+| Condition | Context pointer |
+| --- | --- |
+| Sizing was requested or the comparison may contain multiple review units | Read [pr-sizing.md](pr-sizing.md) before deciding the review units. |
+| Drafting or revision was requested | Read [pr-description.md](pr-description.md) before writing. |
+| Creation was requested | Read both [pr-description.md](pr-description.md) and [pr-creation.md](pr-creation.md); creation includes a finished title/body. |
 
-## Gathering Context
+The creation branch starts with committed, pushed work. Use `core:ship-pr` when the request also includes committing, pushing, repairing checks, handling conflicts, or waiting through merge.
 
-Before creating a PR, gather information about the changes:
+## 1. Establish the comparison
+
+Read repository instructions and pull request templates. Resolve the repository, head branch, exact base branch, requested branch above, linked issue or specification and its current state, and any stack relationship.
+
+Inspect the complete comparison, adapting commands to the resolved base:
 
 ```bash
-# Compare branch changes against main
-git diff main...HEAD
-
-# List modified files
-git diff main...HEAD --name-only
-
-# Review commit history
-git log main..HEAD --oneline
-
-# Get detailed commit messages
-git log main..HEAD --format="%B---"
-
-# Get files changed with stats
-git diff main...HEAD --stat
+git status --short --branch
+git diff <base>...HEAD --stat
+git diff <base>...HEAD --name-status
+git diff <base>...HEAD
+git log <base>..HEAD --format='%h %s%n%b'
 ```
 
-## Quick Reference
+Treat the diff and executed checks as evidence. Use commits and linked work as intent context, and reconcile any claim that the diff does not support.
 
-| Task | Guide |
-| ---- | ----- |
-| Sizing and splitting PRs | [pr-sizing.md](pr-sizing.md) |
-| Writing PR descriptions | [pr-description.md](pr-description.md) |
-| Creating PRs with `gh` CLI | [pr-creation.md](pr-creation.md) |
+**Complete when:** the base, head, requested output, repository rules, linked authority, and every changed area are known.
 
-## When to Use Each Guide
+## 2. Build the reviewer brief
 
-### PR Sizing
+Map each changed area to:
 
-Use [pr-sizing.md](pr-sizing.md) when you need:
+- its observable outcome and motivation;
+- the implementation boundary a reviewer should inspect;
+- dependencies on other areas or pull requests;
+- validation already executed, including exact results;
+- user, data, deployment, compatibility, and rollback risk where applicable.
 
-- Size category definitions (small/medium/large)
-- Signs a PR should be split
-- Strategies for splitting large PRs
-- Guidance on when large PRs are acceptable
+Give every changed area one role in the brief. Separate generated files from authored behavior and distinguish verified results from proposed checks.
 
-### PR Description Writing
+**Complete when:** every changed area is accounted for, every material claim has diff or verification evidence, and every relevant risk has a mitigation or explicit gap.
 
-Use [pr-description.md](pr-description.md) when you need:
+## 3. Choose the review unit
 
-- Templates for small, medium, or large PRs
-- Section writing guidelines (summary, changes, testing, etc.)
-- Commands to gather context from git history
+Assess whether the comparison tells one coherent review story. When sizing or splitting was requested, or the comparison contains independently mergeable reasons to change, apply the sizing reference selected above.
 
-### PR Creation
+For a stack, derive each unit and its dependency order from the actual diff. For one pull request, state why its coupled areas belong together.
 
-Use [pr-creation.md](pr-creation.md) when you need:
+**Complete when:** every changed area belongs to exactly one proposed review unit, each unit has one reason to exist, and every dependency edge has an explicit order.
 
-- `gh pr create` command syntax and options
-- HEREDOC pattern for multi-line bodies
-- Draft PRs, reviewers, labels, and milestones
-- Troubleshooting common errors
+## 4. Produce the requested artifact
+
+For a title/body, apply the description reference selected above to the review unit. Return finished Markdown with facts, commands, and results filled in; omit sections that carry no reviewer information.
+
+For creation, apply the creation reference selected above only after the title/body is final. Keep publication mechanics within that branch.
+
+**Complete when:** the requested plan or description has no placeholders and covers its entire review unit; if creation was requested, `gh pr view` confirms one open pull request with the intended base, head, title, body, and draft state.
