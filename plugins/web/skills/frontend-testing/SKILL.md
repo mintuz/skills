@@ -1,137 +1,74 @@
 ---
 name: frontend-testing
-description: WHEN testing any front-end UI with DOM Testing Library; behavior-first queries, userEvent flows, async patterns.
+description: WHEN writing, debugging, reviewing, or refactoring front-end UI tests with DOM Testing Library; NOT for React-only APIs or browser-level end-to-end tests; proves user-visible behavior through accessible queries, realistic interactions, async outcomes, and network boundaries.
 ---
 
-# Front-End Testing with DOM Testing Library
+# Front-End Testing
 
-Framework-agnostic DOM Testing Library patterns for behavior-driven testing. For React-specific patterns (renderHook, context, components), load the `react-testing` skill. For TDD workflow (RED-GREEN-REFACTOR), load the `tdd` skill.
+Treat each test as a **behavior contract**: given a user-visible state, when the user acts through the DOM, an observable outcome follows.
 
-## Core Philosophy
+## Choose the branch
 
-**Test behavior users see, not implementation details.**
+| Request | Route |
+| --- | --- |
+| Write or fix a UI test | Follow all four steps; for new or changed production behavior, load `tdd` and begin with a red behavior contract |
+| Review UI tests | Follow steps 1, 2, and 4 read-only; report each broken contract with evidence |
+| Refactor UI tests | Preserve the behavior contracts, then follow all four steps |
+| Test React components, hooks, or context | Load `react-testing` for React setup and apply this skill to the rendered DOM behavior |
+| Test a browser journey across pages or services | Use the repository's end-to-end testing conventions |
 
-Testing Library exists to solve a fundamental problem: tests that break when you refactor (false negatives) and tests that pass when bugs exist (false positives).
+## 1. Define the behavior contract
 
-### Two Types of Users
+Read the repository test setup, the rendered UI, its public inputs, and the production path that owns the behavior. Reuse the existing runner, render helper, factories, matchers, and network setup.
 
-Your UI components have two users:
+For every behavior in scope, state:
 
-1. **End-users**: Interact through the DOM (clicks, typing, reading text)
-2. **Developers**: You, refactoring implementation
+- the user-visible starting state;
+- the user action, if any;
+- the observable DOM outcome;
+- whether the outcome is immediate, asynchronous, disappearing, or network-driven.
 
-**Kent C. Dodds principle**: "The more your tests resemble the way your software is used, the more confidence they can give you."
+Assert through the public UI. Internal state, private methods, component instances, CSS selectors, and client implementation details do not prove a behavior contract.
 
-### Why This Matters
+**Complete when:** every scoped behavior has one observable contract and its existing test coverage or missing coverage is known.
 
-**False negatives** (tests break on refactor):
+## 2. Choose the observation surface
 
-```typescript
-// ❌ WRONG - Testing implementation (will break on refactor)
-it("should update internal state", () => {
-  const component = new CounterComponent();
-  component.setState({ count: 5 }); // Coupled to state implementation
-  expect(component.state.count).toBe(5);
-});
-```
+Read every reference whose condition matches before editing the test:
 
-**Correct approach** (behavior-driven):
+| Condition | Required reference |
+| --- | --- |
+| Selecting a query or choosing `getBy*`, `queryBy*`, or `findBy*` | [Query selection](references/queries.md) |
+| Accessible names, semantic HTML, or ARIA affect what the test can observe | [Accessibility-first testing](references/accessibility-first-testing.md) |
+| Clicking, typing, selecting, clearing, or keyboard input | [User events](references/user-events.md) |
+| Appearance, disappearance, loading, debounce, or another delayed outcome | [Async testing](references/async-testing.md) |
+| API success, failure, or per-test response behavior | [MSW integration](references/msw.md) |
+| Reviewing, refactoring, configuring lint, or correcting a Testing Library smell | [Anti-patterns](references/anti-patterns.md) |
 
-```typescript
-// ✅ CORRECT - Testing user-visible behavior
-it("should submit form when user clicks submit", async () => {
-  const handleSubmit = vi.fn();
-  const user = userEvent.setup();
+Query through `screen`. Prefer role plus accessible name, then the next accessible query that matches how a user finds the element; use a test ID only when the UI exposes no semantic surface. Match the query variant to the contract: `getBy*` for present now, `queryBy*` for absence, and `findBy*` for eventual presence. Use `jest-dom` matchers for DOM state.
 
-  render(`
-    <form id="login-form">
-      <label>Email: <input name="email" /></label>
-      <button type="submit">Submit</button>
-    </form>
-  `);
+**Complete when:** every assertion uses the most user-facing available query and a variant that matches the outcome's timing and cardinality.
 
-  await user.type(screen.getByLabelText(/email/i), "test@example.com");
-  await user.click(screen.getByRole("button", { name: /submit/i }));
+## 3. Exercise the UI
 
-  expect(handleSubmit).toHaveBeenCalled();
-});
-```
+Create `userEvent.setup()` inside each test and await each interaction. Drive the complete user action rather than dispatching its implementation events; use `fireEvent` only for an event that `userEvent` cannot express.
 
-## Quick Reference
+Keep retry callbacks assertion-only. Use `findBy*` for eventual elements, `waitForElementToBeRemoved` for disappearance, and `waitFor` for one retrying assertion that no query can express. At an API boundary, intercept requests with MSW and reset per-test overrides through the shared test setup.
 
-| Topic                                  | Guide                                                                       |
-| -------------------------------------- | --------------------------------------------------------------------------- |
-| Query selection priority and details   | [queries.md](queries.md)                                                    |
-| userEvent patterns and interactions    | [user-events.md](user-events.md)                                            |
-| Async testing (findBy, waitFor)        | [async-testing.md](async-testing.md)                                        |
-| MSW for API mocking                    | [msw.md](msw.md)                                                            |
-| Common mistakes and fixes              | [anti-patterns.md](anti-patterns.md)                                        |
-| Accessibility-first testing principles | [accessibility-first-testing.md](references/accessibility-first-testing.md) |
+Keep each test independent: render fresh state per test, build data through factory functions rather than shared fixtures, and rely on the runner's automatic DOM cleanup. Load `tdd` when factory patterns are needed.
 
-## When to Use Each Guide
+**Complete when:** each behavior contract is exercised through public inputs, all interactions are awaited, and no shared state or retrying side effect can change another test.
 
-### Queries
+## 4. Prove every contract
 
-Use [queries.md](queries.md) when you need:
+Run the smallest affected test first, then the relevant test suite and configured Testing Library or `jest-dom` lint rules. For new behavior under TDD or a defect reproduction, confirm the targeted test fails for the intended reason before the production change and passes afterward.
 
-- Query priority order (getByRole → getByLabelText → ...)
-- Query variant decisions (getBy vs queryBy vs findBy)
-- Common query mistakes and fixes
+Inspect every scoped contract for:
 
-### User Events
+- a user-visible assertion rather than an implementation assertion;
+- an accessible query and correct query variant;
+- the complete user interaction and awaited async outcome;
+- isolated render, user, data, and network state;
+- coverage of the requested success, error, loading, empty, and disappearance outcomes that exist.
 
-Use [user-events.md](user-events.md) when you need:
-
-- userEvent vs fireEvent guidance
-- userEvent.setup() pattern
-- Common interaction patterns (clicking, typing, keyboard)
-
-### Async Testing
-
-Use [async-testing.md](async-testing.md) when you need:
-
-- findBy queries for async elements
-- waitFor for complex conditions
-- waitForElementToBeRemoved
-- Loading states, API responses, debounced inputs
-
-### MSW
-
-Use [msw.md](msw.md) when you need:
-
-- Network-level API mocking
-- setupServer pattern
-- Per-test handler overrides
-
-### Anti-Patterns
-
-Use [anti-patterns.md](anti-patterns.md) when you need:
-
-- List of all common mistakes
-- Quick reference of what NOT to do
-- ESLint plugin setup
-
-### Accessibility-First Testing
-
-Use [accessibility-first-testing.md](references/accessibility-first-testing.md) when you need:
-
-- Why accessible queries improve tests and accessibility
-- When to add ARIA attributes vs semantic HTML
-- Semantic HTML priority principles
-
-## Summary Checklist
-
-Before merging UI tests, verify:
-
-- [ ] Using `getByRole` as first choice for queries
-- [ ] Using `userEvent` with `setup()` (not `fireEvent`)
-- [ ] Using `screen` object for all queries (not destructuring from render)
-- [ ] Using `findBy*` for async elements (loading, API responses)
-- [ ] Using `jest-dom` matchers (`toBeInTheDocument`, `toBeDisabled`, etc.)
-- [ ] Testing behavior users see, not implementation details
-- [ ] ESLint plugins installed (`eslint-plugin-testing-library`, `eslint-plugin-jest-dom`)
-- [ ] No manual `cleanup()` calls (automatic)
-- [ ] MSW for API mocking (not fetch/axios mocks)
-- [ ] Following TDD workflow (see `tdd` skill)
-- [ ] Using test factories for data (see `testing` skill)
-- [ ] For framework-specific patterns (React hooks, context, components), see `react-testing` skill
+**Complete when:** every scoped behavior contract has passing evidence, every configured check passes, and each unavailable or intentionally omitted outcome is named.
