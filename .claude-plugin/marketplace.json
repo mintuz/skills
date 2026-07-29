@@ -14,6 +14,7 @@
         "./skills/acceptance-review",
         "./skills/commit-messages",
         "./skills/expectations",
+        "./skills/gauntlet-loop",
         "./skills/learn",
         "./skills/pr",
         "./skills/reducer",
