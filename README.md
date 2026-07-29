@@ -39,6 +39,7 @@ Custom agents, skills, and commands for software development workflows.
 | `acceptance-review` | Verify code against acceptance criteria with evidence and an explicit verdict               |
 | `commit-messages` | Conventional commit messages that explain the "why" not just the "what"                      |
 | `expectations`    | Working expectations and documentation practices                                             |
+| `gauntlet-loop`   | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics |
 | `learn`           | Document learnings and capture insights into CLAUDE.md                                       |
 | `pr`              | PR descriptions, sizing, and creation with gh CLI                                            |
 | `reducer`         | First-principles system simplification with behavioral equivalence proofs                    |
