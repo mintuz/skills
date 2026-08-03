@@ -42,6 +42,7 @@ Custom agents, skills, and commands for software development workflows.
 | `gauntlet-loop`   | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics |
 | `learn`           | Document learnings and capture insights into CLAUDE.md                                       |
 | `pr`              | PR descriptions, sizing, and creation with gh CLI                                            |
+| `pseudocode`      | Render module boundaries, signatures, arguments, and a cited call graph for existing or planned code |
 | `reducer`         | First-principles system simplification with behavioral equivalence proofs                    |
 | `ship-pr`         | Commit, publish, repair, and monitor a GitHub pull request through merge                      |
 | `writing`         | Developer-focused writing: tutorials, how-tos, docs with clear structure                     |
