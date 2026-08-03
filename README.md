@@ -36,7 +36,7 @@ Custom agents, skills, and commands for software development workflows.
 
 | Skill             | Description                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------- |
-| `acceptance-review` | Verify code against acceptance criteria with evidence and an explicit verdict               |
+| `acceptance-review` | Verify implementation against an authoritative contract with an explicit verdict           |
 | `commit-messages` | Conventional commit messages that explain the "why" not just the "what"                      |
 | `expectations`    | Working expectations and documentation practices                                             |
 | `gauntlet-loop`   | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics |
@@ -73,6 +73,8 @@ Custom agents, skills, and commands for software development workflows.
 | `debug`                         | Structured feedback loop for debugging iOS simulator issues and UI problems                     |
 | `local-ai-models`               | On-device AI with Foundation Models and MLX Swift: LLMs, VLMs, embeddings, and image generation |
 | `app-store-scraper`             | Scrape iOS/macOS App Store data using iTunes/App Store APIs                                     |
+| `app-store-keyword-ops`         | Mine Astro competitor keywords and safely update locale-specific App Store fields               |
+| `ios-localize-copy`             | Localize iOS and App Store copy across every supported locale                                   |
 
 ### TypeScript
 
@@ -94,8 +96,10 @@ No standalone skills; see the `mermaid-generator` agent below.
 
 | Skill            | Description                                                                       |
 | ---------------- | --------------------------------------------------------------------------------- |
-| `decision-trace` | Trace claimed decisions from source evidence through artifacts and current code  |
+| `decision-trace` | Trace claimed decisions from source evidence through delivery artifacts          |
+| `meeting-to-action-brief` | Turn meeting evidence into a concise decision and action brief                  |
 | `status-updates` | Team updates and stakeholder comms with scannable structure and honest tone       |
+| `story-pr-orchestrator` | Coordinate dependency-gated stories through isolated pull requests              |
 
 ## Agents
 

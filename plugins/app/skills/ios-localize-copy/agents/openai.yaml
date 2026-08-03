@@ -1,0 +1,4 @@
+interface:
+  display_name: "iOS Localize Copy"
+  short_description: "Localize iOS copy without breaking runtime contracts"
+  default_prompt: "Use $ios-localize-copy to localize this iOS copy across every supported locale and validate its runtime contracts."

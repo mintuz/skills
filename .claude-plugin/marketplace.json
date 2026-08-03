@@ -38,7 +38,12 @@
       "name": "product-management",
       "source": "./plugins/product-management",
       "description": "Agents and skills that are specialised in Product Management workflows",
-      "skills": ["./skills/status-updates", "./skills/decision-trace"]
+      "skills": [
+        "./skills/status-updates",
+        "./skills/decision-trace",
+        "./skills/meeting-to-action-brief",
+        "./skills/story-pr-orchestrator"
+      ]
     },
     {
       "name": "web",
@@ -65,6 +70,8 @@
         "./skills/swiftui-architecture",
         "./skills/debug",
         "./skills/app-store-scraper",
+        "./skills/app-store-keyword-ops",
+        "./skills/ios-localize-copy",
         "./skills/local-ai-models"
       ]
     },
