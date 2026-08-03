@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story PR Orchestrator"
+  short_description: "Coordinate dependency-gated story PR delivery"
+  default_prompt: "Use $story-pr-orchestrator to coordinate this spec into dependency-gated story PRs."

@@ -1,6 +1,6 @@
 ---
 name: acceptance-review
-description: WHEN deciding whether a PR, branch, diff, or current code fulfills an issue or specification; NOT for general code review, explanation, or implementation; returns a criterion-by-criterion proof and acceptance verdict.
+description: WHEN deciding whether a PR, branch, diff, or current code satisfies an authoritative issue, specification, or decision contract; NOT for reconstructing meetings, tracing decision lineage, general code review, or implementation; returns a criterion-by-criterion proof and acceptance verdict.
 ---
 
 # Acceptance Review
@@ -9,11 +9,11 @@ Treat the authoritative requirement as an acceptance contract and the implementa
 
 ## 1. Build the contract
 
-Resolve the subject, comparison base, authoritative issue or specification, repository rules, linked decisions, and stated exclusions.
+Resolve the subject, comparison base, authoritative issue, specification, or decision contract, repository rules, linked decisions, and stated exclusions. When authority begins in a meeting or transcript, or the claimed decision is disputed, invoke `decision-trace` first and consume its acceptance handoff rather than reinterpreting the raw meeting here.
 
 Map every in-scope normative statement to one independently decidable criterion. Preserve its source identifier and meaning; split combined statements only when their outcomes can differ. Record each criterion's observable outcome, affected surfaces, edge cases, assumptions, and exclusions. Record missing or conflicting authority as an ambiguity criterion.
 
-**Complete when:** every in-scope normative statement maps exactly once, and every ambiguity and exclusion is explicit.
+**Complete when:** the authoritative contract and implementation subject are explicit, every in-scope normative statement maps exactly once, and every ambiguity and exclusion is recorded.
 
 ## 2. Trace the proof
 

@@ -1,17 +1,17 @@
 ---
 name: decision-trace
-description: WHEN tracing a claimed meeting or transcript decision through specs, issues, PRs, commits, and current code; NOT for summaries, glossaries, or implementation; preserves uncertainty, grades every evidence link, and reports current behavior.
+description: WHEN tracing a claimed meeting, transcript, or decision-record decision through specs, issues, PRs, and commits; NOT for meeting summaries, acceptance verdicts, or implementation; preserves source uncertainty, grades each delivery handoff, and prepares an acceptance-review contract.
 ---
 
 # Decision Trace
 
-Treat a claimed decision as an evidence chain from the source record to current behavior. Prove the resolution, each downstream link, and the implementation independently. Keep the trace read-only; finish the report before handing requested changes to an implementation workflow.
+Treat a claimed decision as a lineage from its source to delivery artifacts. Prove the decision and each handoff without judging whether code satisfies it. When the user asks whether the decision was implemented correctly, finish this trace before invoking `acceptance-review` with its handoff.
 
-## 1. Frame the claim and baseline
+## 1. Frame the claim and cutoff
 
-Rewrite the claim as one or more testable behaviors without strengthening it. Split behaviors whose implementation status can differ. Record the source scope, relevant repositories, and the branch, commit, or date that defines “current.” Use the available primary source regardless of provider.
+Rewrite the claimed decision as one or more exact behaviors without strengthening it. Split behaviors whose lineage can differ. Record the source scope, relevant repositories, and the artifact date or revision that defines the trace cutoff. Use the available primary source regardless of provider.
 
-**Complete when:** every claimed behavior, the source scope, and the current-code baseline are explicit, with unavailable inputs recorded as gaps.
+**Complete when:** every claimed behavior, the source scope, and the trace cutoff are explicit, with unavailable inputs recorded as gaps.
 
 ## 2. Classify the source record
 
@@ -32,45 +32,45 @@ Grade confidence `high`, `medium`, or `low` in the classification—not in the c
 
 **Complete when:** every material supporting and contradictory excerpt is cited, and each claim has one classification, confidence grade, and evidence gap or `none`.
 
-## 3. Grade the downstream links
+## 3. Grade the delivery lineage
 
 Follow the chain as far as evidence permits:
 
-`source statement → decision record/spec → issue → PR/commit → current code/test`
+`source statement → decision record or brief → specification → issue → PR or commit`
 
-Read every discovered artifact. Cite the exact field, section, diff, commit, path, or line that connects each expected handoff, then grade it:
+Read every discovered artifact. Cite the exact field, section, description, or commit message that connects each handoff, then grade it:
 
-- `explicit` — one artifact directly names or implements the other
-- `inferred` — scope and behavior align without a direct link
-- `missing` — the expected handoff cannot be found
+- `explicit` — the downstream artifact directly names and preserves the decision;
+- `inferred` — its scope aligns without a direct link;
+- `changed` — it materially alters, narrows, or contradicts the decision;
+- `missing` — the expected handoff cannot be found.
 
-Artifact state is not behavioral proof: an approved spec, closed issue, or merged PR does not establish current behavior.
+For PRs and commits, grade documentary linkage and represented scope, not code behavior. An approved specification, closed issue, merged PR, or present commit does not prove implementation correctness.
 
 **Complete when:** every discovered artifact is placed in the chain and every expected transition has one grade supported by exact evidence or a named search gap.
 
-## 4. Verify current implementation
+## 4. Prepare the acceptance handoff
 
-Trace the current production path, every caller and sibling path that shares the behavior, tests, configuration, and feature gates. Compare observable behavior with each claimed behavior, then run the smallest decisive checks available.
+Identify the most authoritative downstream requirement and the implementation subject that `acceptance-review` should assess, such as a PR, branch, diff, commit, or current code baseline. Do not inspect implementation behavior or run acceptance checks here.
 
-Assign one status per expected behavior:
+Prepare a handoff containing:
 
-| Status | Meaning |
-|---|---|
-| `implemented` | Current code covers the behavior end to end and evidence passes |
-| `partial` | Some required paths or conditions are absent |
-| `not implemented` | Current code lacks the behavior |
-| `diverged` | Current code behaves differently |
-| `unverified` | Available access or evidence cannot decide behavior |
+- the claimed decision, source classification, confidence, and locator;
+- authoritative requirement locators and any `changed` or `missing` links;
+- the implementation subject and comparison base;
+- stated exclusions, ambiguities, and unresolved authority gaps.
 
-**Complete when:** every claimed behavior maps to current code and verification evidence, or to a named gap.
+When no authoritative downstream requirement exists, report the missing handoff instead of manufacturing acceptance criteria from the meeting.
+
+**Complete when:** `acceptance-review` has an authoritative contract and implementation subject, or the exact missing lineage link is explicit.
 
 ## 5. Return the trace
 
-Lead with the source classification, confidence, implementation status, current-code baseline, and date. Then provide:
+Lead with the source classification, confidence, latest traced artifact, and cutoff. Then provide:
 
 1. **Source record:** claim, classification, exact evidence, locator, and counterevidence.
-2. **Artifact chain:** each artifact and the grade of every expected link.
-3. **Implementation matrix:** expected behavior, current code/test evidence, and status.
-4. **Caveats and next work:** missing sources, inferred links, unresolved disagreement, stale branches, absent tests, and the smallest action that would close each gap.
+2. **Delivery lineage:** each artifact and the grade of every expected link.
+3. **Acceptance handoff:** authoritative contract, implementation subject, base, exclusions, and ambiguities.
+4. **Caveats and next work:** missing sources, inferred or changed links, unresolved disagreement, and the smallest action that would close each gap.
 
-**Complete when:** every claim, expected link, and behavior is accounted for; quotation, paraphrase, inference, and artifact fact remain distinct; and every gap ends with the smallest evidence-backed next action.
+**Complete when:** every claim and expected link is accounted for, quotation and inference remain distinct, and no implementation verdict appears in the trace.

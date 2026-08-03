@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meeting to Action Brief"
+  short_description: "Turn meeting evidence into an action brief"
+  default_prompt: "Use $meeting-to-action-brief to turn this meeting into a decision and action brief."

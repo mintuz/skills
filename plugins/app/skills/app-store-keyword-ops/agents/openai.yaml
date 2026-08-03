@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Store Keyword Ops"
+  short_description: "Mine locale keywords with verified Astro metrics"
+  default_prompt: "Use $app-store-keyword-ops to mine competitor keywords in Astro for every locale and stage only high-popularity, low-difficulty additions."
