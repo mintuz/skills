@@ -13,6 +13,8 @@ Three rules carry the rest.
 - **Whoever built it does not judge it.** Every node is judged by a fresh context that never saw the building.
 - **Concurrency is an exception with evidence.** Serial is the default because conflicting edits, duplicated work, and divergent decisions cost more than the wall-clock they save.
 
+Build a graph only when there are edges to schedule. One unit of work in one context is not a graph, and no amount of structure rescues a goal that was never fixed.
+
 ## Roles
 
 | Role | Owns | Never |
@@ -45,6 +47,8 @@ An assertion that no lane can verify is a contract gap, and it stays visible unt
 A node exists where there is a **judging seam** — an artifact that can be verified against its own assertions without waiting for the rest of the graph — and a **bounded write scope**. Both, or it is not a node.
 
 For each node record: identifier, the assertions it owns, its owned paths, its lead and supporting skills, its deliverable, and its non-goals. Keep tightly coupled work in one node; splitting work that cannot be judged apart buys nothing and costs a handoff.
+
+For a change to existing code, render the shape with `pseudocode` before cutting. Owned paths and module boundaries read from the source hold up at dispatch; the ones inferred from a spec collide the first time two nodes touch the same file.
 
 Check coverage in both directions. Every assertion is owned by at least one node, and every node owns at least one assertion. An unowned assertion is missing work. A node owning nothing is ceremony.
 
@@ -141,6 +145,8 @@ Maintain one **shared state artifact** every agent reads: the contract, the ledg
 
 Assign the seat to the model, not the model to the run. Planning rewards careful reasoning; implementation rewards fluency and speed; verification rewards precise instruction-following, and gains independence when it does not share a provider — and therefore a bias — with the worker it judges. Record each seat assignment; it is a variable in the result.
 
+When the nodes are stories delivered as pull requests, hand the delivery mechanics to `story-pr-orchestrator` — it owns the task, worktree, branch, PR, and merge gating. This skill keeps the contract, the edges, and verification, and treats a merge as what releases a `needs` edge.
+
 **Complete when:** every dispatched node has an acknowledged brief, owned paths, and an isolated workspace; the shared state is current; and every seat assignment is recorded.
 
 ## 7. Verify each node independently
@@ -158,6 +164,8 @@ Each verifier returns one verdict per assertion:
 | `unjudgeable` | The evidence path did not permit a decision | Repair the evidence path, not the artifact |
 
 On `fail`, hand the gap back to the worker that holds the context, then judge the repair with a **new** verifier. Re-judging with the previous one re-runs a context that has already committed to a conclusion. Never integrate on `unjudgeable`; a claim that could not be checked is not a claim that held.
+
+A node whose assertions are a matter of degree rather than a gate — quality judged against a reference, not an outcome that holds or does not — needs repeated build-and-judge rounds instead of one verdict. Run `gauntlet-loop` inside that node and return its terminal verdict to the graph.
 
 **Complete when:** every assertion the node owns has a verdict backed by evidence in its lane, no verdict came from the context that produced the artifact, and no `fail` or `unjudgeable` was resolved by narrowing the assertion.
 
@@ -187,13 +195,3 @@ Follow with: nodes run concurrently and which of the four conditions justified e
 Report failures, skipped nodes, and dropped scope explicitly. A graph that quietly shed a node reads as coverage it never delivered.
 
 **Complete when:** every assertion appears exactly once with a verdict or a named gap, every citation resolves, the ledger matches observed state rather than intent, and no action exceeded the granted authority.
-
-## Boundaries
-
-| Reach for | When |
-|---|---|
-| `story-pr-orchestrator` | The nodes are stories delivered as pull requests — it owns worktree, branch, PR, and merge mechanics; this skill owns the contract, the edges, and verification |
-| `acceptance-review` | Deciding whether a finished artifact satisfies an authoritative contract, one subject at a time |
-| `gauntlet-loop` | Improving one ambitious artifact against a concrete bar, with no dependency structure to schedule |
-| `pseudocode` | Cutting nodes for a code change — render the shape first so owned paths and boundaries are read from the source, not guessed |
-| Neither | One agent in one context does the work. A graph of one node is ceremony, and a graph cannot rescue a goal you have not fixed |
