@@ -22,6 +22,7 @@ Build a graph only when there are edges to schedule. One unit of work in one con
 | Orchestrator | contract, cut, edges, schedule, integration, re-planning | implements a node's artifact, or judges one |
 | Worker | one node's artifact and its raw evidence | judges its own work, or decides ordering |
 | Verifier | one node's verdict against the contract | edits the artifact, or reads the worker's reasoning |
+| Heartbeat | usage headroom, the pause trigger, the resume schedule | implements, judges, or re-plans a node |
 
 Compose each agent from **skills, not one skill per agent**. A node's brief names one **lead skill** that governs its method, plus **supporting skills** that govern the other aspects it touches — language, domain, testing, delivery. Skills compose when they govern different aspects and conflict when they govern the same one; two skills that both claim the method are two nodes, or a choice between them. Name the composition explicitly in the brief and record it in the ledger, because the composition is part of what produced the artifact.
 
@@ -154,9 +155,21 @@ Maintain one **shared state artifact** every agent reads: the contract, the ledg
 
 Assign the seat to the model, not the model to the run. Planning rewards careful reasoning; implementation rewards fluency and speed; verification rewards precise instruction-following, and gains independence when it does not share a provider — and therefore a bias — with the worker it judges. Record each seat assignment; it is a variable in the result.
 
+**Spawn the heartbeat with the first node.** A graph long enough to need scheduling is long enough to hit a provider usage limit mid-run, and a hard limit strikes at the worst moment: mid-node, with unverified work in flight and no context left to park it. Run one heartbeat monitor alongside the workers — it polls whatever usage signal the host exposes (rate-limit headers, session budget, quota windows), logs headroom to the shared state, and owns nothing else. Its brief is in [`references/briefs.md`](references/briefs.md).
+
+At the headroom threshold — **90% of any limit** unless the user set another — the heartbeat triggers the pause protocol rather than letting the run hit the wall:
+
+1. Freeze the frontier — no new node is dispatched.
+2. Drain, don't kill. A node close to its handoff finishes; any other parks by writing a partial handoff: what is done, what is not, and its exact resume point.
+3. Write the ledger and shared state as the resume brief — the run's entire memory must survive the pause.
+4. Schedule the resume with the host's scheduler — a cron job, scheduled task, or wakeup — for when the limit window resets.
+5. Stop cleanly and report the pause to the user: headroom consumed, nodes parked, resume time.
+
+On resume, trust the repository over memory: re-read the ledger, recompute the frontier from observed integration state, resume durable agents where the runtime keeps them alive, and re-dispatch parked nodes from their partial handoffs where it does not. A resumed graph that skips this re-derivation continues the run the orchestrator remembers, not the one that exists.
+
 When the nodes are stories delivered as pull requests, hand the delivery mechanics to `story-pr-orchestrator` — it owns the task, worktree, branch, PR, and merge gating. This skill keeps the contract, the edges, and verification, and treats a merge as what releases a `needs` edge.
 
-**Complete when:** every dispatched node has an acknowledged brief, owned paths, and an isolated workspace; the shared state is current; and every seat assignment is recorded.
+**Complete when:** every dispatched node has an acknowledged brief, owned paths, and an isolated workspace; the shared state is current; every seat assignment is recorded; and the heartbeat is running with a named threshold and a working resume mechanism.
 
 ## 7. Verify each node independently
 
@@ -199,7 +212,7 @@ Lead with the contract's coverage — assertions passed, failed, unjudgeable, an
 | Node | Assertions | Skills | Edges | Schedule | Verdict | Evidence | Handoff |
 |---|---|---|---|---|---|---|---|
 
-Follow with: nodes run concurrently and which of the four conditions justified each, seat assignments, follow-up nodes created at each checkpoint, contract gaps still open, and the smallest next action for every blocker.
+Follow with: nodes run concurrently and which of the four conditions justified each, seat assignments, follow-up nodes created at each checkpoint, any pause the heartbeat triggered with its resume and what was parked, contract gaps still open, and the smallest next action for every blocker.
 
 Report failures, skipped nodes, and dropped scope explicitly. A graph that quietly shed a node reads as coverage it never delivered.
 
