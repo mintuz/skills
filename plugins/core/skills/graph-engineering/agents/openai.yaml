@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graph Engineering"
+  short_description: "Contract-first execution graphs with per-node verification"
+  default_prompt: "Use $graph-engineering to turn these specs into an execution graph — fix the verification contract, cut the nodes, draw the dependency edges, schedule the frontier, and give every node an independent verifier."
