@@ -141,7 +141,14 @@ When the graph is too large to read at once, render one diagram per checkpoint p
 
 Give each worker a brief and nothing else. Session history carries the orchestrator's assumptions into the node, and every node then inherits the same blind spot. Brief contents and templates are in [`references/briefs.md`](references/briefs.md).
 
-Inside Claude Code, execute the graph as a dynamic workflow — the primitives, the parts of this skill the runtime does **not** enforce for you, and the fallbacks when it is unavailable are in [`references/dynamic-workflows.md`](references/dynamic-workflows.md). Step 5's approval gate runs inline before any workflow launches, because a running script cannot pause to be approved.
+Pick the runtime, then read how this graph maps onto it — each reference names the parts of this skill the runtime does **not** enforce for you:
+
+| Host | Reference | Nodes run as |
+|---|---|---|
+| Claude Code | [`references/dynamic-workflows.md`](references/dynamic-workflows.md) | `agent()` calls in a workflow script — deterministic ordering, enforced contracts, ephemeral contexts |
+| Codex | [`references/codex-threads.md`](references/codex-threads.md) | Managed threads — durable contexts, worktree per node, ordering held by the coordinator against a written ledger |
+
+Step 5's approval gate runs inline before either is launched, because neither a background script nor a spawned thread can pause to be approved.
 
 Maintain one **shared state artifact** every agent reads: the contract, the ledger, the decisions already settled, and the constraints that apply to everyone. Broadcast changes there rather than re-briefing each node, so late nodes and early nodes work from the same facts.
 
