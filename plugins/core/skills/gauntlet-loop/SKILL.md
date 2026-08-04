@@ -20,6 +20,8 @@ Define how a critic can compare the real artifact with the bar:
 | Writing | Reference passages plus factual and structural checks |
 | Research | Source quality, coverage criteria, and reproducible calculations |
 
+For a visual bar, fix the capture protocol alongside the reference — viewport, theme, seed data, animation state — so both sides of every comparison are captured the same way. A comparison whose two sides were captured differently returns `UNJUDGEABLE`, and the loop then repairs the inspection path instead of the artifact.
+
 Name any resource limit and the allowed stop conditions. Exhaustion is a stopping reason, never evidence that the bar was met.
 
 **Complete when:** the goal, inspectable bar, comparison method, and stop policy are explicit.

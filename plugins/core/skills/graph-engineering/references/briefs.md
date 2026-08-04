@@ -17,6 +17,16 @@ Written in step 1, before any node runs. One row per assertion.
 
 Write assertions as outcomes. *"A declined payment leaves no order row and returns a decline to the caller"* is decidable. *"Handle payment failures correctly"* is not. *"Call `rollback()` in the catch block"* is an implementation, and it locks the contract to one design.
 
+A behavioral assertion judged against a supplied baseline — a design export, a reference screenshot — is marked `reference-judged` and carries three more fields, all fixed in step 1:
+
+| Field | Content |
+|---|---|
+| `baseline` | Locator and revision of the reference artifact — `designs/checkout@2x.png` at a commit or export hash |
+| `threshold` | What counts as close enough — layout fidelity, pixel identity, or a named materiality bar |
+| `capture` | The reproducible render protocol — viewport, theme, seed data, animation state |
+
+Reference-judged assertions are verified by `gauntlet-loop` rounds rather than a single verifier; the verdict vocabulary is unchanged (`WIN` enters the ledger as `pass`, `LOSE` as `fail`, `UNJUDGEABLE` as `unjudgeable`). The loop's depth and critic seat are confirmed at step 5's approval and recorded here before dispatch.
+
 ## The Worker Brief
 
 ```text
