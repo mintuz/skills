@@ -84,6 +84,14 @@ At each boundary: merge passed nodes in dependency order, resolve conflicts in t
 
 Archive only after the checkpoint clears. Keep the coordinator pinned across the whole run so the ledger, the render, and the thread history stay in one place.
 
+## Usage limits and pausing
+
+There is no background script to host a heartbeat, so the coordinator is the heartbeat: check usage headroom at the same moment you re-read the ledger — before every dispatch decision — and log it to shared state so the trend is visible. Threads burn the same account limits the coordinator does, and a run wide enough to be worth this skill is wide enough to exhaust a window mid-run.
+
+At the threshold (90% of any limit by default), run the pause protocol from `SKILL.md` step 6, with one difference durability buys you: **parked threads stay alive.** Stop dispatching, have each in-flight thread write its partial handoff to a file in its worktree, update the ledger, schedule the resume for the window's reset, and stop. Do not archive anything — archiving on pause is how the resume path gets destroyed, for exactly the reason it is banned during the repair loop.
+
+On resume, re-read the ledger and recompute the frontier from what actually merged, then **message each parked thread to continue**. It still holds its base, its brief, and its partial work — this is the same property that makes the repair loop native here, and it means a pause costs a Codex run almost nothing but wall-clock. Re-brief a fresh thread only if the parked one was lost, and say so in the ledger.
+
 ## Against the dynamic-workflow runtime
 
 | | Codex threads | Dynamic workflow |
@@ -94,5 +102,6 @@ Archive only after the checkpoint clears. Keep the coordinator pinned across the
 | Ordering | Coordinator discipline against a written ledger | Deterministic — the script is the schedule |
 | Output contracts | Prose in the brief; malformed output is a node failure to report | `schema` enforced at the tool layer, with retries |
 | Resume after a crash | Threads are durable; the run survives | `resumeFromRunId` replays the cached prefix |
+| Pause at a usage limit | Park threads live, message them to continue | `TaskStop`, then relaunch on the cached prefix |
 
 Neither dominates. Codex is stronger where the graph needs to be *worked* — long-lived nodes, repair rounds, a user dipping into one node mid-run. The workflow runtime is stronger where the graph needs to be *executed* — many nodes, strict contracts, an ordering nobody has to remember. The failure modes are the mirror image: a workflow run drifts by discarding context the repair needed, and a thread run drifts by losing track of the schedule.

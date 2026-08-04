@@ -146,6 +146,19 @@ return {
 
 Return structured data, not a report. The main loop integrates what passed, re-renders the graph, scopes follow-ups, and writes the ledger.
 
+## The heartbeat and provider limits
+
+`budget` tracks the turn's token target, not the provider's usage limits — a run can be comfortably inside its budget and still hit a rate or quota wall. And the wall is worst here of all runtimes, because contexts are ephemeral: a workflow killed by a hard limit takes every in-flight worker's context with it.
+
+The heartbeat cannot live inside the script — a script cannot pause itself, cannot schedule, and dies with the limit it was trying to detect. It lives in the **main loop**, in two forms:
+
+- **Between checkpoints**, check headroom before each `Workflow` call, at the same moment you recompute the frontier. At or past the threshold (90% of any limit by default), do not launch the next checkpoint — run the pause protocol from `SKILL.md` step 6 instead.
+- **During a long checkpoint**, run a background heartbeat alongside the `Workflow` call — a monitor or scheduled wakeup that re-checks headroom on an interval. On trigger, stop the running workflow (`TaskStop`) rather than letting the limit kill it mid-agent.
+
+Pausing mid-checkpoint is recoverable **because of resume**: relaunch later with `{scriptPath, resumeFromRunId}` and the completed `agent()` prefix replays from cache — only the interrupted call onward runs live. This is also why the authoring rules ban `Date.now()` and friends: a script that is not deterministic does not replay, and a run that cannot replay cannot be paused safely.
+
+Schedule the resume with the host's scheduler — a cron or scheduled task that re-enters a session with the ledger path, the script path, and the run id — timed to the limit window's reset. The scheduled prompt must be self-contained: the resumed session re-reads the ledger and recomputes the frontier before touching the run id, because cached state describes what ran, not what integrated.
+
 ## Resume and diagnosis
 
 Every invocation persists its script under the session directory and returns the path. To iterate, edit that file and re-invoke with `{scriptPath, resumeFromRunId}` — the longest unchanged prefix of `agent()` calls replays from cache, and the first edited call onward runs live. Stop the prior run before resuming.

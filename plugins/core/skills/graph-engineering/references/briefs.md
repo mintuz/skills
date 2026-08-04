@@ -87,6 +87,26 @@ Verdict shape:
 }
 ```
 
+## The Heartbeat Brief
+
+One monitor per run, spawned at dispatch alongside the first node. It measures; it never builds, judges, or schedules work. In a runtime with no background monitor, the orchestrator runs this brief itself before every dispatch decision.
+
+```text
+You are the heartbeat of an execution graph. You watch usage headroom; you
+never implement, judge, or decide what runs next.
+
+1. Signal: <how usage is read in this host — rate-limit headers, budget
+   surface, quota window>.
+2. Threshold: <default 90%> of any provider limit — session, rate, or quota.
+3. Cadence: check every <interval>. Log headroom and burn rate to the shared
+   state so the orchestrator and the user can see the trend.
+4. At the threshold: tell the orchestrator to run the pause protocol. Do not
+   stop agents yourself, and do not wait for the hard limit — the margin
+   exists so in-flight nodes can park with their handoffs written.
+5. Report: current headroom, the limit nearest exhaustion, projected time to
+   reach it at the current burn rate, and when the window resets.
+```
+
 ## The Structured Handoff
 
 A node closes with this, not with a claim of completion.
@@ -122,6 +142,7 @@ One document every agent reads, and only the orchestrator writes:
 - the node ledger — identifiers, owners, edges, verdicts, integration state;
 - settled decisions, each with the node that settled it;
 - constraints that apply to every node — conventions, invariants, compatibility boundaries;
+- usage headroom as last reported by the heartbeat, and any scheduled pause or resume;
 - open questions and named contract gaps.
 
 Broadcast changes here rather than re-briefing dispatched nodes. Nodes that started early and nodes that start late must be working from the same facts, and a fact that lives only in the orchestrator's context is not shared.
