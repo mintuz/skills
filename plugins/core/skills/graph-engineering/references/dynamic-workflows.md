@@ -102,6 +102,29 @@ Pass forward only what the verifier needs to find the artifact — the ref, the 
 
 Seat the verifier deliberately: `opts.model` and `opts.effort` are per call, and a verifier that does not share a provider with its worker does not share its bias. Never economize on verification — a false pass is the graph failing at its one job.
 
+## Reference-judged nodes: the gauntlet as a `while` loop
+
+A node with a reference-judged assertion swaps its single verify pass for `gauntlet-loop` rounds, and the script is the loop's orchestrator. The builder keeps its context across rounds — re-brief the same agent with the gap, not a fresh one — while the critic is a new `agent()` call every round, built from the baseline, the fresh capture, and the threshold. Never pass a critic the previous round's verdict.
+
+```js
+// node.verify = { mode: 'gauntlet', baseline, threshold, capture, budget }  — fixed at step 5 approval
+let round = 0, verdict = null
+let artifact = await agent(workerBrief(node, base, contract), { schema: HANDOFF })
+while (round < node.verify.budget) {
+  const shot = await agent(captureBrief(node.verify.capture, artifact.head), { schema: CAPTURE })
+  verdict = await agent(criticBrief(node.verify.baseline, shot, node.verify.threshold), {
+    label: `critic:${node.id}:r${round}`, schema: GAUNTLET_VERDICT,   // fresh critic each round
+  })
+  if (verdict.verdict === 'WIN') break
+  if (verdict.verdict === 'UNJUDGEABLE') { /* repair the capture path, not the artifact */ }
+  else artifact = await agent(repairBrief(node, verdict.largest_gap), { schema: HANDOFF })
+  round++
+}
+// budget exhausted without WIN → ledger records fail with verdict.largest_gap, never pass
+```
+
+The stop policy lives in `args` because it was approved before the workflow launched — a background script cannot pause to ask for more rounds. Gate-judged assertions on the same node are verified first with the ordinary single-pass verifier above; only the degree assertion loops.
+
 ## Skeleton
 
 ```js

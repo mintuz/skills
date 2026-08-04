@@ -70,6 +70,8 @@ This is what durability is for:
 
 On `unjudgeable`, the fix goes to the evidence path — a check that cannot run, an app that will not start — not to the artifact. Sending an `unjudgeable` to the worker as if it were a `fail` produces changes to code that was never shown to be wrong.
 
+A **reference-judged** node runs this same loop as its `gauntlet-loop` rounds — the durable worker thread is the builder, each fresh verifier thread is the round's critic, briefed with only the baseline, a capture taken per the contract's protocol, and the threshold. The rounds stop at the depth approved in step 5, and a budget exhausted without `WIN` is recorded as `fail` with its gaps, never escalated into a pass.
+
 **Do not archive a node's thread until its assertions pass and its handoff is cleared.** Archiving is what destroys the repair path, and it is tempting exactly when a node looks done.
 
 ## Handoffs go to files
