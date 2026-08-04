@@ -15,6 +15,7 @@
         "./skills/commit-messages",
         "./skills/expectations",
         "./skills/gauntlet-loop",
+        "./skills/graph-engineering",
         "./skills/learn",
         "./skills/pr",
         "./skills/pseudocode",
