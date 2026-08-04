@@ -5,7 +5,7 @@ description: WHEN orchestrating interdependent specs, stories, or work items acr
 
 # Graph Engineering
 
-A fan-out is not a graph. Launching N agents at one scope is scatter-gather; a graph exists only when some units depend on others, and then the ordering *is* the work. Build the graph: a verification contract fixed before any node runs, nodes cut at judging seams, edges that state why order matters, a schedule that defaults to serial and earns every concurrency, and one independent verifier per node.
+A fan-out is not a graph. Launching N agents at one scope is scatter-gather; a graph exists only when some units depend on others, and then the ordering *is* the work. Build the graph: a verification contract fixed before any node runs, nodes cut at judging seams, edges that state why order matters, a schedule that defaults to serial and earns every concurrency, one independent verifier per node — and a rendering the user reads and approves before the first node is dispatched.
 
 Three rules carry the rest.
 
@@ -89,7 +89,51 @@ Otherwise the wall-clock gain is borrowed against the integration bill.
 
 **Complete when:** the frontier is derived from integration state rather than intent, every concurrent pair satisfies all four conditions with the check recorded, and every blocked node names the exact gate holding it.
 
-## 5. Dispatch with isolation
+## 5. Render the graph and get approval
+
+Nothing is dispatched until the user has seen the graph. Render it as Mermaid, one node per box, with the edge grammar carrying the schedule:
+
+```mermaid
+flowchart LR
+  classDef ready fill:#e6f6ea,stroke:#2f855a,color:#1a202c
+  classDef blocked fill:#fdecec,stroke:#c53030,color:#1a202c
+  classDef done fill:#e8eefb,stroke:#2b6cb0,color:#1a202c
+
+  subgraph CP1["Checkpoint 1 — orders"]
+    direction LR
+    schema["<b>schema</b><br/>orders table + migration<br/>lead: reducer<br/>A-1, A-2 · db/"]
+    decline["<b>decline-path</b><br/>declined payment leaves no order row<br/>lead: tdd · +typescript<br/>A-12, A-13 · src/checkout/"]
+  end
+  subgraph CP2["Checkpoint 2 — surface"]
+    direction LR
+    receipt["<b>receipt-view</b><br/>receipt renders for a settled order<br/>lead: react · +react-testing<br/>A-20 · src/ui/receipt/"]
+    refund["<b>refund-path</b><br/>refund reverses a settled order<br/>lead: tdd · +typescript<br/>A-31 · src/checkout/"]
+  end
+
+  schema ==>|needs| decline
+  decline ==>|needs| receipt
+  schema -.->|informs| receipt
+  decline <-->|"excludes: src/checkout/"| refund
+
+  class schema ready
+  class decline,receipt,refund blocked
+```
+
+| Edge | Renders as | Reads as |
+|---|---|---|
+| `needs` | `A ==>\|needs\| B` | Thick — B cannot start until A is verified and integrated |
+| `informs` | `A -.->\|informs\| B` | Dotted — B is better for A's output but is not gated on it |
+| `excludes` | `A <-->\|"excludes: reason"\| B` | Double-headed — neither may run while the other runs |
+
+Every box states the node's identifier, its deliverable in one line, its lead and supporting skills, the assertions it owns, and its owned paths — so the user can see what each sub-agent will be working on without reading a brief. Node classes show state: `ready` is on the frontier now, `blocked` is waiting on a gate, `done` is verified and integrated.
+
+Publish the diagram with the run summary beside it: node count, how many run serially, which pairs run concurrently and which of step 4's four conditions justified each, the seat assigned to each role, and any assertion still unowned. Then **stop and get approval.** Present open questions and contract gaps here — this is the cheapest moment to re-cut the graph, and the last one before tokens are spent building the wrong shape.
+
+When the graph is too large to read at once, render one diagram per checkpoint plus a checkpoint-level overview. Never drop a node to make the picture fit; a diagram that omits work reads as work that does not exist.
+
+**Complete when:** every node and every edge in the ledger appears in the render with its kind, every box names its deliverable, skills, assertions, and paths, the concurrency claims are visible, and the user has approved the graph or asked for it to be re-cut.
+
+## 6. Dispatch with isolation
 
 Give each worker a brief and nothing else. Session history carries the orchestrator's assumptions into the node, and every node then inherits the same blind spot. Brief contents and templates are in [`references/briefs.md`](references/briefs.md).
 
@@ -99,7 +143,7 @@ Assign the seat to the model, not the model to the run. Planning rewards careful
 
 **Complete when:** every dispatched node has an acknowledged brief, owned paths, and an isolated workspace; the shared state is current; and every seat assignment is recorded.
 
-## 6. Verify each node independently
+## 7. Verify each node independently
 
 Every node gets its own verifier in a **fresh context**, given only the assertions it owns, the real artifact, and the raw evidence. Withhold the worker's narration, rationale, summaries, and any claim of quality — a verifier that reads the argument for the work inherits it.
 
@@ -117,7 +161,7 @@ On `fail`, hand the gap back to the worker that holds the context, then judge th
 
 **Complete when:** every assertion the node owns has a verdict backed by evidence in its lane, no verdict came from the context that produced the artifact, and no `fail` or `unjudgeable` was resolved by narrowing the assertion.
 
-## 7. Integrate at checkpoints
+## 8. Integrate at checkpoints
 
 A node closes by writing a **structured handoff**, not by reporting completion: what it delivered, what it left undone, every command run with its exit code, issues discovered, decisions it settled that the graph must adopt, and where it departed from its brief. The handoff schema is in [`references/briefs.md`](references/briefs.md).
 
@@ -125,13 +169,15 @@ Treat an unaddressed handoff issue as a blocking gate. Progress past an unread h
 
 Group nodes into checkpoints and re-plan at each boundary rather than continuously. At a checkpoint: integrate what passed, fold settled decisions into the shared state, scope follow-up nodes for what failed or was discovered, and recompute the frontier from the new integration state. Expect the first pass at a checkpoint to fail; follow-up work is the normal output of verification, not an exception to it.
 
+Re-render the graph at every checkpoint with node classes updated — `done` for integrated, `ready` for the new frontier, `blocked` for the rest — and follow-up nodes drawn in with the edges that created them. The diagram is how the user tracks a run they are not watching; a graph that only gets drawn once stops describing the run the moment the first node lands.
+
 Perform integration and any outward-facing action only within the authority already granted, and re-derive the frontier after each one.
 
 **Complete when:** every integrated node passed its verifier and its handoff was read and cleared, every discovered issue became a scoped node or a recorded acceptance, and the frontier was recomputed from observed state.
 
-## 8. Report the ledger
+## 9. Report the ledger
 
-Lead with the contract's coverage — assertions passed, failed, unjudgeable, and unowned — then the graph:
+Lead with the contract's coverage — assertions passed, failed, unjudgeable, and unowned — then the final render of the graph in its terminal state, then the ledger behind it:
 
 | Node | Assertions | Skills | Edges | Schedule | Verdict | Evidence | Handoff |
 |---|---|---|---|---|---|---|---|

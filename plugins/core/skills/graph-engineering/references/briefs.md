@@ -118,6 +118,7 @@ Rules:
 One document every agent reads, and only the orchestrator writes:
 
 - the verification contract with current assertion status;
+- the current graph render, refreshed at every checkpoint, with node classes showing what is done, ready, and blocked;
 - the node ledger — identifiers, owners, edges, verdicts, integration state;
 - settled decisions, each with the node that settled it;
 - constraints that apply to every node — conventions, invariants, compatibility boundaries;
