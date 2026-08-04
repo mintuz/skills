@@ -1,6 +1,6 @@
 {
   "name": "core",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "Core Agents and skills that aid software development workflows",
   "author": {
     "name": "Adam Bulmer",
