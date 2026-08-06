@@ -145,7 +145,7 @@ codex-sync [flags]
 | Flag                   | Description                                       | Default                             |
 | ---------------------- | ------------------------------------------------- | ----------------------------------- |
 | `--output <dir>`       | Custom output directory for Codex skills          | `~/.codex/skills`                   |
-| `--plugins <dir>`      | Directory containing Claude plugins               | `./plugins`                         |
+| `--plugins <dir>`      | Directory containing Claude plugins               | `./src`                             |
 | `--marketplace <file>` | Path to marketplace.json                          | `./.claude-plugin/marketplace.json` |
 | `--project`            | Install to `.codex/skills` in current directory   | `false`                             |
 | `--prefix`             | Prefix skill names with plugin name               | `false`                             |
@@ -256,7 +256,7 @@ Based on the current marketplace configuration, the following skills will be syn
 - `learn` - Learning and knowledge building
 - `pr` - Pull request creation and review
 - `writing` - Technical writing guidance
-- `prompt-master` - Prompt refinement and optimization
+- `wtf` - Re-explain unclear responses in plain, precise UK English
 
 ### Web Plugin
 
@@ -295,7 +295,7 @@ Based on the current marketplace configuration, the following skills will be syn
 Ensure the skill directory exists and contains a SKILL.md file:
 
 ```bash
-ls -la plugins/core/skills/commit-messages/
+ls -la src/core/skills/commit-messages/
 ```
 
 #### Skills have no content or missing files

@@ -1,7 +1,7 @@
 {
   "name": "system-design",
   "version": "1.4.1",
-  "description": "Agents and skills that are specialised in writing Web Applications",
+  "description": "Skills for visualising Web Application architecture and relationships",
   "author": {
     "name": "Adam Bulmer",
     "email": "[email protected]",

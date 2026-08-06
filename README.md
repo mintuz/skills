@@ -47,7 +47,7 @@ Custom agents, skills, and commands for software development workflows.
 | `reducer`         | First-principles system simplification with behavioral equivalence proofs                    |
 | `ship-pr`         | Commit, publish, repair, and monitor a GitHub pull request through merge                      |
 | `writing`         | Developer-focused writing: tutorials, how-tos, docs with clear structure                     |
-| `prompt-master`   | Transform simple prompts into comprehensive, XML-tagged instructions with roles and examples |
+| `wtf`             | Re-explain an unclear response in plain, precise UK English                                  |
 
 ### Web
 
@@ -91,7 +91,9 @@ Custom agents, skills, and commands for software development workflows.
 
 ### System Design
 
-No standalone skills; see the `mermaid-generator` agent below.
+| Skill | Description |
+| --- | --- |
+| `mermaid-generator` | Generate Mermaid diagrams from code to visualize architecture and relationships |
 
 ### Product Management
 
@@ -110,17 +112,6 @@ No standalone skills; see the `mermaid-generator` agent below.
 | `refactorer`          | web                | Refactoring coach to guide code improvement decisions and assess opportunities after tests pass      |
 | `senior-web-engineer` | web                | Expert UI engineer for building robust, scalable React components with focus on standards compliance |
 | `test-runner`         | web                | Runs tests with auto-detection and returns concise pass/fail summaries                               |
-| `mermaid-generator`   | system-design      | Generates Mermaid diagrams from code to visualize architecture and flows                             |
-| `orchestrator`        | product-management | Master coordinator for complex multi-step tasks requiring delegation and architectural planning      |
-| `product-manager`     | product-management | Creates complete PRDs with structure, requirements, risks, and measurable success criteria           |
-
-## Commands
-
-| Command                     | Plugin | Description                                                                           |
-| --------------------------- | ------ | ------------------------------------------------------------------------------------- |
-| `/init [path-to-CLAUDE.md]` | core   | Initialize a session, load the Expectations skill, and ensure CLAUDE.md references it |
-| `/remember <topic>`         | core   | Store knowledge in persistent memory for future sessions                              |
-| `/recall <topic>`           | core   | Recall memories into the current session                                              |
 
 ## MCP Integrations
 

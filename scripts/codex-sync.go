@@ -45,7 +45,7 @@ type SyncStats struct {
 func main() {
 	// Parse command-line flags
 	outputDir := flag.String("output", "", "Output directory for Codex skills (default: ~/.codex/skills)")
-	pluginsDir := flag.String("plugins", "./plugins", "Directory containing Claude plugins")
+	pluginsDir := flag.String("plugins", "./src", "Directory containing Claude plugins")
 	marketplaceFile := flag.String("marketplace", "./.claude-plugin/marketplace.json", "Path to marketplace.json")
 	verbose := flag.Bool("verbose", false, "Enable verbose logging")
 	dryRun := flag.Bool("dry-run", false, "Perform a dry run without copying files")
@@ -127,7 +127,7 @@ func syncPlugin(plugin Plugin, targetDir string, verbose bool, dryRun bool, useP
 		skillName := filepath.Base(skillPath)
 
 		// Construct the actual path by combining plugin source with skills directory
-		// e.g., "./plugins/core" + "/skills/" + "commit-messages" = "./plugins/core/skills/commit-messages"
+		// e.g., "./src/core" + "/skills/" + "commit-messages" = "./src/core/skills/commit-messages"
 		actualSkillPath := filepath.Join(plugin.Source, "skills", skillName)
 
 		if err := syncSkill(plugin.Name, actualSkillPath, targetDir, verbose, dryRun, usePrefix, stats); err != nil {
