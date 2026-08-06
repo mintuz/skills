@@ -39,9 +39,11 @@ Split the contract into two lanes, because they are verified differently:
 | Static | A property of the artifact: types, structure, checks, conventions | Running the checks and reading the artifact |
 | Behavioral | An outcome a user or caller observes end to end | Exercising the running system |
 
+Within the behavioral lane, mark each assertion as **gate-judged** or **reference-judged**. A gate holds or it does not. A reference-judged assertion is a matter of degree — fidelity to a supplied baseline such as a design export or reference screenshot — and the baseline is a governing source like any other: record its locator and revision. A reference-judged assertion is not decidable until the contract also fixes its **materiality threshold** (what counts as close enough — layout fidelity or pixel identity) and its **capture protocol** (viewport, theme, seed data, animation state — whatever makes the comparison reproducible). Fix both here; invented mid-verification they become the judge's opinion instead of the contract's.
+
 An assertion that no lane can verify is a contract gap, and it stays visible until closed.
 
-**Complete when:** every governing source is recorded with its revision, every in-scope statement maps to exactly one assertion in a named lane, and every ambiguity is an open question rather than a guess.
+**Complete when:** every governing source is recorded with its revision, every in-scope statement maps to exactly one assertion in a named lane, every reference-judged assertion carries its baseline revision, threshold, and capture protocol, and every ambiguity is an open question rather than a guess.
 
 ## 2. Cut the nodes
 
@@ -130,13 +132,15 @@ flowchart LR
 | `informs` | `A -.->\|informs\| B` | Dotted — B is better for A's output but is not gated on it |
 | `excludes` | `A <-->\|"excludes: reason"\| B` | Double-headed — neither may run while the other runs |
 
-Every box states the node's identifier, its deliverable in one line, its lead and supporting skills, the assertions it owns, and its owned paths — so the user can see what each sub-agent will be working on without reading a brief. Node classes show state: `ready` is on the frontier now, `blocked` is waiting on a gate, `done` is verified and integrated.
+Every box states the node's identifier, its deliverable in one line, its lead and supporting skills, the assertions it owns, and its owned paths — so the user can see what each sub-agent will be working on without reading a brief. A node carrying a reference-judged assertion also states its verifier mode — `verify: gauntlet · <threshold> · <budget>` — so the loop is approved as part of the graph, not discovered during it. Node classes show state: `ready` is on the frontier now, `blocked` is waiting on a gate, `done` is verified and integrated.
 
 Publish the diagram with the run summary beside it: node count, how many run serially, which pairs run concurrently and which of step 4's four conditions justified each, the seat assigned to each role, and any assertion still unowned. Then **stop and get approval.** Present open questions and contract gaps here — this is the cheapest moment to re-cut the graph, and the last one before tokens are spent building the wrong shape.
 
+For each node carrying a reference-judged assertion, the approval also confirms three parameters that are the user's to set, because they are a spend decision rather than a correctness one: **depth** — a single comparison, a budgeted gauntlet, or loop-until-win; the **materiality threshold** from the contract; and the **critic seat**. Record the answers in the node's brief and the ledger before dispatch — no runtime can pause mid-run to renegotiate a stop policy. A graph with no reference-judged node asks nothing extra.
+
 When the graph is too large to read at once, render one diagram per checkpoint plus a checkpoint-level overview. Never drop a node to make the picture fit; a diagram that omits work reads as work that does not exist.
 
-**Complete when:** every node and every edge in the ledger appears in the render with its kind, every box names its deliverable, skills, assertions, and paths, the concurrency claims are visible, and the user has approved the graph or asked for it to be re-cut.
+**Complete when:** every node and every edge in the ledger appears in the render with its kind, every box names its deliverable, skills, assertions, and paths, the concurrency claims are visible, every reference-judged node's depth, threshold, and critic seat are confirmed, and the user has approved the graph or asked for it to be re-cut.
 
 ## 6. Dispatch with isolation
 
@@ -187,7 +191,9 @@ Each verifier returns one verdict per assertion:
 
 On `fail`, hand the gap back to the worker that holds the context, then judge the repair with a **new** verifier. Re-judging with the previous one re-runs a context that has already committed to a conclusion. Never integrate on `unjudgeable`; a claim that could not be checked is not a claim that held.
 
-A node whose assertions are a matter of degree rather than a gate — quality judged against a reference, not an outcome that holds or does not — needs repeated build-and-judge rounds instead of one verdict. Run `gauntlet-loop` inside that node and return its terminal verdict to the graph.
+A **reference-judged** assertion needs repeated build-and-judge rounds instead of one verdict. Run `gauntlet-loop` inside that node — the loop is orchestration, not a seat. Its builder is the node's worker and persists across rounds, because it holds the accumulated context of the artifact; its critic is a fresh verifier every round, given only the baseline, the artifact captured per the contract's protocol, and the threshold — never the round history or the builder's narration. Neither knows it is inside a loop: a builder that knows the stop policy argues for stopping, and a critic that sees round history inherits the previous critic's conclusions.
+
+Verify the node's gate-judged assertions first with ordinary single-pass verifiers; only the degree assertions loop. There is no point paying critics to judge fidelity on an artifact whose gates fail. The loop's terminal verdict maps directly into the ledger — `WIN` is `pass`, `LOSE` is `fail`, `UNJUDGEABLE` is `unjudgeable` — and a loop stopped by budget exhaustion enters as `fail` with its unmet gaps recorded, never as a pass. The loop executes the depth, threshold, and seat fixed at step 5's approval; it does not renegotiate them.
 
 **Complete when:** every assertion the node owns has a verdict backed by evidence in its lane, no verdict came from the context that produced the artifact, and no `fail` or `unjudgeable` was resolved by narrowing the assertion.
 

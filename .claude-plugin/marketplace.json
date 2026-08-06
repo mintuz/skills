@@ -22,7 +22,8 @@
         "./skills/reducer",
         "./skills/ship-pr",
         "./skills/writing",
-        "./skills/wtf"
+        "./skills/wtf",
+        "./skills/github-monitor"
       ]
     },
     {
