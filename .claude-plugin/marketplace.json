@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "core",
-      "source": "./plugins/core",
+      "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
         "./skills/acceptance-review",
@@ -22,23 +22,24 @@
         "./skills/reducer",
         "./skills/ship-pr",
         "./skills/writing",
-        "./skills/prompt-master",
+        "./skills/wtf",
         "./skills/github-monitor"
       ]
     },
     {
       "name": "typescript",
-      "source": "./plugins/typescript",
+      "source": "./src/typescript",
       "description": "Agents and skills that are specialised in writing Web Application TypeScript"
     },
     {
       "name": "system-design",
-      "source": "./plugins/system-design",
-      "description": "Agents and skills that are specialised in writing Web Application System Design"
+      "source": "./src/system-design",
+      "description": "Skills for visualising Web Application architecture and relationships",
+      "skills": ["./skills/mermaid-generator"]
     },
     {
       "name": "product-management",
-      "source": "./plugins/product-management",
+      "source": "./src/product-management",
       "description": "Agents and skills that are specialised in Product Management workflows",
       "skills": [
         "./skills/status-updates",
@@ -49,7 +50,7 @@
     },
     {
       "name": "web",
-      "source": "./plugins/web",
+      "source": "./src/web",
       "description": "Agents and skills that are specialised in building and maintaining web applications",
       "skills": [
         "./skills/web-design",
@@ -64,7 +65,7 @@
     },
     {
       "name": "app",
-      "source": "./plugins/app",
+      "source": "./src/app",
       "description": "Agents and skills for Swift app development on iOS",
       "skills": [
         "./skills/swift-testing",
@@ -79,7 +80,7 @@
     },
     {
       "name": "life",
-      "source": "./plugins/life",
+      "source": "./src/life",
       "description": "Agents and skills for personal life management",
       "skills": ["./skills/gps-method"]
     }

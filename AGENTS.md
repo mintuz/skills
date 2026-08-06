@@ -28,11 +28,10 @@ The marketplace registry (`.Codex-plugin/marketplace.json`) indexes all plugins,
 
 ```
 .Codex-plugin/marketplace.json    # Marketplace registry (plugin metadata)
-plugins/
+src/
   core/
     .Codex-plugin/plugin.json
-    agents/                        # compare-branch, prompt-master, refactor
-    commands/                      # init, remember, recall, spec-from-issue
+    agents/                        # compare-branch, refactor
     skills/                        # commit-messages, expectations, learn, pr, writing
   web/
     .Codex-plugin/plugin.json
@@ -42,10 +41,9 @@ plugins/
     skills/                        # typescript-best-practices
   system-design/
     .Codex-plugin/plugin.json
-    agents/                        # mermaid-generator
+    skills/                        # mermaid-generator
   product-management/
     .Codex-plugin/plugin.json
-    agents/                        # prd-creator, status-updates
   app/
     .Codex-plugin/plugin.json
     skills/                        # app-intent-driven-development, swift-testing
@@ -53,7 +51,7 @@ plugins/
 
 Each plugin follows this structure:
 ```
-plugins/[plugin-name]/
+src/[plugin-name]/
   .Codex-plugin/plugin.json       # Plugin manifest (name, version, description)
   agents/                          # Agent definitions (*.md files with YAML frontmatter)
   skills/[skill-name]/SKILL.md     # Knowledge bases
@@ -62,7 +60,7 @@ plugins/[plugin-name]/
 
 ## Agent Definition Format
 
-Agents are markdown files with YAML frontmatter in `plugins/[plugin]/agents/`:
+Agents are markdown files with YAML frontmatter in `src/[plugin]/agents/`:
 
 ```markdown
 ---
@@ -84,7 +82,7 @@ Agent instructions...
 
 ## Command Definition Format
 
-Commands live in `plugins/[plugin]/commands/` and include a short YAML header:
+Commands live in `src/[plugin]/commands/` and include a short YAML header:
 
 ```markdown
 ---
@@ -99,7 +97,7 @@ Usage details...
 
 ## Skill Definition Format
 
-Skills are `SKILL.md` files in `plugins/[plugin]/skills/[skill-name]/`:
+Skills are `SKILL.md` files in `src/[plugin]/skills/[skill-name]/`:
 
 ```markdown
 ---
@@ -115,31 +113,31 @@ Knowledge base content...
 
 ## Available Content Snapshot
 
-- **core:** agents `compare-branch`, `prompt-master`, `refactor`; commands `@init`, `/remember`, `/recall`, `/spec-from-issue`; skills `acceptance-review`, `commit-messages`, `expectations`, `gauntlet-loop`, `learn`, `pr`, `pseudocode`, `reducer`, `ship-pr`, `writing`, `prompt-master`
+- **core:** agents `compare-branch`, `refactor`; skills `acceptance-review`, `commit-messages`, `expectations`, `gauntlet-loop`, `learn`, `pr`, `pseudocode`, `reducer`, `ship-pr`, `writing`, `wtf`
 - **web:** skills `css`, `frontend-testing`, `react`, `react-testing`, `refactoring`, `tdd`, `web-design`, `tailwind`, `eyes`, `chatgpt-app-sdk`
 - **typescript:** skill `typescript-best-practices`
-- **system-design:** agent `mermaid-generator`
-- **product-management:** agents `prd-creator`, `status-updates`; skill `status-updates`
+- **system-design:** skill `mermaid-generator`
+- **product-management:** skills `status-updates`
 - **app:** skills `app-intent-driven-development`, `swift-testing`, `swiftui-architecture`, `debug`
 - **life:** skill `gps-method`
 
 ## Adding New Content
 
-**New Agent:** Create `.md` in `plugins/[plugin]/agents/` with frontmatter
+**New Agent:** Create `.md` in `src/[plugin]/agents/` with frontmatter
 
-**New Skill:** Create `plugins/[plugin]/skills/[skill-name]/SKILL.md` with frontmatter
+**New Skill:** Create `src/[plugin]/skills/[skill-name]/SKILL.md` with frontmatter
 
-**New Command:** Create `.md` in `plugins/[plugin]/commands/`
+**New Command:** Create `.md` in `src/[plugin]/commands/`
 
 **New Plugin:**
-1. Create `plugins/[plugin-name]/.Codex-plugin/plugin.json` with name, version, description, author, repository, license, keywords
+1. Create `src/[plugin-name]/.Codex-plugin/plugin.json` with name, version, description, author, repository, license, keywords
 2. Add entry to `.Codex-plugin/marketplace.json`:
    ```json
    {
      "name": "plugin-name",
-     "source": "./plugins/plugin-name",
+     "source": "./src/plugin-name",
      "description": "...",
-     "skills": ["./plugins/plugin-name/skills/skill-name"]  // Optional, only for user-invocable skills
+     "skills": ["./skills/skill-name"]  // Optional, only for user-invocable skills
    }
    ```
 3. Create `agents/`, `skills/`, and/or `commands/` directories as needed
@@ -153,7 +151,7 @@ Increment `version` in the relevant `plugin.json` following semver when updating
 
 Some plugins include MCP server configurations in `.mcp.json`:
 
-- **core** - Memory MCP (`@modelcontextprotocol/server-memory`) for persistent knowledge storage via `/remember` and `/recall`
+- **core** - Memory MCP (`@modelcontextprotocol/server-memory`)
 - **product-management** - Task Master AI MCP for task orchestration workflows
 
 These servers auto-load when the plugin is active.
