@@ -1,24 +1,23 @@
 ---
 name: wtf
-description: Re-explain the previous response when it did not land, using plain, precise UK English and the available context.
+description: Re-explain the immediately previous LLM response when it did not land, using plain, precise UK English.
 disable-model-invocation: true
 ---
 
 # WTF
 
-Use this skill when the previous response was unclear, too dense, or difficult to follow.
+Use this skill when the immediately previous response from an LLM was unclear, too dense, or difficult to follow.
 
 ## Procedure
 
-1. Stop the previous explanation.
-2. Treat this invocation as a signal that the previous response did not land.
-3. Identify the exact point that needs a new explanation.
-4. Use the conversation and available project files as context.
-5. State the goal before the explanation.
-6. Explain the point in the order required to understand it.
-7. End with the practical result or next action.
-
-If the unclear point is not identifiable from the available context, ask one short question. Do not repeat the previous response without changing its structure or wording.
+1. Read the immediately previous LLM response.
+2. If the response uses domain terms, look for `CONTEXT.md`, `GLOSSARY.md`, `UBIQUITOUS_LANGUAGE.md`, and files matching `*.glossary.yml` in the current project.
+3. Use those files to select the canonical terms and meanings.
+4. Re-explain the previous response with a clearer structure and simpler wording.
+5. Preserve its meaning and all relevant technical details.
+6. Keep the explanation about the previous response.
+7. Do not perform a new task.
+8. Do not introduce information from the terminology files that the previous response did not contain.
 
 ## Writing Rules
 
@@ -39,12 +38,12 @@ Write in a style inspired by ASD-STE100 Simplified Technical English.
 ## Clarity Controls
 
 - Put each prerequisite, condition, warning, or limitation before the action to which it applies.
-- Use the exact nouns that identify the relevant files, commands, components, and values.
+- Use the exact nouns from the previous response for files, commands, components, and values.
 - Replace vague pronouns with the specific subject.
 - Remove idioms, unnecessary synonyms, ambiguous references, and complex noun clusters.
-- Do not add information that is not present in the source or available context.
-- State uncertainty when the source does not support a definite claim.
+- Do not add information that is not present in the previous response.
+- State uncertainty when the previous response was uncertain.
 
 ## Completion Criterion
 
-The new explanation is complete when it identifies the goal, explains the unclear point in plain technical language, preserves all relevant source details, and states the practical result or next action. If the available context is insufficient, the response asks one focused question instead.
+The new explanation is complete when it re-explains the immediately previous LLM response, preserves its meaning and relevant technical details, and uses clearer plain language without starting new work.
