@@ -57,6 +57,7 @@
         "./skills/css",
         "./skills/tdd",
         "./skills/react",
+        "./skills/xstate",
         "./skills/react-testing",
         "./skills/frontend-testing",
         "./skills/eyes",

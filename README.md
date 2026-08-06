@@ -55,6 +55,7 @@ Custom agents, skills, and commands for software development workflows.
 | ------------------ | ------------------------------------------------------------------------ |
 | `css`              | CSS best practices for maintainable, scalable styles                     |
 | `react`            | Production-ready React architecture and patterns                         |
+| `xstate`           | Typed XState actor lifecycles with legal Mermaid statechart visualization |
 | `react-testing`    | React Testing Library patterns for components, hooks, and context        |
 | `frontend-testing` | DOM Testing Library patterns for behavior-driven UI testing              |
 | `tdd`              | Test-Driven Development principles and Red-Green-Refactor workflow       |
