@@ -1,0 +1,4 @@
+interface:
+  display_name: "XState"
+  short_description: "Design and visualise XState lifecycles"
+  default_prompt: "Use $xstate to design and visualise a typed actor lifecycle for this feature."

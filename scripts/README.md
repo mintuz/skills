@@ -263,6 +263,7 @@ Based on the current marketplace configuration, the following skills will be syn
 - `css` - CSS best practices and modern patterns
 - `tdd` - Test-driven development for web apps
 - `react` - React architecture and patterns
+- `xstate` - Typed actor lifecycles with Mermaid statechart visualization
 - `react-testing` - React testing strategies
 - `frontend-testing` - Frontend testing approaches
 - `web-design` - Web design principles
