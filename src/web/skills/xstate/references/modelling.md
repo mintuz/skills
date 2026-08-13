@@ -4,8 +4,6 @@
 
 Create one route- or feature-owned actor for one mounted journey. Start it at mount and stop it at unmount. Let that actor own its child actors, commands, resources, retries, and convergence with external truth.
 
-Use XState for temporal complexity: concurrency, cancellation, retries, stale results, and resource lifetimes. Keep local presentation, form, and DOM state in React.
-
 Split child actors by cohesive capability and lifetime, not by technical layer. Keep pure parsing, projection, and transformation as ordinary functions. Add shared wrappers only after repeated use proves a stable abstraction.
 
 ## Use typed factories and boundaries

@@ -12,7 +12,9 @@ Export typed actor refs, selectors, and child accessors as the feature surface. 
 
 Derive status and permissions from snapshots with pure selectors. Select a primitive or stable value. Split object selectors or give them a comparator.
 
-Keep drafts, focus, element measurements, animation flags, and other local DOM or presentation state in React. Send a typed event when local interaction becomes a temporal feature fact. Do not mirror actor state into React state.
+Keep in React the values one event sets completely: drafts, focus, element measurements, and plain open or closed toggles. Send a typed event when local interaction becomes a temporal feature fact. Do not mirror actor state into React state.
+
+A flag that a network response, a timer, or another actor sets belongs to the machine, even when the component renders it as a disabled control or a spinner. Select it; it is not presentation state.
 
 ```tsx
 import { useMemo, useState } from "react";

@@ -2,7 +2,7 @@
 
 ## Render from the final machine
 
-Render `stateDiagram-v2` when the user asks for a diagram and after designing or changing a machine. For a visualisation-only request, preserve the implementation.
+For a visualisation-only request, preserve the implementation unless the user also asks for a design or code change.
 
 Trace each `createMachine` definition. Include initial, final, compound, and parallel states; targeted `on`, `always`, `after`, and completion transitions; guards; invokes; and intentionally global root transitions. Mark proposed machines as proposed. Cite the source for existing machines.
 
@@ -103,5 +103,3 @@ For each machine, return:
 2. one fenced `mermaid` block;
 3. material invokes, abstractions, and omitted non-state-changing events;
 4. the validation method and result.
-
-Complete only when every changed machine has one source-grounded, scope-legal diagram.
