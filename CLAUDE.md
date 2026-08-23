@@ -113,7 +113,7 @@ Knowledge base content...
 
 ## Available Content Snapshot
 
-- **core:** agents `compare-branch`, `refactor`; skills `acceptance-review`, `commit-messages`, `expectations`, `gauntlet-loop`, `graph-engineering`, `learn`, `pr`, `pseudocode`, `reducer`, `ship-pr`, `writing`, `wtf`
+- **core:** agents `compare-branch`, `refactor`; skills `acceptance-review`, `babysit`, `commit-messages`, `expectations`, `gauntlet-loop`, `graph-engineering`, `learn`, `pr`, `pseudocode`, `reducer`, `ship-pr`, `writing`, `wtf`
 - **web:** skills `css`, `frontend-testing`, `react`, `xstate`, `react-testing`, `refactoring`, `tdd`, `web-design`, `tailwind`, `eyes`, `chatgpt-app-sdk`
 - **typescript:** skill `typescript-best-practices`
 - **system-design:** skill `mermaid-generator`

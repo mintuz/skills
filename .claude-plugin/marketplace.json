@@ -12,6 +12,7 @@
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
         "./skills/acceptance-review",
+        "./skills/babysit",
         "./skills/commit-messages",
         "./skills/expectations",
         "./skills/gauntlet-loop",
