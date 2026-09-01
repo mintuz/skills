@@ -6,12 +6,9 @@
     "node": ">=22.22.0"
   },
   "scripts": {
-    "eval:skills:check": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 promptfoo validate -c evals/babysit/promptfooconfig.yaml",
-    "eval:skills": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 PROMPTFOO_FAILED_TEST_EXIT_CODE=0 promptfoo eval -c evals/babysit/promptfooconfig.yaml --no-cache -j 2",
-    "test:skills": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 promptfoo eval -c evals/babysit/promptfooconfig.yaml --filter-prompts 'with-skill' --no-cache -j 2",
-    "eval:commit-messages:check": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 promptfoo validate -c evals/commit-messages/promptfooconfig.yaml",
-    "eval:commit-messages": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 PROMPTFOO_FAILED_TEST_EXIT_CODE=0 promptfoo eval -c evals/commit-messages/promptfooconfig.yaml --no-cache -j 2",
-    "test:commit-messages": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 promptfoo eval -c evals/commit-messages/promptfooconfig.yaml --filter-prompts 'with-skill' --no-cache -j 2",
+    "eval:skills:check": "node scripts/run-skill-evals.mjs check",
+    "eval:skills": "node scripts/run-skill-evals.mjs compare",
+    "test:skills": "node scripts/run-skill-evals.mjs test",
     "eval:skills:view": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 promptfoo view"
   },
   "devDependencies": {

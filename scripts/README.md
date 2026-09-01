@@ -25,16 +25,16 @@ pnpm install --frozen-lockfile
 # Validate configuration without model calls
 pnpm eval:skills:check
 
-# Run the babysit regression as a test
+# Run every skill regression as a test
 pnpm test:skills
 
-# Compare baseline and skill side by side
+# Compare every baseline and skill side by side
 pnpm eval:skills
 
-# Validate and run the commit-messages suite
-pnpm eval:commit-messages:check
-pnpm test:commit-messages
-pnpm eval:commit-messages
+# Filter any command to one skill
+pnpm eval:skills:check -- commit-messages
+pnpm test:skills -- commit-messages
+pnpm eval:skills -- commit-messages
 
 # Open the local results UI
 pnpm eval:skills:view
@@ -42,7 +42,7 @@ pnpm eval:skills:view
 
 Treatment prompts read the current skill `SKILL.md`, so edits need no fixture
 update. An isolated Codex judge scores each response against the case rubric.
-The `test:*` commands run only treatments with a 0.8 gate; the full comparisons
+The `test:skills` command runs only treatments with a 0.8 gate; the full comparisons
 report baseline and treatment side by side and are informational.
 
 Promptfoo and its reports run locally, but this configuration sends the skill and
