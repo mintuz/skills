@@ -27,7 +27,7 @@ Read the relevant source span through its latest qualification or resolution. Ke
 | `open question` | A choice, dependency, or disagreement that remains unsettled |
 | `context` | Background that explains a decision or action without proving it |
 
-Attach the speaker or source, timestamp or precise locator, and confidence to each decision and action. Label manually extracted commitments `transcript-derived` when the meeting system did not store them as action points. Preserve disagreement and ambiguous ownership as uncertainty. Paraphrase sensitive content unless exact wording is necessary and safe.
+Attach the speaker or source, timestamp or precise locator, and confidence to each decision and action. Label manually extracted commitments `transcript-derived` when the meeting system did not store them as action points. Preserve disagreement and ambiguous ownership as uncertainty; when a later explicit commitment resolves an earlier ambiguity, record that resolution and cite both points. Paraphrase sensitive content unless exact wording is necessary and safe.
 
 **Complete when:** every material claim has one classification and locator; every action has an owner or an explicit ownership gap; and proposals, inference, and agreement remain distinct.
 

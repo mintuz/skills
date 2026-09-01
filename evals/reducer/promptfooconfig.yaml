@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Reducer skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the response derives a whole-system reduction while
+        conserving the supplied behavior and guarantees. Give equal weight to
+        every outcome below. Credit explicit, scenario-specific ledgers, proof
+        gaps, deltas, gates, and verdicts. Do not reward verbosity, copied rubric
+        wording, or invented repository facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Refuse a reliability rewrite without failure-path oracles
+    vars:
+      skill: file://../../src/core/skills/reducer/SKILL.md
+      scenario: |-
+        Diagnose a proposed simplification of an order-dispatch worker; make no
+        edits. Today `dispatch()` writes an outbox row in the order transaction.
+        A worker claims a row, calls the carrier, and records the receipt. On a
+        timeout it retries up to three times with the same idempotency key. A
+        dead-letter job alerts an operator after the final failure, and operators
+        can replay the row. The public guarantees are: order creation never waits
+        on the carrier, a committed order is eventually dispatched or alerted,
+        duplicate carrier calls reuse the idempotency key, and replay preserves
+        the original order ID. The database transaction test and happy-path
+        worker test pass. There is no timeout, retry-exhaustion, duplicate-call,
+        alert, or replay oracle, and no production trace.
+
+        The proposed replacement deletes the outbox, worker state, dead-letter
+        job, and replay tool. `createOrder()` would call the carrier after the
+        database commit; the carrier SDK would retry timeouts internally with a
+        generated key. This removes four local types and 260 lines. The user says
+        the missing tests are obsolete implementation details and asks you to
+        approve the rewrite because the diff is smaller. Return the behavior and
+        mechanism baselines, reduction verdict, and the next admissible slice.
+      rubric: |-
+        - Builds a behavior ledger that includes non-blocking creation, eventual dispatch-or-alert, timeout retries with one idempotency key, final-failure alerting, and replay with the original order ID; it marks each missing failure-path oracle as a proof gap rather than an implementation detail.
+        - Baselines the complete current mechanism across transaction/outbox, worker claim and retry state, carrier call, dead-letter alert, operator replay, and their ordering or ownership boundaries instead of using four types or 260 lines as the measure.
+        - Rejects the proposed replacement because it changes the non-blocking, eventual-outcome, idempotency-key, alert, and replay guarantees and transfers retry state or policy into the SDK rather than proving a whole-system reduction.
+        - Keeps this run in diagnosis mode with no edit or equivalence claim, and does not manufacture passing evidence from the two happy-path tests or unavailable production traces.
+        - Makes characterization of every affected failure/replay guarantee the prerequisite, then offers at most a smaller reversible slice that removes one complete mechanism only after its affected oracles pass, with an expected before/after mechanism delta and rollback boundary.
+
+  - description: Remove a pass-through layer without exporting authorization policy
+    vars:
+      skill: file://../../src/core/skills/reducer/SKILL.md
+      scenario: |-
+        Produce an implementation-ready reduction plan; make no edits. A billing
+        endpoint flows through `BillingController -> BillingFacade ->
+        InvoiceService -> InvoiceStore`. The facade has no state and only forwards
+        all arguments. The controller authenticates the caller. The service owns
+        tenant authorization, invoice validation, audit emission, and the store
+        transaction. The supported contract is the same response and error
+        mapping, tenant isolation, one audit event after a successful commit, and
+        compatibility for an external plugin that still calls
+        `BillingFacade.issue(actor, request)`. Tests cover the endpoint's success,
+        validation error, cross-tenant denial, store rollback, and audit ordering;
+        an integration test covers the plugin call. All pass.
+
+        Two candidates are proposed. A moves authorization and audit emission into
+        the controller, leaving the facade and service as wrappers; it deletes 40
+        service lines. B makes the controller and facade call the existing service
+        directly, then removes the facade after the plugin migrates. The plugin
+        owner can migrate this week and accepts a one-release compatibility shim.
+        Give the selected slice, preservation and rollback gates, and exact
+        before/target mechanism deltas. Do not choose by line count alone.
+      rubric: |-
+        - Records the endpoint and plugin entry points plus response/error mapping, tenant isolation, validation, transaction rollback, successful-commit audit ordering, and one-release compatibility as the behavior ledger, tied to the supplied passing oracles.
+        - Baselines four layers and three hops, one facade pass-through, one authorization owner, one audit owner, one transaction owner, and two live entry points; it marks unrelated retry, queue, cache, or migration dimensions N/A rather than inventing them.
+        - Rejects candidate A because it exports authorization and audit policy, retains wrappers, and only moves complexity despite deleting service lines; selects candidate B as the smaller reversible complete-mechanism removal.
+        - Defines a live-boundary compatibility shim owned by the plugin owner with the one-release removal condition, preserves the service as the sole authorization/validation/audit/transaction owner, and does not claim the facade is removed until the plugin migrates.
+        - States exact staged deltas: first, controller plus plugin shim still expose two entry points while the internal controller path drops from three hops to two and policy-owner counts stay one; after plugin migration, layers fall from four to three, the facade and shim fall from one to zero, and both entry paths reach the service without adding another owner or representation.
+        - Requires the focused endpoint and plugin checks before the slice, after the direct controller path, and after shim removal; compares response, errors, denial, rollback, and audit ordering, rechecks callers for exported policy, and names reverting only the current slice as the rollback boundary.

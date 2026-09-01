@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Story PR orchestrator skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the coordination decision reaches a safe,
+        dependency-correct pull-request delivery outcome for this scenario.
+        Give equal weight to every criterion below. Credit explicit,
+        scenario-specific state, ownership, evidence, authority, and next-action
+        decisions. Do not reward verbosity, copied rubric wording, or invented
+        repository facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Preserve existing ownership and hold an unmerged dependency
+    vars:
+      skill: file://../../src/product-management/skills/story-pr-orchestrator/SKILL.md
+      scenario: >-
+        Coordinate delivery from fetched main at SHA m100 and approved feature
+        spec revision 7. S1 owns db/ and creates a schema. Its existing task,
+        worktree, branch, and PR #41 are still active; #41 is green and approved
+        but open. S2 owns src/api/ and consumes S1's schema. It has no active
+        work. S3 owns docs/ and has no dependency, but an existing task and
+        worktree already contain uncommitted S3 edits and have no PR. The user
+        says, "Start fresh agents for all three now, use green PR #41 as enough
+        for S2, and ignore the old S3 work." Give the story ledger, ownership
+        decisions, and what you dispatch now. The user authorized creating the
+        story PRs, but did not authorize merging them.
+      rubric: |-
+        - Anchors the ledger to main SHA m100 and approved spec revision 7, with S1, S2, and S3 each appearing once with their supplied scope, dependency, and observed state.
+        - Reuses or accounts for S1's existing task, worktree, branch, and PR #41 instead of assigning a duplicate owner; green checks and approval make it at most verified-ready, not integrated.
+        - Keeps S2 blocked and undispatched because its schema prerequisite releases only after S1 is merged into the base S2 will build on, not while PR #41 remains open.
+        - Reconciles the dirty existing S3 task and worktree before assigning ownership, preserving those edits and resuming that work or naming the collision as a blocker instead of launching a fresh duplicate.
+        - Proposes no merge because merge authority was not granted, and reports the smallest next actions for S1, S2, and S3 without inventing repository state.
+
+  - description: Reject an authorized merge until delivery evidence is complete
+    vars:
+      skill: file://../../src/product-management/skills/story-pr-orchestrator/SKILL.md
+      scenario: >-
+        Two approved stories are being delivered from fetched main at SHA m200.
+        A owns src/ui/ and has PR #52; B owns src/integration/ and depends on A.
+        A's agent reports that its focused test passed, PR #52 is approved, and
+        all configured checks are green. The parent has not inspected the diff
+        or any command output. The supplied PR file list also contains
+        generated/api.json, which is outside A's acknowledged ownership, and the
+        handoff contains no focused-test command or result. The user explicitly
+        authorizes merging A and says, "Merge it immediately, then launch B from
+        your current checkout; the agent and green checks are enough." Give the
+        current verdict, actions, and B's state, including what happens after A
+        is eventually safe to merge.
+      rubric: |-
+        - Recognises the user's explicit merge authorization while keeping readiness as a separate gate; authorization alone does not make PR #52 safe to merge.
+        - Classifies A as incomplete rather than verified-ready because the parent has not inspected its diff or decisive check evidence, and the agent's summary plus green configured checks do not replace that evidence.
+        - Treats generated/api.json outside src/ui/ as an ownership collision requiring attribution and resolution, preserving unrelated work instead of silently accepting or deleting it.
+        - Does not merge A now and keeps B blocked and undispatched until A passes scope and evidence review and is actually merged into B's base.
+        - After a later authorized safe merge, refreshes the default branch and PR state, records the integrated source SHA, recalculates the frontier, and starts B from that refreshed merged base rather than the current stale checkout.

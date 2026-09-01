@@ -24,19 +24,14 @@ results correctly, launch on a simulator, then capture screens.
 
 ## 2. Build and Test in the Background
 
-- Never run `xcodebuild` in the foreground. It routinely exceeds the 600 s tool timeout.
-  Run it with `run_in_background: true` and redirect output to a log file in the
-  scratchpad.
+- Start `xcodebuild` with the harness's background facility, redirect output to a log
+  file in the scratchpad, and retain the task handle so its exit status is observable.
 - Use `CODE_SIGNING_ALLOWED=NO` for simulator builds.
-- Pin the destination, for example `platform=iOS Simulator,name=iPhone 17 Pro`.
+- Pin the destination as `platform=iOS Simulator,id=<udid>`.
 - When only one target matters, scope the test run with `-only-testing:<TestTarget>`.
-- Never wait with chained `sleep`; the harness blocks it. Wait with a background loop:
-
-  ```bash
-  until grep -qE '\*\* (TEST|BUILD) (SUCCEEDED|FAILED) \*\*' "$LOG"; do sleep 2; done
-  ```
-
-  The harness's Monitor or TaskOutput blocking wait also works.
+- Wait on the task handle with the harness's blocking wait, then inspect both its exit
+  status and the log's terminal marker. A grep-only loop can hang when `xcodebuild`
+  exits before writing a marker.
 
 ## 3. Read Results Correctly (Swift Testing Is Not XCTest)
 

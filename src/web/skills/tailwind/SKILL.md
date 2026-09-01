@@ -45,11 +45,24 @@ Example:
     blue-500 → primary → button-bg
 ```
 
-### Component Architecture
+### Component Variants
 
-```
-Base styles → Variants → Sizes → States → Overrides
-```
+Keep shared utilities in the base string and map each finite typed variant to
+complete literal class strings with an exhaustive `Record<Variant, string>`.
+Tailwind scans source as plain text and cannot construct interpolated utility
+names. Prefer a static map over a safelist or new dependency; use CVA only when
+it is already installed and the component's variant API justifies it. State this
+scanner constraint when replacing interpolation. If focus colour varies by
+variant, include a literal visible outline style and colour in each mapping;
+outline width and offset alone do not guarantee a visible indicator.
+
+### Version Gate
+
+Use the installed major version. For Tailwind 4 with Vite, use the installed
+`@tailwindcss/vite` plugin, `@import "tailwindcss"`, and CSS-first `@theme`
+tokens; use `@theme inline` when utilities must reference runtime-switching CSS
+variables. Do not add a config file, content glob, PostCSS setup, or dependency
+unless the observed project requires it. Tailwind 3 uses its config-based path.
 
 ## When to Use Each Guide
 
@@ -111,14 +124,10 @@ Is this a one-off color?
         └── No → Use existing Tailwind color
 ```
 
-## Installation
+## Dependencies
 
-```bash
-# Required packages
-yarn add tailwindcss postcss autoprefixer
-yarn add class-variance-authority clsx tailwind-merge
-yarn add tailwindcss-animate
-```
+Reuse the installed integration and helpers. Add a package only when the
+requested feature requires it and the repository has no native equivalent.
 
 ## Resources
 

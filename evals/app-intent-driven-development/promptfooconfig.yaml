@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: App Intent-driven development skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the proposed App Intent design for this scenario. Give equal
+        weight to every criterion below. Credit explicit, scenario-specific
+        decisions and their observable consequences. Do not reward verbosity,
+        copied rubric wording, or invented project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Reject a stale dependent choice before mutating the active run
+    vars:
+      skill: file://../../src/app/skills/app-intent-driven-development/SKILL.md
+      scenario: >-
+        Design the parameter and execution path for StopRunIntent. The user first
+        chooses a run and a resolution. Only saveAsBenchmark needs an optional
+        benchmark lap, and the Shortcuts editor should show laps from the chosen
+        run. A saved shortcut may supply a non-nil lap token from a different,
+        older run after parameters or app data change. Global history contains
+        thousands of laps. Explain how options and runtime validation work before
+        any mutation, and include the system-facing verification needed after the
+        parameter change.
+      rubric: |-
+        - Represents each selectable lap as a lightweight system-boundary value with a stable domain identifier and display data, rather than embedding the run or persistence model.
+        - Supplies editor options from the selected run through a dependent dynamic options provider, without querying or exposing the global lap history.
+        - At execution time derives the current run's valid candidates and rejects or re-prompts both a missing choice and a non-nil stale choice whose identifier is outside that set before any save occurs.
+        - Routes the accepted identifier through one existing save or resolution service on the required actor, with a user-facing response for an expected stale-selection conflict.
+        - Verifies extracted App Intents metadata from a rebuilt and reinstalled app, then recreates the affected Shortcuts action so an old serialized token or schema is not mistaken for current behavior.
+
+  - description: Reuse one mutation path in an interactive SwiftUI row
+    vars:
+      skill: file://../../src/app/skills/app-intent-driven-development/SKILL.md
+      scenario: >-
+        A SwiftUI task row must run CompleteTaskIntent, show in-flight state and
+        an error alert, then navigate to the updated SwiftData task. The same
+        action must remain available from Siri and Shortcuts. Completion updates
+        a SwiftData context and a Live Activity; attempting to complete an
+        already-completed task is a normal user-facing conflict. Choose the
+        entity, intent, and SwiftUI invocation boundaries and state what must be
+        verified before calling the feature done.
+      rubric: |-
+        - Uses one completion action path for SwiftUI and system invocation, with the intent delegating to shared domain behavior instead of duplicating the mutation in the view or intent.
+        - Chooses an invocation form that lets the row own progress and error state, and prevents overlapping taps while work is in flight.
+        - Returns or otherwise carries a stable task identifier across the intent boundary and resolves the live SwiftData model in the view's current context before navigation, rather than copying entity fields into persistence state.
+        - Keeps SwiftData and Live Activity work on the appropriate actor, ensures the app process is available for the mutation, and reports the already-completed case as a normal dialog or equivalent user-facing result.
+        - Treats compilation as insufficient by also checking extracted or installed App Intents metadata and exercising the rebuilt action from both the app UI and Shortcuts or Siri.

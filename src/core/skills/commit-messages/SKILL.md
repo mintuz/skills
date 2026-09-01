@@ -62,7 +62,8 @@ states the old contract, new contract, and migration action.
 ## Return
 
 - Enough evidence: return the complete ready-to-use message without a tutorial.
-- Multiple logical changes: return a short split plan and one exact message per
-  commit without mutating the index.
+- Multiple logical changes: state in one line how their intents differ; do not
+  merely list messages. Then return one exact message per commit without
+  mutating the index.
 - Missing evidence: briefly state what is missing and why a trustworthy, specific
   message cannot be written yet, then ask only for the minimum facts needed.

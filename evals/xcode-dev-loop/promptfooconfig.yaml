@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Xcode command-line development loop versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed Xcode command-line loop reaches the safe,
+        observable outcome requested by this scenario. Give equal weight to
+        every outcome below. Credit explicit, scenario-specific commands and
+        evidence gates. Do not reward verbosity, copied rubric wording, or
+        invented command output or project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep a duplicate-name beta-runtime build tied to one simulator
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        Give a command plan to build and visually verify an iOS app whose scheme
+        also builds a watchOS beta companion. The machine has stable Xcode as the
+        default plus `/Applications/Xcode-27.0-beta.app`, and two available
+        simulators are both named `iPhone 17 Pro`. The app currently installed on
+        one device may be from another branch. The build can exceed the command
+        tool timeout. End at one persistent screenshot of the Settings screen;
+        do not execute commands, guess project identifiers, or invent results.
+      rubric: |-
+        - Discovers the project scheme/targets and available simulator JSON first, resolves one concrete simulator UDID, and uses `platform=iOS Simulator,id=<udid>` rather than any name-based destination or booted-device guess.
+        - Prefixes every xcodebuild invocation in the session with `DEVELOPER_DIR=/Applications/Xcode-27.0-beta.app/Contents/Developer`, disables signing for the simulator build, preserves a log, and runs the long build through the harness background or blocking-wait facility.
+        - Waits for the actual background task to finish and judges its exit status and terminal build log instead of assuming success, timing out the wait, or chaining arbitrary foreground sleeps.
+        - Installs the newly built app on that same UDID, obtains the bundle identifier from the built app's Info.plist, and launches that identifier on the same UDID so an older installation or another branch cannot supply the evidence.
+        - Reaches Settings through a supported deep link or existing debug scenario, reads accessibility state before any fallback tap, then captures exactly one persistent numbered image with `simctl io <udid> screenshot` and labels any unproved visual state as a gap.
+
+  - description: Reject a false green from a crashed Swift Testing run
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        Diagnose a supplied xcodebuild test transcript. It ends with `Executed 0
+        tests, with 0 failures` and `** TEST SUCCEEDED **`, but has no Swift
+        Testing `Test run with N tests` success line. Its fresh result bundle says
+        `Test crashed with signal abrt`. The preceding attempt said `The test
+        runner hung before establishing connection`. The requested mode is
+        currently passed as `TEST_RUNNER_MODE=stress` to `xcodebuild
+        test-without-building`. State the current verdict, the one recovery
+        attempt, the corrected rerun shape, and the proof required for a pass;
+        do not execute commands or invent results.
+      rubric: |-
+        - Calls the supplied run a failure despite both the empty XCTest summary and `** TEST SUCCEEDED **`, because the Swift Testing success summary is absent and the fresh result bundle records a crash.
+        - Uses the connection hang for one environmental recovery only: shuts down simulator state and retries once, without erasing evidence, retrying indefinitely, or diagnosing the test from that message alone.
+        - Reruns with `xcodebuild test`, not `test-without-building`, so `TEST_RUNNER_MODE=stress` reaches the runner; pins the intended destination by UDID, scopes the intended test target, preserves a log, and writes a fresh result bundle.
+        - Reads the fresh bundle with `xcresulttool get test-results summary` on failure rather than rerunning blind, and treats the crash reason as diagnostic evidence rather than a pass.
+        - Requires the expected non-zero Swift Testing test/suite count, `** TEST SUCCEEDED **`, a successful process exit, and no failure or crash in the fresh result bundle before declaring a terminal pass.

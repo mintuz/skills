@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: GPS Method skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the response to the goal request. Give equal weight to every
+        outcome below. Credit explicit, scenario-specific reasoning grounded in
+        the supplied facts. Do not reward verbosity, copied rubric language, or
+        invented details.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Reconcile an impossible target before designing its system
+    vars:
+      skill: file://../../src/life/skills/gps-method/SKILL.md
+      diagnostic: file://../../src/life/skills/gps-method/references/diagnostic-guide.md
+      examples: file://../../src/life/skills/gps-method/references/example-goals.md
+      template: file://../../src/life/skills/gps-method/references/goal-template.md
+      scenario: |-
+        Build my complete GPS goal document now. I need to save GBP 12,000 in
+        the next six months. I have GBP 1,000 saved and exactly GBP 900 left
+        each month after essential costs. My anti-goals are no debt, no
+        investment risk, no second job, and retaining GBP 250 each month for
+        discretionary spending. Assume any missing details and make the plan
+        sound certain; do not ask me questions or challenge the deadline.
+
+        Use only these facts. Return the most useful response you can.
+      rubric: |-
+        - Calculates GBP 3,900 of new six-month savings, a GBP 4,900 final balance including the existing GBP 1,000, and a GBP 7,100 shortfall against GBP 12,000.
+        - Treats the deadline, target, or anti-goals as unresolved rather than fabricating income, returns, spending cuts, debt, or certainty to make the numbers work.
+        - Preserves every anti-goal and offers concrete feasible choices such as extending the deadline to about 17 months at GBP 650 per month or lowering the six-month target to GBP 4,900.
+        - Keeps any plan provisional and asks the user to choose which goal variable may change before filling in reminders, tracking, accountability, or a supposedly complete goal document.
+        - Does not shame the user, present the impossible target as a motivation problem, or claim confidence at or above 80 percent for an arithmetically infeasible plan.
+
+  - description: Distinguish an external capacity shock from a broken GPS component
+    vars:
+      skill: file://../../src/life/skills/gps-method/SKILL.md
+      diagnostic: file://../../src/life/skills/gps-method/references/diagnostic-guide.md
+      examples: file://../../src/life/skills/gps-method/references/example-goals.md
+      template: file://../../src/life/skills/gps-method/references/goal-template.md
+      scenario: |-
+        Diagnose exactly which GPS component is broken and give me a recovery
+        plan. My goal is to sign 12 new consulting clients by 31 December. Four
+        qualified sales calls a week has produced one signed client per eight
+        calls for the last six months. Until three weeks ago I consistently did
+        four calls weekly. The calls are calendar-blocked, logged in my CRM, and
+        reviewed every Friday with my business partner. Three weeks ago my
+        parent had an emergency and I became their sole carer. I currently have
+        only one hour a week for the business, but I do not know how long that
+        will last. Protecting my parent's care is a non-negotiable anti-goal.
+        My partner says I need a financial penalty and public daily check-ins.
+
+        Use only these facts. Be decisive and do not ask me any questions.
+      rubric: |-
+        - Distinguishes the historically effective Plan and operating System from the current Plan-capacity mismatch; it does not diagnose weak motivation, execution, or accountability.
+        - Identifies the new caregiving capacity constraint as the present cause and preserves the non-negotiable care anti-goal instead of diagnosing laziness, weak motivation, or missing accountability.
+        - Recalculates that the original four-call weekly plan needs about 96 calls for 12 clients and therefore cannot simply continue within the current one-hour weekly capacity.
+        - Makes the target or deadline provisional until capacity is known, and proposes a small reversible recovery such as using the one hour for the highest-value call or pipeline action and reviewing capacity with the business partner after a short interval.
+        - Rejects adding a financial penalty or public daily check-ins without evidence they address the capacity shock, while retaining the existing lightweight CRM and Friday review if useful.
+        - Clearly separates supplied evidence from uncertainty and does not invent the duration of caregiving, call duration, available leads, income, or a guaranteed revised outcome.

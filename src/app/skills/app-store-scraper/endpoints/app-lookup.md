@@ -20,6 +20,15 @@ https://itunes.apple.com/lookup
 
 *Use either `id` OR `bundleId`, not both
 
+## Retrieval Validation
+
+Before extracting fields, require a successful transport and HTTP response,
+valid JSON, and a non-zero `resultCount`. Encode every request value as a query
+parameter rather than interpolating it into the URL. Then verify the returned
+`trackId` or `bundleId` matches the requested identity. Treat zero results as
+unavailable and an identity mismatch as a retrieval-integrity error; never
+synthesize an app record from null fields or reuse another storefront's result.
+
 ## Examples
 
 ### Lookup by App ID

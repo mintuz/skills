@@ -71,9 +71,9 @@ div.sidebar .widget-area ul.links li a.external span {
 
 ## The !important Rule
 
-### When !important Is Wrong (Reactive)
+### Prefer the Normal Cascade
 
-Never use `!important` to solve specificity problems or override existing styles:
+In styles you control, solve conflicts through source order, layers, or simpler selectors:
 
 ```css
 /* Bad - reactive !important */
@@ -82,9 +82,19 @@ Never use `!important` to solve specificity problems or override existing styles
 }
 ```
 
+At an immutable external boundary where source order, layers, markup, and the
+foreign selector cannot change, use one documented, property-scoped
+`!important` on the app class instead of copying the foreign ID chain:
+
+```css
+.checkout__submit {
+  color: blue !important; /* Vendor ID rule is immutable. */
+}
+```
+
 ### When !important Is Correct (Proactive)
 
-Use `!important` only for utility classes that must be immutable:
+Use `!important` proactively for utility classes that must be immutable:
 
 ```css
 /* Good - proactive !important for utilities */
@@ -96,7 +106,7 @@ Use `!important` only for utility classes that must be immutable:
 }
 ```
 
-### Alternatives to Reactive !important
+### Preferred Normal-Cascade Fixes
 
 1. **Self-chain the selector:** `.btn.btn { color: red; }`
 2. **Rewrite ID as attribute selector:** `[id="sidebar"] .btn { color: red; }`

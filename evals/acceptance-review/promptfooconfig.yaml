@@ -1,0 +1,127 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Acceptance-review skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the acceptance analysis produced for this scenario. Give equal
+        weight to every criterion below. Credit explicit, scenario-specific
+        reasoning and the supplied evidence only. Do not reward verbosity,
+        matching this rubric's wording, or invented repository facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep live operational proof distinct from local evidence
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        Review release 2.7 against one acceptance criterion: "After deployment,
+        every production payment webhook is processed exactly once, and the
+        production duplicate-processing count remains zero for 24 hours." The
+        branch contains idempotency-key handling and a focused unit test. A local
+        integration test with a fake queue passed. No release deployment record,
+        production webhook trace, or production metric is available. Give the
+        criterion status and overall verdict now; do not propose implementation
+        changes.
+      rubric: |-
+        - Distinguishes the production behavior demanded by the criterion from code inspection, a unit test, and a fake-queue integration run.
+        - Does not say that the release satisfies the criterion or that exactly-once production behavior has been proved.
+        - Assigns an evidence-gap status rather than a code-absence or regression status, because the implementation exists but deployment and production observation are unavailable.
+        - Gives an indeterminate overall verdict because this sole criterion cannot yet be decided from production evidence.
+        - Names the reviewed release or deployment identity that production observations must be tied to.
+        - Names production webhook or duplicate-count observation over the full 24-hour window as closing evidence.
+
+  - description: Reject claim and test evidence when production wiring is absent
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        Issue AC-3 says that submitting the checkout form must enqueue a receipt
+        email. The PR description says "receipt emails complete" and commit
+        messages repeat that claim. A unit test calls ReceiptService directly and
+        passes. The supplied call trace shows CheckoutController -> OrderService,
+        with no call, event, or subscriber connecting that path to ReceiptService.
+        The comparison base also lacked receipt-email wiring. Decide AC-3 and the
+        overall verdict using only this evidence.
+      rubric: |-
+        - Treats the PR and commit wording as intent rather than behavioral proof.
+        - Recognises that the direct ReceiptService unit test does not exercise checkout submission through to email enqueueing.
+        - Marks AC-3 missing because the supplied production path is disconnected, rather than covered or regressed.
+        - Returns an overall does-not-satisfy verdict.
+        - Identifies the minimum closure as production wiring from checkout submission to receipt enqueueing plus a check through that real path.
+
+  - description: Resolve mixed failing and unknown criteria without verdict drift
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        Review two requirements. R1 requires an expired invitation to show a
+        dedicated expiry message; the current UI falls through to the generic
+        error and the comparison base showed the dedicated message. R2 requires
+        screen-reader announcement after resending an invitation; the relevant
+        accessibility runtime could not be launched, and the supplied static
+        evidence cannot establish whether an announcement occurs. Report one
+        status per requirement and the overall verdict.
+      rubric: |-
+        - Marks R1 regressed because comparison evidence shows previously supported behavior was lost.
+        - Marks R2 as undecidable from the supplied evidence rather than treating the unavailable runtime as a pass or as proof that implementation is missing.
+        - Returns does-not-satisfy overall because the proven regression is decisive even though another criterion remains unknown.
+        - Keeps each requirement in one status and does not collapse both into a single vague verdict.
+        - Names separate closure evidence for R1 and R2, preserving the difference between a behavior fix and an accessibility runtime check.
+
+  - description: Stop on conflicting authority before judging implementation
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        A PR asks whether its account-deletion grace period is acceptable. The
+        linked issue says deletion occurs immediately, while a later product
+        decision says deletion occurs after 30 days. Neither source is marked
+        superseded, and no decision-lineage handoff or other authority rule is
+        supplied. The code uses seven days. A separate, settled requirement says
+        deletion must enqueue a confirmation email; the supplied production trace
+        reaches the email enqueue and its integration test passed. Give the
+        acceptance result without choosing a preferred grace-period policy or
+        performing a general code review.
+      rubric: |-
+        - Defers judging the seven-day implementation against either grace-period policy until decision lineage identifies the authoritative requirement.
+        - Records the conflict as an authority ambiguity that blocks a definitive acceptance decision.
+        - Separately marks the settled confirmation-email enqueue requirement covered from the supplied production trace and passing integration test.
+        - Returns an indeterminate verdict and requests a decision-lineage or supersession resolution for the grace period.
+        - Keeps unrelated code-quality commentary and implementation proposals outside the report.

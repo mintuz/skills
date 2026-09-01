@@ -44,7 +44,7 @@ Count applicable dimensions with the same scope and method before and after:
 
 Mark irrelevant dimensions `N/A`. Include tests and operational machinery when they impose ongoing cost; exclude generated artifacts unless their source or runtime mechanism changes. A smaller function or diff is not evidence unless the complete mechanism shrinks.
 
-**Complete when:** every mechanism on an in-scope behavior path is accounted for and the baseline shows where complexity is created, transferred, and paid.
+**Complete when:** every mechanism on an in-scope behavior path is accounted for, every listed dimension is counted with the same scope and method or marked `N/A`, and the baseline shows where complexity is created, transferred, and paid.
 
 ## 3. Derive the minimum
 
@@ -63,7 +63,7 @@ Sketch the minimum mechanism. Name the constraint that requires each remaining p
 4. Flatten pass-through layers, translation chains, coordination, and temporal hops.
 5. Replace custom machinery with a stable primitive only when total ownership and operational cost fall.
 
-Reject changes that merely rename, split, wrap, relocate, or conceal complexity, and local simplifications that increase coupling, coordination, comprehension cost, change cost, or failure modes elsewhere.
+Reject changes that merely rename, split, wrap, relocate, or conceal complexity, and local simplifications that increase coupling, coordination, comprehension cost, change cost, or failure modes elsewhere. In particular, moving authorization, audit, or transaction policy out of its existing single owner is redistribution, not deletion.
 
 **Complete when:** every target mechanism has a named behavioral or external reason and the expected whole-system reduction is explicit.
 
@@ -76,11 +76,11 @@ Rank candidates by `mechanism removed × confidence ÷ blast radius`; use the sm
 - the expected before/after delta;
 - migration, rollback, and verification needs.
 
-Apply the gap rule: diagnosis may carry proof gaps; implementation remains diagnosis until every behavior and guarantee the slice can affect has a passing preservation oracle. Keep a compatibility shim only for a live boundary, with an owner and removal condition.
+Apply the gap rule: diagnosis may carry proof gaps; implementation remains diagnosis until every behavior and guarantee the slice can affect has a passing preservation oracle. Keep a compatibility shim only for a live boundary, with an owner and removal condition. Assign shim retirement to the caller or integration owner who controls the migration, not to the component being reduced.
 
 Diagnosis now reports the proposal. Implementation continues to Step 5.
 
-**Complete when:** the slice is reversible, satisfies the gap rule, has executable proof obligations, and removes rather than redistributes mechanism.
+**Complete when:** the slice is reversible, satisfies the gap rule, has executable proof obligations, states the exact before/target mechanism delta and slice-local rollback boundary, and removes rather than redistributes mechanism.
 
 ## 5. Reduce and prove
 
@@ -107,4 +107,8 @@ For implementation, lead with the conserved behavior and removed mechanism:
 | Dimension | Before | After | Evidence |
 |-----------|--------|-------|----------|
 
-List verification results and essential complexity retained. Report proof gaps, compatibility shims, and follow-up slices with owners and closure or removal conditions. For diagnosis, report ranked slices, expected before/target deltas, proof obligations, and blockers; claim neither realized reduction nor equivalence.
+List every baseline dimension, including explicit `N/A` rows, and state whether the target adds any owner or representation. List verification results and essential complexity retained. Report proof gaps, compatibility shims, and follow-up slices with owners and closure or removal conditions. For diagnosis, report ranked slices, expected before/target deltas, proof obligations, and blockers; claim neither realized reduction nor equivalence.
+
+For every proposed slice, including one deferred behind missing oracles, state
+the expected whole-system before/after mechanism delta and the exact slice-local
+rollback boundary.

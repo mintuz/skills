@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: PR skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+evaluateOptions:
+  repeat: 3
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the requested PR advice or description. Give equal weight to
+        every criterion below. Credit explicit, scenario-specific outcomes only.
+        Do not reward verbosity, matching the rubric's wording, or claims not
+        supported by the scenario.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Preserve evidence boundaries in a UI PR description
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-description.md
+      scenario: >-
+        Draft a ready-to-paste pull request description for a settings-page
+        redesign. The supplied evidence says the layout and labels changed in
+        four files, `pnpm test` passed, manual testing was not performed, and no
+        screenshots were captured. The work fixes issue #72. Do not inspect the
+        repository or invent any other details.
+      rubric: |-
+        - Summarizes the supplied settings-page layout and label changes without inventing components, behavior, business results, or architectural claims.
+        - Records `pnpm test` as passed and does not imply that any other automated check ran.
+        - States that manual testing was not performed rather than presenting it as completed or hiding its status behind an ambiguous checklist.
+        - States that screenshots are missing or still required for this UI change rather than claiming visual evidence exists or writing `N/A`.
+        - Links issue #72 with closing semantics and invents no other issue, reviewer, risk mitigation, or deployment fact.
+
+  - description: Keep a coupled migration in one large PR
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-sizing.md
+      scenario: >-
+        Size this proposed pull request and decide whether to split it. It has 22
+        files and about 900 changed lines: a database migration, the only
+        application code that can read the new schema, and generated client
+        bindings for that exact schema. Deploying or merging any piece without
+        the others breaks the build or makes the application unable to read the
+        database. Give concise reviewer-facing advice using only these facts.
+      rubric: |-
+        - Classifies the work as large based on the supplied file and line counts.
+        - Recommends keeping it as one PR because the migration, compatible application reader, and generated bindings form one atomic change.
+        - Does not mechanically recommend splitting by layer, file count, or generated code despite the size thresholds.
+        - Calls out the concrete review risk that schema, reader, and bindings must remain compatible, without inventing runtime, rollout, or test evidence.
+        - Recommends a focused large-PR description with risk, verification, deployment, or rollback information clearly marked for the author to supply rather than fabricating it.

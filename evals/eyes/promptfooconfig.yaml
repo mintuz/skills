@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Visual feedback skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the visual-feedback response reaches every required
+        outcome for this scenario. Give equal weight to every outcome below.
+        Credit explicit, scenario-specific actions and evidence gates. Do not
+        reward verbosity, copied rubric wording, or invented observations.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Act on precise feedback and existing implementation approval
+    vars:
+      skill: file://../../src/web/skills/eyes/SKILL.md
+      scenario: >-
+        I have already specified the visual change: on the pricing page at
+        1440x900, increase the gap between the three plan cards from 16px to
+        24px and leave every other spacing value alone. Implement it and verify
+        the result; you have my explicit permission to edit the code. Give the
+        actions and evidence checkpoints you would follow, but do not execute
+        them or invent results.
+      rubric: |-
+        - Treats the supplied 16px-to-24px request as complete visual feedback and does not ask the user what specifically should change.
+        - Treats the explicit permission to implement and verify as authorization, proceeding without a second confirmation or approval question.
+        - Requires a pricing-page capture at exactly 1440x900 before editing and identification of the owning spacing declaration before the smallest scoped change.
+        - Requires verification at the same 1440x900 viewport, before/after comparison, and a check that only the requested card gap changed; it does not claim this evidence already exists.
+        - Plans to present the completed comparison for user review while keeping observations, intended actions, and currently unexecuted evidence distinct.
+
+  - description: Reproduce a stateful narrow-viewport defect before judging it
+    vars:
+      skill: file://../../src/web/skills/eyes/SKILL.md
+      scenario: >-
+        Fix the account menu that is clipped only on /settings at a 390x844
+        viewport in dark mode, after keyboard focus opens the menu. The desktop
+        page and the closed mobile menu look correct. I authorize the code
+        change. Give the actions and evidence checkpoints you would follow, but
+        do not execute them or invent results.
+      rubric: |-
+        - Reproduces the exact route, 390x844 viewport, dark theme, keyboard-focus interaction, and open-menu state before diagnosing or editing; a generic page screenshot is insufficient.
+        - Uses the first available capture route and, if Chrome headless is needed, avoids trusting its sub-500px window-size behavior by using device emulation or an iframe harness and checking the captured dimensions.
+        - Uses an accessibility snapshot or equivalent state evidence to confirm keyboard focus and menu exposure, then traces the clipped element to its owning layout rule before proposing the smallest scoped fix.
+        - Proceeds without another approval question because implementation is already authorized, while keeping any unavailable runtime evidence as an explicit proof gap.
+        - Recreates the identical route, viewport, theme, focus interaction, and open state after the change, then compares before and after screenshots and verifies keyboard behavior as well as appearance.

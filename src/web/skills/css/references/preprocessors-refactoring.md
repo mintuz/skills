@@ -143,7 +143,7 @@ Reintegrate carefully:
 
 | Smell                    | Problem                           | Solution                                 |
 | ------------------------ | --------------------------------- | ---------------------------------------- |
-| Reactive `!important`    | Creates specificity arms race     | Use self-chaining or restructure cascade |
+| Unexplained `!important` | Creates specificity arms race     | Restructure, or document an immutable external boundary |
 | ID selectors             | 255x more specific than classes   | Use classes or `[id="x"]`                |
 | Shorthand causing resets | Unintentionally resets properties | Use longhand for precision               |
 | Broad selectors          | `header {}` affects too much      | Use specific class names                 |

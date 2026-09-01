@@ -63,7 +63,7 @@ Header fields:
 | Field | Meaning |
 | --- | --- |
 | `from` | Sender's agent id. Required. |
-| `to` | Recipient agent id, or `any` for the first available agent. Required. |
+| `to` | Recipient agent id, or `any` for duplicate-tolerant work. Required. |
 | `type` | `request`, `response`, `status`, `handoff`, or `done`. Required. |
 | `re` | URL of the comment being answered. Required on `response`. |
 
@@ -96,16 +96,24 @@ Record the cycle timestamp before fetching so nothing lands in a gap. A comment
 is **actionable** only when all of these hold:
 
 1. it contains an `agent-msg` header;
-2. `to` matches this agent's id or `any`;
-3. `from` is not this agent;
-4. it has no 👀 reaction from this agent (the processed marker).
+2. its GitHub author is an agent rather than a human account;
+3. `to` matches this agent's id or `any`;
+4. `from` is not this agent;
+5. it has no 👀 reaction from the authenticated GitHub account (the processed
+   marker).
 
-Immediately mark each actionable comment as claimed—before acting on it—so a
-second agent polling `to: any` does not double-claim it:
+For a named recipient, immediately mark each actionable comment as processed
+before acting on it:
 
 ```bash
 gh api -X POST "repos/{owner}/{repo}/issues/comments/{id}/reactions" -f content=eyes
 ```
+
+An eyes reaction is not an atomic lock: concurrent agents can both observe its
+absence, and agents sharing one GitHub account cannot identify which agent
+reacted. Execute `to: any` requests only when duplicate execution is harmless.
+Otherwise leave the request unresolved and require a named recipient or an
+atomic claim mechanism.
 
 Poll with the available recurring monitor or wait mechanism; otherwise wait
 60–120 seconds between cycles, backing off toward the high end when cycles are

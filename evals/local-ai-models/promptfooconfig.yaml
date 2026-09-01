@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Local AI models skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the plan produces a safe, supportable on-device AI
+        feature in this scenario. Give equal weight to every outcome below.
+        Credit explicit, scenario-specific decisions and executable evidence
+        gates. Do not reward verbosity, copied rubric wording, or invented API
+        behavior.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Respect deployment and device support before selecting a framework
+    vars:
+      skill: file://../../src/app/skills/local-ai-models/SKILL.md
+      scenario: >-
+        Plan an entirely on-device travel chat assistant for an existing iOS app.
+        The app's deployment target must remain iOS 18, the feature must work on
+        every device the app supports, and no server fallback is permitted. The
+        product manager calls it a "standard chat interface" and asks whether to
+        use Foundation Models or MLX Swift. Give the framework decision,
+        implementation outline, and proof required before committing to it; do
+        not execute the plan or invent results.
+      rubric: |-
+        - Treats the iOS 18 deployment target and every-supported-device requirement as hard compatibility gates that must be resolved before choosing a framework; it does not select Foundation Models merely because this is standard chat.
+        - Establishes a current platform/API availability matrix covering compile-time OS availability, Apple Intelligence eligibility/readiness, and the actual supported-device fleet, with every claim verified against authoritative SDK or platform evidence.
+        - Explains that runtime isAvailable checks handle eligible-runtime states but cannot make a newer framework compile for an older deployment path or satisfy an every-device product promise by themselves.
+        - Makes the decision conditional: either change the product/deployment support contract, or prove a suitably sized MLX model can run acceptably across the entire required device floor; if neither is true, reports the requirements as infeasible rather than inventing a fallback.
+        - Requires physical-device Release evidence on the oldest/lowest-memory supported hardware for model load, memory pressure, latency, offline operation, and representative output before calling the framework choice viable.
+
+  - description: Serialize a stateful session through cancellation and rapid input
+    vars:
+      skill: file://../../src/app/skills/local-ai-models/SKILL.md
+      scenario: >-
+        Plan the Foundation Models service for a multi-turn SwiftUI chat. A user
+        can double-tap Send, tap Stop during streaming, immediately send another
+        prompt, or leave the screen. The transcript must preserve completed
+        turns, must not present cancelled partial text as a completed answer, and
+        one conversation must retain its context. Give the ownership, lifecycle,
+        error handling, and verification plan; do not execute it or invent results.
+      rubric: |-
+        - Gives one isolation boundary ownership of the LanguageModelSession, transcript mutation, and current generation Task for each conversation, preserving one session across completed turns.
+        - Defines a single-flight policy before invoking the stateful session: rapid submissions are rejected or queued deliberately, and concurrentRequests is treated as a prevented invariant breach rather than a normal retry case.
+        - Connects Stop and view/task teardown to cancellation of the owned generation task, checks cancellation while consuming the stream, and returns the service to a sendable terminal state without starting a replacement until cancellation has settled.
+        - Separates in-progress partial text from committed transcript state, commits an assistant turn only after successful completion, and deterministically removes or labels partial output on cancellation or error while preserving prior completed turns.
+        - Leaves focused runnable checks for double-send ordering, stop-then-send, navigation teardown, thrown generation errors, transcript integrity, and subsequent context continuity; runtime proof includes a physical-device Release pass.

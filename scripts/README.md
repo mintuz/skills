@@ -42,7 +42,7 @@ pnpm eval:skills:view
 
 Treatment prompts read the current skill `SKILL.md`, so edits need no fixture
 update. An isolated Codex judge scores each response against the case rubric.
-The `test:skills` command runs only treatments with a 0.8 gate; the full comparisons
+The `test:skills` command runs only treatments with a 1.0 gate; the full comparisons
 report baseline and treatment side by side and are informational.
 
 Promptfoo and its reports run locally, but this configuration sends the skill and

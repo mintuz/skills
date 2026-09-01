@@ -57,7 +57,7 @@ Focus on clear hierarchy, generous spacing, and restrained styling to make inter
 
 ## States, Feedback & Empty Space
 
-- Design hover, active, focus, loading, error, and success states. A primary button should have at least hover + active + disabled styles.
+- Give every applicable state—hover, active, focus, loading, disabled, error, and success—a visibly distinct treatment; naming states without specifying their treatment is incomplete.
 - Use skeletons or subtle shimmer for loading instead of spinners alone; provide friendly empty states with a short “what to do next.”
 - Clarify errors with color, icon, and text; reserve red for errors and use calmer hues for neutral info.
 - Give content room to breathe—whitespace is a design tool, not wasted space.
@@ -67,3 +67,10 @@ Focus on clear hierarchy, generous spacing, and restrained styling to make inter
 - Use consistent gaps, radii, shadows, and border colors across the entire UI to create harmony.
 - Replace visual clutter (dividers, lines, boxes) with spacing and alignment; let one strong anchor (title or primary action) lead.
 - When stacking elements on images, add a dark or light overlay to keep text legible.
+
+## Delivery Check
+
+- Keep primary actions visually distinct from red error or destructive meaning.
+- Specify every applicable hover, active, focus, loading, disabled, error, empty,
+  and success treatment rather than listing state names alone.
+- Preserve a consistent radius and spacing system with comfortably sized touch targets.

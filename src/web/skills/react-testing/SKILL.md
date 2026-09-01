@@ -97,9 +97,9 @@ Use [advanced.md](references/advanced.md) when you need:
 React-specific checks:
 
 - [ ] Using `render()` from @testing-library/react (not enzyme's shallow/mount)
-- [ ] Using `renderHook()` for custom hooks
+- [ ] Using `renderHook()` for hook-only behavior; rendering a consumer when provider props must change because hook props do not reach its wrapper
 - [ ] Using `wrapper` option for context providers
-- [ ] No manual `act()` calls (RTL handles it)
+- [ ] Using `act()` for direct state-changing hook callbacks because they run outside Testing Library's auto-wrapped interaction helpers; `render`, `userEvent`, and async queries rely on RTL's wrapping
 - [ ] No manual `cleanup()` calls (automatic)
 - [ ] Testing component output, not internal state
 - [ ] Using factory functions, not `beforeEach` render

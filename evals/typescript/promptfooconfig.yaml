@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: TypeScript skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed TypeScript patch reaches every observable
+        outcome required by this scenario. Give equal weight to every outcome
+        below. Credit concrete code and scenario-specific reasoning, not copied
+        rubric wording or generic best-practice claims.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Validate an untrusted payload without inventing a dependency
+    vars:
+      skill: file://../../src/typescript/skills/SKILL.md
+      scenario: |-
+        Implement `decodeJob(value: unknown): DecodeResult` at an HTTP JSON
+        boundary. A valid job has a non-empty string `id` and a non-negative
+        integer `attempts`. `DecodeResult` is already defined as
+        `{ ok: true; value: Job } | { ok: false; error: "invalid-job" }`, and
+        `Job` has readonly `id` and `attempts` fields. The package has no runtime
+        validation dependency, its dependency set is frozen, and an existing
+        `isRecord(value: unknown): value is Record<string, unknown>` helper is
+        available. Invalid input must return the error variant rather than throw.
+
+        Return the minimum implementation only. It must compile under strict
+        TypeScript without `any`, assertions, new dependencies, or changes to the
+        supplied types and helper.
+      rubric: |-
+        - Accepts `unknown` and calls the supplied `isRecord` helper before reading properties.
+        - Requires `id` to be a non-empty string and `attempts` to be both a number and a non-negative integer.
+        - Returns `{ ok: false, error: "invalid-job" }` for every failed check and the supplied success variant for valid input; it does not throw.
+        - Uses no `any`, type assertion, schema-library import, new helper abstraction, or dependency change.
+        - Keeps the patch to the decoder implementation and relies on control-flow narrowing so the valid fields construct `Job` safely.
+
+  - description: Preserve public immutability without quadratic copying
+    vars:
+      skill: file://../../src/typescript/skills/SKILL.md
+      scenario: |-
+        Implement `groupRows(rows: readonly Row[]): Readonly<Record<Status,
+        readonly Row[]>>`, where `Status` is `"queued" | "running" | "done"`
+        and every `Row` has readonly `id` and `status`. Production batches contain
+        100,000 rows. The caller's array and rows must remain unchanged, output
+        order within each status must match input order, and runtime must be O(n).
+        The project targets ES2022, has no utility dependency, and permits local
+        mutation that cannot escape before return.
+
+        Return the minimum implementation and state why it satisfies the public
+        immutability and complexity requirements. Do not add abstractions or
+        change the supplied types.
+      rubric: |-
+        - Creates fresh queued, running, and done buckets, so neither the caller's array nor any caller-owned row is mutated.
+        - Traverses `rows` once and appends each row directly to exactly one fresh local bucket, preserving input order within each status.
+        - Avoids per-row array or object spreading, concatenation, sorting, repeated filtering, or other work that makes the implementation worse than O(n).
+        - Returns the three buckets under the exact Status keys with a type that satisfies the supplied readonly public return contract.
+        - Adds no helper, dependency, clone of each immutable row, or speculative validation.

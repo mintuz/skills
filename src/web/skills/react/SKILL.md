@@ -13,7 +13,9 @@ Production-grade React development with feature-based architecture, type-safe st
 2. **Simple to understand and maintain** - Readable code with obvious intent
 3. **Clean boundaries** - Clear separation between features and layers
 4. **Early issue detection** - Catch problems at build time, not runtime
-5. **Consistency** - Same patterns throughout the codebase
+5. **Server-owned authorization** - For each protected mutation, call client permission checks UX only; name the matching server actor/resource rule, require denial before mutation, and render rejection as non-success UI
+6. **Owned synchronization** - Use effects only for external-system synchronization; every async setup guards both result paths, cleanup invalidates and cancels it, and cancellation stays out of error UI
+7. **Consistency** - Same patterns throughout the codebase
 
 ## Quick Reference
 

@@ -1,288 +1,54 @@
 ---
 name: learn
-description: WHEN capturing learnings/gotchas/decisions into CLAUDE.md; NOT trivial changes; guides what to record, where it lives, and format.
+description: WHEN preserving a durable project learning, gotcha, or decision in repository instructions; NOT for trivial or one-off details; finds the authoritative instruction file and writes the smallest safe rule.
 ---
 
-# CLAUDE.md Learning Integration
+# Preserve a Project Learning
 
-Use this skill to identify learning opportunities and document insights into CLAUDE.md. The goal is to ensure hard-won knowledge is preserved for future developers.
+Capture the reusable rule, not the incident that revealed it.
 
-## When to Use
+## 1. Find the authority
 
-- User discovers a gotcha or unexpected behavior
-- User completes a complex feature and wants to document learnings
-- User makes an architectural decision worth preserving
-- User fixes a tricky bug with insights to share
-- User says "I wish I'd known this earlier"
+Read the repository's instruction hierarchy and the relevant nearby section.
+Follow pointers and generated-file notices to their owning source; the target may
+be `AGENTS.md`, `CLAUDE.md`, or another local instruction file. Amend an existing
+rule when it already owns the meaning.
 
-## Philosophy
+Complete when the authoritative file, target section, and any overlapping rule
+are identified.
 
-**Core Principle:** Knowledge that isn't documented is knowledge that will be lost. Every hard-won insight must be preserved for future developers.
+## 2. Distil the lesson
 
-## Identifying Learning Opportunities
+Keep a learning only when it is verified and at least one is true:
 
-Watch for these signals during development:
+- it prevents a recurring class of bugs or security failures;
+- it records a non-obvious invariant, constraint, or approved operating path;
+- it preserves architectural rationale that the repository does not express;
+- it would save meaningful investigation time on a future task.
 
-- Gotchas or unexpected behavior discovered
-- "Aha!" moments or breakthroughs
-- Architectural decisions being made
-- Patterns that worked particularly well
-- Anti-patterns encountered
-- Tooling or setup knowledge gained
+Write only the durable mechanism or rule. Exclude incident chronology,
+speculation, transient state, and implementation details unlikely to recur.
+Strip credentials, personal or customer data, and sensitive topology; refer to
+the owning secret or environment manager instead of a live value. Preserve the
+approved path. Explicitly label every supplied security bypass as a temporary,
+unsafe diagnostic that must not become repository guidance. Keep the durable
+patch on the approved path only; name the excluded setting or tool outside the
+proposed patch so the prohibition is unambiguous, while omitting its value and
+all secrets.
 
-## Discovery Questions
+Complete when every claim is evidence-backed, reusable, non-sensitive, and not
+already documented.
 
-### About the Problem
+## 3. Make the smallest patch
 
-- What was unclear or surprising at the start?
-- What took longer to figure out than expected?
-- What assumptions were wrong?
-- What would have saved time if known upfront?
+Match the target file's voice and structure. Prefer one imperative sentence or
+bullet in an existing section. Add a heading, rationale, checklist, or example
+only when the learning cannot be applied correctly without it. Do not duplicate
+nearby guidance.
 
-### About the Solution
+If the user requested a proposal, return the exact patch and state that files
+remain unchanged. If the user authorized an edit, apply only that patch and
+report the file changed.
 
-- What patterns or approaches worked particularly well?
-- What patterns should be avoided?
-- What gotchas or edge cases were discovered?
-- What dependencies or relationships were not obvious?
-
-### About the Context
-
-- What domain knowledge is now clearer?
-- What architectural decisions became apparent?
-- What testing strategies were effective?
-- What tooling or setup was required?
-
-## Learning Significance Assessment
-
-**Document if ANY of these are true:**
-
-- Would save future developers significant time (>30 minutes)
-- Prevents a class of bugs or errors
-- Reveals non-obvious behavior or constraints
-- Captures architectural rationale or trade-offs
-- Documents domain-specific knowledge
-- Identifies effective patterns or anti-patterns
-- Clarifies tool setup or configuration gotchas
-
-**Skip if ALL of these are true:**
-
-- Already well-documented in CLAUDE.md
-- Obvious or standard practice
-- Trivial change (typos, formatting)
-- Implementation detail unlikely to recur
-
-## CLAUDE.md Section Classification
-
-Determine which section the learning belongs to:
-
-### Existing Sections
-
-- **Core Philosophy** - Fundamental principles (TDD, FP, immutability)
-- **Testing Principles** - Test strategy and patterns
-- **TypeScript Guidelines** - Type system usage
-- **Code Style** - Functional patterns, naming, structure
-- **Development Workflow** - TDD process, refactoring, commits
-- **Working with Claude** - Expectations and communication
-- **Example Patterns** - Concrete code examples
-- **Common Patterns to Avoid** - Anti-patterns
-
-### New Sections (if learning doesn't fit existing)
-
-- Project-specific setup instructions
-- Domain-specific knowledge
-- Architectural decisions
-- Tool-specific configurations
-- Performance considerations
-- Security patterns
-
-## Formatting Guidelines
-
-### For Principles/Guidelines
-
-````markdown
-### New Principle Name
-
-Brief explanation of why this matters.
-
-**Key points:**
-
-- Specific guideline with clear rationale
-- Another guideline with example
-- Edge case or gotcha to watch for
-
-```typescript
-// ✅ GOOD - Example following the principle
-const example = "demonstrating correct approach";
-
-// ❌ BAD - Example showing what not to do
-const bad = "demonstrating wrong approach";
-```
-````
-
-### For Gotchas/Edge Cases
-
-````markdown
-#### Gotcha: Descriptive Title
-
-**Context**: When does this occur
-**Issue**: What goes wrong
-**Solution**: How to handle it
-
-```typescript
-// ✅ CORRECT - Solution example
-const correct = handleEdgeCase();
-
-// ❌ WRONG - What causes the problem
-const wrong = naiveApproach();
-```
-````
-
-### For Project-Specific Knowledge
-
-```markdown
-## Project Setup / Architecture / Domain Knowledge
-
-### Specific Area
-
-Clear explanation with:
-
-- Why this is important
-- How it affects development
-- Examples where relevant
-```
-
-## Documentation Proposal Format
-
-````markdown
-## CLAUDE.md Learning Integration
-
-### Summary
-
-Brief description of what was learned and why it matters.
-
-### Proposed Location
-
-**Section**: [Section Name]
-**Position**: [Before/After existing content, or new section]
-
-### Proposed Addition
-
-```markdown
-[Exact markdown content to add to CLAUDE.md]
-```
-
-### Rationale
-
-- Why this learning is valuable
-- How it fits with existing guidelines
-- What problems it helps prevent
-- Time saved by documenting this
-
-### Verification Checklist
-
-- [ ] Learning is not already documented
-- [ ] Fits naturally into CLAUDE.md structure
-- [ ] Maintains consistent voice and style
-- [ ] Includes concrete examples if applicable
-- [ ] Prevents future confusion or wasted time
-````
-
-## Voice and Style
-
-- **Imperative tone**: "Use X", "Avoid Y", "Always Z"
-- **Clear rationale**: Explain WHY, not just WHAT
-- **Concrete examples**: Show good and bad patterns
-- **Emphasis markers**: Use **bold** for critical points, ❌ ✅ for anti-patterns
-- **Structured format**: Use headings, bullet points, code blocks consistently
-
-## Quality Standards
-
-- **Actionable**: Reader should know exactly what to do
-- **Specific**: Avoid vague guidelines
-- **Justified**: Explain the reasoning and consequences
-- **Discoverable**: Use clear headings and keywords
-- **Consistent**: Match existing CLAUDE.md conventions
-
-## Quality Gates
-
-Before proposing documentation, verify:
-
-- Learning is significant and valuable
-- Not already documented in CLAUDE.md
-- Includes concrete examples (good and bad)
-- Explains WHY, not just WHAT
-- Matches CLAUDE.md voice and style
-- Properly categorized in appropriate section
-- Actionable (reader knows exactly what to do)
-
-## Example Learning Integration
-
-````markdown
-## CLAUDE.md Learning Integration
-
-### Summary
-
-Discovered that Zod schemas must be exported from a shared location for test files to import them, preventing schema duplication in tests.
-
-### Proposed Location
-
-**Section**: Schema-First Development with Zod
-**Position**: Add new subsection "Schema Exports and Imports"
-
-### Proposed Addition
-
-```markdown
-#### Schema Organization for Tests
-
-**CRITICAL**: All schemas must be exported from a shared module that both production and test code can import.
-
-```typescript
-// ✅ CORRECT - Shared schema module
-// src/schemas/payment.schema.ts
-export const PaymentSchema = z.object({
-  amount: z.number().positive(),
-  currency: z.string().length(3),
-});
-export type Payment = z.infer<typeof PaymentSchema>;
-
-// src/services/payment.service.ts
-import { PaymentSchema, type Payment } from "../schemas/payment.schema";
-
-// src/services/payment.service.test.ts
-import { PaymentSchema, type Payment } from "../schemas/payment.schema";
-```
-
-**Why this matters:**
-
-- Tests must use the exact same schemas as production code
-- Prevents schema drift between tests and production
-- Ensures test data factories validate against real schemas
-- Changes to schemas automatically propagate to tests
-
-**Common mistake:**
-
-```typescript
-// ❌ WRONG - Redefining schema in test file
-// payment.service.test.ts
-const PaymentSchema = z.object({
-  /* duplicate definition */
-});
-```
-```
-
-### Rationale
-
-- Encountered this when tests were failing due to schema mismatch
-- Would have saved 30 minutes if schema export pattern was documented
-- Prevents future schema duplication violations
-- Directly relates to existing "Schema Usage in Tests" section
-
-### Verification Checklist
-
-- [x] Learning is not already documented
-- [x] Fits naturally into Schema-First Development section
-- [x] Maintains consistent voice with CLAUDE.md
-- [x] Includes concrete examples showing right and wrong approaches
-- [x] Prevents the specific confusion encountered during this task
-````
+Complete when the authoritative instructions contain one safe, discoverable,
+non-duplicated rule and no unrelated documentation changed.

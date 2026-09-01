@@ -1,0 +1,133 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Tailwind skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the Tailwind response reaches every observable outcome
+        required by this scenario. Give equal weight to every outcome below.
+        Credit concrete, version-correct patches and explicit build or scanning
+        reasoning rather than copied rubric wording, verbosity, or invented facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep a Tailwind 4 Vite setup CSS-first and dependency-minimal
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Supply the smallest patch that wires Tailwind into this Vite app and adds
+        semantic `bg-canvas text-ink` utilities whose values switch under the
+        existing `[data-theme="dark"]` attribute. Tailwind's browser targets are
+        acceptable. Do not change dependencies or add files.
+
+        ```json
+        {
+          "dependencies": {
+            "@tailwindcss/vite": "4.1.12",
+            "@vitejs/plugin-react": "latest",
+            "tailwindcss": "4.1.12",
+            "vite": "latest"
+          }
+        }
+        ```
+
+        ```ts
+        // vite.config.ts
+        import { defineConfig } from "vite";
+        import react from "@vitejs/plugin-react";
+
+        export default defineConfig({ plugins: [react()] });
+        ```
+
+        ```css
+        /* src/app.css */
+        :root {
+          --app-canvas: oklch(0.98 0.01 250);
+          --app-ink: oklch(0.22 0.03 250);
+        }
+
+        [data-theme="dark"] {
+          --app-canvas: oklch(0.18 0.03 250);
+          --app-ink: oklch(0.94 0.01 250);
+        }
+        ```
+      rubric: |-
+        - Adds the already-installed `@tailwindcss/vite` plugin alongside the existing React plugin in `vite.config.ts`, preserving React and adding no package or PostCSS setup.
+        - Imports Tailwind in `src/app.css` with `@import "tailwindcss";`, not the removed v3 `@tailwind base/components/utilities` directives.
+        - Maps `--color-canvas` and `--color-ink` to the existing runtime variables in a top-level `@theme inline` block, so `bg-canvas` and `text-ink` are generated and follow the supplied theme attribute.
+        - Adds no `tailwind.config.*`, content glob, `darkMode` setting, duplicate palette, or unrelated CVA/merge/animation dependency.
+        - Explains that this is Tailwind 4's CSS-first Vite path and that `inline` makes the generated utilities reference the runtime-switching values.
+
+  - description: Replace interpolated utilities with scanner-visible variants
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Patch this Tailwind 4 component. It looks correct in development only
+        because a nearby demo happens to contain the generated classes; the
+        production build omits some status styles. The prop type and rendered
+        button semantics must stay the same. Dependencies and Tailwind config
+        cannot change.
+
+        ```tsx
+        type Tone = "success" | "warning";
+
+        export function StatusAction({ tone }: { tone: Tone }) {
+          const color = tone === "success" ? "emerald" : "amber";
+
+          return (
+            <button
+              className={`rounded-md bg-${color}-600 px-4 py-2 text-${color}-50 hover:bg-${color}-700 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50`}
+            >
+              Continue
+            </button>
+          );
+        }
+        ```
+
+        Return the smallest component patch and explain why it remains correct
+        when the unrelated demo is removed. Do not propose a safelist.
+      rubric: |-
+        - Replaces interpolation with one exhaustive typed mapping from `Tone` to complete literal utility strings that are visible to Tailwind's source scanner.
+        - Gives both variants literal background, foreground, hover, and visible focus utilities; keeps the shared shape, spacing, and disabled utilities shared rather than duplicating the whole component.
+        - Selects the mapped string from `tone` and renders the same native `button` with the same prop API and label.
+        - Explains that Tailwind scans source as plain text and cannot construct utility names from interpolation, so unrelated files must not be relied upon to emit CSS.
+        - Adds no dependency, CVA wrapper, runtime style object, config change, safelist, or invented build step.

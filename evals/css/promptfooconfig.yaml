@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: CSS skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the CSS response reaches every required outcome for
+        this scenario. Give equal weight to every outcome below. Credit explicit,
+        scenario-specific declarations and reasoning. Do not reward verbosity,
+        copied rubric wording, or invented project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Override an immutable third-party ID rule without a fake specificity fix
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Supply the smallest production CSS patch that makes this checkout label
+        `#0b57d0`, then explain why it wins. The vendor stylesheet is immutable,
+        unlayered, and loads after the app stylesheet. HTML, load order, inline
+        styles, and JavaScript cannot change. The app stylesheet is the only
+        writable surface.
+
+        ```html
+        <section id="checkout">
+          <button class="button checkout__submit">Pay now</button>
+        </section>
+        ```
+
+        ```css
+        /* app.css (loads first; writable) */
+        .checkout__submit { color: #222; }
+
+        /* vendor.css (loads second; immutable) */
+        #checkout .button { color: #666; }
+        ```
+      rubric: |-
+        - Gives a concrete app.css declaration that makes the supplied button color `#0b57d0` under the stated source order and immutable vendor boundary.
+        - Uses one narrowly scoped `!important` declaration on `.checkout__submit`, because an author-important declaration beats the vendor's normal declaration while preserving the existing HTML and load order.
+        - Treats this as an evidenced last-resort boundary exception and adds no invented IDs, inline style, JavaScript, cascade layer, selector chain, or markup change.
+
+  - description: Keep a visually hidden skip link stateful and robust
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Write the CSS for the existing skip link below. It must remain in the
+        accessibility tree and keyboard order while visually hidden, become a
+        clearly visible fixed control on keyboard focus, fit narrow viewports at
+        400% zoom, and remain identifiable in Windows forced-colors mode. The
+        component has no other states. Do not change the HTML.
+
+        ```html
+        <a class="u-skip-link" href="#main">Skip to content</a>
+        ```
+      rubric: |-
+        - Hides the unfocused link with a one-pixel clipping technique while keeping it in the accessibility tree and tab order; it does not use `display: none`, `visibility: hidden`, zero-sized text, or off-screen coordinates.
+        - Restores every hiding property on `.u-skip-link:focus` or `.u-skip-link:focus-visible` and makes the link fixed near the viewport edge with a visible foreground, background, and outline.
+        - Keeps the focused control inside a narrow viewport using logical positioning and a viewport-bounded inline size or wrapping rule, with scalable text and spacing suitable for 400% zoom.
+        - Includes a forced-colors rule that uses system colors and allows the focus indicator to remain visible rather than relying only on author colors or shadows.
+        - Models the utility as explicitly stateful: the base and focus rules form one contract, without `!important` declarations that force a second specificity contest between its own states.

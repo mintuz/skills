@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Frontend testing skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed DOM Testing Library test reaches every
+        observable outcome required by this scenario. Give equal weight to every
+        outcome below. Credit concrete, runnable test logic rather than copied
+        rubric wording or general advice.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Prove one async retry without repeated waitFor side effects
+    vars:
+      skill: file://../../src/web/skills/frontend-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test with DOM Testing Library for `mountOrderForm`.
+        The component accepts `submitOrder: () => Promise<void>`, mounts this
+        accessible UI in `document.body`, and owns all event wiring:
+
+        - a `Place order` button;
+        - while a request is pending, a `role="status"` element containing
+          `Placing order` and a disabled button;
+        - after rejection, a `role="alert"` containing `Order failed`, with the
+          button enabled for retry;
+        - after resolution, a `role="status"` containing `Order placed`.
+
+        Use two deferred promises supplied through one mock. Prove the first
+        click starts exactly one request, the pending UI is observable, the
+        first rejection is visible, one retry starts exactly one further
+        request, and the second resolution produces the terminal success UI.
+        The interaction must never run inside a retrying assertion callback.
+        Return the test and a short rationale; do not change the component.
+      rubric: |-
+        - Creates one `userEvent.setup()` instance and awaits both user clicks; no interaction or other side effect appears inside `waitFor` or another retrying callback.
+        - Finds `Place order` by role and accessible name; finds the unnamed `status` and `alert` regions by role and asserts their visible `Placing order`, `Order failed`, and `Order placed` text separately, using an async query or retrying assertion only for UI that appears after promise settlement.
+        - Supplies two independently controlled deferred promises through one submit mock, rejects the first and resolves the second in the test, and does not replace the component's request boundary with a fetch or axios spy.
+        - Proves the first click yields exactly one submit call and a disabled button while pending, then proves the failure alert and re-enabled button before retrying.
+        - Proves the retry yields exactly two total submit calls, observes the second pending state, resolves the second promise, and observes the terminal `Order placed` status.
+
+  - description: Select the accessible toggle among duplicate visible words
+    vars:
+      skill: file://../../src/web/skills/frontend-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test with DOM Testing Library for
+        `mountPasswordField()`. It mounts a labelled password input, the help
+        paragraph `Show password requirements`, and a toggle button whose
+        accessible name is initially `Show password`. Activating the toggle
+        changes the input type to `text`, changes the button's accessible name
+        to `Hide password`, and reveals a live-region status `Password visible`.
+        Activating it again restores type `password`, the accessible name
+        `Show password`, and removes that status.
+
+        Prove the complete two-toggle user flow despite the duplicate visible
+        words. Return the test and a short rationale; do not change the component.
+      rubric: |-
+        - Calls `mountPasswordField()`, creates one fresh `userEvent.setup()` instance in the test, and awaits both toggle interactions.
+        - Finds the input through its label and selects each toggle state with `getByRole('button', { name: ... })`; it does not use `getByText`, `getByTestId`, a CSS selector, or DOM traversal to find the button.
+        - After the first activation, proves the input has type `text`, the button is named `Hide password`, and the `Password visible` status is present through a role-based assertion.
+        - After the second activation, proves the input has type `password`, the button is named `Show password`, and absence of the status is asserted with `queryByRole` rather than a throwing `getBy` query.
+        - Tests only user-observable DOM state and accessible names; it does not inspect component internals or manually dispatch low-level events.

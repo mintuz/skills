@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: App Store screenshot upload skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the proposed App Store screenshot operation for this scenario.
+        Give equal weight to every criterion below. Credit explicit,
+        scenario-specific outcomes only. Do not reward verbosity, copied rubric
+        wording, or invented CLI output or live-service results.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Stage only selected locales inside the Helm uploads inbox
+    vars:
+      skill: file://../../src/app/skills/asc-screenshots/SKILL.md
+      scenario: >-
+        Plan a screenshot replacement for version v42, selecting only repository
+        folders `de` and `nl` from an export that also contains `fr-CA`. The
+        exported files include `Home Display - 2.png` and `Home Display - 1.png`
+        for each selected locale, all for the 6.9-inch iPhone set. `helm-asc paths
+        --agent` reports uploadsInbox `/Users/me/Library/Group
+        Containers/group.com.modumhq.Helm/Uploads`. Both target localisations
+        already contain screenshots. The user proposes staging under `/tmp`,
+        uploading the whole export tree, and trusting the copy command's exit
+        status. Give the exact safe plan and command shape, but do not execute it.
+      rubric: |-
+        - Uses the reported `uploadsInbox` as the stage location and identifies that writing there may require escalated sandbox permission, rather than staging under `/tmp`.
+        - Maps only `de` to `de-DE` and `nl` to `nl-NL`, omits `fr-CA`, and stages both selected sets under `APP_IPHONE_67`.
+        - Renames the two files so `Display - 1` becomes an `01_` file and `Display - 2` becomes an `02_` file, preserving their intended order rather than trusting source enumeration.
+        - Verifies the staged tree with `find` before upload and treats that observed tree, not a successful copy exit status, as evidence that Helm can see the files.
+        - Inspects current screenshot state, performs a dry run with `--replace` and an explicit locale list restricted to `de-DE` and `nl-NL`, reads `perGroup`, and applies only by removing `--dry-run` from that same command.
+
+  - description: Wait for and verify a large preview replacement before cleanup
+    vars:
+      skill: file://../../src/app/skills/asc-screenshots/SKILL.md
+      scenario: >-
+        Plan replacement of 85 App Store previews for version v84 across the
+        explicitly approved locales `en-GB` and `fr-CA`. The stage tree is already
+        valid inside Helm's uploadsInbox. Existing preview filenames contain the
+        stamp `cut-2026-07`; every replacement contains `cut-2026-09`. Both
+        locales already have previews. The applied command has produced no output
+        for four minutes, and the user asks you to run it again in another
+        terminal, then delete staging immediately to save disk space. State the
+        remaining actions and success condition without interacting with Helm.
+      rubric: |-
+        - Verifies the final state with the preview-specific command shape `helm-asc version v84 previews --agent`, rather than switching back to screenshots or leaving the remote check unspecified.
+        - Treats several minutes of silence as expected for 85 files, waits for the original command to return, and does not re-issue it or poll stdin.
+        - Requires the returned filenames to contain 85 new `cut-2026-09` previews across only `en-GB` and `fr-CA`, contain no old `cut-2026-07` stamp, and report every item as `complete`.
+        - Retains the staging directory until verification satisfies every stated success check, removing it only after success rather than immediately after apply.

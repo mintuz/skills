@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Web design skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the design response reaches every required outcome
+        for this scenario. Give equal weight to every outcome below. Credit
+        explicit, scenario-specific decisions and trade-offs. Do not reward
+        verbosity, copied rubric wording, or invented product facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Preserve hierarchy and access in a high-stakes payment failure state
+    vars:
+      skill: file://../../src/web/skills/web-design/SKILL.md
+      scenario: |-
+        Redesign the visual specification for a mobile checkout payment-failure
+        state. The brand lead asks for a “minimal premium” treatment: remove the
+        visible card-number label in favour of placeholder text, show the error
+        only by turning the input border red, make both “Try again” and “Cancel
+        order” solid red buttons, and remove the focus ring because it looks
+        noisy. The screen must remain usable by keyboard and color-blind users.
+        It contains the payment error, the retained card field, order total,
+        “Try again”, and “Cancel order”. Give the visual and state decisions;
+        do not write implementation code.
+      rubric: |-
+        - Keeps a persistent visible card-number label and places clear error text beside the affected field rather than relying on placeholder text or a red border.
+        - Gives the error redundant text and icon treatment, reserves red for that error/destructive meaning, and keeps the order total visually legible.
+        - Establishes one clear primary recovery action for “Try again” and gives “Cancel order” a distinct lower-emphasis destructive treatment instead of making both actions compete.
+        - Specifies visible keyboard focus plus distinguishable hover, active, loading, disabled, error, and success or recovered states without treating disabled styling as the only feedback.
+        - Uses spacing and aligned grouping to bind the error to the card field while separating the order summary and actions, with comfortably sized targets rather than compressed controls.
+
+  - description: Keep a dense operations dashboard usable at narrow widths
+    vars:
+      skill: file://../../src/web/skills/web-design/SKILL.md
+      scenario: |-
+        Refine a warehouse exceptions dashboard for desktop and a 320px-wide
+        handheld. It has a page title, “Resolve selected” primary action, status
+        filter, and rows containing order ID, customer, exception reason, age,
+        status, and an overflow action. A stakeholder asks to preserve the six-
+        column desktop table on the handheld by shrinking all text to 10px,
+        using red/amber/green dots with no labels, and replacing every action
+        label with an icon. Give the responsive visual specification and state
+        treatment; do not write implementation code.
+      rubric: |-
+        - Preserves the readable desktop table but replaces the six-column handheld compression with a deliberate narrow-width hierarchy such as stacked rows or cards.
+        - Keeps order ID, exception reason, age, and status discoverable on the handheld, with metadata de-emphasized through hierarchy rather than uniformly shrinking all text to 10px.
+        - Gives every status a text label or icon plus text, so red, amber, and green are redundant signals rather than the only meaning.
+        - Keeps the primary “Resolve selected” action visually dominant while retaining labels for unfamiliar row actions or otherwise making each action unambiguous.
+        - Specifies comfortable target spacing and visible focus, active, loading, empty, and error states across both layouts, using one consistent spacing/type/radius system.

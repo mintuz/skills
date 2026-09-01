@@ -50,6 +50,6 @@ Track child state, review feedback, CI and PR checks, and merge state against th
 
 Perform integration and conflict resolution only within the authority already granted. Merge only with explicit user authorization. After an authorized merge, refresh the required base and PR state, then recalculate the frontier before dispatching newly ready stories.
 
-Finish with the source SHA, story ledger, task/worktree/branch/PR mapping, verification evidence, merge state, remaining blockers, and the smallest next action for each blocker.
+Finish with the source SHA, governing artifact revisions, story ledger, task/worktree/branch/PR mapping, verification evidence, merge state, remaining blockers, and the smallest next action for each blocker.
 
 **Complete when:** the final ledger matches observed repository and PR state, every dependency gate is respected, and no merge or adjacent publication action exceeded the user's authority.

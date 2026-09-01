@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: App Store scraper skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed retrieval preserves data integrity in
+        this scenario. Give equal weight to every outcome below. Credit explicit,
+        scenario-specific behavior and observable failure semantics. Do not
+        reward verbosity, copied rubric wording, or invented endpoint behavior.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep unavailable regional lookups out of app records
+    vars:
+      skill: file://../../src/app/skills/app-store-scraper/SKILL.md
+      reference: file://../../src/app/skills/app-store-scraper/endpoints/app-lookup.md
+      scenario: >-
+        Plan a shell retrieval for bundle ID com.example.retired in the US and
+        UK storefronts. Produce one stable JSON object per storefront for a
+        downstream comparison. A request may fail, return malformed JSON, or
+        return resultCount 0 because the app is unavailable in one country.
+        Describe the request, validation gates, and output semantics. A missing
+        app must never become an apparently valid record full of nulls.
+      rubric: |-
+        - Constructs a software lookup for each requested storefront using the bundle ID and that storefront's country parameter, with request values safely URL-encoded.
+        - Detects transport or HTTP failure and malformed JSON before extracting app fields, so neither response is treated as an app record.
+        - Checks resultCount and the returned bundle identifier before accepting a result; a zero-result response becomes an explicit unavailable outcome rather than null-valued metadata.
+        - Emits one stable, machine-readable outcome per storefront that distinguishes success, unavailable, and retrieval or parse failure without mixing diagnostics into JSON output.
+        - Keeps the two storefront results independent and does not reuse one country's metadata as evidence of availability in the other.
+
+  - description: Do not label arbitrary App Store page links as similar apps
+    vars:
+      skill: file://../../src/app/skills/app-store-scraper/SKILL.md
+      reference: file://../../src/app/skills/app-store-scraper/endpoints/similar.md
+      scenario: >-
+        Plan how to retrieve up to ten US apps that Apple presents as similar to
+        app ID 553834731. The App Store HTML also contains the original app,
+        global navigation, developer-portfolio links, and unrelated app links;
+        the named recommendation section may be absent. Return verified app
+        metadata as JSON and state what the caller receives when recommendations
+        cannot be established.
+      rubric: |-
+        - Treats similarity as an unsupported, brittle HTML-derived signal rather than claiming a stable structured App Store API.
+        - Extracts identifiers only from the page's specific recommendation section or its section-scoped structured data, never from a page-wide app-ID regex.
+        - Excludes the source app, deduplicates and validates candidate numeric IDs, and returns an explicit unavailable result when the recommendation section is absent or cannot be parsed.
+        - Resolves only the selected candidate IDs through a software lookup and maps returned metadata back to validated IDs without inventing records for missing lookup results.
+        - Keeps category search and same-developer apps clearly labelled as different discovery signals, not fallback proof that Apple presented those apps as similar.

@@ -33,6 +33,12 @@ When a user is struggling with progress:
 2. **Ask diagnostic questions** specific to that component
 3. **Recommend targeted fixes** based on the diagnosis
 
+When an external capacity shock interrupts an otherwise working Plan and System,
+preserve the non-negotiable anti-goals. Fit one small outcome-producing action
+into current capacity, keep the target or deadline provisional, and schedule a
+near-term capacity reassessment. Do not spend all scarce capacity on new tracking
+or accountability that does not advance the goal.
+
 ## Creating a New Goal
 
 ### Step 1: Define the Goal (The Destination)
@@ -71,7 +77,7 @@ Guide the user through three components:
 
 **Realistic Assessment**
 
-- Test if the plan works in theory: "Will these actions actually produce the result?"
+- Reconcile the target, deadline, major moves, and anti-goals against supplied quantities and capacity. Treat anti-goals as constraints unless the user explicitly revises them. If the numbers conflict, show the conflict and stop before designing the System or completing the goal document; ask whether the target or deadline can change.
 - Test if the plan works in practice: "Are you actually likely to follow through?"
 - Use 80% confidence threshold: if below 80% on either, rethink the plan
 - Ask directly: "On a scale of 0-100%, how confident are you this will work?"

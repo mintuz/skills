@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: iOS debugging skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the debugging plan reaches a defensible diagnosis and
+        terminal proof in this scenario. Give equal weight to every outcome
+        below. Credit explicit, scenario-specific behaviour and evidence gates.
+        Do not reward verbosity, copied rubric wording, or invented observations.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Trace an intermittent data-loss crash to its shared owner
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: >-
+        An iOS app crashes intermittently when Save is tapped twice quickly and
+        sometimes loses the draft after relaunch. The user explicitly says,
+        "Fix this end to end; you have permission to edit the code." The visible
+        Save button calls a view-model method, which calls a repository also used
+        by autosave and a widget. No current stack trace or reliable reproduction
+        exists. Give the investigation, implementation, and verification plan;
+        do not execute it or invent results.
+      rubric: |-
+        - Establishes a repeatable failing sequence and captures the crash/runtime evidence before choosing a cause; uncertainty remains explicit until that evidence exists.
+        - Traces the Save action through the view model into the repository and inspects every caller of the shared write path, including autosave and the widget, so the fix is owned at the narrowest shared cause rather than patched only in the button.
+        - Treats draft persistence and relaunch state as part of the failure, preserving existing data and avoiding destructive cleanup as a diagnostic shortcut.
+        - Recognises the user's explicit fix authorization and proceeds without asking for redundant approval, while pausing if the evidence would require a materially different or destructive action.
+        - Leaves one focused regression check that fails on the double-save/lifecycle defect, then rebuilds and reruns the exact sequence through relaunch while checking crash logs and persisted draft state.
+
+  - description: Rule out a stale runtime before diagnosing a visual regression
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: >-
+        A settings screen in the simulator still shows the old blue button after
+        a branch changed it to orange. The user asks for diagnosis only and says
+        not to edit anything. The screenshot is real, but the simulator may have
+        an older app installed, the wrong scheme may have been built, or the
+        expected SwiftUI view may not be the surface currently displayed. Give a
+        diagnostic plan and the evidence-backed terminal report; do not execute
+        it or invent results.
+      rubric: |-
+        - Preserves the diagnosis-only boundary and proposes no code or project mutation as though it had been authorized.
+        - Records the expected surface and state, captures the current screenshot, and identifies the exact source view and styling rule that should render the orange button.
+        - Verifies the selected scheme/configuration, built product, bundle identifier, installed app, and launched process before attributing the screenshot to source code.
+        - Uses build/runtime logs and a clean reinstall or rebuild only as a stated diagnostic experiment, keeping observed facts separate from hypotheses and expected outcomes.
+        - Ends with either a reproduced source defect and its owning code path, a proved stale/wrong runtime identity, or an explicit runtime-proof gap; it does not claim a root cause from the screenshot alone.

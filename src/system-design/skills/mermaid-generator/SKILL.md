@@ -45,6 +45,10 @@ Read the selected files and record only relationships supported by the source:
 
 Separate observed relationships from inferred ones. Do not present a convention, naming guess, or likely runtime behaviour as a fact without source evidence. Completion criterion: each important node and edge in the planned diagram has a source basis or is explicitly marked as an inference.
 
+For a complete interaction, trace every source-observed step in execution order
+and retain its `path:line` locator. Do not omit authentication, parsing, error,
+compensation, or return steps merely to simplify the picture.
+
 ### 4. Construct the diagram
 
 Choose the least detailed diagram that answers the request. Prefer clarity over completeness:
@@ -54,6 +58,11 @@ Choose the least detailed diagram that answers the request. Prefer clarity over 
 - choose `TB` or `LR` based on the dominant direction of the relationship;
 - label important edges with calls, events, data, or state transitions;
 - include an error path when omitting it would misrepresent the system;
+- preserve source-observed ordering, concurrency, and compensation when simplifying them would misrepresent the flow;
+- in sequence diagrams, render `Promise.all` work with `par`/`and` and material
+  `try`/`catch` compensation with `alt`/`else`, including error propagation;
+- keep a call to an absent dependency outside the owning implementation boundary
+  and label its concrete definition out of frame;
 - include circular dependencies and flag them as concerns;
 - keep unrelated implementation details out of the primary diagram.
 
@@ -70,7 +79,7 @@ Return the result in this structure:
 
 ## Files Analyzed
 
-- `path/to/file.ts` — [what it contributed]
+- `path/to/file.ts:line` — [what it contributed]
 
 ## Mermaid Diagram
 

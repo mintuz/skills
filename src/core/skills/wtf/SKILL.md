@@ -14,8 +14,8 @@ Use this skill when the immediately previous response from an LLM was unclear, t
 2. If the response uses domain terms, look for `CONTEXT.md`, `GLOSSARY.md`, `UBIQUITOUS_LANGUAGE.md`, and files matching `*.glossary.yml` in the current project.
 3. Use those files to select the canonical terms and meanings.
 4. Re-explain the previous response with a clearer structure and simpler wording.
-5. Preserve its meaning and all relevant technical details.
-6. Keep the explanation about the previous response.
+5. Preserve every condition, causal link, uncertainty, technical identifier, value, and relationship that changes how the response should be understood.
+6. Attribute operational actions to the previous response so the explanation cannot read as a new task.
 7. Do not perform a new task.
 8. Do not introduce information from the terminology files that the previous response did not contain.
 

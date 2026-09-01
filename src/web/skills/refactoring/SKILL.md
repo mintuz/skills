@@ -1,6 +1,6 @@
 ---
 name: refactoring
-description: WHEN tests are green and you need a refactor plan; NOT for new feature delivery; commit-first safety with prioritized improvements.
+description: WHEN tests are green and you need a refactor plan; NOT for new feature delivery; reversible-baseline safety with prioritized improvements.
 ---
 
 # Refactoring
@@ -11,23 +11,25 @@ Refactoring is the third step of TDD. After GREEN, assess if refactoring adds va
 
 - Always assess after green
 - Only refactor if it improves the code
-- **Commit working code BEFORE refactoring** (critical safety net)
+- **Establish a reversible GREEN baseline before refactoring**
 
-### Commit Before Refactoring - WHY
+### Reversible Baseline
 
-Having a working baseline before refactoring:
+Use the user's authorised boundary:
 
-- Allows reverting if refactoring breaks things
-- Provides safety net for experimentation
-- Makes refactoring less risky
-- Shows clear separation in git history
+- If a commit was requested and contains only owned changes, commit the GREEN
+  baseline.
+- Otherwise, record the owned paths or diff plus the exact passing test commands
+  and results. Preserve unrelated worktree changes.
 
 **Workflow:**
 
 1. GREEN: Tests pass
-2. COMMIT: Save working code
-3. REFACTOR: Improve structure
-4. COMMIT: Save refactored code
+2. BASELINE: Save the authorised reversible state
+3. REFACTOR: Apply one structural slice
+4. VERIFY: Run focused behavior checks, then the relevant regression suite; on
+   failure, restore only that slice
+5. COMMIT: Save the refactor separately when requested
 
 ## Priority Classification
 
@@ -115,10 +117,12 @@ refactor: rename ambiguous parameter names
 
 ## Refactoring Checklist
 
-- [ ] All tests pass without modification
+- [ ] Focused behavior tests and the relevant regression suite pass before and
+  after the refactor
 - [ ] No new public APIs added
 - [ ] Code more readable than before
-- [ ] Committed separately from features
-- [ ] Committed BEFORE refactoring (safety net)
+- [ ] Baseline and rollback preserve unrelated worktree changes
+- [ ] Failed verification restores only the owned structural slice
+- [ ] Committed separately from features when requested
 - [ ] No speculative code added
 - [ ] Behavior unchanged (tests prove this)

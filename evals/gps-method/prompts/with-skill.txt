@@ -1,0 +1,23 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Follow the skill and its disclosed
+references below as the authoritative guidance. Respond directly to the request
+using only supplied facts.
+
+<skill>
+{{skill}}
+</skill>
+
+<diagnostic-reference>
+{{diagnostic}}
+</diagnostic-reference>
+
+<examples-reference>
+{{examples}}
+</examples-reference>
+
+<template-reference>
+{{template}}
+</template-reference>
+
+Scenario:
+{{scenario}}

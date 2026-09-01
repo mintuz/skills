@@ -1,0 +1,16 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Treat the scenario's source packet as
+complete and follow the skill and its selected reference below as authoritative
+guidance. Return the requested design and concise rationale using only supplied
+facts.
+
+<skill>
+{{skill}}
+</skill>
+
+<selected-reference>
+{{reference}}
+</selected-reference>
+
+Scenario:
+{{scenario}}

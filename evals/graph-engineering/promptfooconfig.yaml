@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Graph-engineering skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed execution graph reaches the safe,
+        independently verifiable outcome requested by this scenario. Give equal
+        weight to every criterion below. Credit explicit, scenario-specific
+        contract, edge, schedule, and verdict decisions. Do not reward verbosity,
+        copied rubric wording, or invented repository facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Refuse unsafe fan-out and hold dispatch for graph approval
+    vars:
+      skill: file://../../src/core/skills/graph-engineering/SKILL.md
+      scenario: >-
+        Plan a multi-agent run for three requested changes. A creates the orders
+        table and migration in db/. B implements declined-payment handling in
+        src/checkout/ and requires A's schema. C implements refunds in
+        src/checkout/ and does not consume B's output, but B and C will settle
+        the same open transaction-boundary decision. A repository scan is still
+        needed to confirm whether generated schema files overlap. The user says,
+        "Launch all three writers now; an open PR or green CI is enough for B to
+        start, and you can show me the diagram later." State the contract and
+        graph decisions you can make from these facts, render a compact Mermaid
+        graph with current states, and say what is dispatched now.
+      rubric: |-
+        - Builds the verification contract before cutting nodes, preserves the supplied scenario as the governing source, and records missing source revisions, expected outcomes, authority, or ownership as contract gaps rather than inventing them.
+        - Gives A, B, and C provisional bounded nodes subject to confirming real repository paths, draws the `needs` edge from A to B because B consumes A's schema, and says it releases only after A is independently verified and integrated into B's base—not for an open PR or green CI alone.
+        - Prevents B and C from running together with an `excludes` edge because they would settle the same open transaction-boundary decision; it also withholds any concurrency claim involving A until generated paths and all four concurrency conditions are checked.
+        - Renders all three nodes and both `needs` and `excludes` edges in Mermaid, marks contract- or path-incomplete nodes blocked, and includes each node's deliverable, assertions, skill composition, and owned paths or explicitly unresolved path scope.
+        - Stops for user approval of the rendered graph and open questions before dispatching any writer, despite the request to launch first; it may parallelise the remaining read-only repository investigation while awaiting approval.
+
+  - description: Block integration on creator-shaped and unjudgeable evidence
+    vars:
+      skill: file://../../src/core/skills/graph-engineering/SKILL.md
+      scenario: >-
+        A checkout node owns S1, "the new handler typechecks," and B1, "submitting
+        a declined card leaves no order row and returns a decline to the caller."
+        Its worker changed the artifact and returned a handoff saying both pass;
+        the handoff includes a focused test written with the change and a worker
+        summary explaining why the design is correct. A verifier thread was
+        spawned by that worker, read the summary, inspected the test without
+        running it, and said both pass. The real checkout surface cannot start
+        because its database fixture is missing. A downstream receipt node needs
+        this checkout artifact. The user asks you to integrate now, reuse the
+        existing verifier after the fixture is repaired, and narrow B1 to what
+        the unit test proves if necessary. Give the assertion verdicts, next
+        actions, and downstream state.
+      rubric: |-
+        - Rejects the worker's self-verdict and worker-spawned, summary-anchored review as independent verification; creates a fresh verifier from S1 and B1, the real artifact, and raw evidence while withholding the worker's rationale and quality claims.
+        - Requires the fresh verifier to run the typecheck for S1 and records S1 as `pass`, `fail`, or `unjudgeable` from that real command and exit code, rather than inheriting the claimed pass from the handoff or merely reading the test.
+        - Marks B1 `unjudgeable` because the real checkout surface could not be exercised, treats the missing fixture as an evidence-path repair, and neither substitutes the focused implementation-shaped test nor narrows B1 to manufacture a pass.
+        - Blocks integration of the checkout node and keeps the downstream receipt node blocked because its `needs` edge releases only after every owned assertion passes and the artifact is integrated.
+        - After repairing the fixture, requires exercising B1 through the real checkout surface with a new fresh verifier rather than reusing the prior verifier, and keeps the original B1 outcome intact throughout the repair.

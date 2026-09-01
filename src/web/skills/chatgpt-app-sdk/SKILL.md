@@ -28,6 +28,12 @@ Build ChatGPT apps using the OpenAI Apps SDK, Model Context Protocol (MCP), and 
 | Missing widget data | Pass initial data via `_meta.initialData` field       |
 | CSP script blocking | Reference external scripts from allowed CDN origins   |
 
+Treat `_meta`, widget state, and browser code as user-visible boundaries: expose
+only authorised projections required by the current view. Keep credentials,
+authoritative or full records, internal fields the view does not require, raw
+diagnostics, stack traces, and technical logs server-side; return safe error
+content with an opaque correlation ID for support cases.
+
 ## Decision Trees
 
 ### What display mode should I use?

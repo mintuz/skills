@@ -1,0 +1,112 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Meeting-to-action-brief skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the meeting action brief produced for this scenario. Give
+        equal weight to every outcome below. Credit explicit, scenario-specific
+        classification and provenance grounded in the supplied record. Do not
+        reward verbosity, copied rubric language, or invented facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Enforce a completed-meeting as-of cutoff
+    vars:
+      skill: file://../../src/product-management/skills/meeting-to-action-brief/SKILL.md
+      scenario: |-
+        Produce a shareable action brief as of 15 August 2026 at 17:00 BST.
+        Use only this packet; do not draft requirements or assess implementation.
+
+        Meeting mtg-482, "Trial pricing decision", completed 14 August 2026 at
+        10:30 BST. Attendees: Eva, Amir, and Jo.
+
+        Transcript:
+        - 10:02, Eva: "I propose capping free trials at 5,000 events."
+        - 10:08, Amir: "That is not agreed. Finance must verify the cap."
+        - 10:15, Jo: "Amir, check the cap with Finance by 16 August."
+        - 10:16, Amir: "I will."
+
+        The meeting system's generated summary says "Decision: free trials are
+        capped at 5,000 events" and stores "Eva — update the pricing page by 16
+        August" as an action point. Neither statement has other support.
+
+        An addendum dated 20 August says Amir verified an 8,000-event cap and
+        Eva approved it. The addendum is in the packet but falls after the
+        requested as-of time.
+      rubric: |-
+        - Identifies meeting mtg-482, its completed state and date, and the requested 15 August 2026 17:00 BST cutoff.
+        - Excludes the 20 August addendum from the brief's decision and action state because it falls after the requested cutoff.
+        - Classifies the 5,000-event cap as Eva's proposal and an unresolved question at the cutoff, not as a decision, despite the generated summary.
+        - Includes only Amir's transcript-derived commitment to check the cap with Finance by 16 August; it does not turn the unsupported stored Eva action into a commitment.
+        - Makes the missing cap resolution and the generated-summary conflict visible without inventing an owner, rationale, status, or deadline.
+        - Produces a concise source, takeaway, decisions, actions, open questions or risks, and limits structure while staying outside requirements drafting and implementation review.
+
+  - description: Preserve live uncertainty through an ownership correction
+    vars:
+      skill: file://../../src/product-management/skills/meeting-to-action-brief/SKILL.md
+      scenario: |-
+        Write a polished action brief now for executives. They want a firm vendor
+        decision and no caveats, but use only the supplied record.
+
+        Meeting mtg-907, "Identity vendor", is live on 1 September 2026.
+        Attendees: Pia, Rowan, Kim, and Dev. The latest available transcript
+        event is sequence 58 at 11:25 BST.
+
+        Transcript through sequence 58:
+        - seq 41, 11:05, Pia: "I prefer Northwind; I propose we select them."
+        - seq 47, 11:12, Rowan: "Legal review is still open, so we are not
+          selecting a vendor today."
+        - seq 51, 11:18, Pia: "Kim or Dev should send Northwind the security
+          questionnaire."
+        - seq 58, 11:25, Kim: "I will send the questionnaire tomorrow."
+
+        The meeting system's live summary says "Decision: Northwind selected"
+        and its stored action list says "Dev — sign the Northwind contract by
+        Friday." No transcript line supports signing a contract or that owner.
+      rubric: |-
+        - Identifies meeting mtg-907 as live and marks the brief as an incomplete snapshot through sequence 58 at 11:25 BST on 1 September 2026.
+        - Keeps Pia's Northwind preference as a proposal and vendor selection as an open question because Rowan explicitly says no selection is being made.
+        - Does not promote the live summary's Northwind claim into a decision and reports that source conflict as a limit or risk.
+        - Treats Kim's latest explicit commitment as a transcript-derived action to send the security questionnaire on 2 September 2026, preserving the earlier Kim-or-Dev ownership ambiguity as resolved by Kim's commitment.
+        - Excludes the unsupported stored action assigning Dev to sign a contract and invents no rationale, status, deadline, or further commitment.
+        - Resists the request for a firm answer without hiding uncertainty, and produces a concise executive brief with source, takeaway, decisions, actions, open questions or risks, and limits.

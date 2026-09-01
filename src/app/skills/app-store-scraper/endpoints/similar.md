@@ -10,94 +10,13 @@ https://apps.apple.com/{country}/app/id{id}
 
 **Note:** This requires web scraping, not a structured API.
 
-## How It Works
+## Retrieval Contract
 
-1. Fetch the App Store page HTML
-2. Extract app IDs from "Customers Also Bought" section
-3. Use Lookup API to get full details
-
-## Examples
-
-### Extract Similar App IDs
-
-```bash
-# Fetch app page and extract similar app IDs
-curl -s "https://apps.apple.com/us/app/id553834731" | \
-  grep -oE 'id[0-9]{9,}' | \
-  grep -oE '[0-9]{9,}' | \
-  sort -u | \
-  head -20
-```
-
-### Get Full Details for Similar Apps
-
-```bash
-# Get similar app IDs
-SIMILAR_IDS=$(curl -s "https://apps.apple.com/us/app/id553834731" | \
-  grep -oE 'id[0-9]{9,}' | \
-  grep -oE '[0-9]{9,}' | \
-  sort -u | \
-  head -10 | \
-  tr '\n' ',')
-
-# Remove trailing comma
-SIMILAR_IDS=${SIMILAR_IDS%,}
-
-# Lookup details
-curl -s "https://itunes.apple.com/lookup?id=${SIMILAR_IDS}&entity=software" | \
-  jq '.results[] | {
-    name: .trackName,
-    id: .trackId,
-    developer: .artistName,
-    rating: .averageUserRating
-  }'
-```
-
-### Alternative: Using HTML Parser
-
-If you have `pup` or `htmlq` installed:
-
-```bash
-# Using pup
-curl -s "https://apps.apple.com/us/app/id553834731" | \
-  pup 'a[href*="/app/id"] attr{href}' | \
-  grep -oE 'id[0-9]+' | \
-  grep -oE '[0-9]+' | \
-  sort -u
-```
-
-### Filter Out Original App
-
-```bash
-ORIGINAL_ID=553834731
-
-curl -s "https://apps.apple.com/us/app/id${ORIGINAL_ID}" | \
-  grep -oE 'id[0-9]{9,}' | \
-  grep -oE '[0-9]{9,}' | \
-  sort -u | \
-  grep -v "^${ORIGINAL_ID}$" | \
-  head -10
-```
-
-### Get Similar Apps with Ratings
-
-```bash
-# Extract IDs
-IDS=$(curl -s "https://apps.apple.com/us/app/id553834731" | \
-  grep -oE 'id[0-9]{9,}' | \
-  grep -oE '[0-9]{9,}' | \
-  sort -u | \
-  head -10 | \
-  tr '\n' ',')
-
-# Get details and filter by rating
-curl -s "https://itunes.apple.com/lookup?id=${IDS}&entity=software" | \
-  jq '.results[] | select(.averageUserRating >= 4.0) | {
-    name: .trackName,
-    rating: .averageUserRating,
-    category: .primaryGenreName
-  }'
-```
+1. Parse the page as HTML or its embedded page-state data.
+2. Locate the named recommendation section and extract app links only within it.
+3. If the section cannot be identified, report recommendations as unavailable. A page-wide app-ID scan mixes navigation, developer, source-app, and unrelated links.
+4. Exclude the source ID, validate numeric IDs, deduplicate in page order, and apply the requested limit.
+5. Batch the selected IDs through App Lookup with `entity=software` and the same country. Return metadata only for requested IDs that the lookup actually resolves.
 
 ## Limitations
 
@@ -107,11 +26,13 @@ curl -s "https://itunes.apple.com/lookup?id=${IDS}&entity=software" | \
 - Results depend on Apple's recommendation algorithm
 - Rate limiting may apply for frequent requests
 
-## Alternative Approaches
+## Separate Discovery Signals
+
+The following can supply comparison candidates, but they do not prove Apple presented those apps as similar. Label the source as `category` or `same-developer`, not `apple-recommendation`.
 
 ### By Category
 
-Find similar apps by browsing the same category:
+Find comparison candidates by browsing the same category:
 
 ```bash
 # Get app's category
