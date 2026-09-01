@@ -1,0 +1,20 @@
+{
+  "name": "web",
+  "version": "1.10.2",
+  "description": "Skills and tools for building and maintaining web applications.",
+  "author": { "name": "Adam Bulmer", "email": "[email protected]", "url": "https://github.com/mintuz" },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["web", "design", "ui", "ux", "css", "html", "javascript", "typescript"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Web",
+    "shortDescription": "Web development workflows",
+    "longDescription": "Skills for React, CSS, testing, state modelling, and interface design.",
+    "developerName": "Adam Bulmer",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": ["Review and improve this web interface."]
+  }
+}

@@ -1,7 +1,6 @@
 ---
 name: wtf
 description: Re-explain the immediately previous LLM response when it did not land, using plain, precise UK English.
-disable-model-invocation: true
 ---
 
 # WTF

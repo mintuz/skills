@@ -1,0 +1,50 @@
+{
+  "name": "mintuz-skills",
+  "interface": {
+    "displayName": "Mintuz Skills"
+  },
+  "plugins": [
+    {
+      "name": "core",
+      "source": { "source": "local", "path": "./src/core" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "web",
+      "source": { "source": "local", "path": "./src/web" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript",
+      "source": { "source": "local", "path": "./src/typescript" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "system-design",
+      "source": { "source": "local", "path": "./src/system-design" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "product-management",
+      "source": { "source": "local", "path": "./src/product-management" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    },
+    {
+      "name": "app",
+      "source": { "source": "local", "path": "./src/app" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "life",
+      "source": { "source": "local", "path": "./src/life" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    }
+  ]
+}
