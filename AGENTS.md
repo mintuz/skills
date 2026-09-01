@@ -111,6 +111,18 @@ description: >
 Knowledge base content...
 ```
 
+## Test-Driven Skill Changes
+
+Treat every skill change as TDD. Its Promptfoo suite at `evals/[skill-name]/promptfooconfig.yaml` is the executable specification; create the suite from the existing examples if it does not exist.
+
+1. **RED — record the use case first.** Before editing the skill, add a realistic test whose `scenario` captures the new or changed use case and whose `rubric` defines observable success. Run `pnpm eval:skills:check -- [skill-name]`, then `pnpm test:skills -- [skill-name]` against the unchanged skill. The new case must fail; a pass means the skill already covers the case or the scenario does not expose the gap.
+2. **GREEN — make the minimum skill change.** Update the skill only enough to pass the new case, then rerun `pnpm test:skills -- [skill-name]`. Every existing case and the new case must pass.
+3. **COMPARE — prove the improvement.** Run `pnpm eval:skills -- [skill-name]` and inspect the no-skill baseline beside the skill treatment. The treatment must improve the intended case without reducing performance on existing cases. The comparison command is informational, so inspect its results rather than relying on its exit code.
+
+Existing scenarios and assertions are the regression contract. Preserve them unless the requirement itself changed. For trigger or description changes, also add the disposable skill fixture and `skill-used` assertion described in [`scripts/README.md`](scripts/README.md).
+
+A skill change is complete only when the Promptfoo config records the new scenario and rubric, configuration validation passes, all treatment tests pass, and the comparison demonstrates the intended gain without regression.
+
 ## Available Content Snapshot
 
 - **core:** agents `compare-branch`, `refactor`; skills `acceptance-review`, `commit-messages`, `gauntlet-loop`, `learn`, `pr`, `pseudocode`, `reducer`, `ship-pr`, `writing`, `wtf`, `yagni`
