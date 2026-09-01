@@ -32,7 +32,7 @@ src/
   core/
     .claude-plugin/plugin.json
     agents/                        # compare-branch, refactor
-    skills/                        # commit-messages, expectations, learn, pr, writing
+    skills/                        # commit-messages, learn, pr, writing, yagni
   web/
     .claude-plugin/plugin.json
     skills/                        # css, frontend-testing, react, react-testing, refactoring, tdd, web-design
@@ -113,7 +113,7 @@ Knowledge base content...
 
 ## Available Content Snapshot
 
-- **core:** agents `compare-branch`, `refactor`; skills `acceptance-review`, `babysit`, `commit-messages`, `expectations`, `gauntlet-loop`, `graph-engineering`, `learn`, `pr`, `pseudocode`, `reducer`, `ship-pr`, `writing`, `wtf`
+- **core:** agents `compare-branch`, `refactor`; skills `acceptance-review`, `babysit`, `commit-messages`, `gauntlet-loop`, `graph-engineering`, `learn`, `pr`, `pseudocode`, `reducer`, `ship-pr`, `writing`, `wtf`, `yagni`
 - **web:** skills `css`, `frontend-testing`, `react`, `xstate`, `react-testing`, `refactoring`, `tdd`, `web-design`, `tailwind`, `eyes`, `chatgpt-app-sdk`
 - **typescript:** skill `typescript-best-practices`
 - **system-design:** skill `mermaid-generator`

@@ -38,7 +38,7 @@ Custom agents, skills, and commands for software development workflows.
 | ----------------- | -------------------------------------------------------------------------------------------- |
 | `acceptance-review` | Verify implementation against an authoritative contract with an explicit verdict           |
 | `commit-messages` | Conventional commit messages that explain the "why" not just the "what"                      |
-| `expectations`    | Working expectations and documentation practices                                             |
+| `yagni`           | Minimum sufficient execution, scope boundaries, TDD, and documentation practices              |
 | `gauntlet-loop`   | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics |
 | `graph-engineering` | Orchestrate interdependent specs and stories as a contract-first execution graph with a verifier per node |
 | `learn`           | Document learnings and capture insights into CLAUDE.md                                       |
