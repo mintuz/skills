@@ -1,0 +1,19 @@
+{
+  "name": "life",
+  "version": "1.0.1",
+  "description": "Skills for personal life management.",
+  "author": { "name": "Adam Bulmer", "email": "[email protected]", "url": "https://github.com/mintuz" },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["life", "personal", "management", "planning", "documentation", "finance"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Life",
+    "shortDescription": "Goal planning workflows",
+    "longDescription": "Use the Goal, Plan, and System method to define and execute personal goals.",
+    "developerName": "Adam Bulmer",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": ["Turn this goal into a practical plan and system."]
+  }
+}

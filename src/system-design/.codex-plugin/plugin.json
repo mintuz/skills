@@ -1,0 +1,19 @@
+{
+  "name": "system-design",
+  "version": "1.4.1",
+  "description": "Skills for visualising web application architecture and relationships.",
+  "author": { "name": "Adam Bulmer", "email": "[email protected]", "url": "https://github.com/mintuz" },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["system-design"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "System Design",
+    "shortDescription": "Architecture visualisation workflows",
+    "longDescription": "Generate Mermaid diagrams from code to explain architecture and relationships.",
+    "developerName": "Adam Bulmer",
+    "category": "Developer Tools",
+    "capabilities": ["Read"],
+    "defaultPrompt": ["Map this codebase architecture with Mermaid."]
+  }
+}

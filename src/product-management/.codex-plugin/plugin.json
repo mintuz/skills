@@ -1,0 +1,20 @@
+{
+  "name": "product-management",
+  "version": "1.7.3",
+  "description": "Product management skills and tools that speed up delivery workflows.",
+  "author": { "name": "Adam Bulmer", "email": "[email protected]", "url": "https://github.com/mintuz" },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["product", "management", "planning", "roadmap", "documentation"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Product Management",
+    "shortDescription": "Product delivery workflows",
+    "longDescription": "Skills for decisions, status updates, meeting actions, and multi-story delivery.",
+    "developerName": "Adam Bulmer",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": ["Turn these notes into decisions and actions."]
+  }
+}

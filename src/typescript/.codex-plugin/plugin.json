@@ -1,0 +1,19 @@
+{
+  "name": "typescript",
+  "version": "1.0.3",
+  "description": "Skills for writing web application TypeScript.",
+  "author": { "name": "Adam Bulmer", "email": "[email protected]", "url": "https://github.com/mintuz" },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["typescript"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "TypeScript",
+    "shortDescription": "Strict TypeScript workflows",
+    "longDescription": "Schema-first TypeScript guidance for safe, maintainable application code.",
+    "developerName": "Adam Bulmer",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": ["Implement this in strict TypeScript."]
+  }
+}

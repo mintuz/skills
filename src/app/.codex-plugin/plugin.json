@@ -1,0 +1,20 @@
+{
+  "name": "app",
+  "version": "1.8.0",
+  "description": "Skills and tools for Swift app development on iOS.",
+  "author": { "name": "Adam Bulmer", "email": "[email protected]", "url": "https://github.com/mintuz" },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["swift", "ios", "architecture", "microapps", "spm"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "App",
+    "shortDescription": "Swift and iOS development workflows",
+    "longDescription": "Skills and tools for SwiftUI architecture, testing, debugging, localisation, and App Store work.",
+    "developerName": "Adam Bulmer",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": ["Help me build and verify this SwiftUI feature."]
+  }
+}

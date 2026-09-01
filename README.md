@@ -1,21 +1,30 @@
-# Claude Code Plugins
+# Claude Code and Codex Plugins
 
 Custom agents, skills, and commands for software development workflows.
 
-## Install
+## Install with Codex
+
+```bash
+codex plugin marketplace add mintuz/skills
+```
+
+Restart the ChatGPT desktop app, open the Plugins Directory, choose
+**Mintuz Skills**, and install the bundles you need.
+
+## Install with Claude Code
 
 ```bash
 # Add the marketplace
-/plugin marketplace add https://github.com/mintuz/claude-plugins
+/plugin marketplace add https://github.com/mintuz/skills
 
 # Install plugins
-/plugin install core@mintuz-claude-plugins
-/plugin install web@mintuz-claude-plugins
-/plugin install typescript@mintuz-claude-plugins
-/plugin install system-design@mintuz-claude-plugins
-/plugin install product-management@mintuz-claude-plugins
-/plugin install app@mintuz-claude-plugins
-/plugin install life@mintuz-claude-plugins
+/plugin install core@mintuz-skills
+/plugin install web@mintuz-skills
+/plugin install typescript@mintuz-skills
+/plugin install system-design@mintuz-skills
+/plugin install product-management@mintuz-skills
+/plugin install app@mintuz-skills
+/plugin install life@mintuz-skills
 ```
 
 ## Plugins
@@ -121,7 +130,9 @@ Custom agents, skills, and commands for software development workflows.
 Some plugins include MCP server configurations:
 
 - **core** - Memory MCP for persistent knowledge storage across sessions
+- **web** - Playwright MCP for browser automation and visual checks
 - **product-management** - Task Master MCP for task management workflows
+- **app** - XcodeBuildMCP and iOS Simulator MCP for app development workflows
 
 ## Using Skills with Claude Web
 
@@ -151,7 +162,10 @@ go run scripts/package-skills.go
 
 See [scripts/README.md](scripts/README.md) for more options including custom output directories and skill name prefixing.
 
-### Syncing to Codex CLI
+### Syncing individual skills to Codex CLI
+
+The marketplace installation above is the normal Codex plugin path. Use this
+script only when you want flattened, standalone skills instead.
 
 Skills can also be synced to the OpenAI Codex CLI format, making them available for use with Codex.
 

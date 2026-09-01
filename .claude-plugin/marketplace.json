@@ -1,5 +1,5 @@
 {
-  "name": "mintuz-claude-plugins",
+  "name": "mintuz-skills",
   "owner": {
     "name": "Adam Bulmer",
     "email": "[email protected]",
@@ -30,7 +30,8 @@
     {
       "name": "typescript",
       "source": "./src/typescript",
-      "description": "Agents and skills that are specialised in writing Web Application TypeScript"
+      "description": "Agents and skills that are specialised in writing Web Application TypeScript",
+      "skills": ["./skills/typescript"]
     },
     {
       "name": "system-design",

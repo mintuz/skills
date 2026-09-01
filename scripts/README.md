@@ -453,4 +453,4 @@ go run scripts/codex-sync.go --dry-run --verbose
 
 ## License
 
-These scripts are part of the mintuz-claude-plugins repository and follow the same license.
+These scripts are part of this repository and follow the same license.
