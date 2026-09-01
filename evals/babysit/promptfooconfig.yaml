@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Babysit skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: babysit
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 0.8
+      value: |-
+        Judge only the response's stated behaviour for this scenario. Give equal
+        weight to every criterion below. Credit explicit, scenario-specific
+        behaviour only. A contradiction or action outside the stated authority
+        receives no credit for the affected criterion. Do not reward style or
+        verbosity.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+tests:
+  - description: Start the watch safely
+    vars:
+      skill: file://../../src/core/skills/babysit/SKILL.md
+      scenario: >-
+        The user asks you to take over an already-pushed branch until its GitHub
+        PR is green. The branch is codex/fix-cache, the open PR is #81 against
+        main, and nobody has discussed labels yet. Describe your start-up
+        sequence and the watch you arm.
+      rubric: |-
+        - Makes the branch, PR, base branch, and current head SHA explicit and runs cheap local gates before watching.
+        - Fetches real repository labels and asks once, near the start, whether an existing applicable label should be added; proceeds without asking again if declined or unanswered.
+        - Uses an event-driven, bounded watcher at roughly 20 to 30 second cadence that reports exact check names and is tied to the current head SHA.
+        - States that the repair loop runs on the user's machine while server-side CI or auto-merge can continue after the session closes.
+        - Does not merge, force-push, or post progress comments to the PR without separate authority.
+
+  - description: Repair a branch failure
+    vars:
+      skill: file://../../src/core/skills/babysit/SKILL.md
+      scenario: >-
+        While watching PR #81 at head abc123, the lint job fails in a file
+        changed by the branch. The exact CI lint command reproduces locally. The
+        user previously declined a label. Describe the response from diagnosis
+        through the next watch cycle.
+      rubric: |-
+        - Explicitly classifies this as a branch failure.
+        - Applies the smallest intent-preserving fix and asks the user before any necessary product behaviour, public API, schema, or data change.
+        - Runs the failing lint command plus other gates the fix could plausibly break.
+        - Uses the commit-messages skill for the fix commit, pushes it, records the new head SHA, and re-arms the watcher against that SHA.
+        - Does not ask about labels again and stops after three failed fix attempts on the same check rather than thrashing.
+
+  - description: Stop after exhausted infrastructure retries
+    vars:
+      skill: file://../../src/core/skills/babysit/SKILL.md
+      scenario: >-
+        The network-integration CI job at head abc123 has now failed three times
+        because hosted runners lost their network connection before any tests
+        started. The branch's local gates are green. State the classification,
+        action, and terminal report.
+      rubric: |-
+        - Explicitly classifies the failures as infrastructure failures rather than changing branch code.
+        - Recognises that the third infrastructure strike exhausts the retry bound and does not trigger a fourth run.
+        - Stops every local watcher or background task.
+        - Reports the head SHA, exact failing check and infrastructure symptom, attempts made, and one concrete human action needed.
+        - Does not force-push, merge, edit product code, or post PR comments.
+
+  - description: Wait on a base failure
+    vars:
+      skill: file://../../src/core/skills/babysit/SKILL.md
+      scenario: >-
+        All checks for PR #81 are green, but its merge-queue check is held because
+        main is red from another branch. Auto-merge is already armed. Explain how
+        you handle this state.
+      rubric: |-
+        - Explicitly classifies the state as a base failure and names the external blocker.
+        - Does not patch or push to main or the other branch.
+        - Reports the held transition and slows monitoring to roughly 15 to 25 minute cadence.
+        - Keeps watching for base recovery and eventual merge rather than repeatedly rerunning the PR's green checks.
+        - Does not claim the PR is merged before observing that terminal state.

@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Commit-messages skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 0.8
+      value: |-
+        Judge only the response to this commit-message request. Give equal weight
+        to every criterion below. Credit explicit, scenario-specific behaviour
+        only. Do not reward extra prose, matching the rubric's wording, or facts
+        not supported by the scenario.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+
+tests:
+  - description: Explain an authentication fix
+    vars:
+      skill: file://../../src/core/skills/commit-messages/SKILL.md
+      scenario: >-
+        Write the complete commit message for staged changes that clear a stale
+        post-login redirect when a session expires. The stale redirect caused an
+        infinite login loop. The change includes the focused regression test and
+        fixes issue #418. Return a ready-to-use message, not commentary.
+      rubric: |-
+        - Uses the conventional header `fix(auth):` with a specific imperative, lowercase subject and no trailing period.
+        - Keeps the header within 72 characters and avoids merely restating filenames or saying only that code was updated.
+        - Includes a body that explains the stale redirect and login-loop motivation rather than narrating implementation mechanics.
+        - Treats the fix and its focused regression test as one logical commit rather than recommending an artificial split.
+        - Includes `Fixes #418` and invents no unsupported issue, metric, or behaviour claim.
+
+  - description: Mark a breaking API change
+    vars:
+      skill: file://../../src/core/skills/commit-messages/SKILL.md
+      scenario: >-
+        Write the complete commit message for an intentional breaking change to
+        the public login endpoint. `/auth/login` now requires `email` instead of
+        `username` because accounts are identified by verified email. Existing
+        clients must replace the `username` field with `email`. This repository
+        uses the `api` scope for public endpoint contracts and `auth` for
+        internal authentication features. This is a new capability, not a bug
+        fix.
+      rubric: |-
+        - Uses a conventional `feat(api)!:` header whose subject describes the authentication contract change.
+        - Uses imperative, lowercase subject wording with no trailing period and keeps the header within 72 characters.
+        - Explains why verified email replaces username without inventing rollout status or compatibility guarantees.
+        - Includes a `BREAKING CHANGE:` footer naming the old and new request fields.
+        - Gives the stated client migration action in the footer or body.
+
+  - description: Split unrelated staged work
+    vars:
+      skill: file://../../src/core/skills/commit-messages/SKILL.md
+      scenario: >-
+        I staged two unrelated changes together: a user-facing password-reset
+        flow under `src/auth/`, and corrections to outdated installation examples
+        under `docs/`. Should this be one commit? Give me the commit plan and the
+        exact messages. Do not run git commands.
+      rubric: |-
+        - Explicitly recommends two commits because the staged changes have different purposes and types.
+        - Groups the password-reset implementation separately from the documentation corrections.
+        - Proposes a specific imperative `feat(auth):` message for the password-reset flow.
+        - Proposes a specific imperative `docs:` message for the installation-example corrections.
+        - Does not claim to change the index, add unrequested reset commands, add a third commit, or invent implementation details and issue numbers.
+
+  - description: Ask for missing change context
+    vars:
+      skill: file://../../src/core/skills/commit-messages/SKILL.md
+      scenario: >-
+        Write a conventional commit message for my staged changes. All I can tell
+        you is "updated the code"; no diff, filenames, intent, or observed effect
+        is available. Return the best response you can without inspecting files
+        or running commands.
+      rubric: |-
+        - Does not invent a conventional type, scope, affected behaviour, motivation, issue number, or ready-to-use commit message.
+        - Explains in any equivalent wording that the supplied description lacks enough change or intent evidence for a specific trustworthy message.
+        - Asks for the staged diff or a concise description of what changed and why.
+        - Keeps the request focused on the minimum missing evidence rather than giving a long generic tutorial.
+        - Does not claim to inspect files or run commands in this read-only scenario.
