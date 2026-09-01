@@ -77,6 +77,8 @@
         "./skills/app-store-scraper",
         "./skills/app-store-keyword-ops",
         "./skills/ios-localize-copy",
+        "./skills/xcode-dev-loop",
+        "./skills/asc-screenshots",
         "./skills/local-ai-models"
       ]
     },

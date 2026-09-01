@@ -118,7 +118,7 @@ Knowledge base content...
 - **typescript:** skill `typescript-best-practices`
 - **system-design:** skill `mermaid-generator`
 - **product-management:** skills `status-updates`
-- **app:** skills `app-intent-driven-development`, `swift-testing`, `swiftui-architecture`, `debug`
+- **app:** skills `app-intent-driven-development`, `app-store-keyword-ops`, `app-store-scraper`, `asc-screenshots`, `debug`, `ios-localize-copy`, `local-ai-models`, `swift-testing`, `swiftui-architecture`, `xcode-dev-loop`
 - **life:** skill `gps-method`
 
 ## Adding New Content

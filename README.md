@@ -77,6 +77,8 @@ Custom agents, skills, and commands for software development workflows.
 | `app-store-scraper`             | Scrape iOS/macOS App Store data using iTunes/App Store APIs                                     |
 | `app-store-keyword-ops`         | Mine Astro competitor keywords and safely update locale-specific App Store fields               |
 | `ios-localize-copy`             | Localize iOS and App Store copy across every supported locale                                   |
+| `xcode-dev-loop`                | Canonical xcodebuild build/test/simulator loop: background runs, result reading, screenshots    |
+| `asc-screenshots`               | Upload App Store screenshots and previews through helm-asc: staging, locales, verification      |
 
 ### TypeScript
 
