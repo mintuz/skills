@@ -1,6 +1,6 @@
 ---
 name: swift-testing
-description: WHEN writing tests in Swift with the Swift Testing framework; NOT XCTest.
+description: WHEN writing, running, or diagnosing Swift Testing suites, including a crashing or non-reporting test target under xcodebuild; NOT XCTest; returns macro-driven test patterns and the correct way to read xcodebuild results.
 ---
 
 # Swift Testing Framework: Basics
@@ -72,6 +72,13 @@ Use `Issue.record("message")` to log and exit gracefully when continuing the tes
     #expect(result > 0)
 }
 ```
+
+## Reading Results Under xcodebuild
+
+- Swift Testing does not emit XCTest's `Test Case ... passed` lines. Treat `Executed 0 tests, with 0 failures` as the empty XCTest summary; it proves nothing about the Swift Testing run. Read the real verdict from `✔ Test run with N tests in M suites passed` together with `** TEST SUCCEEDED **`.
+- Pass `-resultBundlePath <bundle>` to every run. Read failures with `xcrun xcresulttool get test-results summary --path <bundle>`. Crash reasons such as `Test crashed with signal abrt` appear only in the result bundle.
+- Treat `The test runner hung before establishing connection` as an environmental fault. Run `xcrun simctl shutdown all`, then retry the run once.
+- Set `TEST_RUNNER_<NAME>` environment variables only for `xcodebuild test`. The `test-without-building` action ignores them silently, so a re-run can pass with a stale value.
 
 ## Best Practices Checklist
 

@@ -1,11 +1,17 @@
 ---
 name: debug
-description: WHEN users express issues with app behavior, visual appearance, or functionality in the iOS simulator collaborate on fixes with a structured feedback loop.
+description: >
+  WHEN an iOS app fails in the simulator — a build failure, a crash, a wrong
+  screenshot, or wrong behaviour — and either the user reports it or you observe
+  it yourself; NOT for Xcode project setup or writing new tests; runs a capture,
+  diagnose, propose, confirm, and verify loop.
 ---
 
 # Debug - iOS App Debugging Loop
 
 Use XcodeBuildMCP and ios-simulator MCPs to diagnose issues, capture app state, and collaborate with users on fixes. Always confirm before making changes.
+
+Run this loop for a user-reported issue and for an issue you observe yourself, such as a simulator crash, a failed build, or a wrong screenshot. If you observed the issue yourself, skip the questions to the user in steps 2 and 6. State what you observed and what the fix will be. Step 5 still applies: confirm before you change code.
 
 ## Workflow
 

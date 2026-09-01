@@ -22,6 +22,12 @@ Define how a critic can compare the real artifact with the bar:
 
 For a visual bar, fix the capture protocol alongside the reference — viewport, theme, seed data, animation state — so both sides of every comparison are captured the same way. A comparison whose two sides were captured differently returns `UNJUDGEABLE`, and the loop then repairs the inspection path instead of the artifact.
 
+When rounds capture screenshots, choose one capture mechanism for the whole run and use only that one. Number the files per round — for example `round2/01-empty-state.png` — so each round diffs cleanly against the baseline.
+
+For a visual artifact, pin the design tokens, visual motifs, and any taste constraints in the bar before round 1. A taste rejection that arrives after a `WIN` means the bar was incomplete.
+
+When the failure modes depend on scale, build or obtain a realistic-scale fixture before you set the bar. A small fixture hides the defects the loop exists to find.
+
 Name any resource limit and the allowed stop conditions. Exhaustion is a stopping reason, never evidence that the bar was met.
 
 **Complete when:** the goal, inspectable bar, comparison method, and stop policy are explicit.
@@ -66,6 +72,10 @@ Repeat build and gauntlet rounds without choosing an arbitrary round count. Main
 
 | Part | Verdict | Evidence | Largest gap | Repair |
 |---|---|---|---|---|
+
+Name a branch for the run and end each round with a commit on it. An interrupt then strands at most one round of work.
+
+State in each round's report how many rounds the run has used against the agreed budget and stop policy. The loop must end by that policy, not by a user interrupt.
 
 Stop a loop only when the artifact wins, the user stops it, the named resource limit is reached, or the remaining improvement is below the agreed materiality threshold. Record unmet gaps whenever a loop stops without winning.
 
