@@ -114,22 +114,22 @@ progress.
 
 For a branch failure:
 
-1. Reproduce locally and apply the smallest change that makes the failing
+1. Open every repair report with the counter and its bound: `Fix attempt n/3.
+   If attempt 3/3 fails, stop all watchers and return the blocker to the
+   user.`
+2. Reproduce locally and apply the smallest change that makes the failing
    check pass while preserving the branch's intent. When the honest fix
    would change product behavior, a public API, a schema, or data, report
    the options instead and await direction—that decision is the user's.
-2. Run the failing check locally until green, plus any gates the fix could
+3. Run the failing check locally until green, plus any gates the fix could
    plausibly break.
-3. Commit with `core:commit-messages`, push, re-arm the watch on the new
+4. Commit with `core:commit-messages`, push, re-arm the watch on the new
    head (step 3), and continue.
 
-If the same check fails again after a fix attempt, diagnose fresh rather
-than iterating blindly; after 3 fix attempts on one check, stop and report
-what was tried and what the check still says. A loop that thrashes
-overnight is worse than one that stops with a clear question.
+If the same check fails again, diagnose fresh rather than iterating blindly.
 
 **Complete when:** the fix is pushed and the watch is re-armed, or the
-attempt bound is hit and reported.
+attempt reaches 3/3 and the loop has stopped with the blocker reported.
 
 ## 6. Use the wait
 

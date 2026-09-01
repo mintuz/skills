@@ -9,7 +9,49 @@ This directory contains two main tools:
 1. **`package-skills.go`** - Packages skills into a zip file for uploading to Claude web (claude.ai)
 2. **`codex-sync.go`** - Syncs skills to OpenAI Codex CLI format
 
-**IMPORTANT:** Both scripts must be run from the repository root directory, not from within the `scripts/` directory.
+**IMPORTANT:** Run these scripts from the repository root directory, not from within the `scripts/` directory.
+
+---
+
+## Evaluate Skills
+
+Skill evaluations use [Promptfoo](https://www.promptfoo.dev/). Each suite compares
+the current skill with a no-skill baseline over realistic behavioural scenarios.
+
+```bash
+# Install the pinned evaluator
+pnpm install --frozen-lockfile
+
+# Validate configuration without model calls
+pnpm eval:skills:check
+
+# Run the babysit regression as a test
+pnpm test:skills
+
+# Compare baseline and skill side by side
+pnpm eval:skills
+
+# Validate and run the commit-messages suite
+pnpm eval:commit-messages:check
+pnpm test:commit-messages
+pnpm eval:commit-messages
+
+# Open the local results UI
+pnpm eval:skills:view
+```
+
+Treatment prompts read the current skill `SKILL.md`, so edits need no fixture
+update. An isolated Codex judge scores each response against the case rubric.
+The `test:*` commands run only treatments with a 0.8 gate; the full comparisons
+report baseline and treatment side by side and are informational.
+
+Promptfoo and its reports run locally, but this configuration sends the skill and
+scenario text to the model behind the existing Codex login. Change the provider to
+a local agent/model when inference must stay on the machine.
+
+This suite tests behaviour after activation. Add disposable `.agents/skills/`
+fixtures and Promptfoo's `skill-used` assertion when testing trigger selection.
+Use `skill-doctor` separately to find trigger problems in real conversation history.
 
 ---
 
