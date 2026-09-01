@@ -252,7 +252,7 @@ Based on the current marketplace configuration, the following skills will be syn
 ### Core Plugin
 
 - `commit-messages` - Git/conventional commit message guidance
-- `expectations` - Software engineering expectations and standards
+- `yagni` - Minimum sufficient execution, scope boundaries, and engineering standards
 - `learn` - Learning and knowledge building
 - `pr` - Pull request creation and review
 - `writing` - Technical writing guidance
