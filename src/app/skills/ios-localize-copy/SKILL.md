@@ -20,16 +20,16 @@ Complete when every discovered locale is classified as supported or excluded wit
 
 - Derive the target keys from the request and current diff.
 - Trace each key or source literal to its call sites. Read the surrounding UI, comments, tests, and screenshots needed to identify audience, action, feature terminology, length constraints, plural rules, and tone.
-- Record the English source, key, visible context, placeholders, URLs, Markdown link targets, and intentional whitespace for every target.
+- Record the catalog's declared source-language value, key, visible context, placeholders, URLs, Markdown link targets, and intentional whitespace for every target.
 
 When an expected key is absent from the catalog, check these extraction rules before you add the key by hand:
 
 - The catalog must be named `Localizable.xcstrings` unless every call site passes `table:` or `tableName:`. A custom catalog name is the usual reason a catalog stays empty after a build.
 - The catalog file must have target membership, and the target must set `SWIFT_EMIT_LOC_STRINGS = YES`.
 - Xcode never extracts a string that reaches the API through a plain `String` variable. Move the literal to the call site.
-- Only a build adds new keys. When `xcodebuild` alone has not picked the keys up, run `xcrun xcstringstool sync` against a Release build.
+- A build emits `.stringsdata`; `xcstringstool sync` merges those keys into the catalog. Build the owning target, locate only its emitted data, back up the catalog, then run `xcrun xcstringstool sync <catalog> --stringsdata <file> --skip-marking-strings-stale`. Use default stale deletion only when removal is explicitly in scope, and inspect the structural diff before accepting the sync.
 
-Complete when every target key has an English baseline, a verified UI meaning, and a runtime-contract signature.
+Complete when every target key has a declared source-language baseline, a verified UI meaning, and a runtime-contract signature.
 
 ## 3. Localize in context
 
@@ -44,7 +44,7 @@ Then localize:
 - Translate every target key for every supported locale using native, context-appropriate iOS and product terminology.
 - Preserve placeholder types and order, Markdown and plain URL targets, escaped characters, intentional line breaks and surrounding whitespace, source-key alignment, variations, and catalog state.
 - A translation may reorder arguments only with positional markers, such as `%1$@` and `%2$lld`. Each marker must match the conversion type of the source argument it points at. A bare `%@` may not be reordered.
-- Keep the English source authoritative. Change call sites only when required to connect the approved copy correctly, and leave unrelated catalog entries untouched.
+- Keep the catalog's declared source language authoritative. Change call sites only when required to connect the approved copy correctly, and leave unrelated catalog entries untouched.
 - Copy the catalog to a backup, then merge each value in place. A `json.dumps` round-trip is not byte-identical to Xcode's formatting, so never rewrite the file wholesale.
 
 Complete when the copy inventory has one context-correct value for every target-key and supported-locale pair.
@@ -53,7 +53,7 @@ Complete when the copy inventory has one context-correct value for every target-
 
 - Parse each modified catalog with the repository's existing validator or the smallest available JSON/plist parser.
 - Compare key and locale coverage against the inventory.
-- Compare each translation's placeholder signature and order, URL and Markdown-link targets, intentional whitespace, variations, and source-key mapping with English.
+- Compare each translation's placeholder signature and order, URL and Markdown-link targets, intentional whitespace, variations, and source-key mapping with the declared source language.
 - Inspect the structural diff for unrelated keys, locale removal, or extraction-state changes; run the narrowest relevant build or localization tests when available.
 - Re-audit each merged catalog. Report zero missing keys for each locale, and clear the `needs_review` states that the merge supersedes.
 
@@ -69,7 +69,7 @@ Complete when all modified catalogs parse, every supported locale covers every t
 
 ## 5. Run a fresh language review
 
-- Give an independent agent only the English source, localized values, locale, and verified UI context. Ask it to check meaning, grammar, naturalness, terminology, placeholders, URLs, and contextual fit for every changed value.
+- Give an independent agent only the declared source-language value, localized values, locale, and verified UI context. Ask it to check meaning, grammar, naturalness, terminology, placeholders, URLs, and contextual fit for every changed value.
 - If an independent agent is unavailable, begin a clean review pass from the inventory rather than the drafting rationale.
 - Resolve each concrete finding or report it as an explicit unresolved risk.
 

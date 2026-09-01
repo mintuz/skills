@@ -43,12 +43,16 @@ it("should submit form when user clicks submit", async () => {
   const handleSubmit = vi.fn();
   const user = userEvent.setup();
 
-  render(`
-    <form id="login-form">
+  document.body.innerHTML = `
+    <form>
       <label>Email: <input name="email" /></label>
       <button type="submit">Submit</button>
     </form>
-  `);
+  `;
+  document.querySelector("form")!.addEventListener("submit", (event) => {
+    event.preventDefault();
+    handleSubmit();
+  });
 
   await user.type(screen.getByLabelText(/email/i), "test@example.com");
   await user.click(screen.getByRole("button", { name: /submit/i }));
@@ -61,18 +65,18 @@ it("should submit form when user clicks submit", async () => {
 
 | Topic                                  | Guide                                                                       |
 | -------------------------------------- | --------------------------------------------------------------------------- |
-| Query selection priority and details   | [queries.md](queries.md)                                                    |
-| userEvent patterns and interactions    | [user-events.md](user-events.md)                                            |
-| Async testing (findBy, waitFor)        | [async-testing.md](async-testing.md)                                        |
-| MSW for API mocking                    | [msw.md](msw.md)                                                            |
-| Common mistakes and fixes              | [anti-patterns.md](anti-patterns.md)                                        |
+| Query selection priority and details   | [queries.md](references/queries.md)                                         |
+| userEvent patterns and interactions    | [user-events.md](references/user-events.md)                                 |
+| Async testing (findBy, waitFor)        | [async-testing.md](references/async-testing.md)                             |
+| MSW for API mocking                    | [msw.md](references/msw.md)                                                 |
+| Common mistakes and fixes              | [anti-patterns.md](references/anti-patterns.md)                             |
 | Accessibility-first testing principles | [accessibility-first-testing.md](references/accessibility-first-testing.md) |
 
 ## When to Use Each Guide
 
 ### Queries
 
-Use [queries.md](queries.md) when you need:
+Use [queries.md](references/queries.md) when you need:
 
 - Query priority order (getByRole → getByLabelText → ...)
 - Query variant decisions (getBy vs queryBy vs findBy)
@@ -80,7 +84,7 @@ Use [queries.md](queries.md) when you need:
 
 ### User Events
 
-Use [user-events.md](user-events.md) when you need:
+Use [user-events.md](references/user-events.md) when you need:
 
 - userEvent vs fireEvent guidance
 - userEvent.setup() pattern
@@ -88,7 +92,7 @@ Use [user-events.md](user-events.md) when you need:
 
 ### Async Testing
 
-Use [async-testing.md](async-testing.md) when you need:
+Use [async-testing.md](references/async-testing.md) when you need:
 
 - findBy queries for async elements
 - waitFor for complex conditions
@@ -97,7 +101,7 @@ Use [async-testing.md](async-testing.md) when you need:
 
 ### MSW
 
-Use [msw.md](msw.md) when you need:
+Use [msw.md](references/msw.md) when you need:
 
 - Network-level API mocking
 - setupServer pattern
@@ -105,7 +109,7 @@ Use [msw.md](msw.md) when you need:
 
 ### Anti-Patterns
 
-Use [anti-patterns.md](anti-patterns.md) when you need:
+Use [anti-patterns.md](references/anti-patterns.md) when you need:
 
 - List of all common mistakes
 - Quick reference of what NOT to do
@@ -123,10 +127,10 @@ Use [accessibility-first-testing.md](references/accessibility-first-testing.md) 
 
 Before merging UI tests, verify:
 
-- [ ] Using `getByRole` as first choice for queries
+- [ ] Keeping semantics and timing orthogonal: `getByRole` for immediate state, `findByRole` for eventual state, and `queryByRole` for absence; constrain by `name` only when the role has an accessible name, otherwise assert visible text separately
 - [ ] Using `userEvent` with `setup()` (not `fireEvent`)
 - [ ] Using `screen` object for all queries (not destructuring from render)
-- [ ] Using `findBy*` for async elements (loading, API responses)
+- [ ] Re-querying by the new role or accessible name before the next interaction when an element's accessible identity changes
 - [ ] Using `jest-dom` matchers (`toBeInTheDocument`, `toBeDisabled`, etc.)
 - [ ] Testing behavior users see, not implementation details
 - [ ] ESLint plugins installed (`eslint-plugin-testing-library`, `eslint-plugin-jest-dom`)

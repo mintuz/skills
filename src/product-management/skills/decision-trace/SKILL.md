@@ -40,9 +40,9 @@ Follow the chain as far as evidence permits:
 
 Read every discovered artifact. Cite the exact field, section, description, or commit message that connects each handoff, then grade it:
 
-- `explicit` — the downstream artifact directly names and preserves the decision;
+- `explicit` — the downstream artifact directly names and preserves the decision unchanged;
 - `inferred` — its scope aligns without a direct link;
-- `changed` — it materially alters, narrows, or contradicts the decision;
+- `changed` — it materially alters, narrows, or contradicts the decision, even when it directly links upstream;
 - `missing` — the expected handoff cannot be found.
 
 For PRs and commits, grade documentary linkage and represented scope, not code behavior. An approved specification, closed issue, merged PR, or present commit does not prove implementation correctness.
@@ -60,7 +60,7 @@ Prepare a handoff containing:
 - the implementation subject and comparison base;
 - stated exclusions, ambiguities, and unresolved authority gaps.
 
-When no authoritative downstream requirement exists, report the missing handoff instead of manufacturing acceptance criteria from the meeting.
+When no authoritative downstream requirement exists, report the missing handoff instead of manufacturing acceptance criteria from the meeting. A downstream artifact that promotes unresolved disagreement without explicit authority or supersession is not an acceptance contract; withhold the handoff until that lineage gap closes.
 
 **Complete when:** `acceptance-review` has an authoritative contract and implementation subject, or the exact missing lineage link is explicit.
 

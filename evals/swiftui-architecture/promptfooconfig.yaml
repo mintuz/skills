@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: SwiftUI architecture skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed SwiftUI architecture reaches the safe,
+        predictable outcome requested by this scenario. Give equal weight to
+        every criterion below. Credit explicit, scenario-specific ownership,
+        data-flow, and lifecycle decisions. Do not reward verbosity, copied
+        rubric wording, or invented project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep shared session ownership singular without lifting local UI state
+    vars:
+      skill: file://../../src/app/skills/swiftui-architecture/SKILL.md
+      reference: file://../../src/app/skills/swiftui-architecture/references/state-management.md
+      scenario: >-
+        Design the state ownership for a SwiftUI app whose signed-in account is
+        read and changed from three tabs and a settings sheet. The search field
+        and sheet presentation flag are used only by the settings screen. A
+        teammate proposes one ObservableObject AppViewModel singleton containing
+        the account manager, search text, and presentation flag, with every tab
+        creating it through @StateObject. Give the smallest modern SwiftUI
+        architecture and data flow; do not execute commands or invent project
+        details.
+      rubric: |-
+        - Rejects per-tab `@StateObject` ownership and gives the shared account/session service exactly one lifetime owner at the app or shared feature root.
+        - Uses an `@Observable` account/session service retained with `@State` by that owner and injected through `.environment(...)`, with consumers reading it through `@Environment(Service.self)`.
+        - Keeps the search field and sheet presentation flag as local `@State` in the settings view instead of lifting UI-only state into the shared service.
+        - Keeps shared account mutations as explicit service actions or upward actions while data flows down, rather than allowing multiple screens to own competing copies.
+
+  - description: Make type-ahead search lifecycle-bound and resistant to stale results
+    vars:
+      skill: file://../../src/app/skills/swiftui-architecture/SKILL.md
+      reference: file://../../src/app/skills/swiftui-architecture/references/async-patterns.md
+      scenario: >-
+        Design a SwiftUI type-ahead search screen. The current proposal creates a
+        SearchViewModel with ObservableObject and Combine debounce, then launches
+        an unstructured Task from onChange for every keystroke. Slow earlier
+        requests can overwrite newer results, and requests continue after the
+        screen disappears. Search text and results belong only to this screen;
+        an injected API service already exposes `search(_:) async throws`. Give
+        the smallest modern data flow and lifecycle design, including empty-query,
+        cancellation, loading, and error behavior; do not execute commands or
+        invent results.
+      rubric: |-
+        - Keeps screen-only query, results, and presentation state in local `@State`, uses the injected async API service directly, and adds neither a ViewModel nor Combine.
+        - Starts search from `.task(id: query)` so SwiftUI cancels work when the query changes or the view disappears, rather than launching unstructured tasks from `onChange`.
+        - Handles the empty query before calling the service by clearing results and returning to an idle state.
+        - Models idle/loading/loaded/failed explicitly enough that the UI cannot show stale results as a successful response to a newer query.
+        - Treats cancellation as a non-error terminal for the superseded request, propagates or checks cancellation before publishing results, and exposes a retry through the same structured async path.

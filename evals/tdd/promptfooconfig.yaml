@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: TDD skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed TDD sequence reaches every observable
+        outcome required by this scenario. Give equal weight to every outcome
+        below. Credit explicit commands, state transitions, and stopping
+        conditions rather than copied rubric wording or generic TDD advice.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Reject a false red caused by a broken test harness
+    vars:
+      skill: file://../../src/web/skills/tdd/SKILL.md
+      scenario: |-
+        You are adding `parseRetryAfter(value: string): number | null` to an
+        existing TypeScript package. The first new Vitest case expects
+        `parseRetryAfter("30")` to equal `30`, but the run fails before any
+        assertion with `Cannot find module '../src/parseRetryAfter'`. A teammate
+        says, "red is red; implement the function now and sort out the test
+        harness later." The package already has a public `index.ts` entry point,
+        a working adjacent test that imports public exports, and no request to
+        add dependencies or commit.
+
+        Return the exact RED-to-GREEN patch and command sequence you would use.
+        Include the evidence required at each transition and stop once this one
+        behavior is green; do not invent repository-specific command names.
+      rubric: |-
+        - Rejects the module-resolution error as an invalid RED because the behavior assertion never ran; it does not write production code from that failure.
+        - Repairs the test to use the package's established public entry point, then reruns only the new case and requires a failure at the intended value assertion because `parseRetryAfter` behavior is missing.
+        - Treats an unexpected pass after the harness repair as evidence that the behavior already exists or the test is ineffective, and pauses to inspect or strengthen the test instead of adding production code.
+        - Only after the valid RED, adds the smallest public implementation/export needed for the string `"30"` case; it does not add date parsing, validation branches, a dependency, or speculative retry policy.
+        - Reruns the focused case to prove GREEN and stops this slice without committing, refactoring, or adding further cases; it names the repository's existing test command as a placeholder to discover rather than inventing one.
+
+  - description: Preserve a dirty worktree while proving a regression RED
+    vars:
+      skill: file://../../src/web/skills/tdd/SKILL.md
+      scenario: |-
+        Fix a regression in `applyCredit(balance, amount)`: `amount === 0`
+        currently throws, but should return the unchanged balance. Before TDD
+        started, the working tree already contained the user's unrelated edits
+        in `src/report.ts`. Your own uncommitted attempt has already added an
+        `amount === 0` branch to `src/credit.ts`, so a new regression test would
+        pass immediately. The user explicitly says: "Use TDD, do not commit,
+        stash, reset, or touch my other changes." The existing focused test
+        command and public `applyCredit` API are known.
+
+        Return the safest patch/state and RED-GREEN-REFACTOR sequence. Explain
+        what proves each transition and what remains untouched.
+      rubric: |-
+        - Identifies the already-passing regression test as a false RED while the author's production attempt is present; it does not claim TDD evidence from that pass.
+        - Removes or reverses only the author's `src/credit.ts` attempt while preserving both the new test and the user's unrelated `src/report.ts` edits, then runs the focused test and requires the intended zero-amount behavior assertion to fail against pre-fix production behavior.
+        - Applies the smallest zero-amount fix only after that observed RED, reruns the focused test to GREEN, and runs the relevant existing regression suite before declaring the change safe.
+        - Honors the explicit no-commit, no-stash, no-reset boundary and never discards, stages, rewrites, or claims ownership of `src/report.ts`.
+        - Assesses refactoring only after GREEN and leaves the minimal branch alone when no concrete cleanup improves it; it reports the final working-tree state and test evidence without a commit.

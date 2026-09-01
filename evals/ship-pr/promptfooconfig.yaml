@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Ship PR skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the response's stated shipping behaviour for this scenario.
+        Give equal weight to every criterion below. Credit explicit,
+        scenario-specific outcomes only. A contradiction or action outside the
+        stated authority receives no credit for the affected criterion. Do not
+        reward verbosity or matching the rubric's wording.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Isolate finished work from a dirty default branch
+    vars:
+      skill: file://../../src/core/skills/ship-pr/SKILL.md
+      scenario: >-
+        The user says, "Ship the finished cache-key fix; whatever else is here
+        can come along if that is quicker." The current branch is main and is
+        two commits behind origin/main. The working tree contains the finished
+        cache-key change in `src/cache.ts` with its focused test in
+        `test/cache.test.ts`, an unrelated half-finished experiment already
+        staged in `src/search.ts`, and untracked personal notes. No local checks
+        have run and there is no pull request. Describe how you take this to a
+        ready pull request.
+      rubric: |-
+        - Defines the ship set as the finished cache-key change and its focused test; the half-finished search experiment and personal notes remain uncommitted and byte-for-byte preserved.
+        - Establishes current repository instructions, remotes, GitHub authentication, and the actual base before publishing; it does not build the PR on a knowingly stale local main.
+        - Creates a focused feature branch rather than committing or pushing on main, stages only the two cache files, and verifies the staged diff before committing.
+        - Runs the relevant local checks before the commit and fixes only failures caused by the cache-key ship set without absorbing the unrelated experiment.
+        - Uses the commit-messages skill for an atomic why-first commit and the PR skill for a reviewer-first ready PR, then verifies that the remote head matches local HEAD and exactly one open PR has the intended base and head.
+
+  - description: Separate a mechanical CI repair from a data-contract decision
+    vars:
+      skill: file://../../src/core/skills/ship-pr/SKILL.md
+      scenario: >-
+        The branch is pushed and PR #204 targets main at head abc123. One CI job
+        reports a deterministic formatter failure in a branch-changed file.
+        Another reports that a new `email` column breaks compatibility: either
+        nullable values must become part of the public data contract or existing
+        rows must be backfilled, and the repository records no decision between
+        those outcomes. The user only said "ship this" and is now away. Explain
+        what you do from these failures until the workflow can legitimately end.
+      rubric: |-
+        - Reproduces the formatter failure, applies only the mechanical formatting repair, proves it with the failing check plus relevant local gates, commits through commit-messages, and pushes normally.
+        - Re-queries PR #204 after the push, observes the replacement head SHA, and treats all checks and mergeability for abc123 as stale before resuming bounded polling.
+        - Classifies the nullable-versus-backfill choice as substantial because it changes a public data contract or stored data; it presents the failing evidence and concrete options, then waits for explicit user direction instead of choosing one.
+        - Keeps the feature branch recoverable while blocked: no force push, shared-history rewrite, speculative schema repair, base-branch push, or `gh pr merge` follows from the phrase "ship this."
+        - Treats green checks as intermediate, reports review or protection gates without bypassing them, and ends only after GitHub reports a non-null `mergedAt`; absence of the user is a wait state rather than permission to merge.

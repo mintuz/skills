@@ -20,6 +20,10 @@ Treat invocation as authorization to commit the in-scope changes, push their bra
 
 Read repository instructions, then inspect the worktree, staged changes, branch, remotes, base branch, and GitHub authentication. Separate the intended change from unrelated user work and preserve the latter unstaged. If the current branch is the default branch, create a focused feature branch following repository naming conventions.
 
+**Publication preflight:** read the applicable repository instructions, list the
+configured remotes, verify GitHub authentication, fetch the intended base, and
+branch from the observed remote base rather than a known-stale local default branch.
+
 Run the repository's relevant local checks before committing. Fix only failures caused by the ship set and within its existing intent.
 
 **Complete when:** the ship set and base branch are unambiguous, every intended file is accounted for, unrelated work is preserved, GitHub authentication works, and relevant local checks pass.
@@ -34,9 +38,12 @@ Use `core:commit-messages` to decide whether the ship set is one atomic commit o
 
 Push the current branch with an upstream. Reuse its open pull request when one exists; otherwise use `core:pr` and `gh pr create` to create a ready-for-review pull request unless the user or repository policy requires a draft. Derive the PR from the complete base-to-head diff and commit history.
 
-Verify the PR URL, base, head branch, state, and head SHA with `gh pr view`.
+After the initial push and every later push, run a **head checkpoint**: require local `HEAD`, its upstream, and the PR head SHA to match; confirm exactly one open pull request has the intended base and head; then bind checks, mergeability, and the next bounded poll only to that SHA. Every prior-SHA verdict is stale.
 
-**Complete when:** the remote head matches the local head and exactly one open pull request represents the ship set.
+After each checkpoint, state the bounded wait or polling cadence that resumes for
+that SHA; never describe the renewed watch as an unbounded loop.
+
+**Complete when:** the head checkpoint passes.
 
 ## 4. Escort until merge
 
@@ -51,13 +58,16 @@ React to each observation:
 | Substantial CI failure | Report the failing job, root-cause evidence, and resolution options with tradeoffs; await direction, then resume the loop. |
 | Minor merge conflict | Fetch the base, inspect both intents, update the feature branch by repository policy (merge the base when no policy exists), resolve only the unambiguous hunks, run relevant checks, commit with `core:commit-messages`, push, and restart the loop. |
 | Substantial merge conflict | Keep the branch recoverable; report each conflicting intent and concrete resolution options with tradeoffs; await direction, then resume the loop. |
-| Required checks successful | Report that the PR is ready and keep polling for the user's merge. |
+| Checks successful with no review or protection gate | Report that the PR is ready and keep polling for the user's merge. |
 | Review or protection gate | Report the external action required and keep polling. |
 | Closed without merge | Report the terminal blocker with the PR URL and last known checks. |
 | Merged | Report the PR URL and merge commit, then finish. |
 
 A repair is **minor** only when it is localized, mechanical, intent-preserving, and verified by the failing check—for example formatting, lint autofixes, or an unambiguous adjacent-line conflict. Treat product behavior, public APIs, schemas, data, security, dependency strategy, broad cross-file conflicts, and multiple plausible outcomes as **substantial**.
 
-Re-query after every push because checks and mergeability belong to a specific head SHA. Green checks are an intermediate state.
+Green checks are an intermediate state.
+
+A ready claim requires observed review and branch-protection state as well as
+checks. Report any review or protection gate explicitly and keep waiting.
 
 **Complete only when:** GitHub reports a non-null `mergedAt` for the pull request.

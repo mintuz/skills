@@ -134,13 +134,14 @@ func perform() async throws -> some IntentResult & ProvidesDialog {
 
 @MainActor
 private func selectedBenchmarkLap(for run: BenchmarkRun) async throws -> BenchmarkLapEntity {
-    if let benchmarkLap {
-        return benchmarkLap
-    }
-
     let candidates = try SaveDecisionModule.snapshot(for: run)
         .candidates
         .map(BenchmarkLapEntity.init)
+
+    if let benchmarkLap,
+       let current = candidates.first(where: { $0.id == benchmarkLap.id }) {
+        return current
+    }
 
     return try await $benchmarkLap.requestDisambiguation(
         among: candidates,
@@ -150,7 +151,7 @@ private func selectedBenchmarkLap(for run: BenchmarkRun) async throws -> Benchma
 ```
 
 - Build disambiguation candidates after resolving the current run/profile. Do not rely on a global entity query for context-sensitive choices.
-- If the Shortcuts editor should show a dropdown, use `DynamicOptionsProvider` with `@IntentParameterDependency` on the parameters that define the context. Still keep runtime disambiguation as the final guard.
+- If the Shortcuts editor should show a dropdown, use `DynamicOptionsProvider` with `@IntentParameterDependency` on the parameters that define the context. At runtime, rebuild the scoped candidates and accept a supplied entity only when its id is still present; otherwise disambiguate again.
 - Keep the entity identifier aligned with the domain candidate identifier so selected values map back to the save/resolve module without guessing.
 - Do not assume `requestValue` on an optional parameter will produce the desired editor or runtime behavior. Use `requestDisambiguation` when there are scoped candidates to choose from.
 

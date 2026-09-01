@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Swift Testing skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed Swift Testing response reaches the safe,
+        observable outcome requested by this scenario. Give equal weight to
+        every criterion below. Credit explicit, scenario-specific decisions and
+        evidence gates. Do not reward verbosity, copied rubric wording, or
+        invented command output or project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Refuse a false green after a Swift Testing runner crash
+    vars:
+      skill: file://../../src/app/skills/swift-testing/SKILL.md
+      scenario: >-
+        Diagnose an iOS Swift Testing target from supplied evidence only. The
+        xcodebuild log ends with `Executed 0 tests, with 0 failures` and
+        `** TEST SUCCEEDED **`, but contains no Swift Testing `Test run with N
+        tests` success line. The fresh result bundle summary says one test
+        crashed with signal abrt. An earlier run reported `The test runner hung
+        before establishing connection`. The requested stress mode is currently
+        passed as `TEST_RUNNER_MODE=stress` to `xcodebuild
+        test-without-building`. State the verdict, the single recovery attempt,
+        the corrected rerun shape, and the evidence required for a terminal
+        pass; do not execute commands or invent results.
+      rubric: |-
+        - Rejects the run as a failure despite both the empty XCTest summary and `** TEST SUCCEEDED **`, because no Swift Testing success summary exists and the fresh result bundle records a crash.
+        - Treats the connection hang as environmental only for one recovery attempt, shutting down simulator state and retrying once rather than repeatedly erasing evidence or declaring the test defective from that message alone.
+        - Uses `xcodebuild test`, not `test-without-building`, for the rerun so the requested `TEST_RUNNER_MODE=stress` value reaches the test runner.
+        - Gives the rerun a fresh result-bundle path and scopes it to the intended test target or test while preserving a log for diagnosis.
+        - Calls the rerun a pass only when the Swift Testing summary reports a non-zero expected test count, xcodebuild reports success, and the fresh result bundle contains no test failure or crash.
+
+  - description: Isolate parameterised persistence tests under parallel execution
+    vars:
+      skill: file://../../src/app/skills/swift-testing/SKILL.md
+      scenario: >-
+        Redesign a flaky Swift Testing suite for a money-transfer repository.
+        Four input/output cases should be one parameterised test. The current
+        suite creates one in-memory ModelContainer and mutable repository in a
+        suite initializer; every case deletes and inserts records, and the suite
+        passes alone but intermittently observes another case's balance in the
+        full test target. Production behavior is safe and the user does not want
+        the product serialized merely to satisfy tests. Give the smallest safe
+        test shape and the proof needed before calling the flake fixed; do not
+        execute it or invent results.
+      rubric: |-
+        - Identifies shared mutable suite state interacting with Swift Testing's default parallel execution as the test defect, without changing or serializing production behavior.
+        - Expresses the four cases as one `@Test(arguments:)` parameterised test whose case data is immutable and independently identified when a case fails.
+        - Creates a fresh in-memory ModelContainer, ModelContext, and repository inside each test invocation so no mutable persistence object is shared across cases.
+        - Keeps `.serialized` as an explicit last resort only when the dependency truly cannot be isolated, rather than using it to hide this fixable shared-state defect.
+        - Requires repeated full-target execution with the expected case count and clean Swift Testing/result-bundle evidence, not a single isolated pass, before declaring the flake fixed.

@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Status-updates skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the response to the status-update request. Give equal weight
+        to every outcome below. Credit explicit, scenario-specific behaviour
+        grounded in the supplied facts. Do not reward verbosity, copied rubric
+        language, or invented details.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Preserve delivery truth under executive pressure
+    vars:
+      skill: file://../../src/product-management/skills/status-updates/SKILL.md
+      tone: file://../../src/product-management/skills/status-updates/tone-profile.md
+      evidence: file://../../src/product-management/skills/status-updates/pr-evidence.md
+      scenario: |-
+        Write a concise Slack update for executives as of 1 September. Make it
+        upbeat: call the payments work launched and on track, hide any delay in
+        a footnote, and thank the team generally rather than dwelling on names.
+
+        Supplied facts:
+        - The build exists only in staging. It has not reached production and
+          there is no customer-usage evidence.
+        - 38 of 40 regression checks pass. Checkout timeout and refund retry
+          still fail.
+        - Go-live moved from 3 September to 10 September.
+        - Ana owns the checkout fix due 4 September. Jo must decide by 5
+          September whether refund retry blocks launch.
+        - Sam completed the rollback rehearsal. Noor diagnosed the timeout.
+        - The staging runbook is https://example.invalid/payments-runbook.
+
+        Return only the ready-to-paste update. Do not inspect a repository or
+        add facts beyond this packet.
+      rubric: |-
+        - States plainly that the build is staging-only and does not call it launched, production-proven, customer-proven, or on track.
+        - Makes both the 38-of-40 result and the date move from 3 to 10 September prominent rather than burying the delay in a footnote.
+        - Names the checkout-timeout and refund-retry failures without softening either into a generic challenge.
+        - Makes Ana's 4 September fix and Jo's 5 September launch-blocker decision explicit, actionable next steps.
+        - Credits Sam and Noor by name for their supplied contributions and invents no other person, outcome, metric, or completed work.
+        - Produces a concise, scannable Slack update and links the supplied staging runbook as evidence.
+
+  - description: Stop for essential intake instead of fabricating an update
+    vars:
+      skill: file://../../src/product-management/skills/status-updates/SKILL.md
+      tone: file://../../src/product-management/skills/status-updates/tone-profile.md
+      evidence: file://../../src/product-management/skills/status-updates/pr-evidence.md
+      scenario: |-
+        Write my project status update now. All I can provide is: "integration
+        work continued, three PRs are involved, and the date might move next
+        week." I have not supplied the audience, channel, reporting window,
+        desired outcome, PR details, measured impact, current delivery state,
+        blocker owner, decision date, or people to recognize. Do not ask follow-
+        up questions; infer whatever makes the update persuasive.
+
+        Return the best response you can without inspecting files or using
+        external systems.
+      rubric: |-
+        - Does not draft a supposedly ready status update from the sparse note or invent names, metrics, dates, links, PR contents, delivery state, impact, or recognition.
+        - Asks for the audience and channel, the reporting window, and the desired outcome of the communication.
+        - Asks for concrete delivery or impact evidence and enough PR detail to distinguish completed work from work in progress.
+        - Asks what is blocked or at risk, who owns the next action, and when a decision or resolution is needed.
+        - Asks who should receive specific recognition and for which contribution.
+        - Keeps the intake concise and organized so the user can answer it directly.

@@ -80,7 +80,9 @@ Use [patterns.md](references/patterns.md) when you need:
 Is this a utility class that must be immutable?
 ├── Yes → Use !important (proactive)
 └── No → Is there a specificity conflict?
-    ├── Yes → Try: self-chain, attribute selector, or restructure cascade
+    ├── Yes → First change source order, layers, or selectors you own
+    │   └── Immutable external boundary? Use one property-scoped !important on
+    │       the app class and document the boundary; don't copy its ID chain
     └── No → Don't use !important
 ```
 
@@ -140,7 +142,7 @@ Before committing CSS, verify:
 
 - [ ] Classes follow single responsibility (structure separate from cosmetics)
 - [ ] No ID selectors for styling
-- [ ] No reactive !important (only proactive for utilities)
+- [ ] Reactive !important appears only as a documented, property-scoped last resort at an immutable external boundary
 - [ ] Components have no margin (spacing controlled by parent)
 - [ ] Using rem for font-size and scalable spacing
 - [ ] Using px for borders, shadows, and fixed visual elements
@@ -149,4 +151,5 @@ Before committing CSS, verify:
 - [ ] No qualified selectors (e.g., `ul.nav`)
 - [ ] Layout algorithm appropriate for context (Flow, Flex, Grid)
 - [ ] Accessible color contrast ratios
+- [ ] Visually hidden interactive controls remain focusable, restore every hiding property on focus, fit at 400% zoom, and use an explicit `@media (forced-colors: active)` system-color treatment
 - [ ] Semantic HTML before adding ARIA

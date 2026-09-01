@@ -5,23 +5,23 @@ description: WHEN users express dissatisfaction with visual appearance or behavi
 
 # Eyes - Visual Feedback Loop
 
-Capture screenshots and collaborate with users on visual refinements. Always confirm before making changes.
+Capture screenshots and collaborate with users on visual refinements. Treat specific feedback and explicit implementation approval in the user's current request as already supplied.
 
 Use the capture tool ladder below to take the screenshots. Do not skip this skill when Playwright MCP is unavailable.
 
 ## Workflow
 
-1. **Capture current state** — Capture the current page or element with the first available tool in the capture tool ladder, to better understand the users questions or requirements.
+1. **Capture the reported state** — Reproduce the route, viewport, theme, data, and interaction state with the first available tool in the capture ladder. For narrow Chrome captures, satisfy the mobile-fidelity requirement below before trusting the image. For focus- or interaction-dependent states, record an accessibility snapshot or equivalent state evidence. Report unavailable evidence as a proof gap.
 
-2. **Gather specific feedback** — Ask what needs adjustment: "Looking at this screenshot, what specifically would you like changed?"
+2. **Gather specific feedback** — If the user has not already specified the intended result, ask: "Looking at this screenshot, what specifically would you like changed?"
 
 3. **Propose changes clearly** — Describe intended modifications with specifics:
    - Bad: "I'll fix the spacing"
    - Good: "I'll increase the gap between cards from 16px to 24px and add 32px padding to the container"
 
-4. **Confirm before implementing** — Use AskUserQuestion to get explicit approval. Never modify code without confirmation.
+4. **Confirm before implementing** — When the current request does not already authorize implementation, use the user-question tool to get explicit approval.
 
-5. **Verify with comparison** — After changes, capture a new screenshot to confirm the fix has been made.
+5. **Verify with comparison** — Recreate the same route, viewport, theme, data, and interaction state after changes, then capture a new screenshot and the same state evidence. Keep any unavailable runtime proof explicit.
 
 ## Capture Tool Ladder
 

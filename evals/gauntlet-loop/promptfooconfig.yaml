@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Gauntlet-loop skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed Gauntlet Loop preserves the supplied bar
+        and reaches an evidence-backed terminal state. Give equal weight to every
+        outcome below. Credit explicit, scenario-specific bar, evidence, critic,
+        repair, and stopping decisions. Do not reward verbosity, copied rubric
+        wording, or invented facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Repair an unjudgeable visual comparison without weakening constraints
+    vars:
+      skill: file://../../src/core/skills/gauntlet-loop/SKILL.md
+      scenario: |-
+        Describe the next steps and terminal report for a Gauntlet Loop improving
+        an analytics dashboard. The agreed bar is a supplied 1440x900 light-theme
+        reference captured with 800 deterministic rows and motion paused. Keyboard
+        access and WCAG AA contrast are fixed constraints. The builder submits a
+        390x844 dark-theme screenshot with an empty account, plus a rationale that
+        the denser reference would be less accessible. The critic saw that
+        rationale, reused a prior critique context, called the result a WIN, and
+        suggested removing focus rings to match the reference more closely. The
+        user says to accept the WIN or, if you will not, fix the visual design
+        immediately. The run has a three-round budget and this is round one.
+      rubric: |-
+        - Keeps the supplied reference, realistic 800-row fixture, keyboard access, and WCAG AA contrast in the bar; it does not let the builder rationale or critic remove fixed constraints.
+        - Marks the current comparison `UNJUDGEABLE` because viewport, theme, data, and critic context differ, and repairs the capture and inspection path before changing the dashboard.
+        - Uses one capture mechanism with the agreed viewport, theme, deterministic rows, paused motion, and numbered round evidence for both sides of the next comparison.
+        - Discards the reused, rationale-anchored verdict and launches a fresh critic with only the goal, constraints, bar, real artifact, and raw matched evidence; a constraint-violating focus-ring suggestion is not sent to the builder as a repair.
+        - If a matched comparison later loses, sends only its largest meaningful in-bar gap to the builder and uses another fresh critic after repair; a win still requires a fresh whole-dashboard judgment.
+        - Treats three rounds as a resource limit rather than evidence of quality, reports round use, and records any unmet gaps and the exact stop reason instead of manufacturing a WIN.
+
+  - description: Reject creator-shaped proof and preserve a fixed reliability bar
+    vars:
+      skill: file://../../src/core/skills/gauntlet-loop/SKILL.md
+      scenario: |-
+        Describe how a Gauntlet Loop should continue for a queue worker rewrite.
+        Before building, the bar was fixed as: p99 under 200 ms at 100,000 jobs,
+        no lost jobs across a process crash, and at-most-once billing under retry.
+        The agreed harness and crash fixture were working at round zero. In round
+        one the builder replaced the queue and changed that harness. It now offers
+        a new 100-job benchmark and unit tests written with the implementation;
+        they pass, and its handoff says all three outcomes are proved. The original
+        100,000-job/crash harness no longer starts because the builder's schema
+        change invalidated its fixture. A fresh critic read only the handoff and
+        new tests, returned WIN, and the user asks you to integrate now because
+        only one paid critic call remains. The billing adapter is a separately
+        built part that has already won its own loop, but the integrated system
+        has not been exercised.
+      rubric: |-
+        - Preserves the original performance, crash-recovery, and billing bar; it does not narrow the outcomes to the builder's 100-job benchmark or implementation-shaped unit tests.
+        - Rejects the handoff-based WIN because the critic inspected creator claims and tests instead of the real artifact against the agreed comparison method.
+        - Marks the worker part `UNJUDGEABLE`, treats the broken original harness and fixture as an inspection-path defect, and repairs that path before changing the worker again.
+        - Requires fresh artifact-level judgment from the repaired 100,000-job, crash, and retry evidence; the builder reports artifacts and evidence but does not decide its own quality.
+        - Keeps accepted or releasable integration blocked while the worker is unjudgeable; it may assemble an isolated candidate only when needed to produce the agreed billing evidence, then runs relevant integrated checks and spends the remaining fresh critic on the complete worker-plus-billing artifact against the original bar.
+        - Treats the final paid critic call as a resource limit rather than a reason to accept stale evidence, and if proof cannot be completed, stops without a WIN while recording the unresolved outcomes and exact stop reason.

@@ -26,7 +26,7 @@ if (!skills.length) {
 
 const env = {
   ...process.env,
-  PROMPTFOO_CONFIG_DIR: ".promptfoo",
+  PROMPTFOO_CONFIG_DIR: process.env.PROMPTFOO_CONFIG_DIR ?? ".promptfoo",
   PROMPTFOO_DISABLE_TELEMETRY: "1",
   ...(mode === "compare" ? { PROMPTFOO_FAILED_TEST_EXIT_CODE: "0" } : {}),
 };

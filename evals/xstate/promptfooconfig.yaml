@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: XState skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the XState response reaches every observable outcome
+        required by this scenario. Give equal weight to every outcome below.
+        Credit concrete XState 5 logic and explicit lifecycle reasoning rather
+        than copied rubric wording, verbosity, or invented project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Replace a reconnecting subscription without accepting stale generations
+    vars:
+      skill: file://../../src/web/skills/xstate/SKILL.md
+      modelling: file://../../src/web/skills/xstate/references/modelling.md
+      lifecycles: file://../../src/web/skills/xstate/references/lifecycles.md
+      testing: file://../../src/web/skills/xstate/references/testing.md
+      diagramming: file://../../src/web/skills/xstate/references/diagramming.md
+      scenario: |-
+        Implement the smallest XState 5 machine factory for a mounted market-price
+        panel. `openFeed(symbol)` returns a handle with `subscribe(listener)`,
+        `unsubscribe()`, and `close()`. A symbol change must replace the current
+        feed. The old handle can still deliver one buffered price after close.
+        A feed error waits for an injected retry delay, then reconnects. Changing
+        symbol or sending `STOP` during that delay must prevent the retry. The UI
+        needs only the current symbol, last accepted price, and lifecycle status.
+
+        Return typed machine code plus the smallest actor-boundary tests that prove
+        stale delivery, retry cancellation, and teardown. Do not add a dependency,
+        put a live handle in context, or use React effects to own the feed.
+      rubric: |-
+        - Returns an XState 5 typed machine factory whose injected ports include feed creation and retry timing, with serialisable context and no live feed handle in context.
+        - Owns opening, subscription, unsubscription, and close together inside an invoked callback actor, and its disposer makes both replacement and parent stop release the resource exactly once.
+        - Gives each feed generation an identity echoed in price/error events and accepts a price only when both symbol and generation still match, so a buffered event from the replaced handle is harmless.
+        - Models retry as lifecycle state/time owned by the machine; symbol change and `STOP` leave that lifecycle so its delayed reconnect cannot start.
+        - Uses focused actor-derived lifecycle status rather than mirrored loading/error booleans, and supplies actor-boundary tests that explicitly prove stale delivery is ignored, retry is cancelled by symbol change or stop, and teardown is counted.
+
+  - description: Confirm optimistic completion only after matching authoritative convergence
+    vars:
+      skill: file://../../src/web/skills/xstate/SKILL.md
+      modelling: file://../../src/web/skills/xstate/references/modelling.md
+      lifecycles: file://../../src/web/skills/xstate/references/lifecycles.md
+      testing: file://../../src/web/skills/xstate/references/testing.md
+      diagramming: file://../../src/web/skills/xstate/references/diagramming.md
+      scenario: |-
+        Design an XState 5 machine for one editable document. `SAVE` creates a
+        command ID and optimistically shows the submitted title. The transport
+        later emits `COMMAND_ACCEPTED { commandId, version }`; a separate document
+        stream emits `DOCUMENT_OBSERVED { commandId, version, title }`. Either can
+        arrive first. A save is complete only when the matching observed version is
+        at least the accepted version. A second `SAVE` supersedes the first, whose
+        late acceptance or observation must not alter the current attempt.
+
+        Return the typed lifecycle and a legal `stateDiagram-v2` diagram. Include
+        the public actor tests needed for both arrival orders, stale command IDs,
+        and non-increasing observed versions. Keep transport acceptance,
+        authoritative truth, and rendered status distinct.
+      rubric: |-
+        - Models `idle`, an in-flight/converging lifecycle, and completion as mutually exclusive states while context separately stores the current command ID, accepted version, latest authoritative observed version/title, and optimistic title needed across states.
+        - On every `SAVE`, creates a fresh identity and resets attempt-scoped acceptance/observation fields; all acceptance and observation handling is fenced by the current command ID.
+        - Stores acceptance and matching authoritative observation independently, rechecks convergence after either arrival order, and reaches completion only when observed version is greater than or equal to accepted version.
+        - Rejects nonmatching command IDs and non-increasing observations without corrupting current authoritative or optimistic data; it never treats transport acceptance alone as completion.
+        - Supplies public actor tests for acceptance-first, observation-first, a superseded command's late events, and non-increasing observations, plus a syntactically legal `stateDiagram-v2` diagram whose transitions match the implementation and whose validation status is reported accurately.

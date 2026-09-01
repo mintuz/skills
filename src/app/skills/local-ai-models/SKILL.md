@@ -20,12 +20,13 @@ Production-ready guide for implementing on-device AI models in iOS apps using Ap
 
 ## Core Principles
 
-1. **Availability First** - Always check model availability before initialization
-2. **Stream Responses** - Provide progressive UI updates for better UX
-3. **Session Persistence** - Reuse LanguageModelSession for multi-turn conversations (Foundation Models)
-4. **Memory Awareness** - Use quantized models and monitor memory usage
-5. **Async Everything** - Load models asynchronously, never block the main thread
-6. **Locale Support** - Use supportsLocale(_:) and locale instructions for Foundation Models
+1. **Compatibility Gate** - Before selecting a framework, verify current SDK/OS compile availability and runtime Apple Intelligence eligibility, model readiness, and locale support against authoritative SDK/platform sources and every required deployment target and device. Runtime availability checks cannot satisfy an incompatible deployment or device promise.
+2. **Single-Flight Streaming** - Give one isolation boundary ownership of each conversation's session, transcript, and generation task. Queue or reject overlapping sends; Stop and teardown cancel and await that task, the stream checks cancellation, and only a completed response becomes a transcript turn.
+3. **Session Persistence** - Reuse LanguageModelSession across completed turns and keep partial streaming text separate from committed history.
+4. **Memory Awareness** - Use quantized models and monitor memory usage.
+5. **Async Everything** - Load models asynchronously, never block the main thread.
+6. **Device Proof** - Before calling the design viable, exercise support boundaries and generation lifecycle in focused tests, then verify a Release build on the oldest or lowest-memory required physical device, including offline operation when the product promises on-device behavior.
+7. **Locale Support** - Use supportsLocale(_:) and locale instructions for Foundation Models.
 
 ## Quick Reference
 
@@ -65,14 +66,14 @@ Production-ready guide for implementing on-device AI models in iOS apps using Ap
 ### Which framework should I use?
 
 ```
-Do you need advanced features like:
-- Vision Language Models (VLMs)
-- Image generation
-- Custom models beyond the system model
-├── Yes → MLX Swift (references/mlx-swift/)
-└── No → Is this a standard chat interface?
-    ├── Yes → Foundation Models (simpler, recommended)
-    └── No → Check framework-selection.md for guidance
+Can Foundation Models compile for the required deployment target and run on
+every device the feature promises to support?
+├── No → Can a suitable MLX model meet the same device floor?
+│   ├── Yes → MLX Swift (prove memory, latency, and output on that floor)
+│   └── No → The requirements are infeasible; change the support contract
+└── Yes → Do you need VLMs, image generation, or custom models?
+    ├── Yes → MLX Swift (references/mlx-swift/)
+    └── No → Foundation Models (references/foundation-models/)
 ```
 
 ### Where should I start?

@@ -94,8 +94,8 @@ Responses include three components:
   // Optional narration
   content: [{ type: "text", text: "Narration" }],
 
-  // Widget-only data (never exposed to model)
-  _meta: { /* large, sensitive data */ }
+  // Widget-only presentation data (never credentials or diagnostics)
+  _meta: { /* data the widget needs */ }
 }
 ```
 
@@ -143,13 +143,16 @@ return {
 
 ### Error Handling
 
-Return user-friendly errors in `content`, technical details in `_meta`:
+Return user-friendly errors with an opaque correlation ID; log diagnostics server-side:
 
 ```typescript
 try {
   const data = await fetchData();
   return { structuredContent: data };
 } catch (error) {
+  const correlationId = crypto.randomUUID();
+  console.error({ correlationId, error });
+
   return {
     content: [
       {
@@ -158,16 +161,23 @@ try {
       },
     ],
     _meta: {
-      error: error.message,
-      stack: error.stack,
+      correlationId,
     },
   };
 }
 ```
 
+### Replay-Safe Side Effects
+
+For a retryable side effect, persist an idempotency record keyed by authenticated
+account, operation, and stable request ID. Store an input fingerprint and the
+terminal result. Coordinate the record atomically with the state transition or
+the provider idempotency key; replay the same fingerprint and reject changed
+arguments for the same key. An in-memory map is not durable across restarts.
+
 ### Security
 
-- Never embed secrets in visible payloads
+- Keep credentials and diagnostics server-side; `_meta` is widget-visible
 - Enforce auth server-side
 - Configure CSP via `openai/widgetCSP`
 - Validate all tool inputs with schemas

@@ -5,7 +5,7 @@ prompts:
   - id: file://prompts/baseline.txt
     label: baseline
   - id: file://prompts/with-skill.txt
-    label: babysit
+    label: with-skill
 
 providers:
   - id: openai:codex-sdk
@@ -26,7 +26,7 @@ defaultTest:
   assert:
     - type: agent-rubric
       metric: rubric
-      threshold: 0.8
+      threshold: 1
       value: |-
         Judge only the response's stated behaviour for this scenario. Give equal
         weight to every criterion below. Credit explicit, scenario-specific
@@ -38,41 +38,50 @@ defaultTest:
       provider:
         id: openai:codex-sdk
         config:
+          working_dir: ./workspace
           skip_git_repo_check: true
           sandbox_mode: read-only
           approval_policy: never
           network_access_enabled: false
           web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
 tests:
-  - description: Start the watch safely
+  - description: Start while the user is about to leave
     vars:
       skill: file://../../src/core/skills/babysit/SKILL.md
       scenario: >-
         The user asks you to take over an already-pushed branch until its GitHub
         PR is green. The branch is codex/fix-cache, the open PR is #81 against
-        main, and nobody has discussed labels yet. Describe your start-up
-        sequence and the watch you arm.
+        main, and nobody has checked which labels exist. They plan to close this
+        agent session in five minutes and assume the repair loop will keep
+        working in the cloud. Describe your start-up sequence and the watch you
+        arm.
       rubric: |-
-        - Makes the branch, PR, base branch, and current head SHA explicit and runs cheap local gates before watching.
-        - Fetches real repository labels and asks once, near the start, whether an existing applicable label should be added; proceeds without asking again if declined or unanswered.
-        - Uses an event-driven, bounded watcher at roughly 20 to 30 second cadence that reports exact check names and is tied to the current head SHA.
-        - States that the repair loop runs on the user's machine while server-side CI or auto-merge can continue after the session closes.
-        - Does not merge, force-push, or post progress comments to the PR without separate authority.
+        - Establishes one unambiguous target before waiting: PR #81, codex/fix-cache, main, and the observed head SHA; cheap repository gates run before the first remote wait.
+        - Treats labels as repository data rather than guesses: lists the real labels, offers only applicable existing choices once, and can continue after a decline or no reply.
+        - Arms a bounded current-head monitor that reacts within about 20 to 30 seconds and returns named check failures, so a later push cannot inherit a stale verdict.
+        - Corrects the user's cloud assumption: closing the local session stops active diagnosis and repair, while already-started CI or armed auto-merge may continue server-side.
+        - The stated plan contains no unrequested merge, history rewrite, base-branch push, or PR progress comments. An explicit denial is unnecessary; fail this criterion only if the response proposes one of those actions.
 
-  - description: Repair a branch failure
+  - description: Repair a repeatable branch-owned lint failure
     vars:
       skill: file://../../src/core/skills/babysit/SKILL.md
       scenario: >-
         While watching PR #81 at head abc123, the lint job fails in a file
-        changed by the branch. The exact CI lint command reproduces locally. The
+        changed by the branch. The exact CI lint command reproduces locally.
+        This is fix attempt 2 of 3; attempt 1 was a different diagnosis. The
         user previously declined a label. Describe the response from diagnosis
         through the next watch cycle.
       rubric: |-
-        - Explicitly classifies this as a branch failure.
-        - Applies the smallest intent-preserving fix and asks the user before any necessary product behaviour, public API, schema, or data change.
-        - Runs the failing lint command plus other gates the fix could plausibly break.
-        - Uses the commit-messages skill for the fix commit, pushes it, records the new head SHA, and re-arms the watcher against that SHA.
-        - Does not ask about labels again and stops after three failed fix attempts on the same check rather than thrashing.
+        - Uses the local reproduction and branch-touched file as evidence that this is branch-owned, rather than spending an infrastructure retry.
+        - Reports attempt 2/3, diagnoses this occurrence afresh, and makes the narrowest change that preserves the branch's intended behaviour; a newly discovered API, schema, data, or product decision is returned to the user instead of guessed.
+        - Proves the repair with the CI lint command and any directly exposed gates before publishing it.
+        - Creates the repair commit through the commit-messages skill, pushes normally, observes the replacement head SHA, and attaches the next bounded watch to that new SHA.
+        - Respects settled state: the declined label is not revisited, and remaining local gates are used to reduce another CI round rather than inventing unrelated work.
 
   - description: Stop after exhausted infrastructure retries
     vars:
@@ -83,11 +92,11 @@ tests:
         started. The branch's local gates are green. State the classification,
         action, and terminal report.
       rubric: |-
-        - Explicitly classifies the failures as infrastructure failures rather than changing branch code.
-        - Recognises that the third infrastructure strike exhausts the retry bound and does not trigger a fourth run.
-        - Stops every local watcher or background task.
-        - Reports the head SHA, exact failing check and infrastructure symptom, attempts made, and one concrete human action needed.
-        - Does not force-push, merge, edit product code, or post PR comments.
+        - Treats a runner losing connectivity before tests start as infrastructure evidence; the plan leaves branch code and history untouched.
+        - Counts this occurrence as strike 3/3 and schedules no fourth run, empty commit, or immediate retry.
+        - Terminates every local monitor or background poll so the claimed stop is real.
+        - Leaves a resumable handoff containing head abc123, network-integration, the pre-test network symptom, all three attempts, and one concrete human unblock action.
+        - The terminal response contains no merge claim or PR activity comment; fail this criterion only if it proposes either action.
 
   - description: Wait on a base failure
     vars:
@@ -97,8 +106,8 @@ tests:
         main is red from another branch. Auto-merge is already armed. Explain how
         you handle this state.
       rubric: |-
-        - Explicitly classifies the state as a base failure and names the external blocker.
-        - Does not patch or push to main or the other branch.
-        - Reports the held transition and slows monitoring to roughly 15 to 25 minute cadence.
-        - Keeps watching for base recovery and eventual merge rather than repeatedly rerunning the PR's green checks.
-        - Does not claim the PR is merged before observing that terminal state.
+        - Attributes the hold to main's red state from another branch, keeping PR #81's green head distinct from the external blocker.
+        - Leaves main, the other branch, and PR #81's already-green checks unchanged.
+        - Reports the held transition and switches to a roughly 15 to 25 minute external-wait cadence.
+        - Watches for main to recover and the armed merge to finish; it does not burn retries on green PR checks.
+        - Reports a merge only after observing it and includes no invented merge commit or premature terminal claim.

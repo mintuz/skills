@@ -11,7 +11,9 @@ Treat the authoritative requirement as an acceptance contract and the implementa
 
 Resolve the subject, comparison base, authoritative issue, specification, or decision contract, repository rules, linked decisions, and stated exclusions. When authority begins in a meeting or transcript, or the claimed decision is disputed, invoke `decision-trace` first and consume its acceptance handoff rather than reinterpreting the raw meeting here.
 
-Map every in-scope normative statement to one independently decidable criterion. Preserve its source identifier and meaning; split combined statements only when their outcomes can differ. Record each criterion's observable outcome, affected surfaces, edge cases, assumptions, and exclusions. Record missing or conflicting authority as an ambiguity criterion.
+Map every in-scope normative statement to one independently decidable criterion. Preserve its source identifier and meaning; split combined statements only when their outcomes can differ. Record each criterion's observable outcome, affected surfaces, edge cases, assumptions, and exclusions. Represent each missing or conflicting authority question as one ambiguity criterion; defer only criteria that depend on it and continue judging criteria with settled authority.
+
+Never compare implementation with competing unresolved policies. Invoke `decision-trace`, mark the dependent criterion unverified, and request the lineage or supersession evidence that would select the authority.
 
 **Complete when:** the authoritative contract and implementation subject are explicit, every in-scope normative statement maps exactly once, and every ambiguity and exclusion is recorded.
 
@@ -33,7 +35,7 @@ Cite the exact file and line for code. Every citation must support the criterion
 
 ## 3. Exercise the contract
 
-Run the smallest check that exercises each observable outcome. Broaden for shared code, cross-surface behavior, regression risk, or high-risk boundaries. Record each command, result, and what it proves. Cite tests by file and case name. Treat test presence as static coverage evidence; a passing run proves execution.
+Run the smallest check that exercises each observable outcome in the environment and for the duration the criterion names; bind live observations to the reviewed revision or deployment. Broaden for shared code, cross-surface behavior, regression risk, or high-risk boundaries. Record each command, result, and what it proves. Cite tests by file and case name. Treat test presence as static coverage evidence; a passing run proves execution.
 
 When a check is unavailable, record its reason as a verification gap.
 

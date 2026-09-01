@@ -140,7 +140,14 @@ For each node carrying a reference-judged assertion, the approval also confirms 
 
 When the graph is too large to read at once, render one diagram per checkpoint plus a checkpoint-level overview. Never drop a node to make the picture fit; a diagram that omits work reads as work that does not exist.
 
-**Complete when:** every node and every edge in the ledger appears in the render with its kind, every box names its deliverable, skills, assertions, and paths, the concurrency claims are visible, every reference-judged node's depth, threshold, and critic seat are confirmed, and the user has approved the graph or asked for it to be re-cut.
+**Complete when:**
+
+- the render preserves the governing sources and their open contract gaps;
+- every node and edge in the ledger appears with its kind;
+- every box names its deliverable, lead and supporting skills, assertions, and paths;
+- each concurrency claim records all four qualifying conditions;
+- every reference-judged node's depth, threshold, and critic seat are confirmed; and
+- the user has approved the graph or asked for it to be re-cut.
 
 ## 6. Dispatch with isolation
 
@@ -177,9 +184,11 @@ When the nodes are stories delivered as pull requests, hand the delivery mechani
 
 ## 7. Verify each node independently
 
-Every node gets its own verifier in a **fresh context**, given only the assertions it owns, the real artifact, and the raw evidence. Withhold the worker's narration, rationale, summaries, and any claim of quality — a verifier that reads the argument for the work inherits it.
+Every node gets its own verifier in a **fresh context**, given only the assertions it owns and the real artifact; that verifier gathers its own raw evidence. Withhold the worker's narration, rationale, summaries, and any claim of quality — a verifier that reads the argument for the work inherits it.
 
-Verify both lanes. Static assertions are checked by running the checks and reading the artifact; parallel reviewers inside this lane are cheap and independent. Behavioral assertions are checked by **exercising the running system** — start it, drive it, observe the outcome. Passing tests written alongside the implementation are the weakest evidence in the graph, because they were shaped by the code rather than by the contract.
+The fresh verifier checks both lanes itself. For static assertions, it runs the checks and reads the artifact; parallel reviewers inside this lane are cheap and independent. For behavioral assertions, it **exercises the running system** — starts it, drives it, and observes the outcome. Passing tests written alongside the implementation are the weakest evidence in the graph, because they were shaped by the code rather than by the contract.
+
+For every command-judged assertion, record the exact command, its exit code, and the resulting verdict.
 
 Each verifier returns one verdict per assertion:
 

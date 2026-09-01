@@ -49,6 +49,15 @@ Find which layer owns machines before you create the file: architecture tests, i
 
 Read [lifecycles.md](references/lifecycles.md) whenever the feature invokes asynchronous work, owns a live handle, retries, cancels, accepts optimistic state, or waits for external authority. Keep handles inside invoked actors and fence work by identity.
 
+An identity fence includes every value that scopes the work, such as both symbol
+and generation; echo all of them in results and validate all before updating the
+current attempt or its rendered data. Route observations for another identity to
+a separately owned cache, if one exists, rather than letting them mutate the
+current attempt. For a monotonic source, accept a matching observation only when
+its version is newer than the attempt-local observation and the last accepted
+authoritative version; a globally stale event must not replace current optimistic
+rendering. Reset attempt-scoped evidence on replacement.
+
 **Complete when:** state exit or parent stop disposes every resource, stale and duplicate results are harmless, retry timers cancel with their lifecycle, and authoritative convergence—not an optimistic acknowledgement—confirms completion.
 
 ## 4. Integrate React narrowly
@@ -68,6 +77,13 @@ Read [testing.md](references/testing.md) before writing or reviewing tests. Driv
 ## 6. Render the statecharts
 
 Read [diagramming.md](references/diagramming.md) whenever the user asks for a diagram. Also render or update the diagrams after designing or changing any machine, even when the user did not ask for a diagram.
+
+Mirror the actual hierarchy: exit a composite through a legal parent transition,
+not a child-to-root shortcut that the machine cannot take.
+
+Report the diagram's validation method and status explicitly: rendered or
+parser-checked when tooling ran, previewed when inspected visually, or
+inspection-only when no mechanical validation was available.
 
 **Complete when:** every designed or changed machine has a source-grounded diagram, composite and concurrent boundaries are legal, parser-sensitive labels are safe, and render validation is reported accurately.
 

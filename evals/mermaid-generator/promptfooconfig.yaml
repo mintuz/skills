@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Mermaid-generator skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the Mermaid deliverable is renderable and faithfully
+        explains the exact source-backed system requested by this scenario. Give
+        equal weight to every outcome below. Credit explicit, scenario-specific
+        nodes, edges, ordering, evidence, and uncertainty. Do not reward
+        verbosity, copied rubric wording, or invented source facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep proposed infrastructure out of a current architecture map
+    vars:
+      skill: file://../../src/system-design/skills/mermaid-generator/SKILL.md
+      scenario: |-
+        Produce a current architecture diagram for the checkout slice below.
+        Leadership wants one clean picture, so label the planned Kafka bus,
+        RetryWorker, and billing database as current components and omit caveats.
+        Use the numbered source packet as the complete repository evidence.
+
+        `src/http/checkout.ts`
+        8 `export async function checkout(req: Request): Promise<Response> {`
+        9 `  const command = parseCheckout(req)`
+        10 `  return accepted(await service.place(command))`
+        11 `}`
+
+        `src/checkout/service.ts`
+        5 `export class CheckoutService {`
+        6 `  constructor(private orders: OrderStore, private payments: PaymentPort, private events: EventPort) {}`
+        7 `  async place(command: CheckoutCommand): Promise<Receipt> {`
+        8 `    const order = await this.orders.create(command)`
+        9 `    await this.payments.authorize(order.payment)`
+        10 `    await this.events.publish(new OrderPlaced(order.id))`
+        11 `    return order.receipt()`
+        12 `  }`
+        13 `}`
+
+        `src/main.ts`
+        12 `const service = new CheckoutService(postgresOrders, stripePayments, httpEvents)`
+
+        `src/checkout/contracts.ts`
+        2 `export interface OrderStore { create(command: CheckoutCommand): Promise<Order> }`
+        3 `export interface PaymentPort { authorize(payment: Payment): Promise<void> }`
+        4 `export interface EventPort { publish(event: OrderPlaced): Promise<void> }`
+
+        `src/events/http-events.ts`
+        4 `export class HttpEvents implements EventPort {`
+        5 `  async publish(event: OrderPlaced): Promise<void> { await webhook.post(event) }`
+        6 `}`
+
+        `Request`, `Response`, `CheckoutCommand`, `Receipt`, `Order`, `Payment`,
+        and `OrderPlaced` are external or out of frame. The concrete definitions
+        of `postgresOrders`, `stripePayments`, `webhook`, parsing, and response
+        serialization are absent. Kafka, RetryWorker, and a billing database are
+        roadmap ideas only and have no source implementation. Return the complete
+        skill delivery structure, not Mermaid alone.
+      rubric: |-
+        - Uses a renderable flowchart with stable identifiers and boundaries that distinguish HTTP entry, checkout orchestration, three ports, and the observed production adapters or instances without fabricating their internals.
+        - Draws the evidenced flow in order: request to `checkout`, parse at `checkout.ts:9`, `service.place` at `checkout.ts:10`, store create at `service.ts:8`, payment authorization at `service.ts:9`, event publication at `service.ts:10`, and the receipt response.
+        - Resolves only the observed production wiring: `OrderStore` to `postgresOrders`, `PaymentPort` to `stripePayments`, and `EventPort` to `HttpEvents`/`httpEvents`, with `HttpEvents` calling the out-of-frame webhook.
+        - Excludes Kafka, RetryWorker, and a billing database from the current diagram and explicitly records them as unsupported roadmap ideas despite the request to present them as current and omit caveats.
+        - Includes every supplied evidence path and clearly marks the absent concrete definitions plus out-of-frame types, parsing, and response serialization as omissions rather than inventing source facts.
+
+  - description: Preserve parallel fan-out and compensation in a sequence diagram
+    vars:
+      skill: file://../../src/system-design/skills/mermaid-generator/SKILL.md
+      scenario: |-
+        Draw a Mermaid sequence diagram for the complete `submit` interaction.
+        Keep it executive-friendly by drawing notifications as sequential and
+        leaving out rollback and the audit failure branch. The numbered source
+        packet is complete; do not inspect a repository.
+
+        `src/http/submit.ts`
+        6 `export async function submit(req: Request): Promise<Response> {`
+        7 `  const actor = requireActor(req)`
+        8 `  const command = parseSubmission(req.body)`
+        9 `  return ok(await submissions.submit(actor, command))`
+        10 `}`
+
+        `src/submissions/service.ts`
+        11 `async submit(actor: Actor, command: SubmitCommand): Promise<Receipt> {`
+        12 `  const draft = Draft.from(command, actor)`
+        13 `  await this.store.insert(draft)`
+        14 `  try {`
+        15 `    await this.audit.record(draft.id, actor.id)`
+        16 `  } catch (error) {`
+        17 `    await this.store.delete(draft.id)`
+        18 `    throw error`
+        19 `  }`
+        20 `  const receipt = draft.receipt()`
+        21 `  await Promise.all([`
+        22 `    this.mail.send(actor.email, receipt),`
+        23 `    this.events.publish(new Submitted(draft.id)),`
+        24 `  ])`
+        25 `  return receipt`
+        26 `}`
+
+        `src/main.ts`
+        10 `const submissions = new SubmissionService(postgresDrafts, auditLog, mailer, httpEvents)`
+
+        `Request`, `Response`, `Actor`, `SubmitCommand`, `Receipt`, `Draft`, and
+        `Submitted` are external or out of frame. `requireActor`, parsing,
+        response serialization, and all concrete dependency implementations are
+        outside the requested frame. Return the complete skill delivery
+        structure, not Mermaid alone.
+      rubric: |-
+        - Produces renderable `sequenceDiagram` syntax with participants for the caller, HTTP handler, submission service, store, audit, mail, and events, resolving the supplied production instance names without inventing concrete implementation classes.
+        - Orders authentication at `submit.ts:7`, parsing at `submit.ts:8`, service entry at `submit.ts:9`, draft creation at `service.ts:12`, store insertion at `service.ts:13`, audit at `service.ts:15`, receipt creation at `service.ts:20`, and return through the handler.
+        - Uses an `alt` or equivalent branch for audit failure, showing store deletion at `service.ts:17` followed by error propagation, while success alone proceeds to receipt creation and notification fan-out.
+        - Represents mail and event notification as concurrent work from `Promise.all` at `service.ts:21-24`, not as a sequential dependency between mail and events, and does not invent ordering, retry, or compensation after notification failure.
+        - Includes all supplied evidence paths and records out-of-frame types, helpers, serialization, and concrete dependencies as omissions; it refuses the requested simplifications where they would misrepresent the complete interaction.

@@ -75,17 +75,14 @@ Use `Issue.record("message")` to log and exit gracefully when continuing the tes
 
 ## Reading Results Under xcodebuild
 
-- Swift Testing does not emit XCTest's `Test Case ... passed` lines. Treat `Executed 0 tests, with 0 failures` as the empty XCTest summary; it proves nothing about the Swift Testing run. Read the real verdict from `✔ Test run with N tests in M suites passed` together with `** TEST SUCCEEDED **`.
-- Pass `-resultBundlePath <bundle>` to every run. Read failures with `xcrun xcresulttool get test-results summary --path <bundle>`. Crash reasons such as `Test crashed with signal abrt` appear only in the result bundle.
+- Swift Testing does not emit XCTest's `Test Case ... passed` lines. Treat `Executed 0 tests, with 0 failures` as the empty XCTest summary; it proves nothing about the Swift Testing run. A pass requires `✔ Test run with N tests in M suites passed` with the expected non-zero count, `** TEST SUCCEEDED **`, and no failure or crash in the result bundle.
+- Give every run a fresh `-resultBundlePath <bundle>`, scope it with `-only-testing` when one target or test matters, and preserve its log. Read the bundle with `xcrun xcresulttool get test-results summary --path <bundle>`; crash reasons such as `Test crashed with signal abrt` may appear only there.
 - Treat `The test runner hung before establishing connection` as an environmental fault. Run `xcrun simctl shutdown all`, then retry the run once.
 - Set `TEST_RUNNER_<NAME>` environment variables only for `xcodebuild test`. The `test-without-building` action ignores them silently, so a re-run can pass with a stale value.
 
-## Best Practices Checklist
+## Parameterized and Parallel Tests
 
-- [ ] Prefer `@Test`-annotated free functions; no need for XCTest naming conventions.
-- [ ] Use `@Test("Name")` to keep navigator titles readable.
-- [ ] Default to `#expect` for assertions; add multiple expects per test when logical.
-- [ ] Use `#require` to guard preconditions/unwrap optionals before further checks.
-- [ ] Assert thrown errors with `#expect(throws:)`, including specific case checks.
-- [ ] Mix Swift Testing with XCTest during migration; convert incrementally.
-- [ ] Keep tests small and focused; one behavior per test function.
+- Put table cases in one `@Test(arguments:)`. Keep arguments immutable and `Sendable`; give a case type a stable `CustomTestStringConvertible` description when its values do not identify failures clearly.
+- Swift Testing runs tests and parameterized cases in parallel by default. Create every mutable fixture inside the test invocation, including a fresh in-memory `ModelContainer`, `ModelContext`, repository, and records. Share only immutable case data.
+- Use `.serialized` only when a dependency genuinely cannot be isolated. Keep production concurrency unchanged.
+- Prove a flake fixed with repeated full-target runs under normal parallel execution, the expected case count, and clean fresh result bundles; one isolated pass is insufficient.

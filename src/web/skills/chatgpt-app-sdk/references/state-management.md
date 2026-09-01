@@ -11,7 +11,7 @@
 
 ### Business Data (Server-Owned)
 
-- MCP server maintains authoritative source of truth
+- MCP server owns business data and diagnostics; responses expose only authorized data and opaque correlation IDs
 - Widget sees updated data when tool call completes
 - Reapply local UI state on top of snapshot
 

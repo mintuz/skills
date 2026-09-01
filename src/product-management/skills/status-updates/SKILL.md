@@ -12,7 +12,7 @@ Guidelines for writing team updates that are easy to scan, honest about challeng
 - **Outcomes first** - Lead with results and impact, not activity; tie to goals/OKRs
 - **Scannable** - Emoji-anchored sections, bullet points, short paragraphs
 - **Quantify** - Metrics, deltas, dates, owners—show progress with numbers
-- **Honest** - Acknowledge challenges directly, then reframe with context
+- **Literal status** - Use the supplied environment, evidence, and dates; call a target "on track" only when the facts support it
 - **Warm** - Credit individuals by name, use inclusive language
 - **Evidence-backed** - Link to production, docs, metrics to show not tell
 - **Close the loop** - Note delta from last update and what's next
@@ -57,7 +57,7 @@ Ask these before drafting to ensure the update hits the right notes:
 - Glue work to highlight (reviews, incidents, mentoring, docs, coordination?)
 - Who to thank or spotlight?
 
-If details are missing, ask concise clarifying questions before drafting.
+If any essential answer is missing, stop at concise intake questions; draft only after the essential set is answered. In the same intake, ask only for the missing delivery or impact evidence, completed-versus-in-progress work, risk and next-action ownership, decision timing, and specific recognition needed to ground the update.
 
 ## Core Patterns
 

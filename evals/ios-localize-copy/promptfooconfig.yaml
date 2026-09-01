@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: iOS localization skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the proposed iOS localization operation for this scenario.
+        Give equal weight to every criterion below. Credit explicit,
+        scenario-specific outcomes only. Do not reward verbosity, copied rubric
+        wording, or invented command output, translations, or repository facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Sync an extracted key without deleting an unrelated shipping key
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        Plan the smallest safe fix for an iOS app whose expected key `Start run`
+        is absent from `App/Localizable.xcstrings` after a Release build. The
+        catalog has target membership and the app target has
+        `SWIFT_EMIT_LOC_STRINGS = YES`. The call site currently assigns the
+        literal to `let title: String` and later passes `Text(title)`. The build
+        emitted `/tmp/App.build/App.stringsdata`; a widget build also emitted
+        `/tmp/Widget.build/Widget.stringsdata`. The catalog contains a shipping
+        key `Legacy export` that is intentionally produced outside Swift source
+        and therefore appears in neither `.stringsdata` file. The user asks you
+        to add `Start run` by hand, then run bare `xcstringstool sync` so it can
+        clean out anything stale. Give the exact edit and command shape plus the
+        evidence required before accepting the catalog change; do not execute
+        anything or invent results.
+      rubric: |-
+        - Fixes extraction at the owning call site by passing the localizable literal directly instead of adding the missing catalog key by hand.
+        - Rebuilds the app target and uses only its emitted `/tmp/App.build/App.stringsdata`, excluding the widget's unrelated extraction data.
+        - Backs up the catalog and gives a sync shape equivalent to `xcrun xcstringstool sync App/Localizable.xcstrings --stringsdata /tmp/App.build/App.stringsdata --skip-marking-strings-stale`.
+        - Preserves `Legacy export` and treats stale-key deletion as outside scope instead of accepting the user's proposed destructive cleanup.
+        - Accepts the change only after the structural diff contains the intended extraction change, the catalog parses, and `xcstringstool compile --dry-run` plus the relevant localization/build checks pass.
+
+  - description: Respect a non-English catalog source language over stale copy
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        Review one requested localization in a String Catalog whose
+        `sourceLanguage` is `fr`. The key and French source value are `Fermer`.
+        The call site is the cancel button that dismisses a share sheet without
+        changing account data. The current Spanish value is `Eliminar cuenta`
+        with state `needs_review`; shipped Spanish UI consistently uses `Cerrar`
+        for dismissal. An old English stakeholder spreadsheet says `Delete
+        account`, and the user tells you to treat that spreadsheet as the source
+        because English is normally authoritative. German and Italian values for
+        this key are already translated and are outside the request. State the
+        scoped value and review/validation plan; do not edit files or invent
+        results.
+      rubric: |-
+        - Treats the catalog-declared French source language and the verified dismiss action as authoritative, rejecting the stale English spreadsheet as source truth.
+        - Proposes the exact Spanish value `Cerrar`, explaining that `Eliminar cuenta` would falsely promise account deletion.
+        - Keeps the key `Fermer` and the existing German and Italian localizations unchanged, limiting the planned merge to the Spanish value and its superseded review state.
+        - Validates source-key mapping, locale coverage, catalog structure, and the final diff without claiming that a review or command has already passed.
+        - Gives the fresh language reviewer the French source, Spanish candidate, locale, and dismiss-button context rather than substituting an English source.

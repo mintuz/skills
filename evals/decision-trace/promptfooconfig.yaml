@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Decision-trace skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the decision trace produced for this scenario. Give equal
+        weight to every outcome below. Credit explicit, scenario-specific
+        classification and lineage reasoning grounded in the supplied evidence.
+        Do not reward verbosity, copied rubric language, or invented facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Preserve unresolved disagreement despite downstream momentum
+    vars:
+      skill: file://../../src/product-management/skills/decision-trace/SKILL.md
+      scenario: |-
+        Trace the claim "the team decided to delete audit logs after 30 days"
+        through the supplied records as of 30 August. Return the decision trace
+        and any acceptance handoff; do not inspect code.
+
+        Transcript, 12 August:
+        - 09:05, Maya: "I propose deleting audit logs after 30 days."
+        - 09:11, Leo: "Legal may require seven years. This is unresolved until
+          counsel reviews it."
+        - 09:20, facilitator: "Let's move on. Sam, draft the 30-day version so
+          we have something concrete to review."
+        No later source resolution or counsel review is available.
+
+        Spec v1, 14 August, links the transcript and states "Audit logs are
+        deleted after 30 days." Issue #81 links Spec v1 and is closed. PR #90
+        says it closes #81 and has merged. No artifact marks the transcript
+        disagreement superseded or says who authorised Spec v1 to settle it.
+      rubric: |-
+        - Classifies the claimed 30-day decision as unresolved disagreement rather than a decision, with high confidence in that classification from the direct, attributed, complete supplied span.
+        - Keeps Maya's proposal, Leo's explicit unresolved legal objection, and the facilitator's request for a review draft distinct; silence, the draft request, and later delivery activity do not become resolution evidence.
+        - Grades the transcript-to-spec transition changed because Spec v1 promotes an unresolved option into a requirement, while grading the explicitly linked spec-to-issue and issue-to-PR documentary transitions separately.
+        - Does not treat the closed issue or merged PR as proof that the source disagreement was resolved or that implementation is correct.
+        - Withholds a manufactured acceptance criterion and names the missing authoritative resolution or supersession as the exact lineage gap that must close before acceptance review.
+        - States the 30 August cutoff and accounts for the latest traced artifact, PR #90, without inventing later evidence.
+
+  - description: Detect scope drift and stop before implementation acceptance
+    vars:
+      skill: file://../../src/product-management/skills/decision-trace/SKILL.md
+      scenario: |-
+        The user asks, "Did PR #312 correctly implement our export decision?"
+        Produce the decision trace through the supplied artifacts as of commit
+        9fd12c and prepare the acceptance-review handoff. Use only this packet;
+        do not judge code behavior or run checks.
+
+        The 3 June transcript records an explicit resolution by product owner
+        Noor: "For enterprise tenants, signed-in members may export CSV; admins
+        retain the override. Consumer accounts are unchanged." ADR-17 cites that
+        line, repeats all three scope clauses, and is marked accepted. Spec §4
+        cites ADR-17 but says "Every account member may export CSV" and says
+        nothing about the admin override. Issue #301 links Spec §4 and asks only
+        for the export button to be visible to every member. PR #312 closes #301;
+        its description says the UI and tests are complete, and commit 9fd12c is
+        its head. No supersession or authority rule explains the scope changes.
+      rubric: |-
+        - Classifies Noor's statement as a high-confidence decision and preserves all three exact scope clauses: enterprise tenants, signed-in members with CSV export, admin override, and consumer accounts unchanged.
+        - Grades transcript-to-ADR explicit, ADR-to-spec changed, spec-to-issue changed because it narrows the requirement to button visibility, and issue-to-PR explicit documentary linkage.
+        - Identifies both scope drifts: Spec §4 broadens enterprise-only behavior to every account and drops the admin override; Issue #301 further represents only UI visibility.
+        - Treats the PR description, tests claim, and commit presence only as documentary evidence, not proof that code satisfies the decision, and gives no acceptance verdict.
+        - Prepares an acceptance-review handoff naming the claimed decision and locators, PR #312 at 9fd12c as subject, its comparison base as unavailable, and the changed links, missing supersession, omitted admin behavior, and consumer-scope ambiguity.
+        - Leads with the source classification, confidence, latest artifact PR #312 at 9fd12c, and the supplied cutoff; names an authority or supersession resolution as the smallest action needed before a definitive implementation assessment.

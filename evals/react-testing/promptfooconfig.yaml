@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: React Testing Library skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed React Testing Library test reaches every
+        observable outcome required by this scenario. Give equal weight to every
+        outcome below. Credit concrete, runnable test logic and precise API
+        reasoning rather than copied rubric wording or general advice.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Wrap a direct custom-hook update in act
+    vars:
+      skill: file://../../src/web/skills/react-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test for `useCart()`. The hook initially returns
+        `{ count: 0, addItem }`; calling its public `addItem()` callback performs
+        one synchronous React state update and the next render returns
+        `{ count: 1, addItem }`. There is no component or DOM interaction in
+        this API.
+
+        Prove the initial and updated count with React Testing Library. Return
+        the complete test and a short rationale; do not invent a component,
+        change the hook, or suppress React warnings.
+      rubric: |-
+        - Uses `renderHook(() => useCart())` and reads the public result through `result.current`; it does not invent a component or inspect internal React state.
+        - Proves `result.current.count` is `0` before invoking the update and `1` afterwards.
+        - Invokes `result.current.addItem()` inside one synchronous `act(() => ...)` because the test calls the state-changing hook callback directly outside a Testing Library interaction helper.
+        - Does not use `userEvent`, `fireEvent`, `waitFor`, an async delay, or manual cleanup for this synchronous hook-only behavior.
+        - Imports the needed React Testing Library APIs and explains that the direct update needs `act()` because it occurs outside Testing Library's auto-wrapped helpers.
+
+  - description: Rerender a context provider prop around one mounted hook consumer
+    vars:
+      skill: file://../../src/web/skills/react-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test for `useCurrency()`, which returns the current
+        string from `CurrencyContext`. The existing
+        `<CurrencyProvider currency={value}>` supplies that context. Prove that
+        one mounted consumer first observes `GBP` and then observes `EUR` when
+        the provider's `currency` prop changes.
+
+        React Testing Library's `renderHook` passes `initialProps` and
+        `rerender` props to the hook callback, not to its `wrapper`. Return the
+        smallest valid test and a short rationale; do not change production
+        code or remount separate hook instances for the two values.
+      rubric: |-
+        - Defines a minimal consumer component that calls `useCurrency()` and exposes the returned value as observable DOM output; it does not duplicate the hook or read the context directly in the test.
+        - Uses `render()` with `CurrencyProvider currency="GBP"` around that consumer and proves the rendered value is `GBP`.
+        - Uses the render result's `rerender()` with the same provider and consumer types but `currency="EUR"`, then proves the rendered value is `EUR`.
+        - Does not try to pass provider values through `renderHook` `initialProps`, wrapper props, mutable module state, or two separately mounted hook instances.
+        - Explains that a rendered consumer is the correct public seam because this scenario changes provider props, while `renderHook` props reach only the hook callback rather than its wrapper.

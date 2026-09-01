@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: YAGNI skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the plan delivers the accepted behavior with the
+        minimum sufficient production and test change. Give equal weight to
+        every outcome below. Credit explicit, scenario-specific scope, red test,
+        owning surface, untouched areas, and verification decisions. Do not
+        reward verbosity, copied rubric wording, or invented repository facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Refuse speculative notification architecture for one prefix rule
+    vars:
+      skill: file://../../src/core/skills/yagni/SKILL.md
+      scenario: |-
+        Produce an implementation-ready plan; make no edits. The accepted change
+        is: in staging only, prefix every outgoing email subject with
+        `[staging] `. Production subjects remain byte-for-byte unchanged.
+        `sendEmail(message, environment)` is the single shared send path for
+        signup and password-reset emails. It already owns subject construction,
+        receives the existing `production | staging` environment value, and is
+        covered with the repository's SMTP fake. Its current focused test proves
+        a production subject is unchanged but has no staging case. Type checking,
+        linting, and the focused mail tests currently pass.
+
+        The user asks you to make this "provider-ready" at the same time by
+        adding a `MessageChannel` interface, provider registry, factory, new
+        configuration schema, async job bus, a second fake, and a full matrix of
+        signup/password-reset tests. No second provider, async-delivery
+        requirement, configuration change, or accepted roadmap item is supplied.
+        They say the extra architecture will be cheaper now and ask you not to
+        challenge it. State the goal, non-goals, first red, production slice,
+        untouched surfaces, and completion checks.
+      rubric: |-
+        - Defines the goal as one staging subject-prefix rule while preserving production subjects, and makes provider abstraction, registry, factory, configuration schema, job bus, and additional fake explicit non-goals because no accepted behavior needs them.
+        - Selects `sendEmail` as the one owning production surface because both callers already route through it; it leaves signup, password-reset, delivery mode, and the existing environment contract untouched rather than distributing prefix logic across callers.
+        - Extends the existing focused mail test with one staging assertion and runs it red before production code; it keeps the existing production assertion and does not create a caller matrix, second fake, new framework, or new test structure.
+        - Makes the minimum production edit that conditionally prefixes the subject in `sendEmail`, with no speculative interface, provider implementation, registry, factory, configuration layer, or queue.
+        - Treats the supplied requirement as clear and proceeds without waiting for confirmation; completion requires the focused mail tests plus existing type checking and linting, with production unchanged and no unrelated files touched.
+
+  - description: Fix a nullable coupon once without multiplying guards or tests
+    vars:
+      skill: file://../../src/core/skills/yagni/SKILL.md
+      scenario: |-
+        Produce an implementation-ready hotfix plan; make no edits. A shared
+        `normalizeCouponCode(code)` function trims and uppercases coupon strings.
+        Checkout, admin preview, and subscription renewal are its only callers.
+        Their established contract is: `null` means no coupon; a string is
+        normalized. Checkout and admin currently pass strings. Renewal can pass
+        `null` from a legacy subscription and now crashes inside the shared
+        function. The existing renewal regression test already fails on that
+        exact null case. Existing normalization tests cover trimmed lowercase
+        strings, and all other related tests, type checking, and linting pass.
+
+        The user wants the fastest possible patch: guard `null` only in renewal,
+        add a `safeNormalizeCoupon` compatibility wrapper in case another caller
+        later needs it, retain the original helper unchanged, and add separate
+        null tests for all three callers. There is no external consumer or
+        compatibility requirement. State the goal, first red, owning fix,
+        non-goals, untouched surfaces, and completion checks.
+      rubric: |-
+        - Uses the already-failing renewal regression as the red for the accepted null behavior and adds no duplicate regression or null-test matrix merely to demonstrate activity.
+        - Accounts for checkout, admin preview, and renewal before choosing the owning surface, then changes `normalizeCouponCode` once to preserve string trimming and uppercasing while returning no coupon for `null`.
+        - Rejects a renewal-only guard, `safeNormalizeCoupon` wrapper, duplicate implementation, and speculative compatibility layer because every caller already crosses the shared function and no external consumer is supplied.
+        - Keeps caller behavior, the existing normalization tests, and unrelated files untouched; it does not add a new framework, helper directory, documentation, or abstraction for the self-evident local contract.
+        - Orders the slice as failing renewal test, minimal shared fix, focused renewal and normalization tests, then existing type checking and linting; it reports rather than bypasses any failure and stops when those acceptance checks pass.

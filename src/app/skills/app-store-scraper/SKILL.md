@@ -134,7 +134,7 @@ Requires HTML parsing, less reliable:
 
 | Endpoint | Description | File |
 |----------|-------------|------|
-| **Similar Apps** | Find related apps (web scraping) | [endpoints/similar.md](endpoints/similar.md) |
+| **Similar Apps** | Read section-scoped Apple recommendations; keep category/developer discovery labelled as proxies | [endpoints/similar.md](endpoints/similar.md) |
 
 ## Common Use Cases
 
@@ -234,7 +234,7 @@ curl -s "https://itunes.apple.com/us/rss/customerreviews/page=1/id=553834731/sor
 - **Rate limiting**: No official limits, but be respectful (1-2s between requests)
 - **Pagination**: Limited on some endpoints (max 200 results for search)
 - **History**: Only current version data available via API
-- **Web scraping**: Required for similar apps (unreliable, structure may change)
+- **Similar apps**: Only IDs scoped to the page's named recommendation section qualify. Report unavailable when that section cannot be verified; category and developer discovery are separate proxies.
 
 ## External Resources
 

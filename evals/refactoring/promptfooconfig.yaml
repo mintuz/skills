@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Refactoring skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the plan preserves every supplied behavior and user
+        boundary while improving structure. Give equal weight to every outcome
+        below. Credit explicit, scenario-specific gates and stopping conditions.
+        Do not reward verbosity, copied rubric wording, or invented repository
+        facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Preserve a dirty worktree when commits are forbidden
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce an implementation-ready refactoring plan; make no edits. The
+        user explicitly says: "Do not commit, stage, stash, reset, or touch my
+        existing changes." The working tree already contains the user's edits
+        in `src/report.ts`. The only intended refactor is in `src/pricing.ts`:
+        `quoteRenewal()` and `quoteUpgrade()` duplicate the same rounding rule
+        for the same `Money` business concept, and the rule is required to change
+        together. All existing focused pricing tests and the full suite pass.
+        Three callers use the two functions: the web checkout, a renewal worker,
+        and an external-plugin adapter. The first two have focused coverage; the
+        plugin adapter is covered only by the full suite.
+
+        Return the exact preflight, smallest admissible extraction, verification,
+        rollback, and stopping gates. Respect the user's git boundary.
+      rubric: |-
+        - Treats the explicit no-commit, no-stage, no-stash, and no-reset request as controlling; it preserves `src/report.ts` and never proposes any git write as a safety step.
+        - Establishes a reversible baseline by recording the owned `src/pricing.ts` diff or starting state and the already-passing focused and full-suite commands/results, with rollback limited to the agent-owned pricing edit rather than the whole worktree.
+        - Accounts for all three callers before changing the shared code and keeps the checkout, renewal worker, and external-plugin adapter contracts unchanged.
+        - Extracts only the one shared rounding rule because it represents the same `Money` knowledge and must evolve together; it does not merge the two workflows, add a public API, or perform adjacent cleanup.
+        - Runs the focused pricing tests after the extraction, then the full suite to cover the plugin adapter; it stops and restores only the owned pricing change on any regression, and reports the refactor as uncommitted.
+
+  - description: Characterize an uncovered failure path before moving ownership
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce an implementation-ready refactoring plan; make no edits. A green
+        TypeScript suite covers `loadProfile()` success and a cache hit. The
+        function currently owns one in-flight request, propagates the original
+        `AbortError` object to every waiter, and clears that in-flight entry
+        before a later retry starts. There is no test for abort identity, waiter
+        fan-out, cleanup ordering, or retry after abort. The requested refactor
+        moves the in-flight lifecycle into a private `ProfileRequest` helper;
+        the public API and behavior must stay identical. No commit has been
+        requested. Two internal callers use `loadProfile()`, and both rely on the
+        shared request. A proposed shortcut is to move the code first because
+        the current suite is green and add tests only if something fails.
+
+        Return the exact evidence and slice order required to make this a safe
+        behavior-preserving refactor, including the point at which work must stop.
+      rubric: |-
+        - Rejects the current green suite as sufficient proof because it lacks oracles for abort object identity, multi-waiter propagation, cleanup-before-retry ordering, and a fresh retry after abort.
+        - Makes characterization tests for every supplied failure-path invariant pass against the current implementation before moving code; these tests preserve existing behavior and are not treated as speculative feature work.
+        - Accounts for both callers and preserves one shared in-flight request, the exact original `AbortError` instance for every waiter, cleanup before retry, and an unchanged public `loadProfile()` API.
+        - Moves only the existing in-flight lifecycle into the private helper after the characterization baseline, without adding a public abstraction, new retry policy, caching behavior, or unrelated cleanup.
+        - Runs the focused characterization and existing success/cache tests after the move, then the relevant regression suite; it stops before the refactor if characterization cannot establish the baseline and restores only the structural slice if any invariant changes.

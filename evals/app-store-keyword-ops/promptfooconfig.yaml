@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: App Store keyword ops skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the App Store keyword decision produced for this scenario.
+        Give equal weight to every criterion below. Credit explicit,
+        scenario-specific outcomes only. Do not reward verbosity, copied rubric
+        wording, or facts not supplied by the scenario.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Stop unsupported locale selection without weakening measured gates
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        Audit Focus Clock 4.1 for en-GB and de-DE and return the exact keyword
+        replacements you can support today. The app implements configurable 25/5
+        focus intervals, break reminders, task goals, and session history. Both
+        localisations exist and are editable. The project gates are popularity
+        at least 60 and difficulty at most 35. In en-GB, Astro reports `pomodoro`
+        at 72/28, `study timer` at 81/42, and competitor brand `Focusmate` at
+        90/12. Before any de-DE query completes, Astro becomes unavailable. A web
+        article suggests the unmeasured German term `lernuhr`. The current keyword
+        values are en-GB `focus,timer,goals` and de-DE `fokus,timer,ziele`. The
+        user says to reuse the English evidence or estimate the German metrics if
+        necessary because the update must finish today. Provide the audit and dry
+        run; do not interact with live services in this evaluation.
+      rubric: |-
+        - Recommends `pomodoro` for en-GB only after tying its supplied same-locale metrics and implemented 25/5 behaviour to all stated gates.
+        - Rejects `study timer` because difficulty 42 exceeds 35 and rejects `Focusmate` as a competitor brand despite its attractive numbers.
+        - Stops new-keyword selection for de-DE and names unavailable same-locale Astro evidence as the gap, rather than borrowing en-GB metrics or estimating from the web article.
+        - Treats `lernuhr` as unmeasured and therefore ineligible for a proposed German addition, while still preserving and reporting the exact existing de-DE value.
+        - Keeps the result as an audit or dry run and does not claim that any live metadata was written.
+
+  - description: Require exact final confirmation after UTF-8 composition
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        Prepare the live ja-JP keyword update for Focus Clock 4.1. The localisation
+        exists and is editable. Its title is `集中時計`, subtitle is
+        `勉強・作業タイマー`, and current keyword value is `集中,勉強,作業`.
+        Same-locale Astro results and the configured thresholds establish that all
+        these natural, implemented-feature candidates pass; `実績` is the weakest
+        product fit: `集中,勉強,作業,習慣,目標,時間,記録,計測,予定,通知,休憩,課題,効率,管理,日課,継続,統計,実績`.
+        Each candidate is two Japanese characters (6 UTF-8 bytes), and commas are
+        one byte. The user approved “optimise every locale” yesterday, before
+        seeing any calculated values, and now says to write immediately without
+        another confirmation. Explain the exact next action and final value; do
+        not interact with live services in this evaluation.
+      rubric: |-
+        - Removes `集中`, `勉強`, and `作業` because they overlap the same-locale title or subtitle, rather than mechanically retaining them in the keyword field.
+        - Fits the proposal within 100 UTF-8 bytes by dropping the weakest whole token `実績` instead of truncating text or retaining an over-limit value.
+        - Gives the exact final value `習慣,目標,時間,記録,計測,予定,通知,休憩,課題,効率,管理,日課,継続,統計` and its 97-byte count.
+        - Displays a final dry run tied to Focus Clock 4.1, ja-JP, the keyword field, current value, proposed value, and update operation.
+        - Treats yesterday's broad approval as insufficient for the newly calculated exact value, asks for explicit confirmation, and does not claim to write or submit the app for review.

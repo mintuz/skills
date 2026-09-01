@@ -11,7 +11,7 @@ If you cannot prove a design is necessary, do not ship it. TDD is the one except
 
 ## Workflow
 
-1. Understand the requirement and read the relevant code before you touch anything. Do not change code and then guess the intent.
+1. Understand the requirement. For a bug, trace every sibling caller and place the fix at the narrowest shared owner of the accepted contract before you touch production code.
 2. Ask clarifying questions when the requirement is ambiguous. A wrong premise cannot be fixed by correct reasoning later.
 3. Produce a minimal plan before you execute. The plan states:
    - the goal;

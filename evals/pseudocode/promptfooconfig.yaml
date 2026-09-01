@@ -1,0 +1,165 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Pseudocode skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the pseudocode render exposes the exact evidenced
+        composition and execution shape requested by this scenario. Give equal
+        weight to every outcome below. Credit explicit, scenario-specific types,
+        boundaries, signatures, edges, annotations, and evidence. Do not reward
+        verbosity, copied rubric wording, or invented source facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Trace conditional effects through production and test wiring
+    vars:
+      skill: file://../../src/core/skills/pseudocode/SKILL.md
+      scenario: |-
+        Render pseudocode for `postOrder` through the process boundary. Include
+        types, module boundaries, signatures, and one call graph for each wiring.
+        Cite call edges at the call-site line, not at the callee declaration.
+        This numbered source packet is complete:
+
+        `src/http/post-order.ts`
+        10 `export async function postOrder(req: HttpRequest): Promise<HttpResponse> {`
+        11 `  const command = parseOrder(req.body)`
+        12 `  return respond(await checkout.place(command))`
+        13 `}`
+
+        `src/http/parse-order.ts`
+        4 `export function parseOrder(body: JsonValue): PlaceOrder { /* pure */ }`
+
+        `src/checkout/contracts.ts`
+        2 `export type PlaceOrder = { orderId: OrderId; items: Item[]; payment: CardRef | null; email: Email }`
+        3 `export type Receipt = { orderId: OrderId; total: Money }`
+        5 `export interface PaymentPort { charge(card: CardRef, total: Money): Promise<void> }`
+
+        `src/checkout/service.ts`
+        8 `export class Checkout {`
+        9 `  constructor(private inventory: Inventory, private payments: PaymentPort, private mail: Mail) {}`
+        10 `  async place(command: PlaceOrder): Promise<Receipt> {`
+        11 `    for (const item of command.items) await this.inventory.reserve(item)`
+        12 `    const total = price(command.items)`
+        13 `    try {`
+        14 `      if (command.payment) await this.payments.charge(command.payment, total)`
+        15 `      const receipt = { orderId: command.orderId, total }`
+        16 `      void this.mail.enqueue(command.email, receipt)`
+        17 `      return receipt`
+        18 `    } catch (error) {`
+        19 `      await this.inventory.release(command.items)`
+        20 `      throw error`
+        21 `    }`
+        22 `  }`
+        23 `}`
+        25 `function price(items: Item[]): Money { /* pure */ }`
+
+        `src/inventory/inventory.ts`
+        6 `export interface Inventory { reserve(item: Item): Promise<void>; release(items: Item[]): Promise<void> }`
+        `src/mail/mail.ts`
+        7 `export interface Mail { enqueue(to: Email, receipt: Receipt): Promise<void> }`
+        `src/payments/stripe.ts`
+        5 `export class StripePayments implements PaymentPort { async charge(card: CardRef, total: Money): Promise<void> { /* network */ } }`
+        `test/fakes/fake-payments.ts`
+        4 `export class FakePayments implements PaymentPort { async charge(card: CardRef, total: Money): Promise<void> { /* in memory */ } }`
+        `src/main.ts`
+        6 `const checkout = new Checkout(inventory, new StripePayments(), mail)`
+        `test/post-order.test.ts`
+        9 `const checkout = new Checkout(inventory, new FakePayments(), mail)`
+
+        `HttpRequest`, `HttpResponse`, `JsonValue`, `OrderId`, `Item`, `CardRef`,
+        `Email`, and `Money` are external primitives. Production is the normal
+        wiring; the test composition root is the only substitute. `respond`,
+        Inventory, and Mail are outside the requested frame.
+      rubric: |-
+        - Frames `postOrder` as the existing entry point, names the process frame edge, and draws distinct production and test wirings whose only difference is `StripePayments` versus `FakePayments`.
+        - Declares `PlaceOrder`, `Receipt`, and `PaymentPort` exactly from the packet, marks the listed primitives external, and gives source-matching signatures without inventing error types or fields.
+        - Gives module boundaries that distinguish HTTP parsing, checkout orchestration, the payment port, and its two adapters, including what each exposes, depends on, and hides.
+        - Orders the graph as parse at `post-order.ts:11`, checkout at `post-order.ts:12`, reserve `[each command.items]` at `service.ts:11`, pure price at `service.ts:12`, conditional charge at `service.ts:14`, and async mail at `service.ts:16`; the payment edge expands to the wiring's concrete adapter.
+        - Shows inventory release only on the error path at `service.ts:19`, marks network only on Stripe charge, keeps the fake in-process, and names the out-of-frame `respond`, Inventory, and Mail paths rather than silently dropping or fabricating their internals.
+
+  - description: Keep a proposed bulk-cancel shape honest under missing decisions
+    vars:
+      skill: file://../../src/core/skills/pseudocode/SKILL.md
+      scenario: |-
+        Render implementation-planning pseudocode for this approved requirement:
+        add `POST /orders/bulk-cancel`; authenticate with the existing actor;
+        accept one or more order IDs; call the existing single-order cancellation
+        for each ID; continue after an individual cancellation fails; and return
+        one success-or-error result per input in input order. Save nothing and do
+        not implement. Product has not decided concurrency, retries, status code,
+        error payload fields, or maximum batch size. Use `[NEW]` wherever the
+        requirement creates a name or shape. The numbered attachment source is:
+
+        `src/http/cancel-order.ts`
+        8 `export async function cancelOrder(req: HttpRequest): Promise<HttpResponse> {`
+        9 `  const actor = requireActor(req)`
+        10 `  const orderId = parseOrderId(req.params.id)`
+        11 `  await canceller.cancel(orderId, actor)`
+        12 `  return noContent()`
+        13 `}`
+
+        `src/orders/canceller.ts`
+        5 `export class OrderCanceller {`
+        6 `  constructor(private orders: OrderStore) {}`
+        7 `  async cancel(orderId: OrderId, actor: Actor): Promise<void> {`
+        8 `    const order = await this.orders.get(orderId)`
+        9 `    order.cancel(actor)`
+        10 `    await this.orders.save(order)`
+        11 `  }`
+        12 `}`
+
+        `src/main.ts`
+        14 `const canceller = new OrderCanceller(postgresOrders)`
+        `test/cancel-order.test.ts`
+        6 `const canceller = new OrderCanceller(inMemoryOrders)`
+
+        `HttpRequest`, `HttpResponse`, `OrderId`, and `Actor` are external.
+        `requireActor`, request parsing, response serialization, `Order`, and
+        `OrderStore` are outside the requested frame. Production and test are
+        separate wirings. Do not choose any of the undecided product behaviours.
+      rubric: |-
+        - Separates the existing `cancelOrder`/`OrderCanceller.cancel` attachment evidence from the proposed bulk entry point and marks every requirement-derived route, type, field, and signature `[NEW]`.
+        - Preserves authentication and the existing `cancel(orderId: OrderId, actor: Actor): Promise<void>` call, with an actor crossing every new per-order edge; it neither bypasses nor invents an authorization mechanism.
+        - Declares only the minimum requirement-backed bulk input and per-input success-or-error result shape, preserving input order, and explicitly leaves error fields plus HTTP status unresolved rather than manufacturing a schema.
+        - Draws production and test call graphs with `[each orderId]` and `[error: individual cancellation]` paths, continuing to a result for every input; each graph resolves `OrderCanceller` to the existing Postgres or in-memory store wiring without inventing queue, worker, or retry edges.
+        - Reports concurrency, retries, status code, error payload fields, and maximum batch size as gaps that require product decisions, does not claim or propose writing files, and does not present the proposed render as observed implementation.

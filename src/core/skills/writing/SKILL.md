@@ -14,6 +14,8 @@ Guidelines for creating technical content that developers can skim first and tru
 - **Practical** - State what the reader will achieve, then show how
 - **Concise** - Keep pages performant with direct copy; avoid walls of text
 - **Consistent** - Maintain brand voice, correct product names, and formatting patterns
+- **Grounded** - Distinguish supplied current facts, proposals, and unknowns; when the evidence describes unsafe current behaviour, name it and its unresolved risk before presenting a target design; state every blocker and safety caveat explicitly
+- **Evidence-shaped examples** - When implementation names are absent, use clearly labelled placeholders instead of inventing APIs, frameworks, paths, or results
 
 ## Voice & Tone
 

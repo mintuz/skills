@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: React skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the React response reaches every observable outcome
+        required by this scenario. Give equal weight to every outcome below.
+        Credit concrete, runnable logic and explicit boundary reasoning rather
+        than copied rubric wording, verbosity, or invented project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep authorization at the server boundary despite a client permission gate
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        Implement the smallest React and TypeScript change for a comment delete
+        action. `currentUser` is `User | null`; a `User` has `id` and role
+        `"admin" | "member"`; a `Comment` has `id` and `authorId`.
+        `deleteComment(comment.id)` calls an existing HTTP endpoint and rejects
+        with `ApiError { status: number }`. Product wants the Delete button shown
+        only to the comment author or an admin. The endpoint currently deletes by
+        comment ID without checking the authenticated actor. You may edit only
+        the frontend repository in this task.
+
+        Return the component-side implementation and a short security rationale.
+        Be precise about what this task can and cannot make secure. Do not invent
+        a dependency, backend implementation, or new application-wide state.
+      rubric: |-
+        - States that a hidden or disabled React control is only a UX permission gate and cannot authorize the delete request; it does not claim this frontend-only task makes deletion secure.
+        - Names the required server contract: authenticate the actor and authorize admin-or-resource-owner access before deleting, returning 403 with no deletion when unauthorized.
+        - Implements one small, typed owner-or-admin predicate that is false for `currentUser === null`, and renders an accessible `button` only when that predicate passes.
+        - Calls the existing `deleteComment(comment.id)` directly from the user event and handles a rejected 403 locally as a non-success state; it does not redirect globally, log out the user, or treat a client role as proof of authority.
+        - Adds no dependency, duplicated permission store, effect-driven mutation, backend code, or claim that client validation prevents a crafted HTTP request.
+
+  - description: Prevent stale async effect results after identity change and unmount
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        Patch this React component. The repository has no data-fetching library,
+        and dependencies cannot change. `loadUser(userId, signal)` rejects with a
+        DOM `AbortError` when cancelled.
+
+        ```tsx
+        type Props = {
+          userId: string;
+          loadUser: (userId: string, signal: AbortSignal) => Promise<User>;
+        };
+
+        function UserPanel({ userId, loadUser }: Props) {
+          const [state, setState] = useState<State>({ status: "loading" });
+
+          useEffect(() => {
+            setState({ status: "loading" });
+            loadUser(userId, new AbortController().signal).then(
+              (user) => setState({ status: "success", user }),
+              (error) => setState({ status: "error", error }),
+            );
+          }, [userId, loadUser]);
+
+          return <UserState state={state} />;
+        }
+        ```
+
+        When `userId` changes from A to B, request B may settle before request A;
+        A must never replace B. Unmount must cancel outstanding work. React
+        Strict Mode's development setup-cleanup-setup cycle must not produce an
+        error state. Return the smallest component patch and a concise rationale.
+      rubric: |-
+        - Creates one `AbortController` inside each effect setup and passes that controller's signal to `loadUser`.
+        - Returns cleanup that prevents that setup's later settlements from writing state and aborts its controller, so prop changes, unmount, and Strict Mode cleanup invalidate that setup.
+        - Guards both fulfillment and rejection state writes so an invalidated setup never writes, ensuring request A cannot replace request B even if it settles late.
+        - Treats an `AbortError` as cancellation rather than an application error and leaves it out of the rendered error state.
+        - Keeps `userId` and `loadUser` as honest dependencies and adds no data-fetching dependency or global state.

@@ -19,7 +19,7 @@ Classify each entry point `existing` or `[NEW]`. For a `[NEW]` render, resolve t
 
 ## 2. Read the parts
 
-Follow every call from each entry point, opening each file on the path. For every function reached, record its file and line, its signature as written, the effects it causes, and the calls it makes.
+Follow every call from each entry point, opening each file on the path. For every function reached, record its declaration file and line, its signature as written, the effects it causes, and each call's call-site line.
 
 Expand a path until it reaches a boundary crossing, a pure leaf, the frame edge, or a function already recorded. A path ends nowhere else.
 
@@ -50,7 +50,7 @@ Where the cut is not obvious, place it here:
 
 ## 4. Render the call graph
 
-One graph per wiring, as an indented tree. Each edge reads `→ Receiver.method(arg: Type, arg: Type) : Return`, then its annotations, then its file and line. Order siblings by execution order.
+One graph per wiring, as an indented tree. Each edge reads `→ Receiver.method(arg: Type, arg: Type) : Return`, then its annotations, then the caller's call-site file and line. Order siblings by execution order.
 
 ```
 submitCheckout(req: HttpRequest) : HttpResponse                          src/http/checkout.ts:14

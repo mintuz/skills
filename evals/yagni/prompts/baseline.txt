@@ -1,0 +1,8 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Treat the scenario as the complete
+repository evidence and use only general software-engineering judgement; do not
+load, search for, or use any installed skill. Return the requested implementation
+plan.
+
+Scenario:
+{{scenario}}

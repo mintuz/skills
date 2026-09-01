@@ -17,10 +17,22 @@ This is non-negotiable. If you're typing production code without a failing test 
 
 ### 1. RED - Write a Failing Test
 
-Write a test that describes the desired behavior. The test must fail because the behavior doesn't exist yet.
+Write one behavior test and run it against the pre-change production behavior.
+RED is complete only when the test reaches its behavior assertion and fails for
+the expected missing behavior. A passing test or an earlier setup, import, or
+compile failure means there is no RED: correct the test harness or remove only
+your premature production edit, preserve unrelated work and any existing test,
+and rerun it. Never duplicate an existing test. If the test still passes, inspect
+whether the behavior already exists or the test is ineffective before changing
+production code.
 
 **Rules:**
 
+- An unexpected pass is a stop condition: do not edit production; inspect
+  existing behavior and strengthen the test only when it is ineffective.
+- When a premature production edit makes an already-present regression test
+  pass, call it a false RED. Preserve that test, reverse only the owned
+  production edit, and rerun the focused test to the intended assertion failure.
 - Start with the simplest behavior
 - Test ONE thing at a time
 - Focus on business behavior, not implementation
@@ -37,6 +49,8 @@ Write the **minimum** code to make the test pass. Nothing more.
 - Resist "just in case" logic
 - No speculative features
 - If writing more than needed, STOP and question why
+- After focused GREEN, run the relevant existing regression suite as a distinct
+  check before declaring the slice safe.
 
 ### 3. REFACTOR - Assess and Improve
 
@@ -44,7 +58,7 @@ With tests green, assess whether refactoring would add value.
 
 **Rules:**
 
-- Commit working code FIRST
+- Establish a reversible GREEN baseline; commit it only when authorized
 - External APIs stay unchanged
 - All tests must still pass
 - Commit refactoring separately

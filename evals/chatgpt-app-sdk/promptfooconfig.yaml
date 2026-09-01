@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: ChatGPT Apps SDK skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the ChatGPT app design reaches every required outcome
+        for this scenario. Give equal weight to every outcome below. Credit
+        explicit, scenario-specific boundaries and failure semantics. Do not
+        reward verbosity, copied rubric wording, or invented platform behavior.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Make a charged-order tool replay-safe across tenants and restarts
+    vars:
+      skill: file://../../src/web/skills/chatgpt-app-sdk/SKILL.md
+      reference: file://../../src/web/skills/chatgpt-app-sdk/references/mcp-server.md
+      scenario: |-
+        Design the MCP server boundary for a public `charge_order` tool. The model
+        or widget may retry the same invocation concurrently or after the server
+        restarts. Every original user action supplies a stable `requestId`.
+        `orderId`, `accountId`, and `amount` can all be forged by the caller; the
+        authenticated account comes from the server's OAuth context. The payment
+        provider accepts an idempotency key. A repeated request with the same key
+        but changed arguments is a conflict, not a second charge.
+
+        Return the input contract, handler flow, response partition, and the
+        smallest boundary checks that prove the design. Do not add a queue or a
+        new service.
+      rubric: |-
+        - Validates a stable `requestId` and `orderId` at the tool boundary, derives the account and charge amount from authenticated server-owned data, and verifies order ownership before charging; caller-supplied `accountId` or `amount` is never authoritative.
+        - Uses a durable idempotency record uniquely scoped to the authenticated account, operation, and `requestId`, stores an input fingerprint and terminal result, and coordinates it transactionally with the charge transition or the provider idempotency key so concurrent calls and process restarts cannot double-charge.
+        - Replays the stored result for the same key and same fingerprint, but returns an explicit conflict for the same key with changed arguments; it does not use wall-clock time or an in-memory map as the idempotency identity or source of truth.
+        - Keeps model-needed status and identifiers concise in `structuredContent`, places only widget-needed non-secret presentation data in `_meta`, and returns expected conflicts as user-safe content without credentials, provider internals, or stack traces.
+        - Proves the boundary with focused checks for concurrent duplicates, replay after restart, key reuse with changed arguments, and cross-account order access, while preserving one handler rather than adding speculative infrastructure.
+
+  - description: Keep credentials and private case data out of widget persistence
+    vars:
+      skill: file://../../src/web/skills/chatgpt-app-sdk/SKILL.md
+      reference: file://../../src/web/skills/chatgpt-app-sdk/references/state-management.md
+      scenario: |-
+        Design the payload and state boundaries for a customer-support widget.
+        The server has an OAuth access token, 500 cases containing customer email
+        addresses and internal audit notes, and a model-safe summary containing
+        total count plus three case titles. The widget needs a paginated view of
+        cases the signed-in agent may see and must retain only its selected case,
+        page, and sort order between renders. A teammate proposes returning the
+        token, full cases, and error stack in `_meta`, then copying all cases into
+        widget state so refreshes are instant.
+
+        Return the server response shape, widget state shape, authorization and
+        error boundaries, and focused checks. Use the existing MCP server and
+        widget; do not add a client-side credential store.
+      rubric: |-
+        - Keeps the OAuth token out of `structuredContent`, `content`, `_meta`, widget state, and browser code entirely; `_meta` is widget-visible transport, not a secret store.
+        - Authorizes every case query on the server for the authenticated agent, minimizes the widget-visible case fields to what that agent and view need, and keeps internal audit notes out unless an explicitly authorized UI requirement needs them.
+        - Returns only the total and three safe titles in concise model-visible `structuredContent`, while `_meta` carries only the authorized page or opaque retrieval data needed by the widget rather than all 500 cases.
+        - Persists only selected case ID, page, and sort order in widget state, with business data remaining server-owned and refreshed through the tool; it does not copy credentials, cases, email addresses, or audit notes into model-visible widget persistence.
+        - Maps expected failures to safe user-facing content and an opaque correlation code, logs technical details server-side without returning stack traces, and checks unauthorized access plus payload and widget-state redaction.
