@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 # Trigger-selection check for the learn skill description. Not part of the
-# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
-# both commands from the repo root:
-#   mkdir -p evals/learn/trigger-workspace/.agents/skills/learn && cp src/core/skills/learn/SKILL.md evals/learn/trigger-workspace/.agents/skills/learn/SKILL.md
-#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/learn/trigger.promptfooconfig.yaml
+# scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- learn
+# which refreshes the git-ignored fixture from src/ first.
 # The fixture lives in its own workspace, so no installed skill can reach the
 # behavioural suite in evals/learn/workspace.
 # A symlink does not work as the fixture: Codex resolves it to the source path,

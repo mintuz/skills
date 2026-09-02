@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 # Trigger-selection check for the css skill description. Not part of the
-# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
-# both commands from the repo root:
-#   mkdir -p evals/css/workspace/.agents/skills/css && cp src/web/skills/css/SKILL.md evals/css/workspace/.agents/skills/css/SKILL.md
-#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/css/trigger.promptfooconfig.yaml
+# scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- css
+# which refreshes the git-ignored fixture from src/ first.
 # A symlink does not work as the fixture: Codex resolves it to the source path,
 # which the skill-used heuristic does not recognise.
 description: css skill trigger selection

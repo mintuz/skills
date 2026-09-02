@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
-# Trigger-selection check for the frontend-testing skill description. Not part of
-# the scripted suite. The fixture is disposable and git-ignored; refresh it, then
-# run both commands from the repo root:
-#   mkdir -p evals/frontend-testing/workspace/.agents/skills/frontend-testing && cp src/web/skills/frontend-testing/SKILL.md evals/frontend-testing/workspace/.agents/skills/frontend-testing/SKILL.md
-#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/frontend-testing/trigger.promptfooconfig.yaml
+# Trigger-selection check for the frontend-testing skill description.
+# Run it from the repo root with:
+#   pnpm test:skills:triggers -- frontend-testing
+# which refreshes the git-ignored fixture from src/ first.
 # A symlink does not work as the fixture: Codex resolves it to the source path,
 # which the skill-used heuristic does not recognise.
 description: frontend-testing skill trigger selection

@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 # Trigger-selection check for the react skill description. Not part of the
-# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
-# both commands from the repo root:
-#   mkdir -p evals/react/workspace/.agents/skills/react && cp src/web/skills/react/SKILL.md evals/react/workspace/.agents/skills/react/SKILL.md
-#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/react/trigger.promptfooconfig.yaml
+# scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- react
+# which refreshes the git-ignored fixture from src/ first.
 # A symlink does not work as the fixture: Codex resolves it to the source path,
 # which the skill-used heuristic does not recognise.
 description: react skill trigger selection

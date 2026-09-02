@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 # Trigger-selection check for the debug skill description. Not part of the
-# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
-# both commands from the repo root:
-#   mkdir -p evals/debug/workspace/.agents/skills/debug && cp src/app/skills/debug/SKILL.md evals/debug/workspace/.agents/skills/debug/SKILL.md
-#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/debug/trigger.promptfooconfig.yaml
+# scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- debug
+# which refreshes the git-ignored fixture from src/ first.
 # A symlink does not work as the fixture: Codex resolves it to the source path,
 # which the skill-used heuristic does not recognise. The heuristic counts any
 # read of SKILL.md as use, so an exclusion the agent applies after reading the

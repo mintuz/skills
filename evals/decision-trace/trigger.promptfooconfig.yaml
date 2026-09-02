@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
-# Trigger-selection check for the decision-trace skill description. Not part of
-# the scripted suite. The fixture is disposable and git-ignored; refresh it, then
-# run both commands from the repo root:
-#   mkdir -p evals/decision-trace/workspace/.agents/skills/decision-trace && cp src/product-management/skills/decision-trace/SKILL.md evals/decision-trace/workspace/.agents/skills/decision-trace/SKILL.md
-#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/decision-trace/trigger.promptfooconfig.yaml
+# Trigger-selection check for the decision-trace skill description.
+# Run it from the repo root with:
+#   pnpm test:skills:triggers -- decision-trace
+# which refreshes the git-ignored fixture from src/ first.
 # A symlink does not work as the fixture: Codex resolves it to the source path,
 # which the skill-used heuristic does not recognise.
 description: decision-trace skill trigger selection

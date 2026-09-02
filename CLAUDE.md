@@ -119,7 +119,7 @@ Treat every skill change as TDD. Its Promptfoo suite at `evals/[skill-name]/prom
 2. **GREEN — make the minimum skill change.** Update the skill only enough to pass the new case, then rerun `pnpm test:skills -- [skill-name]`. Every existing case and the new case must pass.
 3. **COMPARE — prove the improvement.** Run `pnpm eval:skills -- [skill-name]` and inspect the no-skill baseline beside the skill treatment. The treatment must improve the intended case without reducing performance on existing cases. The comparison command is informational, so inspect its results rather than relying on its exit code.
 
-Existing scenarios and assertions are the regression contract. Preserve them unless the requirement itself changed. For trigger or description changes, also add the disposable skill fixture and `skill-used` assertion described in [`scripts/README.md`](scripts/README.md).
+Existing scenarios and assertions are the regression contract. Preserve them unless the requirement itself changed. For trigger or description changes, also add a `trigger.promptfooconfig.yaml` and run `pnpm test:skills:triggers -- [skill-name]`, which builds the disposable skill fixture for you. See [`scripts/README.md`](scripts/README.md).
 
 A skill change is complete only when the Promptfoo config records the new scenario and rubric, configuration validation passes, all treatment tests pass, and the comparison demonstrates the intended gain without regression.
 

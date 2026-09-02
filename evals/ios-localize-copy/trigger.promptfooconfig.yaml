@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
-# Trigger-selection check for the ios-localize-copy skill description. Not part
-# of the scripted suite. The fixture is disposable and git-ignored; refresh it,
-# then run both commands from the repo root:
-#   mkdir -p evals/ios-localize-copy/workspace/.agents/skills/ios-localize-copy && cp src/app/skills/ios-localize-copy/SKILL.md evals/ios-localize-copy/workspace/.agents/skills/ios-localize-copy/SKILL.md
-#   PROMPTFOO_DISABLE_TELEMETRY=1 promptfoo eval --no-cache -c evals/ios-localize-copy/trigger.promptfooconfig.yaml
+# Trigger-selection check for the ios-localize-copy skill description.
+# Run it from the repo root with:
+#   pnpm test:skills:triggers -- ios-localize-copy
+# which refreshes the git-ignored fixture from src/ first.
 # A symlink does not work as the fixture: Codex resolves it to the source path,
 # which the skill-used heuristic does not recognise.
 description: ios-localize-copy skill trigger selection

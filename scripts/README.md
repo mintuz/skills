@@ -31,10 +31,14 @@ pnpm test:skills
 # Compare every baseline and skill side by side
 pnpm eval:skills
 
+# Run the trigger-selection suites for the skills that have one
+pnpm test:skills:triggers
+
 # Filter any command to one skill
 pnpm eval:skills:check -- commit-messages
 pnpm test:skills -- commit-messages
 pnpm eval:skills -- commit-messages
+pnpm test:skills:triggers -- debug
 
 # Open the local results UI
 pnpm eval:skills:view
@@ -49,8 +53,25 @@ Promptfoo and its reports run locally, but this configuration sends the skill an
 scenario text to the model behind the existing Codex login. Change the provider to
 a local agent/model when inference must stay on the machine.
 
-This suite tests behaviour after activation. Add disposable `.agents/skills/`
-fixtures and Promptfoo's `skill-used` assertion when testing trigger selection.
+### Trigger selection
+
+The main suite tests behaviour after activation. A skill whose description
+changed also needs a trigger-selection suite, which tests whether the skill
+fires at all. Put it in `evals/<skill>/trigger.promptfooconfig.yaml` and give it
+a `working_dir` under the eval directory.
+
+`pnpm test:skills:triggers` copies the current `SKILL.md` into
+`<working_dir>/.agents/skills/<skill>/` before each run, then evaluates the
+trigger config. The fixture is a verbatim copy of the skill, so it is git-ignored
+rather than committed: a committed copy would drift from the source and the suite
+would test a stale description. Never edit the fixture; edit the skill.
+
+Trigger runs report rather than gate. Activation is nondeterministic, and
+Promptfoo's `skill-used` heuristic counts any read of `SKILL.md` as use, so an
+exclusion the agent applies after reading the skill still counts as activation.
+Judge such cases with `agent-rubric` on the response instead. A symlink does not
+work as the fixture, because Codex resolves it to the source path.
+
 Use `skill-doctor` separately to find trigger problems in real conversation history.
 
 ---
