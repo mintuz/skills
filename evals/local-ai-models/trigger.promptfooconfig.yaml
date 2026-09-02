@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the local-ai-models skill description. Not part of
+# the scripted suite. The fixture is disposable and git-ignored; refresh it, then
+# run both commands from the repo root:
+#   mkdir -p evals/local-ai-models/workspace/.agents/skills/local-ai-models && cp src/app/skills/local-ai-models/SKILL.md evals/local-ai-models/workspace/.agents/skills/local-ai-models/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/local-ai-models/trigger.promptfooconfig.yaml
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: local-ai-models skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on an on-device Foundation Models chat request
+    vars:
+      request: >-
+        Add an on-device chat assistant to our iOS app with Apple's Foundation
+        Models framework: multi-turn conversation, streamed replies, and a
+        fallback screen when the model is unavailable.
+    assert:
+      - type: skill-used
+        value: local-ai-models
+
+  - description: Does not activate for Core ML model conversion
+    vars:
+      request: >-
+        Convert our PyTorch image classifier to a Core ML .mlpackage with
+        coremltools, set the compute units, and wire the prediction call into
+        the existing Vision request pipeline.
+    assert:
+      - type: not-skill-used
+        value: local-ai-models
+
+  - description: Activates for an MLX Swift vision language model
+    vars:
+      request: >-
+        Run a vision language model on the phone with MLX Swift so the user can
+        photograph a menu and ask questions about it offline. Plan the model
+        download, memory budget, and the SwiftUI screen.
+    assert:
+      - type: skill-used
+        value: local-ai-models

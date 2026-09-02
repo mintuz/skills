@@ -16,7 +16,10 @@ screen.getByTestId('user-menu');
 screen.getByRole('button', { name: /user menu/i });
 ```
 
-If accessible query fails, **your app has an accessibility issue.**
+When an accessible query fails, **treat it as a likely accessibility issue in
+your markup** and check that first. Some elements you do not own, such as a
+third-party widget, expose no accessible route at all; the main skill file
+describes the deliberate fallback for that case.
 
 ## ARIA Attributes
 
@@ -30,13 +33,19 @@ If accessible query fails, **your app has an accessibility issue.**
 </div>
 ```
 
-❌ **DON'T add to semantic HTML** (redundant):
+❌ **DON'T restate a role semantic HTML already has:**
 ```html
-<!-- ❌ WRONG - Semantic HTML already has role -->
+<!-- ❌ WRONG - Redundant role -->
 <button role="button">Submit</button>
 
 <!-- ✅ CORRECT - Semantic HTML is enough -->
 <button>Submit</button>
+```
+
+✅ **DO add ARIA state to semantic HTML.** A role is intrinsic; state is not.
+```html
+<button aria-expanded="false" aria-controls="filters">Filters</button>
+<button aria-pressed="true">Bold</button>
 ```
 
 ## Semantic HTML Priority

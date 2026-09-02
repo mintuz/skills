@@ -102,12 +102,22 @@ Avoid `as` type assertions. They bypass type checking:
 // Bad - assumes without verification
 const user = response as User;
 
-// Good - validates at runtime
-const user = UserSchema.parse(response);
-
-// If assertion truly needed, document why
+// Bad - a published contract is a promise, not a runtime check
 // SAFE: Response shape guaranteed by OpenAPI contract after auth
 const user = response as User;
+
+// Good - validates at runtime
+const user = UserSchema.parse(response);
+```
+
+Use `as` only where a check you have just run cannot be expressed in the type system, such as the constructor of a branded type. Put the assertion immediately after the check. Write a comment that names the checked condition:
+
+```typescript
+const createUserId = (id: string): UserId | null => {
+  if (!id.startsWith("usr_")) return null;
+  // SAFE: id matches the checked `usr_` prefix that defines UserId
+  return id as UserId;
+};
 ```
 
 ## Strict Mode Configuration

@@ -69,7 +69,7 @@ tests:
         - Builds the verification contract before cutting nodes, preserves the supplied scenario as the governing source, and records missing source revisions, expected outcomes, authority, or ownership as contract gaps rather than inventing them.
         - Gives A, B, and C provisional bounded nodes subject to confirming real repository paths, draws the `needs` edge from A to B because B consumes A's schema, and says it releases only after A is independently verified and integrated into B's base—not for an open PR or green CI alone.
         - Prevents B and C from running together with an `excludes` edge because they would settle the same open transaction-boundary decision; it also withholds any concurrency claim involving A until generated paths and all four concurrency conditions are checked.
-        - Renders all three nodes and both `needs` and `excludes` edges in Mermaid, marks contract- or path-incomplete nodes blocked, and includes each node's deliverable, assertions, skill composition, and owned paths or explicitly unresolved path scope.
+        - Renders all three nodes and both `needs` and `excludes` edges in Mermaid, marks contract- or path-incomplete nodes blocked, and includes each node's deliverable, assertions, skill composition or an explicit note that the composition is unresolved, and owned paths or explicitly unresolved path scope.
         - Stops for user approval of the rendered graph and open questions before dispatching any writer, despite the request to launch first; it may parallelise the remaining read-only repository investigation while awaiting approval.
 
   - description: Block integration on creator-shaped and unjudgeable evidence
@@ -89,8 +89,65 @@ tests:
         the unit test proves if necessary. Give the assertion verdicts, next
         actions, and downstream state.
       rubric: |-
-        - Rejects the worker's self-verdict and worker-spawned, summary-anchored review as independent verification; creates a fresh verifier from S1 and B1, the real artifact, and raw evidence while withholding the worker's rationale and quality claims.
+        - Rejects the worker's self-verdict and worker-spawned, summary-anchored review as independent verification; creates a fresh verifier from S1, B1, and the real artifact, has it gather its own raw evidence, and withholds the worker's rationale and quality claims.
         - Requires the fresh verifier to run the typecheck for S1 and records S1 as `pass`, `fail`, or `unjudgeable` from that real command and exit code, rather than inheriting the claimed pass from the handoff or merely reading the test.
         - Marks B1 `unjudgeable` because the real checkout surface could not be exercised, treats the missing fixture as an evidence-path repair, and neither substitutes the focused implementation-shaped test nor narrows B1 to manufacture a pass.
         - Blocks integration of the checkout node and keeps the downstream receipt node blocked because its `needs` edge releases only after every owned assertion passes and the artifact is integrated.
         - After repairing the fixture, requires exercising B1 through the real checkout surface with a new fresh verifier rather than reusing the prior verifier, and keeps the original B1 outcome intact throughout the repair.
+
+  - description: Refuse to build a graph for independent reads
+    vars:
+      skill: file://../../src/core/skills/graph-engineering/SKILL.md
+      scenario: >-
+        The user asks for "an execution graph with verifiers" for three tasks:
+        summarise the README, list every TODO comment under src/, and count the
+        test files. None of the three writes anything, none depends on another,
+        and no spec, story, or assertion has been supplied. Say what you build
+        and what you do not build.
+      rubric: |-
+        - States that no task depends on another and no task has a write scope, so there is no edge to schedule and the request is not a graph.
+        - Proposes running the three reads concurrently as plain fan-out without a verification contract, ledger, verifier seats, or heartbeat.
+        - Does not invent assertions, edges, node briefs, or a Mermaid render to satisfy the wording of the request.
+        - Names the condition under which a graph would be warranted: a dependency between units or a shared write scope.
+        - Does not claim to have executed any of the three reads.
+
+  - description: Fetch the remote and confirm spec priority before cutting nodes
+    vars:
+      skill: file://../../src/core/skills/graph-engineering/SKILL.md
+      scenario: >-
+        You are orchestrating specs 059, 062, and 063, each a file under
+        specs/. The user's latest message says: "All three are ready; 062 is
+        the one still missing from main, so it probably goes first." Your local
+        clone last fetched origin twelve hours ago; in that stale view,
+        specs/062.md is absent from origin/main and specs/059.md is present. A
+        ledger from an earlier session records 059 as the user's first
+        priority, and the user has not confirmed or withdrawn that. Nothing
+        else about the base branch is known. State what you do before cutting
+        any node, what you tell the user, and which claims you do not yet make.
+      rubric: |-
+        - Names fetching the remote as the first action — before recording any spec revision and before any claim about which specs are on the base branch — and does not assert from the twelve-hour-old view that 062 is absent from origin/main.
+        - Asks the user to confirm the priority order among 059, 062, and 063, citing the conflict between the latest message ("062 probably goes first") and the ledger (059 first), and does not cut or dispatch 062 first on its own.
+        - Names specs/059.md, specs/062.md, and specs/063.md as the governing sources, states that their revisions are unknown until the fetch, and records the priority order as an open question rather than a guess.
+        - Presents the fetch and the confirmation as next actions and does not claim to have run git or read the spec files.
+        - Does not invent spec contents, assertions, or repository paths beyond specs/059.md, specs/062.md, and specs/063.md.
+
+  - description: Bootstrap an isolated worktree before the first commit and after a base merge
+    vars:
+      skill: file://../../src/core/skills/graph-engineering/SKILL.md
+      scenario: >-
+        Node decline-path will run in a fresh git worktree created from the
+        integrated base. The repository uses pnpm, and its lefthook commit hook
+        runs lint through binaries in node_modules; a fresh worktree has no
+        node_modules. The full test run with coverage takes twenty minutes.
+        While decline-path builds, checkpoint 1 will merge node schema into the
+        base, and that merge changes pnpm-lock.yaml; the worker must merge the
+        updated base into its worktree before its final coverage run. Write the
+        workspace steps the worker brief must include, in order, and state what
+        the orchestrator does if the worker's first commit is rejected by the
+        hook.
+      rubric: |-
+        - Includes installing dependencies with pnpm in the fresh worktree before the first commit, so the hook's lint binaries exist.
+        - Includes re-installing dependencies after merging the updated base and before the twenty-minute coverage run, because the merge changed pnpm-lock.yaml.
+        - Orders the steps so that the install precedes the first commit, the commit precedes the base merge, and the re-install follows the merge and precedes the coverage run.
+        - Treats a hook rejection caused by missing dependencies as a workspace bootstrap failure to repair by installing and retrying the commit, not as an artifact failure and not by bypassing the hook.
+        - Does not claim to have run any command and does not invent tools or scripts beyond pnpm, lefthook, and the coverage run named in the scenario.

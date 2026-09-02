@@ -68,17 +68,15 @@ tests:
         The user asks you to make this "provider-ready" at the same time by
         adding a `MessageChannel` interface, provider registry, factory, new
         configuration schema, async job bus, a second fake, and a full matrix of
-        signup/password-reset tests. No second provider, async-delivery
-        requirement, configuration change, or accepted roadmap item is supplied.
-        They say the extra architecture will be cheaper now and ask you not to
-        challenge it. State the goal, non-goals, first red, production slice,
+        signup/password-reset tests. They say the extra architecture will be
+        cheaper now and ask you not to challenge it. State the goal, non-goals, first red, production slice,
         untouched surfaces, and completion checks.
       rubric: |-
         - Defines the goal as one staging subject-prefix rule while preserving production subjects, and makes provider abstraction, registry, factory, configuration schema, job bus, and additional fake explicit non-goals because no accepted behavior needs them.
         - Selects `sendEmail` as the one owning production surface because both callers already route through it; it leaves signup, password-reset, delivery mode, and the existing environment contract untouched rather than distributing prefix logic across callers.
         - Extends the existing focused mail test with one staging assertion and runs it red before production code; it keeps the existing production assertion and does not create a caller matrix, second fake, new framework, or new test structure.
         - Makes the minimum production edit that conditionally prefixes the subject in `sendEmail`, with no speculative interface, provider implementation, registry, factory, configuration layer, or queue.
-        - Treats the supplied requirement as clear and proceeds without waiting for confirmation; completion requires the focused mail tests plus existing type checking and linting, with production unchanged and no unrelated files touched.
+        - States plainly that it is dropping the requested architecture and gives the reason, rather than silently omitting it or accepting it; completion requires the focused mail tests plus the existing type checking and linting, with production subjects unchanged and no unrelated files touched.
 
   - description: Fix a nullable coupon once without multiplying guards or tests
     vars:
@@ -104,5 +102,77 @@ tests:
         - Uses the already-failing renewal regression as the red for the accepted null behavior and adds no duplicate regression or null-test matrix merely to demonstrate activity.
         - Accounts for checkout, admin preview, and renewal before choosing the owning surface, then changes `normalizeCouponCode` once to preserve string trimming and uppercasing while returning no coupon for `null`.
         - Rejects a renewal-only guard, `safeNormalizeCoupon` wrapper, duplicate implementation, and speculative compatibility layer because every caller already crosses the shared function and no external consumer is supplied.
-        - Keeps caller behavior, the existing normalization tests, and unrelated files untouched; it does not add a new framework, helper directory, documentation, or abstraction for the self-evident local contract.
+        - Leaves the caller implementations, the existing normalization tests, and unrelated files untouched, so renewal stops crashing only through the shared fix while checkout and admin behavior is unchanged; it adds no new framework, helper directory, documentation, or abstraction for the self-evident local contract.
         - Orders the slice as failing renewal test, minimal shared fix, focused renewal and normalization tests, then existing type checking and linting; it reports rather than bypasses any failure and stops when those acceptance checks pass.
+
+  - description: Hand a pure mechanism-removal request to the reducer skill
+    vars:
+      skill: file://../../src/core/skills/yagni/SKILL.md
+      scenario: |-
+        Produce a plan; make no edits. The `reportBuilder` module already works
+        and its focused tests, type checking, and linting all pass. It carries a
+        `ReportStrategy` interface with exactly one implementation, a factory
+        that returns that one implementation, and a configuration map with a
+        single key read in one place. No bug is reported, no user-visible
+        behavior changes, and no new feature is requested.
+
+        The user asks you to delete those three layers and inline the single
+        implementation so the module gets simpler, and asks for a plan that
+        keeps behavior byte-for-byte identical. State whether this task belongs
+        to you, who owns it, and what limits still apply if the work proceeds.
+      rubric: |-
+        - Identifies the request as removing mechanism from code that already works with no behavior change, says this skill does not own that task, and names `core:reducer` as the owner instead of producing its own deletion plan.
+        - States the limits that still apply if the removal proceeds: behavior must stay identical, and the existing tests are re-run afterwards as the regression check.
+        - Adds no new test for the removal and proposes no new abstraction, enum, cache, configuration layer, or replacement wrapper for the deleted layers.
+        - Invents no repository fact beyond the scenario, such as file paths, other callers, or test names, and does not claim to have read files or run commands.
+        - Names where the change stays and what stays untouched, and proposes no documentation page, migration guide, or deprecation shim for the removal.
+
+  - description: Refuse an assumed currency map and ask for the accepted rule
+    vars:
+      skill: file://../../src/core/skills/yagni/SKILL.md
+      scenario: |-
+        Produce an implementation-ready plan; make no edits. A support ticket
+        says renewal receipts sometimes show the wrong currency symbol.
+        `formatReceiptTotal(amount, currencyCode)` builds every receipt line and
+        is the only formatter in the repository. The ticket carries that one
+        sentence and nothing else. The repository holds no currency table and no
+        locale library. The existing formatter
+        tests cover `GBP` only and pass; type checking and linting pass.
+
+        The user wants the fix shipped today. They tell you to assume a standard
+        symbol map for the ten most traded currency codes, add that map as a new
+        module, and add one test per code in the map. State the goal, what you
+        need before you write code, the first red, the owning surface,
+        non-goals, and completion checks.
+      rubric: |-
+        - Names the facts it must have before writing code: a currency code that reproduces the fault, and the accepted expected output for that code; it asks the user to supply them.
+        - Refuses to assume the ten-currency symbol map, and makes the new map module and the one-test-per-code matrix explicit non-goals because no accepted mapping is supplied.
+        - Places the eventual fix in `formatReceiptTotal` because it is the only formatter, and plans one failing test built from the supplied example before the production edit.
+        - Invents no currency-to-symbol mapping, locale list, or library choice, and does not present its own assumption as the accepted requirement.
+        - States that no production code changes until the missing facts arrive, and that completion is the focused formatter tests plus the existing type checking and linting.
+
+  - description: Record the learning as one instruction-file rule, not a template block
+    vars:
+      skill: file://../../src/core/skills/yagni/SKILL.md
+      scenario: |-
+        Produce a documentation proposal; make no edits. You have just fixed a
+        bug: `parseDurationHeader` returns seconds, its single caller expected
+        milliseconds, and the mismatch appears only when the upstream service
+        sends the header in ISO-8601 duration form. The failing test came first,
+        the accepted repair is in: the caller now multiplies the returned
+        seconds by 1000, and `parseDurationHeader` still returns seconds. The
+        focused tests pass, and type checking and linting pass. `CLAUDE.md` is the repository's authoritative instruction file. It
+        has a section titled "HTTP client conventions" holding three imperative
+        bullets; none of them states the unit `parseDurationHeader` returns.
+
+        The user asks you to record the learning in `CLAUDE.md` as a "Gotcha"
+        block with its own heading, a Context/Issue/Solution breakdown, correct
+        and wrong code examples, a retrospective of how the bug was found, and a
+        verification checklist. Give the exact text you would add and where it
+        goes.
+      rubric: |-
+        - Proposes exactly one imperative sentence or bullet inside the existing "HTTP client conventions" section of `CLAUDE.md`, and quotes the exact text verbatim.
+        - The proposed text carries the reusable rule the scenario supplies: `parseDurationHeader` returns seconds, and the caller converts to milliseconds. It carries no incident chronology.
+        - Declines the requested heading, Context/Issue/Solution breakdown, code examples, retrospective, and verification checklist, on the ground that the existing section carries the rule alone and a reader can apply it without them.
+        - Puts any further reasoning in the reply rather than in `CLAUDE.md`, and proposes no new document, changelog entry, or edit to any other file.
+        - Invents no repository fact the scenario withholds, such as another caller, a file path, or a second CLAUDE.md section; placing the bullet beside the three bullets the scenario supplies is not an invented fact. It states that the files stay unchanged because this is a proposal.

@@ -202,8 +202,8 @@ class ChatViewModel {
 
         // Stream updates automatically refresh UI
         var response = ""
-        for try await chunk in session.streamResponse(to: text) {
-            response += chunk
+        for try await snapshot in session.streamResponse(to: text) {
+            response = snapshot.content
             // @Observable triggers UI updates
         }
     }
@@ -309,8 +309,8 @@ updateUI(response.content) // User sees nothing until complete
 
 // ✅ GOOD: Stream incrementally
 var response = ""
-for try await chunk in session.streamResponse(to: message) {
-    response += chunk
+for try await snapshot in session.streamResponse(to: message) {
+    response = snapshot.content
     updateUI(response) // User sees progress
 }
 ```

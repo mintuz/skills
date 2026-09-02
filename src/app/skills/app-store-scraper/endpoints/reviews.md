@@ -143,6 +143,45 @@ curl -s "https://itunes.apple.com/us/rss/customerreviews/page=1/id=553834731/sor
 - First entry is always app metadata (not a review)
 - Total accessible reviews: ~500 per app
 
+## Collecting All Pages
+
+Follow these rules when you combine pages into one data set:
+
+1. Request pages in order from 1. Stop when the response `feed` has no `entry` key, or after page 10. A missing `entry` key is the end of the data, not an error.
+2. Validate each page as exactly one JSON object with `jq -es 'length == 1 and (.[0] | type == "object")'` before you parse it. Wait 1-2 seconds between page requests.
+3. Skip index 0 on every page. It is app metadata.
+4. Deduplicate by the review `id.label` and keep the first occurrence, so that the most-recent order survives. Do not use `unique_by`: it sorts by the key. Adjacent pages can overlap when new reviews arrive between requests. Do not deduplicate by author or title.
+5. Normalise each review to `{id, rating, title, content, version, date}`.
+6. Set `complete: true` when an empty page ended the loop. Set `complete: false` when page 10 still had entries.
+7. Write diagnostics to stderr. Write only the JSON result to stdout.
+
+```bash
+APP_ID=553834731
+COUNTRY=us
+COMPLETE=false
+PAGES=()
+
+for page in $(seq 1 10); do
+  PAGE=$(curl -fsS "https://itunes.apple.com/${COUNTRY}/rss/customerreviews/page=${page}/id=${APP_ID}/sortby=mostrecent/json") || { echo "page ${page}: fetch failed" >&2; exit 1; }
+  printf '%s' "$PAGE" | jq -es 'length == 1 and (.[0] | type == "object")' > /dev/null || { echo "page ${page}: invalid JSON" >&2; exit 1; }
+  if ! printf '%s' "$PAGE" | jq -e '.feed.entry' > /dev/null; then COMPLETE=true; break; fi
+  PAGES+=("$PAGE")
+  sleep 2
+done
+
+printf '%s\n' "${PAGES[@]}" | jq -s --argjson complete "$COMPLETE" '{
+  complete: $complete,
+  reviews: ([ .[] | .feed.entry[1:][] | {
+    id: .id.label,
+    rating: .["im:rating"].label,
+    title: .title.label,
+    content: .content.label,
+    version: .["im:version"].label,
+    date: .updated.label
+  } ] | reduce .[] as $r ({seen: {}, out: []}; if .seen[$r.id] then . else {seen: (.seen + {($r.id): true}), out: (.out + [$r])} end) | .out)
+}'
+```
+
 ## Sorting Options
 
 ### `mostrecent`

@@ -48,7 +48,7 @@ For every temporal branch, test the accepted event and the event that must have 
 - authoritative observation before and after transport acceptance;
 - matching and nonmatching convergence.
 
-Use the production scheduling boundary with fake clocks or timers. After cancellation, advance time and prove no new attempt starts. If an intermediate snapshot would violate the contract, subscribe and prove that snapshot is never emitted.
+Make each negative assertion decisive. Assert the state immediately after the event that must have no effect, before sending any later event that would reach the same state anyway. Use the production scheduling boundary with fake clocks or timers. After cancellation, advance time and prove no new attempt starts. If an intermediate snapshot would violate the contract, subscribe and prove that snapshot is never emitted.
 
 ## Prove teardown
 

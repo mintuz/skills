@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the babysit skill description. Not part of the
+# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
+# both commands from the repo root:
+#   mkdir -p evals/babysit/workspace/.agents/skills/babysit && cp src/core/skills/babysit/SKILL.md evals/babysit/workspace/.agents/skills/babysit/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/babysit/trigger.promptfooconfig.yaml
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: babysit skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on escorting an open GitHub PR to green
+    vars:
+      request: >-
+        PR #81 on GitHub is open from branch codex/fix-cache against main and
+        the branch is pushed. Stay on it until CI is green and it merges; I am
+        stepping away for the afternoon.
+    assert:
+      - type: skill-used
+        value: babysit
+
+  - description: Activates when about to hand-write a CI poller on Forgejo
+    vars:
+      request: >-
+        Branch feat/export-csv is pushed to our self-hosted Forgejo and PR #42
+        is open. Write me a bash loop that checks the CI status every minute
+        with tea, re-runs anything that fails, and fixes the branch when the
+        failure is ours.
+    assert:
+      - type: skill-used
+        value: babysit
+
+  - description: Does not activate for watching many PRs as an agent inbox
+    vars:
+      request: >-
+        Poll every open PR and issue in this repository, find comments that
+        mention @codex-agent, and reply to each one in the comment thread.
+    assert:
+      - type: not-skill-used
+        value: babysit
+
+  - description: Does not activate for shipping uncommitted work
+    vars:
+      request: >-
+        The retry-backoff change in src/http.ts is finished and uncommitted.
+        Commit it, push, and open the pull request on GitHub.
+    assert:
+      - type: not-skill-used
+        value: babysit
+
+  - description: Does not activate for implementing a CI watcher in product code
+    vars:
+      request: >-
+        Add a feature to our deploy service in src/deploy/watcher.ts that polls
+        the GitHub checks API for each release branch and posts the result to
+        Slack. Include unit tests. Do not push anything.
+    assert:
+      - type: not-skill-used
+        value: babysit

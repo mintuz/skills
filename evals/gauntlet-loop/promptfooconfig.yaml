@@ -70,7 +70,7 @@ tests:
         - Marks the current comparison `UNJUDGEABLE` because viewport, theme, data, and critic context differ, and repairs the capture and inspection path before changing the dashboard.
         - Uses one capture mechanism with the agreed viewport, theme, deterministic rows, paused motion, and numbered round evidence for both sides of the next comparison.
         - Discards the reused, rationale-anchored verdict and launches a fresh critic with only the goal, constraints, bar, real artifact, and raw matched evidence; a constraint-violating focus-ring suggestion is not sent to the builder as a repair.
-        - If a matched comparison later loses, sends only its largest meaningful in-bar gap to the builder and uses another fresh critic after repair; a win still requires a fresh whole-dashboard judgment.
+        - States that a later LOSE on a matched comparison sends only its single largest meaningful in-bar gap to the builder, and that a fresh whole-dashboard judgment by a new critic precedes any WIN.
         - Treats three rounds as a resource limit rather than evidence of quality, reports round use, and records any unmet gaps and the exact stop reason instead of manufacturing a WIN.
 
   - description: Reject creator-shaped proof and preserve a fixed reliability bar
@@ -94,6 +94,86 @@ tests:
         - Preserves the original performance, crash-recovery, and billing bar; it does not narrow the outcomes to the builder's 100-job benchmark or implementation-shaped unit tests.
         - Rejects the handoff-based WIN because the critic inspected creator claims and tests instead of the real artifact against the agreed comparison method.
         - Marks the worker part `UNJUDGEABLE`, treats the broken original harness and fixture as an inspection-path defect, and repairs that path before changing the worker again.
-        - Requires fresh artifact-level judgment from the repaired 100,000-job, crash, and retry evidence; the builder reports artifacts and evidence but does not decide its own quality.
-        - Keeps accepted or releasable integration blocked while the worker is unjudgeable; it may assemble an isolated candidate only when needed to produce the agreed billing evidence, then runs relevant integrated checks and spends the remaining fresh critic on the complete worker-plus-billing artifact against the original bar.
+        - Requires a fresh critic to judge the repaired 100,000-job, crash, and retry evidence before any WIN is recorded for the worker; the builder reports artifacts and evidence but does not decide its own quality.
+        - Does not treat the user's request to integrate now as acceptance or release; while the worker is unjudgeable it assembles at most an isolated candidate, and only when needed to produce the agreed billing evidence.
+        - Spends the remaining fresh critic call on the complete worker-plus-billing artifact against the original bar after relevant integrated checks, not on the worker handoff alone.
         - Treats the final paid critic call as a resource limit rather than a reason to accept stale evidence, and if proof cannot be completed, stops without a WIN while recording the unresolved outcomes and exact stop reason.
+
+  - description: Decline a Gauntlet Loop for a routine change with acceptance tests
+    vars:
+      skill: file://../../src/core/skills/gauntlet-loop/SKILL.md
+      scenario: |-
+        The user asks for "a full Gauntlet Loop with builders and critics" on a
+        change that corrects an off-by-one in `paginate()` so the last page is
+        included. A failing unit test already reproduces the bug. The acceptance
+        criterion is "the failing test passes and the existing pagination suite
+        stays green". No visual, performance, or taste bar exists. Say what you
+        do.
+      rubric: |-
+        - Says the change already has a clear pass/fail acceptance test and does not need builders, fresh critics, or judging rounds.
+        - Names the ordinary route instead: fix the off-by-one, run the failing test to green, run the pagination suite.
+        - Does not invent a bar, reference artifact, capture protocol, or round budget for this change.
+        - Does not run the loop by default; any offer of a loop is conditional on the user supplying a concrete inspectable bar beyond the existing test.
+        - Does not claim to have edited code or run any test.
+
+  - description: Establish an inspectable bar and a realistic fixture before round one
+    vars:
+      skill: file://../../src/core/skills/gauntlet-loop/SKILL.md
+      scenario: |-
+        The user wants a Gauntlet Loop to make a CSV import "fast and robust"
+        for a data team. They supply no reference, no performance target, no
+        malformed-record policy, and a sample file of 200 rows. They mention that real customer files reach two million
+        rows and sometimes contain malformed quotes. The import runs in a
+        nightly job with a 30-minute window on a 4-core worker with 8 GB of
+        memory. Budget is six rounds.
+        Describe how you set up the loop before any building starts.
+      rubric: |-
+        - Does not start building on "fast and robust"; proposes a measurable bar with a concrete wall-clock or throughput figure for two million rows that fits inside the 30-minute nightly window, and a defined outcome for malformed quotes (reject the file, quarantine the row, or recover by a named rule), with one sentence on why each is relevant.
+        - Requires a fixture at or near two million rows that includes malformed quotes before the bar is fixed; the 200-row sample is not accepted as the fixture.
+        - States the comparison method (harness, fixture, measurement) so both sides of every comparison are measured the same way.
+        - Records six rounds as a resource limit and states that exhaustion is a stop reason, not evidence the bar was met, and names the materiality threshold for stopping early.
+        - Asks the user to confirm the proposed bar before round one; it does not claim to have measured the import or generated the fixture.
+
+  - description: Stop on materiality rather than spending the remaining budget
+    vars:
+      skill: file://../../src/core/skills/gauntlet-loop/SKILL.md
+      scenario: |-
+        A Gauntlet Loop is improving a landing page against a supplied reference
+        render. The agreed materiality threshold is "no visible layout
+        difference at 1440x900; sub-pixel and anti-aliasing differences do not
+        count". Rounds 1 to 4 each got a LOSE with one real layout gap, in
+        this order: hero overflow, nav wrap, footer misalignment, card grid
+        gutter. The builder repaired each gap in the round that found it, with
+        numbered screenshots. Round 5's fresh
+        critic returned LOSE citing only a one-pixel anti-aliasing difference on
+        a heading. The budget is eight rounds and the user is away. Say what the
+        loop does next and give the terminal report.
+      rubric: |-
+        - Treats the round-5 gap as below the agreed materiality threshold and stops the loop; it does not send that gap to the builder as a repair.
+        - Does not record a WIN; the terminal verdict is a stop by materiality with the sub-threshold gap listed as the remaining difference.
+        - Reports rounds used as 5 of 8 and states that budget remained.
+        - Lists the four closed gaps (hero overflow, nav wrap, footer misalignment, card grid gutter), each with the round number (1 to 4) in which it was found and repaired.
+        - Does not continue looping because budget remains or because the user is unavailable, and does not claim to have captured any screenshot after round 5; restating the round 1 to 5 screenshots given in the scenario is not a claim.
+
+  - description: Builder in a shared worktree must not stash over another builder's edits
+    vars:
+      skill: file://../../src/core/skills/gauntlet-loop/SKILL.md
+      scenario: |-
+        You are the lead of a Gauntlet Loop improving a reporting service. Two
+        parts run in parallel: builder A owns the PDF renderer and builder B owns
+        the export API. The host can create git worktrees, but the lead put both
+        builders in the same checkout to save setup time. The run branch is
+        `run/reporting`; the shared checkout has it checked out, and neither
+        builder has a branch of its own yet. Builder A has uncommitted edits
+        across twelve files. Builder B wants to confirm that a
+        latency regression is not already present on `main`, so it plans to run
+        `git stash push`, `git checkout main`, run the benchmark, then
+        `git checkout -` and `git stash pop`. Say what the builder briefs should
+        have said, what builder B does now, how you get the baseline benchmark,
+        and how builder A's work reaches `run/reporting`.
+      rubric: |-
+        - States that each builder should have its own worktree, and moves the builders into separate worktrees before the next round rather than continuing to share one checkout; states that `git stash` stays forbidden even in separate worktrees.
+        - States that a brief for a shared worktree forbids git commands that change the branch, index, or working tree (stash, checkout, switch, reset, restore, clean, add, commit) and that a builder needing one stops and reports to the lead.
+        - Builder B does not run the stash and checkout sequence; the baseline benchmark runs from a separate worktree or checkout of `main` that leaves builder A's twelve uncommitted files untouched.
+        - States that A's work reaches `run/reporting` only in commits that contain A's files alone: while the checkout is shared, the lead makes one commit per builder at the end of the round; once A has its own worktree, A commits on its own branch and the lead merges it. Nobody stashes or resets A's edits.
+        - Does not claim to have run any git command or the benchmark.

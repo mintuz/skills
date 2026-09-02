@@ -2,6 +2,18 @@
 
 Type-safe variant components using Class Variance Authority for consistent component APIs.
 
+## Before You Use CVA
+
+CVA is a dependency (`class-variance-authority`). Use it when the project
+already installs the package, or when the requester asks for CVA and accepts the
+dependency. Do not add the package on your own initiative: the exhaustive
+`Record<Variant, string>` map described in `SKILL.md` is the dependency-free
+equivalent, so use that map whenever the package is absent and nobody has chosen
+to add it. CVA still pays off, once it is available, when a component has
+several independent variant axes, such as `variant` plus `size`. Both
+mechanisms keep every utility name literal in the source, which is what Tailwind
+scans for.
+
 ## Pattern Overview
 
 CVA provides a type-safe way to define component variants with:
@@ -16,6 +28,8 @@ CVA provides a type-safe way to define component variants with:
 // components/ui/button.tsx
 import { cva, type VariantProps } from 'class-variance-authority'
 import { forwardRef } from 'react'
+// cn() comes from utilities.md and needs clsx and tailwind-merge. Without those
+// packages, pass the class string straight to className instead.
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
@@ -47,15 +61,12 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
-}
+    VariantProps<typeof buttonVariants> {}
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button'
+  ({ className, variant, size, ...props }, ref) => {
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
@@ -79,11 +90,11 @@ export { Button, buttonVariants }
 <Button variant="outline">Cancel</Button>
 <Button variant="ghost" size="sm">Edit</Button>
 
-// With asChild for composition
-<Button asChild>
-  <Link href="/home">Home</Link>
-</Button>
 ```
+
+To render the button as another element, add `@radix-ui/react-slot` and swap the
+element for `Slot`. Add that package only when the requester accepts it.
+
 
 ## Component Architecture
 

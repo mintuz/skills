@@ -60,22 +60,32 @@ server.registerTool(
   "kanban-board",
   {
     title: "Show Kanban Board",
-    inputSchema: { workspace: z.string() },
+    inputSchema: { workspace: z.string(), cursor: z.string().optional() },
     _meta: {
       "openai/outputTemplate": "ui://widget/kanban.html",
     },
   },
-  async ({ workspace }) => {
-    const tasks = await database.getTasks(workspace);
+  async ({ workspace, cursor }, { authInfo }) => {
+    // Resolve the account from verified auth, then authorise the workspace.
+    const accountId = await resolveAccount(authInfo);
+    await requireWorkspaceAccess(accountId, workspace);
+
+    // Read only the page the board renders.
+    const { tasks, total, nextCursor } = await database.getTaskPage({
+      accountId,
+      workspace,
+      cursor,
+      limit: 50,
+    });
 
     return {
       structuredContent: {
         workspace,
-        taskCount: tasks.length,
+        taskCount: total,
         columns: ["Todo", "In Progress", "Done"],
       },
       _meta: {
-        initialData: { tasks, workspace },
+        initialData: { tasks, workspace, nextCursor },
       },
     };
   }
@@ -105,27 +115,46 @@ For widget runtime and `window.openai` usage, see `./ui-components.md` and `./re
 
 ### Idempotent Handlers
 
-The model may retry tool calls - ensure handlers are safe to re-execute:
+The model or the widget may retry a tool call, and the server may restart between
+attempts. Give every tool with a side effect an idempotency key that the caller
+supplies and the server scopes: the authenticated account, the tool name, and a
+stable request ID from the original user action. Store the key, a fingerprint of
+the validated inputs, and the terminal result in the same durable store as the
+effect, and write both in one transaction. Replay the stored result for the same
+key and the same fingerprint. Return a conflict for the same key with a different
+fingerprint. Pass the same key to any provider that accepts an idempotency key.
+
+An in-memory map is not an idempotency store: it is lost on restart and is not
+shared between instances. Never put a clock reading in the key, because a fresh
+timestamp makes every retry look like a new request.
 
 ```typescript
-let executionCache = new Map();
+async function handleCreateTask({ requestId, title }, { authInfo }) {
+  const accountId = await resolveAccount(authInfo);
+  const key = `${accountId}:create_task:${requestId}`;
+  const fingerprint = hashInputs({ title });
 
-async function handleCreateTask({ title }) {
-  const cacheKey = `create_${title}_${Date.now()}`;
+  return database.transaction(async (tx) => {
+    // A unique index on `key` makes concurrent duplicates lose the insert.
+    const claimed = await tx.claimIdempotencyKey({ key, fingerprint });
 
-  if (executionCache.has(cacheKey)) {
-    return executionCache.get(cacheKey);
-  }
+    if (!claimed) {
+      const record = await tx.getIdempotencyRecord(key);
+      if (record.fingerprint !== fingerprint) throw new ConflictError(key);
+      return record.result;
+    }
 
-  const result = await database.createTask(title);
-  executionCache.set(cacheKey, result);
-  return result;
+    const result = await tx.createTask({ accountId, title });
+    await tx.completeIdempotencyKey({ key, result });
+    return result;
+  });
 }
 ```
 
 ### Trim Structured Content
 
-Keep model-facing data concise. Move large datasets to `_meta`:
+Keep model-facing data concise. Send the widget the page it renders, not the whole
+result set. See the payload boundary rule in [SKILL.md](../SKILL.md).
 
 ```typescript
 return {
@@ -134,9 +163,9 @@ return {
     summary: "Found 150 tasks",
     topPriorities: tasks.slice(0, 3),
   },
-  // Widget sees this (comprehensive)
+  // Widget sees this: the authorised page plus display-only data
   _meta: {
-    initialData: { allTasks: tasks },
+    initialData: { tasks: page, nextCursor },
   },
 };
 ```
@@ -167,17 +196,9 @@ try {
 }
 ```
 
-### Replay-Safe Side Effects
-
-For a retryable side effect, persist an idempotency record keyed by authenticated
-account, operation, and stable request ID. Store an input fingerprint and the
-terminal result. Coordinate the record atomically with the state transition or
-the provider idempotency key; replay the same fingerprint and reject changed
-arguments for the same key. An in-memory map is not durable across restarts.
-
 ### Security
 
-- Keep credentials and diagnostics server-side; `_meta` is widget-visible
+- Apply the payload boundary rule in [SKILL.md](../SKILL.md); `_meta` is widget-visible
 - Enforce auth server-side
 - Configure CSP via `openai/widgetCSP`
 - Validate all tool inputs with schemas

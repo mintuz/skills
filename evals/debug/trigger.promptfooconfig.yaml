@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the debug skill description. Not part of the
+# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
+# both commands from the repo root:
+#   mkdir -p evals/debug/workspace/.agents/skills/debug && cp src/app/skills/debug/SKILL.md evals/debug/workspace/.agents/skills/debug/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/debug/trigger.promptfooconfig.yaml
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise. The heuristic counts any
+# read of SKILL.md as use, so an exclusion the agent applies after reading the
+# skill is judged from the response with agent-rubric instead.
+description: debug skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a reported simulator crash
+    vars:
+      request: >-
+        My iOS app crashes in the simulator as soon as I tap Save on the draft
+        screen. Work out why.
+    assert:
+      - type: skill-used
+        value: debug
+
+  - description: Does not activate for test-only work
+    vars:
+      request: >-
+        The app builds and runs fine. Write Swift Testing unit tests for the
+        DraftRepository save method.
+    assert:
+      - type: not-skill-used
+        value: debug
+
+
+  - description: Hands a failing existing test to swift-testing while the app works
+    vars:
+      request: >-
+        The app builds, installs, and runs correctly in the simulator. One
+        existing Swift Testing case, `DraftRepositoryTests/savePersistsDraft`,
+        fails under xcodebuild with a mismatched expected value. Work out why
+        the test fails.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          Judge only the response text.
+          - The closing line names swift-testing (or app:swift-testing) or "none" as the guidance followed; it does not name debug or app:debug.
+          - The plan does not include simulator launch, screenshot capture, or app runtime log capture; the failing surface it works on is the test and its xcodebuild output.
+          - The plan does not claim to have run xcodebuild, read project files that the request did not supply, or found the cause already.
+        provider:
+          id: openai:codex-sdk
+          config:
+            working_dir: ./workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

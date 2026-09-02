@@ -4,14 +4,14 @@
 
 | Violation | Problem | Fix |
 | --- | --- | --- |
-| Production code without failing test | Core TDD principle broken | Delete code, write test first |
+| New behavior without a failing test | Core TDD principle broken | Delete the code, write the test first |
 | Multiple tests before making first pass | Batching, not TDD | Focus on one test at a time |
 | More code than needed | Over-engineering | Remove excess, only pass current test |
 | Implementation-focused tests | Brittle, don't verify behavior | Rewrite to test outcomes |
 
 ### Production Code Without Failing Test
 
-**The core TDD principle:** Every single line of production code must be written in response to a failing test.
+**The core TDD principle:** Every line of new or changed behavior must be written in response to a failing test. Refactoring is the one exception: it changes structure while every test stays green.
 
 ```typescript
 // ❌ WRONG - Writing production code first
@@ -162,11 +162,11 @@ it("should use the PaymentGateway class", () => {
 
 Before committing, verify:
 
-- ✅ All production code has a test that demanded it
+- ✅ All new or changed behavior has a test that demanded it
 - ✅ Tests verify behavior, not implementation
 - ✅ Implementation is minimal (only what's needed)
 - ✅ Refactoring assessment completed
 - ✅ All tests pass
-- ✅ Factory functions used (no `let`/`beforeEach`)
+- ✅ Factory functions used for test data (no `let`, no `beforeEach` data setup)
 - ✅ Test names describe business behavior
 - ✅ Edge cases covered

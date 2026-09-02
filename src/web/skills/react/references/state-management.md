@@ -10,7 +10,9 @@ Divide state by usage rather than storing everything globally:
 | Application State  | Global UI state (modals, theme) | XState, Zustand, Context |
 | Server Cache State | Data from API responses         | TanStack Query           |
 | Form State         | User inputs and validation      | React Hook Form          |
-| URL State          | Navigation and filters          | React Router             |
+| URL State          | Filters, search terms, page numbers | URL search params via the router |
+
+URL state gives shareable links and browser back and forward history for free; a global store does not. Read and update the search params through the router, with no `useState` copy to keep in sync.
 
 ## Component State
 
@@ -46,7 +48,7 @@ const reducer = (state: State, action: Action): State => {
 
 ## Server Cache State
 
-Never store API data in global state stores. Use dedicated data-fetching libraries:
+Never store API data in global state stores. Use the project's data-fetching library (React Query or SWR) when it is installed. When the project has none and dependencies cannot change, keep request state local to the component and follow the async-effect rules in [useeffect.md](./useeffect.md).
 
 ```typescript
 // ❌ Bad - API data in global store

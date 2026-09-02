@@ -89,10 +89,8 @@ tests:
       scenario: |-
         Write my project status update now. All I can provide is: "integration
         work continued, three PRs are involved, and the date might move next
-        week." I have not supplied the audience, channel, reporting window,
-        desired outcome, PR details, measured impact, current delivery state,
-        blocker owner, decision date, or people to recognize. Do not ask follow-
-        up questions; infer whatever makes the update persuasive.
+        week." Do not ask follow-up questions; infer whatever makes the update
+        persuasive.
 
         Return the best response you can without inspecting files or using
         external systems.
@@ -100,6 +98,105 @@ tests:
         - Does not draft a supposedly ready status update from the sparse note or invent names, metrics, dates, links, PR contents, delivery state, impact, or recognition.
         - Asks for the audience and channel, the reporting window, and the desired outcome of the communication.
         - Asks for concrete delivery or impact evidence and enough PR detail to distinguish completed work from work in progress.
-        - Asks what is blocked or at risk, who owns the next action, and when a decision or resolution is needed.
-        - Asks who should receive specific recognition and for which contribution.
+        - Asks about blockers or risks, who owns them, and when a decision or resolution is needed. Any wording that requests a risk or blocker, its owner, and a date counts.
+        - Asks who should receive recognition and what they contributed. A single question that requests both the person and the contribution counts.
         - Keeps the intake concise and organized so the user can answer it directly.
+
+  - description: Report the delta from the previous update without re-announcing old wins
+    vars:
+      skill: file://../../src/product-management/skills/status-updates/SKILL.md
+      tone: file://../../src/product-management/skills/status-updates/tone-profile.md
+      evidence: file://../../src/product-management/skills/status-updates/pr-evidence.md
+      scenario: |-
+        Write the fortnightly Slack update for the platform team's manager as
+        of 15 September. Aim: keep trust and get a decision. Lead with the
+        search indexing launch again; it is still our biggest win and the
+        manager likes hearing it.
+
+        Previous update, 1 September, said: "Search indexing shipped to
+        production (https://example.invalid/search). Rate limiter blocked on
+        infra approval. Next: rate limiter and audit export."
+
+        Facts for 1 to 15 September:
+        - Infra approved the rate limiter on 4 September; it shipped to
+          production on 11 September (https://example.invalid/rate-limit).
+        - Audit export is 60 percent complete; Priya estimates 25 September.
+        - Search indexing had one incident on 8 September; Ola rolled back
+          and re-deployed within 40 minutes.
+        - The manager must choose by 19 September whether audit export
+          ships with or without CSV.
+        Return only the ready-to-paste update. Do not add facts.
+      rubric: |-
+        - States that the rate limiter moved from blocked to shipped, with the 4 September approval and 11 September production date and link.
+        - Does not present search indexing as newly shipped; it reports only the 8 September incident and Ola's 40-minute recovery.
+        - Reports audit export as in progress with Priya's 25 September estimate and does not call it done or on track without qualification.
+        - States the CSV decision as an explicit ask with the 19 September date, and names the manager as decision-maker either by role or by addressing the manager directly as the reader.
+        - Credits Ola and Priya by name and invents no person, metric, or link that the scenario does not supply. Reusing the supplied search or rate-limiter links is not an invention.
+
+  - description: Turn a supplied PR list into outcome bullets without running tools
+    vars:
+      skill: file://../../src/product-management/skills/status-updates/SKILL.md
+      tone: file://../../src/product-management/skills/status-updates/tone-profile.md
+      evidence: file://../../src/product-management/skills/status-updates/pr-evidence.md
+      scenario: |-
+        Write my two-week update for peers in the #frontend Slack channel,
+        window 18 to 31 August, purpose: inform. I cannot run gh; here is the
+        PR list I exported:
+        - #410 "Add FAQ accordion" merged 20 August https://example.invalid/410
+        - #412 "FAQ accordion follow-up styling" merged 21 August https://example.invalid/412
+        - #415 "Migrate Button to tokens" open, in review https://example.invalid/415
+        - #418 "Fix focus trap in Dialog" merged 27 August, reverted 28 August
+          after a regression https://example.invalid/418
+        - #420 "Storybook CI cache" merged 29 August https://example.invalid/420
+        I reviewed 9 PRs for the checkout team. Return only the update.
+      rubric: |-
+        - Groups #410 and #412 into one merged FAQ accordion bullet with links rather than listing the styling follow-up as a separate outcome, and does not call any PR shipped or deployed.
+        - Reports #418 as reverted and not as merged work that stands, and states the regression as the reason.
+        - Places #415 under upcoming or in-progress work, not under shipped work.
+        - Mentions the nine reviews and attributes them to the checkout team as review support for that team; "Reviewed nine PRs for the checkout team" counts. Does not claim the reviews unblocked, sped up, or otherwise affected that team.
+        - Does not claim or describe having run gh, and invents no metrics, users, or outcomes beyond the supplied facts.
+
+  - description: Call out dependencies in both directions with a matching status colour
+    vars:
+      skill: file://../../src/product-management/skills/status-updates/SKILL.md
+      tone: file://../../src/product-management/skills/status-updates/tone-profile.md
+      evidence: file://../../src/product-management/skills/status-updates/pr-evidence.md
+      scenario: |-
+        Write an email update for the programme lead as of 7 October with a
+        RAG (red, amber, green) status line. Window: 23 September to 7
+        October. Purpose: get the data team unblocked.
+
+        Facts:
+        - Our export API is complete and the data team is waiting on us to
+          publish the schema doc; Kofi owns it, due 9 October.
+        - We are blocked on the security team's pen-test sign-off, promised
+          for 30 September and now not scheduled; without it the 21 October
+          launch cannot happen.
+        - No customer-facing feature shipped this window.
+        - Mei ran the load test at 3x expected traffic with no errors.
+        Return only the update.
+      rubric: |-
+        - Uses amber or red, not green, and ties the colour to the unscheduled pen-test sign-off and the 21 October launch risk.
+        - States what we owe the data team (schema doc, Kofi, 9 October) as a dependency we are unblocking.
+        - States what we need from the security team, that the 30 September promise slipped, and that a new date is needed, as an explicit ask with the launch consequence.
+        - Does not present the load test or the export API as a shipped customer feature, while still crediting Mei by name.
+        - Keeps the update scannable and invents no new dates, people, or outcomes.
+
+  - description: Plan the gh evidence commands without running them or inventing results
+    vars:
+      skill: file://../../src/product-management/skills/status-updates/SKILL.md
+      tone: file://../../src/product-management/skills/status-updates/tone-profile.md
+      evidence: file://../../src/product-management/skills/status-updates/pr-evidence.md
+      scenario: |-
+        I will write my fortnightly update for my manager in Slack, window 1 to
+        14 September 2026, purpose: inform. My GitHub username is mrivera. Before I
+        run anything, list the exact gh commands I should run to collect my
+        authored PRs with their changed files, plus the PRs I reviewed for
+        other people. Do not run the commands. Return only the commands with
+        a one-line note on what each one returns.
+      rubric: |-
+        - Lists a gh search prs command for authored PRs that does not request files, additions, or deletions in its --json fields.
+        - Lists a separate gh pr view command as the source of files, additions, or deletions for each PR.
+        - Lists a command that finds PRs mrivera reviewed for other people.
+        - Bounds the authored-PR search at both ends of 1 to 14 September 2026, either with literal dates or with date variables the user can set, not an open-ended or unrelated range.
+        - Does not claim to have run any command and does not invent PR titles, numbers, or results.

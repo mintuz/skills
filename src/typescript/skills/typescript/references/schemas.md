@@ -2,7 +2,7 @@
 
 ## Core Principle
 
-Define schemas before types. Schemas provide runtime validation; types are derived from them:
+At a trust boundary, define the schema before the type when a schema library is available. Schemas provide runtime validation, and types are derived from them:
 
 ```typescript
 import { z } from "zod";
@@ -105,6 +105,31 @@ Ask in order:
 2. Does type have validation rules (format, constraints)? → **Schema required**
 3. Is this a shared contract between systems? → **Schema required**
 4. Pure internal type? → **Type is fine**
+
+## When No Schema Library Is Available
+
+A frozen dependency set does not remove the boundary check. Do not add a dependency, and do not let unvalidated data through. Write a decoder that accepts `unknown` and reports a failure through the contract the caller expects. This example returns a Result:
+
+```typescript
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const decodeUser = (value: unknown): Result<User, "invalid-user"> => {
+  if (!isRecord(value)) {
+    return { success: false, error: "invalid-user" };
+  }
+  const { id, email } = value;
+  if (typeof id !== "string" || id.length === 0) {
+    return { success: false, error: "invalid-user" };
+  }
+  if (typeof email !== "string" || !email.includes("@")) {
+    return { success: false, error: "invalid-user" };
+  }
+  return { success: true, data: { id, email } };
+};
+```
+
+Validate every field the source documents. Type an undocumented field as `unknown`, and state which fact is missing before the type can be narrowed.
 
 ## Test Data Factories
 

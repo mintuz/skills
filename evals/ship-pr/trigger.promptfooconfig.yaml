@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the ship-pr skill description. Not part of the
+# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
+# both commands from the repo root:
+#   mkdir -p evals/ship-pr/workspace/.agents/skills/ship-pr && cp src/core/skills/ship-pr/SKILL.md evals/ship-pr/workspace/.agents/skills/ship-pr/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/ship-pr/trigger.promptfooconfig.yaml
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: ship-pr skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on shipping finished work to a GitHub PR
+    vars:
+      request: >-
+        The cache-key fix in src/cache.ts and its test are done and green.
+        Commit it, push, open the PR on GitHub with gh, and stay on it until I
+        merge.
+    assert:
+      - type: skill-used
+        value: ship-pr
+
+  - description: Activates on shipping finished work to a Forgejo PR
+    vars:
+      request: >-
+        Retry-backoff change is finished in this worktree. Our repo lives on
+        our self-hosted Forgejo (origin is forge.example.com), so use tea to
+        raise the pull request against main and watch it through to merge.
+    assert:
+      - type: skill-used
+        value: ship-pr
+
+  - description: Does not activate for developing an unfinished feature
+    vars:
+      request: >-
+        Implement half-up rounding to two decimals in src/invoices/total.ts
+        and make the two failing tests in test/invoices.test.ts pass. Do not
+        commit anything yet.
+    assert:
+      - type: not-skill-used
+        value: ship-pr

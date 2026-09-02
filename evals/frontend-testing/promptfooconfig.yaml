@@ -54,9 +54,10 @@ tests:
     vars:
       skill: file://../../src/web/skills/frontend-testing/SKILL.md
       scenario: |-
-        Write one Vitest test with DOM Testing Library for `mountOrderForm`.
-        The component accepts `submitOrder: () => Promise<void>`, mounts this
-        accessible UI in `document.body`, and owns all event wiring:
+        Write one Vitest test with DOM Testing Library for
+        `mountOrderForm({ submitOrder })`, where
+        `submitOrder: () => Promise<void>`. The call mounts this accessible UI
+        in `document.body` and owns all event wiring:
 
         - a `Place order` button;
         - while a request is pending, a `role="status"` element containing
@@ -73,7 +74,7 @@ tests:
         Return the test and a short rationale; do not change the component.
       rubric: |-
         - Creates one `userEvent.setup()` instance and awaits both user clicks; no interaction or other side effect appears inside `waitFor` or another retrying callback.
-        - Finds `Place order` by role and accessible name; finds the unnamed `status` and `alert` regions by role and asserts their visible `Placing order`, `Order failed`, and `Order placed` text separately, using an async query or retrying assertion only for UI that appears after promise settlement.
+        - Finds `Place order` by role and accessible name; finds the unnamed `status` and `alert` regions by role alone, without an invented accessible name, and asserts their visible `Placing order`, `Order failed`, and `Order placed` text separately.
         - Supplies two independently controlled deferred promises through one submit mock, rejects the first and resolves the second in the test, and does not replace the component's request boundary with a fetch or axios spy.
         - Proves the first click yields exactly one submit call and a disabled button while pending, then proves the failure alert and re-enabled button before retrying.
         - Proves the retry yields exactly two total submit calls, observes the second pending state, resolves the second promise, and observes the terminal `Order placed` status.
@@ -83,8 +84,9 @@ tests:
       skill: file://../../src/web/skills/frontend-testing/SKILL.md
       scenario: |-
         Write one Vitest test with DOM Testing Library for
-        `mountPasswordField()`. It mounts a labelled password input, the help
-        paragraph `Show password requirements`, and a toggle button whose
+        `mountPasswordField()`. It mounts a password input labelled
+        `Password`, the help paragraph `Show password requirements`, and a
+        toggle button whose
         accessible name is initially `Show password`. Activating the toggle
         changes the input type to `text`, changes the button's accessible name
         to `Hide password`, and reveals a live-region status `Password visible`.
@@ -97,5 +99,111 @@ tests:
         - Calls `mountPasswordField()`, creates one fresh `userEvent.setup()` instance in the test, and awaits both toggle interactions.
         - Finds the input through its label and selects each toggle state with `getByRole('button', { name: ... })`; it does not use `getByText`, `getByTestId`, a CSS selector, or DOM traversal to find the button.
         - After the first activation, proves the input has type `text`, the button is named `Hide password`, and the `Password visible` status is present through a role-based assertion.
-        - After the second activation, proves the input has type `password`, the button is named `Show password`, and absence of the status is asserted with `queryByRole` rather than a throwing `getBy` query.
+        - After the second activation, proves the input has type `password`, the button is named `Show password`, and proves the status is gone with a check that cannot throw when the element is already absent, such as `queryByRole` returning null; not a throwing `getBy` query, not an `expect(...).toThrow()` wrapper, and not `waitForElementToBeRemoved`, which throws when the removal has already happened by the time it is called.
         - Tests only user-observable DOM state and accessible names; it does not inspect component internals or manually dispatch low-level events.
+
+  - description: Decline an end-to-end request that jsdom cannot prove
+    vars:
+      skill: file://../../src/web/skills/frontend-testing/SKILL.md
+      scenario: |-
+        Our team runs Vitest with the jsdom environment and DOM Testing
+        Library. There is no Playwright, Cypress, or WebdriverIO in the
+        repository, and no real browser runner.
+
+        A product manager filed this request verbatim:
+
+          "Add one automated test that proves the whole paid-signup journey
+          works. It must fill the sign-up form at /signup, submit it, follow
+          the redirect to /checkout, complete the card form on the Stripe
+          Checkout page we redirect to at checkout.stripe.com, follow the
+          return redirect back to /welcome, assert the browser URL is
+          /welcome, assert the session cookie is set, and assert the receipt
+          email arrives in the customer's inbox."
+
+        The only part that runs in our own DOM is
+        `mountSignupForm({ startCheckout })`, where
+        `startCheckout: () => Promise<void>`. It mounts a labelled `Work email`
+        input, a labelled `Password` input, and a `Continue` button that stays
+        disabled until both fields are non-empty. Pressing `Continue` calls
+        `startCheckout` once and shows a `role="status"` element containing
+        `Redirecting`.
+
+        Respond to the request.
+      rubric: |-
+        - States that DOM Testing Library under jsdom cannot prove this journey and names a real-browser end-to-end runner, such as Playwright or Cypress, as the tool the request needs.
+        - Identifies at least three specific parts of the request as out of reach in jsdom, chosen from cross-document navigation or redirects, the third-party `checkout.stripe.com` page, the real session cookie, and the delivered email.
+        - Offers the portion that does fit as a DOM test of `mountSignupForm({ startCheckout })` with an injected mock, and specifies both sides of the disabled rule in it: `Continue` disabled initially, still disabled after only one field is filled, enabled once both are filled, then exactly one `startCheckout` call and the `Redirecting` status.
+        - Does not produce or suggest a jsdom test that fakes the journey by assigning `window.location`, stubbing `history`, mocking the Stripe page, or asserting on a mail inbox, and does not claim any jsdom test would give end-to-end confidence.
+        - Adds no facts beyond the packet: it invents no extra routes, endpoints, component names, or existing test tooling.
+
+  - description: Refuse an absence assertion that passes before the promise settles
+    vars:
+      skill: file://../../src/web/skills/frontend-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test with DOM Testing Library for
+        `mountUsernameField({ checkUsername })`. It mounts a labelled
+        `Username` input and a `Check availability` button, and owns all event
+        wiring. `checkUsername` has the signature
+        `(name: string) => Promise<{ available: boolean }>`.
+
+        The component shows no spinner and no other pending indicator while the
+        promise is in flight; the UI is unchanged until it settles. When the
+        promise resolves with `{ available: false }` the component renders a
+        `role="alert"` containing `Username taken`. When it resolves with
+        `{ available: true }` the component renders a `role="status"`
+        containing `Username available` and renders no alert.
+
+        A colleague proposed this test and reported it green:
+
+        ```ts
+        await user.type(screen.getByLabelText(/username/i), 'ada');
+        await user.click(screen.getByRole('button', { name: /check availability/i }));
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        ```
+
+        Explain what that test actually proves, then write the test that proves
+        the available case and would fail if the component wrongly rendered the
+        taken alert. Do not change the component.
+      rubric: |-
+        - States that the proposed assertion is anchored to no settled state, so it may run before the component reacts and passes whether the component is correct or broken; it proves nothing about the available or taken outcome.
+        - Awaits the positive terminal state first with an async role query for the `Username available` status, and only then asserts the alert is absent.
+        - Uses `queryByRole('alert')` for the absence assertion and uses no throwing `getBy*` query or `expect(...).toThrow()` wrapper for it.
+        - Controls the supplied `checkUsername` mock inside the test to resolve with `{ available: true }`, and asserts it was called exactly once with `'ada'`; it does not stub `fetch`, `axios`, or any other transport in its place.
+        - Adds no fixed delay to wait for the update: no `setTimeout`, no sleep promise, no `vi.advanceTimersByTime`, and no arbitrary timeout raise standing in for waiting on the settled state.
+
+  - description: Choose a deliberate fallback when no accessible query reaches the element
+    vars:
+      skill: file://../../src/web/skills/frontend-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test with DOM Testing Library for
+        `mountSalesPanel({ refreshChart })`, where
+        `refreshChart: () => Promise<void>`. It mounts exactly this markup and
+        owns all event wiring:
+
+        ```html
+        <button>Refresh</button>
+        <div data-testid="sales-chart"><canvas data-render-count="1"></canvas></div>
+        <p role="status">Chart idle</p>
+        ```
+
+        The `<div data-testid="sales-chart">` wrapper belongs to our
+        application. The `<canvas>` inside it is owned by a third-party vendor
+        bundle we cannot modify and do not control. The vendor sets no role, no
+        `aria-label`, no text content, no `alt` text and no `title` on the
+        canvas or on anything inside it.
+
+        Clicking `Refresh` calls `refreshChart` once. When that promise
+        resolves, the vendor increments the canvas `data-render-count`
+        attribute by exactly one, and the application then replaces the status
+        text with `Chart updated`. The attribute is the only signal the vendor
+        exposes.
+
+        Prove that one click drives exactly one increment of
+        `data-render-count`. Return the test and a short rationale; do not
+        change the component or the vendor bundle.
+      rubric: |-
+        - Finds the refresh control with a role query constrained by its accessible name `Refresh`, and drives it with one `userEvent.setup()` instance created in the test.
+        - Treats the test id as a deliberate fallback rather than a first choice: it states that the vendor canvas offers no accessible query route, and it still reaches the button and the status region through accessible queries.
+        - Reaches the canvas through the application-owned `sales-chart` test id, reads `data-render-count` both before and after the click, and proves it increased by exactly one.
+        - Waits for the `Chart updated` status with an async query or a retrying assertion before reading the new render count, rather than reading the count immediately after the click.
+        - Uses only real APIs and invents nothing: every Testing Library query it names exists, it reads `data-render-count` through plain DOM access such as `querySelector` and `getAttribute` rather than an invented attribute query, it gives the vendor canvas no role, `aria-label`, or accessible name, and it does not propose editing the vendor bundle.

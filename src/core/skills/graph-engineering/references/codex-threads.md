@@ -47,7 +47,7 @@ So keep step 4's rule: **writes serial by default**, and concurrency only when a
 
 ## Dispatching
 
-For each node on the frontier: create the thread, title it with the node id, put it on its own branch and worktree off the **integrated** base, and send the worker brief from `references/briefs.md` as its opening message.
+For each node on the frontier: create the thread, title it with the node id, put it on its own branch and worktree off the **integrated** base, and send the worker brief from `references/briefs.md` as its opening message. Confirm the worktree is distinct from every sibling's and record its path in the ledger before the brief is sent; if the runtime gives threads one shared working directory, serialise the writers instead.
 
 The brief is the entire context. A thread you created inherits nothing from the coordinator's conversation, which is the isolation you want — so everything the node needs must be in that first message: the base, the assertions it owns, its lead and supporting skills, its owned paths, its siblings' scopes, and the shared-state locator.
 
@@ -100,7 +100,7 @@ On resume, re-read the ledger and recompute the frontier from what actually merg
 |---|---|---|
 | Repair loop | Native — the worker is still alive and in context | Awkward — re-brief a fresh agent with what the last one knew |
 | Mid-run inspection | Enter any node's thread and ask it | Read the journal after the fact |
-| Isolation | Worktree and branch per thread, built in | `isolation: 'worktree'` per agent, opt-in |
+| Isolation | Worktree and branch per thread, when the runtime provides them — confirm at dispatch | `isolation: 'worktree'` per agent, opt-in |
 | Ordering | Coordinator discipline against a written ledger | Deterministic — the script is the schedule |
 | Output contracts | Prose in the brief; malformed output is a node failure to report | `schema` enforced at the tool layer, with retries |
 | Resume after a crash | Threads are durable; the run survives | `resumeFromRunId` replays the cached prefix |

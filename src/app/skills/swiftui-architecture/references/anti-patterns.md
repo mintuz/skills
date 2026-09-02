@@ -24,14 +24,22 @@ struct ContentView: View {
 ```swift
 struct ContentView: View {
     @State private var items: [Item] = []
-    @Environment(ItemService.self) private var itemService
+    @State private var error: Error?
+    @Environment(ItemAPI.self) private var api  // returns items; it stores none
 
     var body: some View {
         List(items) { item in
             Text(item.name)
         }
         .task {
-            items = try await itemService.fetchItems()
+            do {
+                let loaded = try await api.fetchItems()
+                guard !Task.isCancelled else { return }
+                items = loaded
+            } catch {
+                guard !Task.isCancelled else { return }
+                self.error = error
+            }
         }
     }
 }
@@ -65,27 +73,36 @@ struct ContentView: View {
     var body: some View {
         // ...
         .task {
-            items = try await API.fetchItems()
+            do {
+                items = try await API.fetchItems()
+            } catch {
+                // show an error state
+            }
         }
     }
 }
 ```
 
-## ❌ Don't Nest @Observable Objects
+## ❌ Don't Own One Service Through Another
 
-**WRONG:**
+Observation tracks the properties a view reads, including properties reached through a nested `@Observable` object, so nesting does not break observation. Nesting one service inside another does give the outer service ownership of the inner one, which hides the inner service's lifetime and forces every test of the outer service to build the inner one.
+
+**AVOID:**
 
 ```swift
 @Observable
 class AppState {
-    var userManager: UserManager  // Nested @Observable breaks observation
+    var userManager: UserManager  // AppState now owns UserManager's lifetime
+
+    init(userManager: UserManager) {
+        self.userManager = userManager
+    }
 }
 ```
 
-**CORRECT:**
+**PREFER - retain each service once and inject it separately:**
 
 ```swift
-// Inject separately
 ContentView()
     .environment(appState)
     .environment(userManager)

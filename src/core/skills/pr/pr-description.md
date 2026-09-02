@@ -21,7 +21,7 @@ When commits reference issues, enrich the description with:
 
 ## Templates
 
-### Small PR (1-3 files)
+### Small PR (1-3 files, up to 100 lines)
 
 ```markdown
 ## Summary
@@ -30,18 +30,17 @@ When commits reference issues, enrich the description with:
 
 ## Changes
 
-- [Key change 1]
-- [Key change 2]
+- [One bullet per change the evidence shows; one bullet is enough]
 
 ## Testing
 
-- [ ] Tests pass locally
-- [ ] Manual testing performed
+- Automated: [command and result, or `Not performed`]
+- Manual testing: [what was checked, or `Not performed`]
 
-[If UI change: screenshot or "N/A"]
+[If UI change: screenshot, or state that it is still required]
 ```
 
-### Medium PR (4-15 files)
+### Medium PR (4-15 files, 101-500 lines)
 
 ```markdown
 ## Summary
@@ -64,11 +63,12 @@ Closes #123
 
 ### Automated
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests pass
-- [ ] E2E tests pass (if applicable)
+- [command that ran]: [passed or failed]
+- [check the evidence names but did not run]: `Not performed`
 
 ### Manual Testing
+
+[`Not performed`, or the steps that were run]
 
 Steps for reviewers to verify:
 
@@ -88,7 +88,7 @@ Steps for reviewers to verify:
 - [ ] Documentation updated (if needed)
 ```
 
-### Large PR (15+ files) or Breaking Changes
+### Large PR (16+ files or 501+ lines) or Breaking Changes
 
 ```markdown
 ## Summary
@@ -134,11 +134,12 @@ Relates to #123
 
 ### Automated
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests pass
-- [ ] E2E tests pass
+- [command that ran]: [passed or failed]
+- [check the evidence names but did not run]: `Not performed`
 
 ### Manual Testing
+
+[`Not performed`, or the steps that were run]
 
 1. [Detailed steps]
 2. [Expected outcomes]
@@ -176,6 +177,9 @@ Relates to #123
 
 ### Changes
 
+- List only changes the diff or the supplied evidence shows
+- Do not add a bullet for a test, doc, or file change that the evidence does not name
+- Do not pad the list to fill the template
 - Highlight what changed, not how (reviewers read the diff)
 - Group by component/area if many changes
 - Use verb phrases: "Adds...", "Fixes...", "Updates..."
@@ -190,7 +194,9 @@ Relates to #123
 
 ### Testing
 
-- Be specific about what was tested
+- Record each check with its real status: passed, failed, or `Not performed`
+- Do not use an unchecked box to record a test outcome; keep checkboxes for actions the author still has to take
+- Name each check by the command that ran; do not label it as a unit, integration, or E2E run unless the evidence says which it is
 - Include manual testing steps if not obvious
 - Note areas that need extra review attention
 - For UI: always include screenshots/GIFs
@@ -208,6 +214,10 @@ Relates to #123
 - Be explicit about steps
 - Include rollback procedure
 - Note any downtime or data impact
+
+## Unknown Facts
+
+When a section needs a fact the evidence does not give (risk level, rollback plan, deployment notes, external usage), write a marked placeholder such as `[Author: add rollback plan]`. Do not invent a value. Do not remove the section, because reviewers use the placeholder to see what is still missing.
 
 ## Tone
 

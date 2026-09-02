@@ -168,10 +168,10 @@ Write the **minimum** code to make the test pass. Nothing more.
 With tests green, assess whether refactoring would add value.
 
 **Rules:**
-- Commit working code FIRST
+- Secure a reversible GREEN baseline FIRST
 - External APIs stay unchanged
 - All tests must still pass
-- Commit refactoring separately
+- Keep the refactor separate from the behavior change
 - Not all code needs refactoring - if clean, move on
 
 ## Refactoring Assessment
@@ -198,12 +198,12 @@ Not all code needs refactoring. If the code is already clean:
 - Simple structure ✓
 - Self-documenting ✓
 
-Then commit and move to the next test.
+Then move to the next test.
 
 ### Refactoring Rules
 
-1. **Commit working code FIRST** - Never refactor uncommitted code
+1. **Secure a reversible GREEN baseline FIRST** - Commit the green code when you are allowed to commit. When a commit is not allowed, keep the green state recoverable another way. Never refactor code you cannot restore
 2. **Keep tests green** - All tests must pass throughout
 3. **Preserve external API** - Don't change public interfaces
-4. **Commit refactoring separately** - Clean git history
+4. **Keep the refactor separate** - A separate commit, or a separate reviewable step when you cannot commit
 5. **Small steps** - Refactor incrementally

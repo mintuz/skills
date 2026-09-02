@@ -32,6 +32,9 @@ defaultTest:
         outcome for this scenario. Give equal weight to every outcome below.
         Credit explicit, scenario-specific actions and evidence gates. Do not
         reward verbosity, copied rubric wording, or invented observations.
+        Every scenario forbids execution, so the response is a plan. Judge the
+        actions and evidence gates it states. Never require executed results,
+        captured images, or observed values to be present in the response.
 
         {{rubric}}
       provider:
@@ -78,7 +81,70 @@ tests:
         do not execute them or invent results.
       rubric: |-
         - Reproduces the exact route, 390x844 viewport, dark theme, keyboard-focus interaction, and open-menu state before diagnosing or editing; a generic page screenshot is insufficient.
-        - Uses the first available capture route and, if Chrome headless is needed, avoids trusting its sub-500px window-size behavior by using device emulation or an iframe harness and checking the captured dimensions.
+        - Uses the first available capture route and, if Chrome headless is needed, avoids trusting its sub-500px window-size behavior by using device emulation or an iframe harness and confirming the resulting layout viewport width.
         - Uses an accessibility snapshot or equivalent state evidence to confirm keyboard focus and menu exposure, then traces the clipped element to its owning layout rule before proposing the smallest scoped fix.
         - Proceeds without another approval question because implementation is already authorized, while keeping any unavailable runtime evidence as an explicit proof gap.
         - Recreates the identical route, viewport, theme, focus interaction, and open state after the change, then compares before and after screenshots and verifies keyboard behavior as well as appearance.
+
+  - description: Reject a capture taken in a state that cannot show the defect
+    vars:
+      skill: file://../../src/web/skills/eyes/SKILL.md
+      scenario: >-
+        On the dashboard at 1280x800 the success toast overlaps the header. The
+        toast slides in over 400ms and auto-dismisses 3 seconds later, and its
+        container has height 0 until the slide-in starts. A teammate captured a
+        screenshot in the same millisecond as the Save click, and the toast does
+        not appear anywhere in that image. Tell me whether that screenshot
+        settles the overlap question and what you would do next. Give the
+        actions and evidence checkpoints you would follow, but do not execute
+        them or invent results.
+      rubric: |-
+        - States that the supplied screenshot cannot settle the overlap question, and grounds that in the capture timing relative to the 400ms slide-in or in the zero-height container.
+        - Requires captures of both the moving phase and the settled phase, because the report does not say which phase the overlap occurs in, and takes them all before the 3-second auto-dismiss.
+        - Requires confirming the toast is actually present and rendered at non-zero size in the new capture before any conclusion about the overlap is drawn.
+        - Treats the overlap cause as unconfirmed, proposes no layout or CSS change on the strength of the supplied screenshot, claims no capture or observation of the toast, and names the missing runtime evidence as an explicit proof gap.
+
+  - description: Separate competing causes of one visual symptom before changing code
+    vars:
+      skill: file://../../src/web/skills/eyes/SKILL.md
+      scenario: >-
+        Some visitors report that body text on the marketing homepage renders in
+        a serif fallback instead of our Inter webfont, and it happens only
+        sometimes. Two things shipped in the same release: the Inter font file
+        moved to a new path, and the CSS font-family fallback list was reordered.
+        I have not authorized any code change. Give the actions and evidence
+        checkpoints you would follow, but do not execute them or invent results.
+      rubric: |-
+        - Names at least two distinct candidate causes for the serif rendering and states that a screenshot alone cannot separate them.
+        - Specifies the distinguishing evidence for each cause, such as console or network messages for a failed font request versus the computed font-family declaration that the element resolves to.
+        - Withholds any code change until one cause is confirmed and asks for explicit approval, because this request does not authorize implementation.
+        - Does not assert which cause is responsible and does not claim to have inspected the console, the network, or the CSS.
+
+  - description: Decline ownership of an unattended CI visual-regression suite
+    vars:
+      skill: file://../../src/web/skills/eyes/SKILL.md
+      scenario: >-
+        Nobody has reported a visual defect. I want you to stand up an automated
+        visual regression test suite that runs unattended in CI on every pull
+        request: choose the snapshot tool, define how baseline images are
+        updated, and set the pixel diff threshold. Give the actions and evidence
+        checkpoints you would follow, but do not execute them or invent results.
+      rubric: |-
+        - Declines to own the unattended CI visual regression suite and states that this request falls outside an interactive visual feedback loop.
+        - Redirects the request to a workflow that drives a real browser, such as an end-to-end or visual-comparison testing workflow, rather than to a DOM-only unit-test workflow.
+        - Offers concrete in-scope help rather than only refusing, such as capturing and comparing a specific screen state together with the user.
+        - Designs no part of the suite: it supplies no baseline update process and no pixel diff threshold value, and does not claim to have run anything. Naming a testing tool purely as the redirect target is permitted.
+
+  - description: Ask for reproduction facts when the report supplies none
+    vars:
+      skill: file://../../src/web/skills/eyes/SKILL.md
+      scenario: >-
+        My whole bug report is this one line, sent with no attachment and
+        nothing further: "the header looks broken on my machine." Give the
+        actions and evidence checkpoints you would follow next, but do not
+        execute them or invent results.
+      rubric: |-
+        - Takes no capture and proposes no fix from the report as given, and guesses no route, viewport, theme, or browser.
+        - Works out for itself which facts are missing and asks the reporter for them, naming at least the route or URL, the viewport size, the browser or operating system, what "broken" means as expected versus observed, and a screenshot or reproduction steps.
+        - Explains that a capture is only useful once it reproduces the reported conditions, so a guessed state would yield evidence that can neither confirm nor rule out the defect.
+        - Invents no observed defect, cause, or fix, and does not claim to have viewed the header.

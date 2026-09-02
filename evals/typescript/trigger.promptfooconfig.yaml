@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the typescript skill description. Not part of the
+# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
+# both commands from the repo root:
+#   mkdir -p evals/typescript/workspace/.agents/skills/typescript && cp src/typescript/skills/typescript/SKILL.md evals/typescript/workspace/.agents/skills/typescript/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/typescript/trigger.promptfooconfig.yaml
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: typescript skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates when defining types and a boundary schema
+    vars:
+      request: >-
+        Define the types for our `GET /api/orders` response and validate the
+        parsed JSON body before the client code reads it. The project is
+        TypeScript with strict mode on.
+    assert:
+      - type: skill-used
+        value: typescript
+
+  - description: Activates when reviewing TypeScript types before merge
+    vars:
+      request: >-
+        Review the types in this TypeScript pull request before I merge it. Tell
+        me which type definitions and casts are unsafe, and what to change.
+    assert:
+      - type: skill-used
+        value: typescript
+
+  - description: Does not activate for bundler configuration
+    vars:
+      request: >-
+        Our production bundle is 4 MB. Configure Rollup manual chunks and tree
+        shaking in vite.config.js so the vendor code splits into its own chunk.
+    assert:
+      - type: not-skill-used
+        value: typescript
+
+  - description: Does not activate for a JavaScript-only refactor
+    vars:
+      request: >-
+        Convert our plain JavaScript CommonJS helper module to ES modules and
+        update its `require` calls. The project has no TypeScript and will not
+        adopt it.
+    assert:
+      - type: not-skill-used
+        value: typescript
+
+  - description: Does not activate for a framework architecture choice
+    vars:
+      request: >-
+        We are choosing between Next.js and Remix for a new web app, and deciding
+        how routing and data loading should be split across teams. Recommend a
+        framework and an ownership layout. Do not write code.
+    assert:
+      - type: not-skill-used
+        value: typescript

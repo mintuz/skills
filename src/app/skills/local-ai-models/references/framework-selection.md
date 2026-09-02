@@ -2,6 +2,8 @@
 
 Choose between Apple's Foundation Models and MLX Swift based on your use case.
 
+Apply the compatibility gate first. Foundation Models requires iOS 26, iPadOS 26, or macOS 26 or later, and an Apple Intelligence-capable device. An app with a lower deployment target can use Foundation Models only conditionally: guard the feature with `#available(iOS 26, *)` and the runtime availability check. If the feature must work on any OS version or device below that floor, Foundation Models cannot meet that promise, whatever the use case below recommends.
+
 ## Foundation Models (Recommended Starting Point)
 
 Apple's official framework for on-device AI with simplified APIs.
@@ -38,8 +40,8 @@ let model = SystemLanguageModel.default
 guard model.isAvailable else { return }
 
 let session = LanguageModelSession()
-for try await chunk in session.streamResponse(to: "Hello") {
-    print(chunk)
+for try await snapshot in session.streamResponse(to: "Hello") {
+    print(snapshot.content)
 }
 ```
 
@@ -108,7 +110,7 @@ let model = try await LLMModelFactory.shared.loadContainer(
 What do you need?
 
 Standard chat interface
-└── Foundation Models ✓
+└── Foundation Models ✓ (only if the compatibility gate passes)
 
 Tool/function calling
 └── Foundation Models ✓ (system model)
@@ -151,4 +153,4 @@ class VisionService {
 
 **Start with Foundation Models** → If you need advanced features → **Add MLX Swift**
 
-Most apps should start with Foundation Models and only add MLX Swift if specific advanced features are required.
+Most apps whose support floor is iOS 26 and Apple Intelligence-capable devices should start with Foundation Models and only add MLX Swift if specific advanced features are required. An app that must offer the feature below that floor uses MLX Swift or changes its support contract.

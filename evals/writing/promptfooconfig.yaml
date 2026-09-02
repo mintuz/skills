@@ -7,6 +7,9 @@ prompts:
   - id: file://prompts/with-skill.txt
     label: with-skill
 
+evaluateOptions:
+  repeat: 3
+
 providers:
   - id: openai:codex-sdk
     config:
@@ -28,11 +31,15 @@ defaultTest:
       metric: rubric
       threshold: 1
       value: |-
-        Judge only the developer-facing document produced for this scenario.
+        Judge only the document or message produced for this scenario.
         Give equal weight to every outcome below. Credit explicit,
         scenario-specific statements grounded in the supplied evidence. Do not
         reward verbosity, copied rubric language, or invented facts.
 
+        Scenario the writer received:
+        {{scenario}}
+
+        Outcomes:
         {{rubric}}
       provider:
         id: openai:codex-sdk
@@ -53,6 +60,7 @@ tests:
   - description: Preserve evidence boundaries in a production failover runbook
     vars:
       skill: file://../../src/core/skills/writing/SKILL.md
+      formatting: file://../../src/core/skills/writing/formatting.md
       scenario: |-
         Rewrite the following notes as the opening of a developer runbook titled
         "Postgres Failover Without Downtime". Leadership wants it to say the
@@ -83,6 +91,7 @@ tests:
   - description: Refuse to normalize an unsafe API tutorial as implemented behavior
     vars:
       skill: file://../../src/core/skills/writing/SKILL.md
+      formatting: file://../../src/core/skills/writing/formatting.md
       scenario: |-
         Turn this engineering packet into a short tutorial called "Build Secure
         Account Exports". Product wants confident present tense and a copy-paste
@@ -103,6 +112,70 @@ tests:
         - Does not describe the approved authenticated-actor design as already implemented, tested, deployed, or ready for customers.
         - Identifies the existing body-supplied account-ID behavior as an unresolved cross-tenant authorization flaw.
         - Labels the secure authenticated-actor flow as a proposal or target design rather than current behavior.
-        - The minimal example illustrates deriving account identity from the authenticated actor and ignoring or rejecting a body-supplied account ID.
+        - The minimal example illustrates deriving account identity from the authenticated actor and ignoring or rejecting a body-supplied account ID, using labelled placeholders for any name the packet does not supply.
         - Does not provide the unsafe existing handler as a copy-paste pattern.
-        - Does not invent a framework, API names, endpoint path, test outcome, deployment state, or other implementation detail absent from the packet.
+        - Does not invent a framework, endpoint path, test outcome, deployment state, or other implementation detail absent from the packet; any function or API name the packet does not supply is either marked as a placeholder where it appears or sits inside pseudocode that a note labels as illustrative.
+
+  - description: Structure a tutorial for skimming with a payoff-first title
+    vars:
+      skill: file://../../src/core/skills/writing/SKILL.md
+      formatting: file://../../src/core/skills/writing/formatting.md
+      scenario: |-
+        Write a short tutorial from these facts only. The CLI `rex` can replay
+        a recorded HTTP session against a local server with
+        `rex replay <file> --target http://localhost:3000`. Recordings are made
+        with `rex record --out session.rex`. Replay reports a diff of status
+        codes per request. Replay does not compare response bodies. Readers
+        are backend developers who have never used rex. Produce the title,
+        intro, headings, and body.
+      rubric: |-
+        - The title names the reader's payoff (replaying a recorded HTTP session), not a generic label such as "rex guide" or "Using rex".
+        - The intro, before any command, says in one or two sentences what the reader will achieve and names at least one thing they need before the first step that the facts support (for example the `rex` CLI or a local server to replay against).
+        - The body orders the steps record then replay, with one heading per step, and shows both commands exactly as supplied.
+        - The limitation that replay does not compare response bodies appears next to the replay output explanation, where the reader decides whether to rely on the diff.
+        - Invents no flags, options, output formats, installation steps, or example output beyond the supplied facts.
+
+  - description: Present a proposal without dressing it as a decision
+    vars:
+      skill: file://../../src/core/skills/writing/SKILL.md
+      formatting: file://../../src/core/skills/writing/formatting.md
+      scenario: |-
+        Write the opening of an engineering proposal titled "Move Session
+        Storage to Redis". Supplied facts: sessions currently live in Postgres;
+        p95 session read latency in production is 38 ms; a two-week spike on
+        Redis in staging measured 4 ms p95; the spike did not test failover;
+        the cost of the Redis tier is not yet quoted; the platform team must
+        approve any new stateful dependency. Product wants the doc to read as
+        if the move is already decided.
+      rubric: |-
+        - Labels the Redis move as a proposal and does not state or imply that it is approved, scheduled, or decided.
+        - Reports the 38 ms figure as production and the 4 ms figure as staging, and does not present the staging figure as an expected production result.
+        - Lists untested failover, unquoted cost, and platform-team approval as open items before any recommendation.
+        - Uses headings a skimming reader can follow (for example Problem, Evidence, Open questions, Proposal) with short paragraphs under each.
+        - Invents no timeline, cost figure, migration plan, or approval.
+
+  - description: Put a two-option ruling to the user in plain English
+    vars:
+      skill: file://../../src/core/skills/writing/SKILL.md
+      formatting: file://../../src/core/skills/writing/formatting.md
+      scenario: |-
+        You are a coding agent running a database migration for a user. You
+        have stopped because you need a decision. Supplied facts:
+        - The task is to add a unique index on `users.email`.
+        - The table has 84,210 rows. 312 rows share an email with another row
+          when case is ignored (for example `Ann@x.com` and `ann@x.com`).
+        - Option 1: lower-case every email and merge the 312 duplicate rows
+          into 156 accounts. The index then passes. 156 accounts lose their
+          separate login, and this cannot be undone.
+        - Option 2: add a case-sensitive unique index now and leave the 312
+          rows unchanged. The index passes. Two users can still hold emails
+          that differ only by case, and the team must fix that later.
+        - Nothing has been changed yet. You will not proceed until the user
+          picks.
+        Write the message you send to the user asking for the decision.
+      rubric: |-
+        - Opens with the decision the user must make in one or two sentences; no background paragraph precedes the options.
+        - Each option carries a reply label and states, in at most three short sentences, what it does and what it costs (option 1: 156 accounts lose separate login and it cannot be undone; option 2: case-only duplicates remain for the team to fix later).
+        - No figure that no option needs (for example the 84,210 row count) appears before the options.
+        - Asks the user to choose, states that nothing has changed yet, and does not claim to have run either option or treat one as already chosen (a labelled recommendation is acceptable).
+        - The whole message is at most 120 words and has no paragraph longer than three sentences.

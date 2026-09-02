@@ -43,6 +43,10 @@ afterEach(() => {
 // Cleanup happens automatically after each test
 ```
 
+**RTL registers that cleanup only when the runner exposes a global `afterEach`.**
+In Vitest set `globals: true`, or register `afterEach(cleanup)` once in a shared
+setup file. Do not repeat that hook in every test file.
+
 ## 3. beforeEach render pattern
 
 ❌ **WRONG - Shared render in beforeEach**

@@ -35,7 +35,7 @@ Bad news is sandwiched and contextualized, never buried.
 
 Team members are called out by name at section ends, making appreciation specific rather than generic.
 
-> "Big shout out to the team for working through some tough challenges: @person1, @person2, @person3..."
+> "Big shout out for working through some tough challenges: @person1 for the rollback rehearsal, @person2 for diagnosing the timeout, @person3 for the reviews"
 
 ### Seasonal/Cultural Hooks
 
@@ -57,9 +57,9 @@ Links to production, Storybook, docs woven naturally into claims—showing, not 
 
 ### Honest Caveats
 
-Footnotes or asterisks used for transparency without cluttering the main flow.
+Footnotes or asterisks carry non-material qualifications without cluttering the main flow. Delivery state, failed checks, date changes, blockers, and pending decisions stay in the main text.
 
-> "* This _is_ production, but this page does not resolve through the monzo.com domain; only we can see it"
+> "* The Storybook link needs the office VPN"
 
 ## Replication Techniques
 

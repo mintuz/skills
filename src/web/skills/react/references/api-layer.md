@@ -37,7 +37,7 @@ apiClient.interceptors.response.use(
 
 ## API Request Structure
 
-Each API endpoint should have three parts:
+Each API endpoint should have three parts. This example uses Zod and TanStack Query; use them only when the project already has them. Without them, keep the same three parts and write the hook with the async-effect rules in [useeffect.md](./useeffect.md).
 
 ```typescript
 // src/features/users/api/get-user.ts
@@ -91,6 +91,18 @@ Handle errors globally at the API client level:
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Cancellation is not an error to report. Reject it unchanged.
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
+    // Do not handle 403 here, not even with a toast. A 403 is the server's
+    // answer to one action. Reject so the caller shows the failure where the
+    // action happened.
+    if (error.response?.status === 403) {
+      return Promise.reject(error);
+    }
+
     const message = error.response?.data?.message || "An error occurred";
 
     // Show toast notification
@@ -102,15 +114,12 @@ apiClient.interceptors.response.use(
       authStore.logout();
     }
 
-    if (error.response?.status === 403) {
-      // Redirect to unauthorized page
-      router.navigate("/unauthorized");
-    }
-
     return Promise.reject(error);
   }
 );
 ```
+
+**403 handling:** A 403 from a user action (delete, update, submit) is a per-action result. The component that made the request renders it as a failed action. Do not redirect the whole app, clear the session, or log the user out for a per-action 403. Redirect only when a route-level access check fails on navigation.
 
 ### Error Boundaries
 
@@ -202,6 +211,8 @@ const Comment = ({ content }: { content: string }) => (
 ```
 
 ### Authorization Patterns
+
+Client permission checks are UX gating only. They decide whether to render or enable a control. They cannot stop a crafted HTTP request. The server must authenticate the actor and authorize each mutation for that actor and resource before it changes data, and it must return 403 with no change when the check fails. Mirror the server rule in the client predicate; never treat the client predicate as the rule.
 
 **Role-Based Access Control (RBAC):**
 

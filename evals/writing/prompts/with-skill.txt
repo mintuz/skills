@@ -1,11 +1,15 @@
 This is a read-only scenario evaluation. Do not call tools, run commands, inspect
 files, or interact with external systems. Follow the skill below as the
-authoritative guidance. Write the developer-facing document requested by the
-scenario using only supplied facts.
+authoritative guidance. Write the developer-facing document or message
+requested by the scenario using only supplied facts.
 
 <skill>
 {{skill}}
 </skill>
+
+<skill-file name="formatting.md">
+{{formatting}}
+</skill-file>
 
 Scenario:
 {{scenario}}

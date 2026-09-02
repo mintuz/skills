@@ -90,3 +90,70 @@ tests:
         - Handles the empty query before calling the service by clearing results and returning to an idle state.
         - Models idle/loading/loaded/failed explicitly enough that the UI cannot show stale results as a successful response to a newer query.
         - Treats cancellation as a non-error terminal for the superseded request, propagates or checks cancellation before publishing results, and exposes a retry through the same structured async path.
+
+  - description: Decline to redesign UIKit internals and answer only at the SwiftUI boundary
+    vars:
+      skill: file://../../src/app/skills/swiftui-architecture/SKILL.md
+      reference: file://../../src/app/skills/swiftui-architecture/references/anti-patterns.md
+      scenario: >-
+        A shipping iOS app has a UIKit screen, `LegacyChartViewController`,
+        whose chart view draws in `draw(_:)`. A UIKit coordinator presents the
+        screen, and an RxSwift view model feeds it. A new SwiftUI settings
+        screen must show the same chart. You are asked two things: first,
+        restructure the UIKit controller, its coordinator, and its RxSwift
+        bindings into a cleaner MVVM-C layering; second, say how the new SwiftUI
+        screen can display the chart. Answer both requests as far as your
+        guidance allows; do not execute commands, read files, or invent project
+        details.
+      rubric: |-
+        - States plainly that this guidance covers SwiftUI only and declines to redesign the UIKit controller, its coordinator, or its RxSwift bindings.
+        - Answers the second request by naming `UIViewControllerRepresentable` as the wrapper that shows the existing controller inside SwiftUI, and does not offer `UIHostingController` for that direction.
+        - Keeps any SwiftUI-side advice to state the new screen owns, such as local `@State` or values passed into the wrapper, without moving the UIKit screen's state into SwiftUI.
+        - Does not propose an MVVM-C or RxSwift layering, and does not present a UIKit rewrite as the recommended path.
+        - Does not invent project details (file names, chart data model, existing services) beyond the scenario, and does not claim to have inspected code or run anything.
+
+  - description: Keep single-screen state local instead of promoting it to a shared service
+    vars:
+      skill: file://../../src/app/skills/swiftui-architecture/SKILL.md
+      reference: file://../../src/app/skills/swiftui-architecture/references/state-management.md
+      scenario: >-
+        A SwiftUI `OrderHistoryScreen` shows a list of orders. It has a sort
+        order (date or amount), a set of expanded row identifiers, and a filter
+        chip selection. The sort control and the filter chips live in a child
+        `OrderFilterBar` view; the rows live in a child `OrderRowList` view; both
+        children are placed directly by `OrderHistoryScreen`. None of these three
+        values is read anywhere else in the app, and none must survive the screen
+        being dismissed. A teammate proposes adding all three to the existing
+        app-wide `AppSettings` `@Observable` service that is already injected
+        through the environment, arguing that two child views need them. Decide
+        where each value lives and how the children read and change it. Also
+        state what would have to change for any of these values to belong in a
+        shared service; do not execute commands or invent project details.
+      rubric: |-
+        - Rejects moving the three values into the app-wide `AppSettings` service and keeps each one in view-local `@State`, owned either by `OrderHistoryScreen` or by the single child that uses it.
+        - Answers the second question with at least one specific change that would justify a shared service, such as the value having to survive dismissal or being read by an unrelated feature.
+        - Passes the values to the children by argument, `@Binding`, or callback rather than by environment injection, and says which child writes which value.
+        - Warns about a concrete cost of the proposed shared placement, for example the value persisting after dismissal, or every view that reads the promoted value being invalidated when it changes.
+        - Does not invent extra requirements such as persistence, deep links, or other screens reading these values, and does not claim to have inspected the project.
+
+  - description: Stop a superseded save from reporting its outcome
+    vars:
+      skill: file://../../src/app/skills/swiftui-architecture/SKILL.md
+      reference: file://../../src/app/skills/swiftui-architecture/references/async-patterns.md
+      scenario: >-
+        A SwiftUI `ProfileEditorScreen` holds draft name and bio fields that no
+        other screen reads. A Save button calls `save(_:) async throws` on an
+        injected profile service. The button action currently starts a bare
+        `Task { }`. Testers report two faults: tapping Save twice quickly can
+        show the first, slower save's error alert after the second save already
+        succeeded; and dismissing the screen while a save runs leaves the work
+        with nothing to report to. Design the smallest data flow so the screen
+        never shows the outcome of a save that a later save replaced, and state
+        what happens to a save that is in flight when the screen disappears; do
+        not execute commands or invent project details.
+      rubric: |-
+        - Keeps the draft fields and the save status in local `@State` on the screen and calls the injected service directly, adding neither a ViewModel nor Combine.
+        - Gives the in-flight save one named owner, such as a `Task` held in `@State` that is cancelled before a new save starts, or a single-flight rule that blocks a second save while one runs.
+        - Guarantees a superseded save cannot write the status, for example by cancelling it and checking cancellation before publishing any result or error.
+        - Decides explicitly what happens on disappearance, either cancelling the task from the view or handing it to a longer-lived owner, and says which behaviour it chose.
+        - Treats cancellation as a non-error outcome so no error alert is shown for a cancelled or superseded save, and does not invent APIs or persistence details beyond `save(_:) async throws`.

@@ -55,7 +55,8 @@ tests:
       skill: file://../../src/app/skills/app-intent-driven-development/SKILL.md
       scenario: >-
         Design the parameter and execution path for StopRunIntent. The user first
-        chooses a run and a resolution. Only saveAsBenchmark needs an optional
+        chooses a run and a resolution. The app already has a SaveDecisionModule
+        that performs the save, keep, and discard operations. Only saveAsBenchmark needs an optional
         benchmark lap, and the Shortcuts editor should show laps from the chosen
         run. A saved shortcut may supply a non-nil lap token from a different,
         older run after parameters or app data change. Global history contains
@@ -63,10 +64,10 @@ tests:
         any mutation, and include the system-facing verification needed after the
         parameter change.
       rubric: |-
-        - Represents each selectable lap as a lightweight system-boundary value with a stable domain identifier and display data, rather than embedding the run or persistence model.
+        - Represents each selectable lap as a lightweight system-boundary value carrying a stable domain identifier, rather than embedding the run or the persistence model.
         - Supplies editor options from the selected run through a dependent dynamic options provider, without querying or exposing the global lap history.
-        - At execution time derives the current run's valid candidates and rejects or re-prompts both a missing choice and a non-nil stale choice whose identifier is outside that set before any save occurs.
-        - Routes the accepted identifier through one existing save or resolution service on the required actor, with a user-facing response for an expected stale-selection conflict.
+        - At execution time derives the current run's valid candidates and rejects or re-prompts both a missing choice and a non-nil stale choice whose identifier is outside that set before any save occurs, answering an expected stale selection with a user-facing response.
+        - Routes the accepted identifier through one existing save or resolution service, rather than repeating the save logic inside the intent.
         - Verifies extracted App Intents metadata from a rebuilt and reinstalled app, then recreates the affected Shortcuts action so an old serialized token or schema is not mistaken for current behavior.
 
   - description: Reuse one mutation path in an interactive SwiftUI row
@@ -84,5 +85,94 @@ tests:
         - Uses one completion action path for SwiftUI and system invocation, with the intent delegating to shared domain behavior instead of duplicating the mutation in the view or intent.
         - Chooses an invocation form that lets the row own progress and error state, and prevents overlapping taps while work is in flight.
         - Returns or otherwise carries a stable task identifier across the intent boundary and resolves the live SwiftData model in the view's current context before navigation, rather than copying entity fields into persistence state.
-        - Keeps SwiftData and Live Activity work on the appropriate actor, ensures the app process is available for the mutation, and reports the already-completed case as a normal dialog or equivalent user-facing result.
+        - Declares the execution mode the mutation needs so the app process is available for the SwiftData and Live Activity work, and reports the already-completed case as a normal dialog or equivalent user-facing result.
         - Treats compilation as insufficient by also checking extracted or installed App Intents metadata and exercising the rebuilt action from both the app UI and Shortcuts or Siri.
+
+  - description: Decline App Intents for an action with no system surface
+    vars:
+      skill: file://../../src/app/skills/app-intent-driven-development/SKILL.md
+      scenario: >-
+        An internal enterprise iOS app is written entirely in UIKit. A view
+        controller has a "Rotate encryption keys" button that calls
+        KeyRotationService.rotate(). Two admins use it, roughly twice a month,
+        from that screen. Security requires that the admin has signed in on that
+        screen immediately before the button is used, and has ruled that the
+        action must not be reachable outside that screen. A teammate proposes wrapping the call in
+        an App Intent "so every action in the app goes through one mechanism".
+        Decide whether App Intent-first design applies to this feature and say
+        what the team should do instead.
+      rubric: |-
+        - Concludes that this feature should not get an App Intent, and gives the absence of any required system surface as the deciding reason rather than the UI framework alone.
+        - Frames the refusal as a product and security decision about surfaces rather than a technical limitation, making clear the app could adopt App Intents if a system surface were ever required.
+        - Keeps the action in the shared domain service that the existing screen calls directly, so no second action path is introduced.
+        - Names at least one concrete cost of adding the unused intent, such as unwanted discoverability in system surfaces, metadata and Shortcuts cache upkeep, or extra system-facing verification with no user benefit.
+        - Names the condition that would reverse the decision, and does not design entity, query, parameter, or shortcut-provider code for the rejected feature.
+
+  - description: Keep an AppEntity identifier stable across launches
+    vars:
+      skill: file://../../src/app/skills/app-intent-driven-development/SKILL.md
+      scenario: >-
+        ShoppingItemEntity currently sets its id to the item's position in the
+        in-memory array that backs the list screen, and uses the item name as the
+        display title. Each item is stored in SwiftData with a persistent UUID
+        that is never reused. Users report two bugs. A saved shortcut "Mark item
+        as bought" ticks a different item after the app is relaunched or after
+        another item is deleted, and a shortcut that refers to an item the user
+        already deleted silently ticks whatever item now sits at that position.
+        Decide what the entity identifier must be, how the entity query behaves
+        for an identifier that no longer resolves, and what existing users must
+        do after the change.
+      rubric: |-
+        - Replaces the positional identifier with the item's persisted identifier, so a token stored inside a saved shortcut still resolves to the same record after relaunch, after another item is deleted, and after reordering.
+        - Has the identifier lookup return only records that still exist, omitting an identifier it cannot resolve rather than substituting a nearby or positionally equivalent record.
+        - Describes the resulting user-visible behaviour for an unresolved identifier, such as the action reporting the item as unavailable or prompting for a new choice instead of mutating another record.
+        - States that an already-saved shortcut still carries the old identifier after the change, so users must delete and re-add those actions before the fix takes effect for them.
+        - Does not propose resolving items by display name or by list position.
+
+  - description: Prompt for an unsupplied parameter instead of guessing
+    vars:
+      skill: file://../../src/app/skills/app-intent-driven-development/SKILL.md
+      scenario: >-
+        LogWaterIntent records a drink. It needs an amount in millilitres, and it
+        can optionally record which container was used, chosen from a small set
+        of containers the user has configured. A user says "Hey Siri, log water
+        in Hydrate" and supplies no amount and no container. A teammate proposes
+        defaulting the amount to 250 ml when it is missing and silently reading
+        the last used container out of UserDefaults, so the phrase never fails.
+        The app registers an AppShortcutsProvider whose phrases include the
+        container parameter, and the container set changes whenever the user
+        configures a new container. The same intent also runs from a widget
+        button on a "500 ml bottle" tile, where the amount is already known and
+        no prompt may be shown. Decide how each unsupplied value is obtained, how
+        the phrase keeps offering the current containers, and how the widget path
+        stays on the same intent.
+      rubric: |-
+        - Makes the amount a required, non-optional parameter with its own spoken request dialog so the system asks the user for it before the action runs, and rejects the silent 250 ml default.
+        - Handles the optional container explicitly, either requesting it in the Siri path or defining what the action records when it stays nil, rather than leaving that outcome undefined.
+        - Refreshes the App Shortcuts parameters both at app launch and from the code path that changes the container set.
+        - Keeps the widget on the same intent by constructing it with the known amount and with no value left to request, because a widget run cannot show a prompt, and does not add a second intent or a duplicate logging path.
+        - Does not invent app data such as stored history or container names beyond what the scenario gives, and does not claim to have built, run, or tested anything.
+
+  - description: Reuse an existing SwiftUI view as the intent result snippet
+    vars:
+      skill: file://../../src/app/skills/app-intent-driven-development/SKILL.md
+      scenario: >-
+        The app already has BrewSummaryCard, a SwiftUI view that renders one
+        brew's strength, time, and rating. Inside the app the card reads an
+        app-wide theme object from the SwiftUI environment for its accent colour,
+        and reads the SwiftData model context to refetch the brew each time it
+        appears. CheckBrewIntent must show that same card as its result in Siri
+        and Shortcuts. A teammate proposes rebuilding a simplified copy of the
+        card inside the intent's target because the original "will not compile
+        there". Inside the app the card also has a "Log another" button. A user
+        already has a shortcut that passes the brew returned by CheckBrewIntent
+        into a following Shortcuts action, and that must keep working. The app
+        ships to iOS 18 and later. Decide how the card is shared, exactly what
+        must change about it, and what happens to the button in the Siri
+        result.
+      rubric: |-
+        - Returns the existing card from the intent as its result snippet view, with one view definition placed in a target or module that both the app and the intent build against, rather than a second copy of the layout for Siri and Shortcuts.
+        - Removes the view's dependence on the app-wide environment object and on the model context fetch, and passes the already-resolved values into the view instead, because the snippet renders outside the app's own view hierarchy.
+        - Carries the brew data across the intent boundary as a flat, already-resolved value, and does not refetch persistence inside the snippet view.
+        - Keeps the intent returning the brew value alongside the snippet, so the following action in the user's existing shortcut still receives it.
+        - States that the result snippet is static on the app's supported releases, so the "Log another" button does not act in the Siri result, and names the separate mechanism and minimum release needed for an interactive snippet, without inventing other app state.

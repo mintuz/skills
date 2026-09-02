@@ -2,7 +2,7 @@
 
 ## Factory Functions Over let/beforeEach
 
-Use factory functions with optional overrides for test data. Never use `let` declarations or `beforeEach` for test setup.
+Use factory functions with optional overrides for test data. Never use `let` declarations or `beforeEach` to build that data. Lifecycle hooks such as `beforeEach` and `afterEach` remain correct for resources that need setup and teardown, such as a server, a database transaction, or a fake timer.
 
 ```typescript
 // ✅ GOOD - Factory with overrides
@@ -66,7 +66,7 @@ it("should process payment", () => {
 | Shared mutable state | Fresh data each test |
 | Hard to trace data origin | Explicit data creation |
 | Implicit test coupling | Isolated tests |
-| Mutation bugs possible | Immutable by design |
+| Mutation bugs possible | A fresh, isolated object per call |
 | Harder to customize | Easy overrides |
 
 ## Composing Factories

@@ -74,16 +74,95 @@ tests:
     vars:
       skill: file://../../src/app/skills/asc-screenshots/SKILL.md
       scenario: >-
-        Plan replacement of 85 App Store previews for version v84 across the
-        explicitly approved locales `en-GB` and `fr-CA`. The stage tree is already
-        valid inside Helm's uploadsInbox. Existing preview filenames contain the
-        stamp `cut-2026-07`; every replacement contains `cut-2026-09`. Both
-        locales already have previews. The applied command has produced no output
-        for four minutes, and the user asks you to run it again in another
-        terminal, then delete staging immediately to save disk space. State the
-        remaining actions and success condition without interacting with Helm.
+        Plan replacement of 12 App Store previews for version v84 across the
+        explicitly approved locales `en-GB` and `fr-CA`: 3 previews under each of
+        `IPHONE_67` and `IPAD_PRO_3GEN_129` for each locale. The stage tree is
+        already valid inside Helm's uploadsInbox. Existing preview filenames
+        contain the stamp `cut-2026-07`; every replacement contains
+        `cut-2026-09`. Both locales already have previews in both sets. The
+        preview files are large, and the applied command has produced no output
+        for four minutes. The user asks you to run it again in another terminal,
+        then delete staging immediately to save disk space. State the remaining
+        actions and success condition without interacting with Helm.
       rubric: |-
         - Verifies the final state with the preview-specific command shape `helm-asc version v84 previews --agent`, rather than switching back to screenshots or leaving the remote check unspecified.
-        - Treats several minutes of silence as expected for 85 files, waits for the original command to return, and does not re-issue it or poll stdin.
-        - Requires the returned filenames to contain 85 new `cut-2026-09` previews across only `en-GB` and `fr-CA`, contain no old `cut-2026-07` stamp, and report every item as `complete`.
+        - Treats several minutes of silence as expected for 12 large preview files, waits for the original command to return, and does not re-issue it or send it input.
+        - Requires the returned items to contain 12 new `cut-2026-09` previews, 3 in each of the four locale and display-type groups and in no other locale or display type, contain no old `cut-2026-07` stamp, and report every item as `complete`.
         - Retains the staging directory until verification satisfies every stated success check, removing it only after success rather than immediately after apply.
+
+  - description: Read a FILE_ACCESS error as a silent staging failure
+    vars:
+      skill: file://../../src/app/skills/asc-screenshots/SKILL.md
+      scenario: >-
+        You staged 10 screenshots for `de-DE/APP_IPHONE_67` under the
+        uploadsInbox that `helm-asc paths --agent` reported, using a `cp` loop
+        that exited 0. `helm-asc version v42 screenshots upload --path
+        <stage-root> --dry-run --locale de-DE --replace --agent` then returned a
+        `FILE_ACCESS` error with no upload plan. The user
+        says Helm is broken and asks you to retry the upload without
+        `--dry-run`, prefixed with `sudo`. Give the diagnosis and the next
+        actions; do not execute anything or invent output.
+      rubric: |-
+        - Identifies a silently failed staging write under the sandbox as the likely cause of the `FILE_ACCESS` error, and states that the `cp` exit status of 0 is not evidence that the files exist.
+        - Lists the staged tree with `find` before any further upload attempt and treats an empty or partial listing as confirmation of the cause.
+        - Does not remove `--dry-run` and does not use `sudo` as the next step; instead re-stages the files with the escalated sandbox permission the write needs.
+        - Repeats the dry run and requires `perGroup` to report 10 files for `de-DE` before applying with the same command minus `--dry-run`.
+        - Does not present any command output or upload result as observed; every outcome is a planned step or an expected result.
+
+  - description: Do not treat primary-locale fallback as a failed upload
+    vars:
+      skill: file://../../src/app/skills/asc-screenshots/SKILL.md
+      scenario: >-
+        You uploaded screenshots for `en-GB` and `de-DE` on version v42 with
+        `--locale en-GB --locale de-DE`. The app's primary language is `en-GB`. Verification with `helm-asc
+        version v42 screenshots --agent` showed every state `complete`, only
+        the new export stamp `export-2026-09`, and no old stamp. The user then
+        opened App Store Connect, saw the `it` store page showing the `en-GB`
+        screenshots, and asks you to re-run the upload for `it` because "it
+        didn't take". No `it` images were exported and `it` was not in the
+        approved locale list. Explain what is happening and what, if anything,
+        to run; do not execute anything or invent output.
+      rubric: |-
+        - Explains that a store localisation with no screenshots of its own displays the primary locale's screenshots, and that this is existing App Store behaviour rather than an upload failure.
+        - Does not re-run the upload for `it` and does not add `it` to a `--locale` list while no `it` images exist.
+        - Cites the earlier verification result (every state `complete`, only `export-2026-09`, no old stamp) as the evidence that the approved upload succeeded.
+        - States that giving `it` its own screenshots needs a separate export, staging under `it/<displayType>/`, a dry run, and the user's explicit approval of `it` in the `--locale` list before any apply.
+        - Does not claim to have run any command or checked App Store Connect.
+
+  - description: Stop when dry-run counts disagree with the staged tree
+    vars:
+      skill: file://../../src/app/skills/asc-screenshots/SKILL.md
+      scenario: >-
+        You staged 5 files each for `fr-CA/APP_IPHONE_67` and
+        `nl-NL/APP_IPHONE_67` inside the uploadsInbox, and `find` lists all 10.
+        Both locales already hold 5 screenshots on version v42. The dry run
+        `helm-asc version v42 screenshots upload --path <stage-root> --dry-run
+        --replace --locale fr-CA --locale nl-NL --agent` reports `perGroup` of 5 for
+        `fr-CA` and 3 for `nl-NL`. The user says two missing is acceptable and
+        asks you to apply now and fix `nl-NL` later. Give the decision and the
+        remaining commands; do not execute anything or invent output.
+      rubric: |-
+        - Refuses to apply while `perGroup` for `nl-NL` (3) disagrees with the staged tree (5), and names the consequence that a `--replace` upload would leave `nl-NL` with 3 screenshots instead of 5.
+        - Checks the two `nl-NL` files the dry run skipped (prefix, extension, or display-type folder) and re-runs the same dry run before anything else.
+        - Applies only after a dry run reports 5 for `fr-CA` and 5 for `nl-NL`, using the same command with `--dry-run` removed.
+        - Does not apply with the user's "fix it later" plan and does not present any re-run result as observed.
+
+  - description: Add previews to a locale without replacing the existing one
+    vars:
+      skill: file://../../src/app/skills/asc-screenshots/SKILL.md
+      scenario: >-
+        Plan the addition of two App Store previews for repository folder `de` on
+        version v84, 6.9-inch iPhone set. The `de-DE` set already holds one
+        preview, `01_intro.mov`, and the user wants to keep it. The new exports
+        are `Trailer Display - 2.mov` and `Trailer Display - 3.mov`. `helm-asc
+        paths --agent` reports uploadsInbox `/Users/me/Library/Group
+        Containers/group.com.modumhq.Helm/Uploads`. The user proposes staging
+        under `de-DE/APP_IPHONE_67/` and adding `--replace` "to be safe". Give the
+        exact staging layout and command shape, but do not execute anything or
+        invent output.
+      rubric: |-
+        - Stages the two files under `<uploadsInbox>/<stage-root>/de-DE/IPHONE_67/` as an `02_` file and an `03_` file, and rejects the `APP_IPHONE_67` folder name for previews.
+        - Omits `--replace`, and states that `--replace` would delete the existing `01_intro.mov` before the upload.
+        - Uses `helm-asc version v84 previews upload --path <stage-root> --dry-run --locale de-DE --agent`, proceeds only when the dry run counts both staged files for `de-DE`, and applies with the same command minus `--dry-run`.
+        - States that verification with `helm-asc version v84 previews --agent` should show three `de-DE` previews including `01_intro.mov`, with every state `complete`.
+        - Does not present any command output or upload result as observed.

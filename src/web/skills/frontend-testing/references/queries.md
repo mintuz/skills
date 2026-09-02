@@ -19,9 +19,10 @@ Use queries in this order (accessibility-first):
    - Only when label not present
    - Placeholder shouldn't replace label
 
-4. **`getByText`** - Non-interactive content
-   - Headings, paragraphs, list items
-   - Content users read
+4. **`getByText`** - Content with no useful role
+   - Paragraphs, spans, and plain `div` content users read
+   - Use `getByRole` instead when the element has a role that identifies it,
+     such as `heading`, `listitem`, or `cell`
 
 5. **`getByDisplayValue`** - Current form values
    - Inputs with pre-filled values
@@ -38,7 +39,10 @@ Use queries in this order (accessibility-first):
 
 ## Query Variants
 
-Three variants for every query:
+Every query name combines a variant with a cardinality. The three variants are
+`getBy*`, `queryBy*`, and `findBy*`. Each has an all-elements form: `getAllBy*`,
+`queryAllBy*`, and `findAllBy*`, which return an array and, except for
+`queryAllBy*`, throw when nothing matches.
 
 **`getBy*`** - Element must exist (throws if not found)
 ```typescript
@@ -64,7 +68,7 @@ const message = await screen.findByText(/success/i);
 
 ## Common Mistakes
 
-❌ **Using `container.querySelector`**
+❌ **Using `container.querySelector` where a role query works**
 ```typescript
 const button = container.querySelector('.submit-button'); // DOM implementation detail
 ```

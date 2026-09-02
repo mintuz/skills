@@ -57,16 +57,16 @@ tests:
         Write one Vitest test for `useCart()`. The hook initially returns
         `{ count: 0, addItem }`; calling its public `addItem()` callback performs
         one synchronous React state update and the next render returns
-        `{ count: 1, addItem }`. There is no component or DOM interaction in
-        this API.
+        `{ count: 1, addItem }`. The package exports the hook only.
 
         Prove the initial and updated count with React Testing Library. Return
-        the complete test and a short rationale; do not invent a component,
-        change the hook, or suppress React warnings.
+        the complete test and a short rationale. In the rationale, say why this
+        update needs different handling from a click made through `userEvent`.
+        Do not change the hook.
       rubric: |-
         - Uses `renderHook(() => useCart())` and reads the public result through `result.current`; it does not invent a component or inspect internal React state.
         - Proves `result.current.count` is `0` before invoking the update and `1` afterwards.
-        - Invokes `result.current.addItem()` inside one synchronous `act(() => ...)` because the test calls the state-changing hook callback directly outside a Testing Library interaction helper.
+        - Invokes `result.current.addItem()` inside a single `act()` call, synchronous or awaited, because the test calls the state-changing hook callback directly outside a Testing Library interaction helper.
         - Does not use `userEvent`, `fireEvent`, `waitFor`, an async delay, or manual cleanup for this synchronous hook-only behavior.
         - Imports the needed React Testing Library APIs and explains that the direct update needs `act()` because it occurs outside Testing Library's auto-wrapped helpers.
 
@@ -80,13 +80,100 @@ tests:
         one mounted consumer first observes `GBP` and then observes `EUR` when
         the provider's `currency` prop changes.
 
-        React Testing Library's `renderHook` passes `initialProps` and
-        `rerender` props to the hook callback, not to its `wrapper`. Return the
-        smallest valid test and a short rationale; do not change production
-        code or remount separate hook instances for the two values.
+        Return the smallest valid test and a short rationale. In the rationale,
+        say why `renderHook` is not the right seam here. Do not change
+        production code, and do not mount two separate hook instances to read
+        the two values.
       rubric: |-
         - Defines a minimal consumer component that calls `useCurrency()` and exposes the returned value as observable DOM output; it does not duplicate the hook or read the context directly in the test.
         - Uses `render()` with `CurrencyProvider currency="GBP"` around that consumer and proves the rendered value is `GBP`.
         - Uses the render result's `rerender()` with the same provider and consumer types but `currency="EUR"`, then proves the rendered value is `EUR`.
         - Does not try to pass provider values through `renderHook` `initialProps`, wrapper props, mutable module state, or two separately mounted hook instances.
         - Explains that a rendered consumer is the correct public seam because this scenario changes provider props, while `renderHook` props reach only the hook callback rather than its wrapper.
+
+  - description: Prove a filtered list after the data arrives
+    vars:
+      skill: file://../../src/web/skills/react-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test for `<TaskList filter="done" />`. On mount the
+        component calls `fetchTasks()`, which the test suite already mocks to
+        resolve on a later microtask with three tasks: `Ship release` (done),
+        `Write spec` (open) and `Book venue` (open). While the promise is
+        pending the component renders the text `Loading tasks`. After it
+        resolves the component replaces that text with a list item for every
+        task whose status matches the `filter` prop.
+
+        Prove that the rendered list shows `Ship release` and does not show
+        `Write spec` or `Book venue`. Return the complete test and a short
+        rationale. In the rationale, say what a careless version of this test
+        would get wrong. Do not change the component or the existing mock.
+      rubric: |-
+        - Renders the component once and reaches the loaded state with an awaited React Testing Library API, such as `await screen.findByText(/ship release/i)` or an awaited `waitFor`.
+        - Asserts the absence of `Write spec` and `Book venue` only after the loaded state is observable, and uses a `queryBy*` query with `not.toBeInTheDocument()` for those absences.
+        - The rationale identifies the careless version as one that checks those absences before awaiting the loaded state, and says such a check passes while the component still shows `Loading tasks`.
+        - Does not assert the absence of the open tasks before awaiting the loaded state, and does not use fake timers, a fixed sleep, or a manual `act()` wrapper around `render()` to reach it.
+        - Does not invent extra tasks, statuses, test ids, or component internals beyond the facts given.
+
+  - description: Test a disclosure through its accessible output
+    vars:
+      skill: file://../../src/web/skills/react-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test for `<FaqItem question="Do you offer refunds?"
+        answer="Yes, within 30 days." />`. The component renders a `<button>`
+        whose text is the question and whose `aria-expanded` attribute starts
+        as `"false"`. The answer text is absent from the DOM until the button
+        is clicked. On click the component sets `aria-expanded` to `"true"`,
+        renders the answer text, and adds the class `faq-item--open` to its
+        root `<div>`, which also carries `data-testid="faq-item"`. The click
+        handler is an internal function named `handleToggle`.
+
+        Prove that a click expands the item. Return the complete test and a
+        short rationale; do not change the component.
+      rubric: |-
+        - Queries the control with `screen.getByRole('button', { name: /do you offer refunds/i })` or an equivalent accessible-name query, rather than a class, a test id, or a container DOM query.
+        - Clicks with `userEvent` in an awaited call after `userEvent.setup()`, and does not wrap the click in a manual `act()`.
+        - Proves the collapsed state and the expanded state through user-visible output: the answer text absent then present, or `aria-expanded` `"false"` then `"true"`.
+        - Does not assert on the `faq-item--open` class, the `faq-item` test id, the `handleToggle` function, or any component state or method.
+        - Renders the component once with the given `question` and `answer` props only, and adds no wrapper, provider, mock, or spy that the scenario did not supply.
+
+  - description: Decline an end-to-end journey framed as a unit test
+    vars:
+      skill: file://../../src/web/skills/react-testing/SKILL.md
+      scenario: |-
+        A product manager asks for one test in our Vitest and React Testing
+        Library suite that covers the whole paid signup journey: create an
+        account against the staging API, receive the real confirmation email,
+        follow the Stripe hosted checkout redirect, return to our app, and
+        confirm the first invoice appears in the billing page. They want it to
+        run in both Chrome and Safari.
+
+        Say how you would handle this request. The packet gives no component
+        contract, so do not write test code; return a short rationale only.
+      rubric: |-
+        - States that this journey is out of scope for React Testing Library, and names the reasons drawn from the request: at least the real staging API, the real email, and the third-party hosted redirect out of the app.
+        - Recommends a browser-driven end-to-end tool, such as Playwright or Cypress, for the journey itself.
+        - Identifies which slices React Testing Library can still cover in an isolated component test with the network boundary mocked, for example the signup form behaviour or the billing page rendering an invoice from supplied data.
+        - Does not present a React Testing Library test that fakes the staging API, the email, or the Stripe redirect as an equivalent substitute for the requested journey.
+        - Does not claim to have run any command, inspected the repository, or checked the existing suite.
+
+  - description: Flag missing facts instead of inventing a failure assertion
+    vars:
+      skill: file://../../src/web/skills/react-testing/SKILL.md
+      scenario: |-
+        Write one Vitest test for `<InviteForm onInvite={fn} />`. The component
+        renders a text input labelled `Teammate email` and a submit button
+        labelled `Send invite`. On submit it calls `onInvite(email)` with the
+        current input value and awaits the returned promise.
+
+        The acceptance criterion reads: "shows an error when the invite
+        fails".
+
+        Return the test file you would commit now: cover the submit behaviour
+        the packet defines, and handle that acceptance criterion. Add a short
+        rationale; do not change the component.
+      rubric: |-
+        - Names what is missing before an error assertion can be written: at least how `onInvite` signals failure, and how the resulting error is observable in the DOM.
+        - Writes the part that the given facts support, proving that submitting the typed email calls `onInvite` with that value.
+        - Types and clicks with `userEvent` after `userEvent.setup()`, awaiting each interaction, and awaits the assertion on the async submit where needed.
+        - Does not assert an invented error string, role, or test id as though the packet supplied it; any failure-path code is clearly marked as pending the missing answers.
+        - Does not claim to have read the component source, the repository, or the existing test suite.

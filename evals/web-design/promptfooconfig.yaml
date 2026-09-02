@@ -61,14 +61,16 @@ tests:
         order” solid red buttons, and remove the focus ring because it looks
         noisy. The screen must remain usable by keyboard and color-blind users.
         It contains the payment error, the retained card field, order total,
-        “Try again”, and “Cancel order”. Give the visual and state decisions;
-        do not write implementation code.
+        “Try again”, and “Cancel order”. Reply to the brand lead with the visual
+        and state decisions and your answer to each of the four requests; do not
+        write implementation code.
       rubric: |-
         - Keeps a persistent visible card-number label and places clear error text beside the affected field rather than relying on placeholder text or a red border.
         - Gives the error redundant text and icon treatment, reserves red for that error/destructive meaning, and keeps the order total visually legible.
         - Establishes one clear primary recovery action for “Try again” and gives “Cancel order” a distinct lower-emphasis destructive treatment instead of making both actions compete.
         - Specifies visible keyboard focus plus distinguishable hover, active, loading, disabled, error, and success or recovered states without treating disabled styling as the only feedback.
         - Uses spacing and aligned grouping to bind the error to the card field while separating the order summary and actions, with comfortably sized targets rather than compressed controls.
+        - Answers the brand lead on each of the four requested changes, saying whether the specification adopts it, and for each one it does not adopt gives the reason and the replacement treatment that still reads as “minimal premium”.
 
   - description: Keep a dense operations dashboard usable at narrow widths
     vars:
@@ -80,11 +82,91 @@ tests:
         status, and an overflow action. A stakeholder asks to preserve the six-
         column desktop table on the handheld by shrinking all text to 10px,
         using red/amber/green dots with no labels, and replacing every action
-        label with an icon. Give the responsive visual specification and state
-        treatment; do not write implementation code.
+        label with an icon. Reply to the stakeholder with the responsive visual
+        specification, the state treatment, and your answer to the request; do not
+        write implementation code.
       rubric: |-
         - Preserves the readable desktop table but replaces the six-column handheld compression with a deliberate narrow-width hierarchy such as stacked rows or cards.
         - Keeps order ID, exception reason, age, and status discoverable on the handheld, with metadata de-emphasized through hierarchy rather than uniformly shrinking all text to 10px.
         - Gives every status a text label or icon plus text, so red, amber, and green are redundant signals rather than the only meaning.
         - Keeps the primary “Resolve selected” action visually dominant while retaining labels for unfamiliar row actions or otherwise making each action unambiguous.
         - Specifies comfortable target spacing and visible focus, active, loading, empty, and error states across both layouts, using one consistent spacing/type/radius system.
+        - Answers the stakeholder on the requested handheld treatment, saying which parts the specification adopts and, for each part it does not adopt, the reason and the replacement that still lets an operator see every exception at a glance.
+
+  - description: Decline implementation code and return design decisions instead
+    vars:
+      skill: file://../../src/web/skills/web-design/SKILL.md
+      scenario: |-
+        An engineer asks you to finish the pricing page for a note-taking app.
+        The three plans are Free (£0), Plus (£6/month) and Team (£12/user/month);
+        Plus is the recommended plan. Each card shows the plan name, price,
+        billing period, four feature lines, and a “Choose plan” button. The
+        engineer asks you to write the finished React component and the Tailwind
+        classes for the three cards, to pick a state management library for the
+        billing-period toggle, and to say how the recommended card should look
+        different from the other two.
+      rubric: |-
+        - States that writing the component source, the utility classes, and choosing the library for the billing-period toggle all sit outside this design remit, and says which part of the request it will answer instead.
+        - Answers the design question in full: how the recommended Plus card is distinguished from Free and Team through emphasis such as weight, surface tint, border, or elevation rather than a second accent colour competing with the primary action.
+        - Gives the shared card specification as named design values on one consistent scale — spacing, type sizes and line heights, radius, and the primary/secondary button treatment for “Choose plan”.
+        - Specifies the visible treatment for the toggle and button states the design needs, including keyboard focus, rather than listing state names alone.
+        - Does not output React, JSX, CSS, or utility-class code, does not invent plan names, prices, feature content, or billing terms the scenario does not supply, and does not claim to have read the repository.
+
+  - description: Refuse to certify contrast without the missing brand values
+    vars:
+      skill: file://../../src/web/skills/web-design/SKILL.md
+      scenario: |-
+        Specify the empty state for a “Saved searches” panel in a recruitment
+        tool. The panel is 360px wide, sits inside the app shell, and appears
+        when the user has saved no searches yet. The one action is “Save this
+        search”. The team writes: “Use our brand accent for the button and the
+        panel surface colour behind it, then confirm the button label passes
+        WCAG AA contrast so we can sign this off today.” The design tokens file
+        is not attached and the team has supplied no color values at all. You
+        choose the typography yourself.
+      rubric: |-
+        - Works out and states which pair of values decides the question — the label color against the button background it sits on — and says that neither value was supplied.
+        - Refuses to sign off a WCAG AA pass or fail and instead states the condition to check: the AA contrast ratio the label must meet at the size and weight the response specifies, and what to change if the pair fails that ratio.
+        - Still delivers the decisions the supplied facts allow: the empty-state structure of a short heading, one line of what to do next, and the single primary action, laid out for a 360px panel.
+        - Specifies spacing, hierarchy, and the button state treatments on one consistent scale, keeping the action comfortably sized inside the narrow panel.
+        - Does not invent a hex value, a brand name, or a measured contrast ratio, and does not claim to have opened the design tokens file or run a contrast checker.
+
+  - description: Keep a card grid readable at 200% text zoom and in longer languages
+    vars:
+      skill: file://../../src/web/skills/web-design/SKILL.md
+      scenario: |-
+        Refine the resource library grid on a marketing site. Each card shows a
+        category label, an article title, a one-line summary, and a read time.
+        Marketing asks for a three-up grid of cards fixed at 176px tall, an
+        all-caps 11px letter-spaced category label, the title truncated to one
+        line with an ellipsis so every card matches, and 11px metadata. The site
+        ships in German, where titles run about 40% longer than the English
+        ones, and analytics show a share of readers browse with browser text
+        zoom set to 200%. Give the visual specification; do not write
+        implementation code.
+      rubric: |-
+        - Rejects the fixed 176px card height and lets card height follow its content, keeping the row of cards aligned by a shared grid or equal-height behaviour rather than by clipping.
+        - Lets the title wrap to its full length with no line clamp or ellipsis, and keeps the summary and metadata readable as they grow rather than clipping them with no way to read the rest.
+        - Raises the 11px label and metadata to a readable size from the stated type scale and keeps the uppercase category label legible with letter-spacing, instead of solving overflow by shrinking type further.
+        - Names the conflict between the requested treatment and the German strings and 200% text zoom, keeps marketing’s intent of a tidy uniform grid, and states the substitute treatment that delivers it.
+        - States what the three-up grid itself does as usable width falls, reducing to fewer columns at a stated minimum comfortable card width instead of holding three columns.
+        - Does not invent article titles, categories, or analytics figures beyond the supplied facts, and does not propose a separate German-only or zoom-only layout build.
+
+  - description: Remove hover-only access in a grid used on touch devices
+    vars:
+      skill: file://../../src/web/skills/web-design/SKILL.md
+      scenario: |-
+        Refine an asset manager grid in a web app. Each tile shows a thumbnail,
+        a file name, and a modified date, and each tile has three actions:
+        select, rename, and delete. The current specification reveals the three
+        icon-only actions on tile hover, explains each icon through a hover
+        tooltip, and offers drag-and-drop as the only way to reorder tiles. The
+        same build serves desktop and tablet, and about 40% of sessions are
+        tablet touch sessions. Give the visual and interaction specification; do
+        not write implementation code.
+      rubric: |-
+        - Removes hover as the only route to select, rename, and delete, giving those actions a persistently visible or tap-revealed treatment on the tile that works without hover.
+        - Replaces the hover tooltip as the only explanation of the icons, giving each icon-only control a visible or otherwise available name.
+        - Provides a reorder route that works with a single tap or click, such as move controls or a position field, so reordering never depends on a drag gesture.
+        - Specifies target sizes and spacing comfortable for touch, plus visible focus, hover, active, selected, and loading treatments so the same specification reads correctly on both input types.
+        - Does not invent a separate mobile application, extra features, or usage figures beyond the supplied facts, and does not claim to have tested the interface on a device.

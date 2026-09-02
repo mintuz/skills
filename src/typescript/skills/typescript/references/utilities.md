@@ -17,14 +17,31 @@ type UserId = string & { readonly brand: unique symbol };
 type OrderId = string & { readonly brand: unique symbol };
 type Amount = number & { readonly brand: unique symbol };
 
-const createUserId = (id: string): UserId => id as UserId;
-const createOrderId = (id: string): OrderId => id as OrderId;
-const createAmount = (value: number): Amount => {
-  if (value < 0) throw new Error("Amount must be positive");
+const createUserId = (id: string): UserId | null => {
+  if (!id.startsWith("usr_")) return null;
+  // SAFE: id matches the checked `usr_` prefix that defines UserId
+  return id as UserId;
+};
+
+const createOrderId = (id: string): OrderId | null => {
+  if (!id.startsWith("ord_")) return null;
+  // SAFE: id matches the checked `ord_` prefix that defines OrderId
+  return id as OrderId;
+};
+
+const createAmount = (value: number): Amount | null => {
+  if (!Number.isFinite(value) || value < 0) return null;
+  // SAFE: value is checked finite and non-negative, which is what Amount means
   return value as Amount;
 };
 
-const processPayment = (userId: UserId, orderId: OrderId, amount: Amount) => {
+type ProcessPaymentOptions = {
+  userId: UserId;
+  orderId: OrderId;
+  amount: Amount;
+};
+
+const processPayment = (options: ProcessPaymentOptions) => {
   // Cannot accidentally swap - compiler will error
 };
 ```
@@ -88,7 +105,7 @@ type NonNullableFields<T> = {
 | Type assertion without reason | Bypasses type safety          | Use schema or document why safe |
 | `@ts-ignore`                  | Hides type errors             | Fix the type issue              |
 | `interface` for data          | Wrong tool, can be extended   | Use `type`                      |
-| Array mutations               | Side effects, unpredictable   | Spread operators                |
+| Mutating a caller-owned array | Side effects, unpredictable   | Return a new array; mutate only a local accumulator you created |
 
 ### High Priority (Should Fix)
 

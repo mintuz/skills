@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the status-updates skill description. Not part of the
+# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
+# both commands from the repo root:
+#   mkdir -p evals/status-updates/workspace/.agents/skills/status-updates && cp src/product-management/skills/status-updates/SKILL.md evals/status-updates/workspace/.agents/skills/status-updates/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/status-updates/trigger.promptfooconfig.yaml
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: status-updates skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a fortnightly team update for a manager
+    vars:
+      request: >-
+        Draft my fortnightly status update for my manager in Slack. We shipped
+        the rate limiter, audit export is 60 percent done, and I need a decision
+        on CSV by the 19th.
+    assert:
+      - type: skill-used
+        value: status-updates
+
+  - description: Activates on an executive launch status email
+    vars:
+      request: >-
+        Write the exec team a status update email on the payments launch: build is
+        in staging, 38 of 40 checks pass, go-live moved to 10 September.
+    assert:
+      - type: skill-used
+        value: status-updates
+
+  - description: Does not activate for a PR description
+    vars:
+      request: >-
+        Write the pull request description for my branch that adds the FAQ
+        accordion and its follow-up styling.
+    assert:
+      - type: not-skill-used
+        value: status-updates

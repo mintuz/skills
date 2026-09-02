@@ -56,7 +56,7 @@ Enforce unidirectional code flow: **shared → features → app**
 └─────────────────────────────────────────────┘
 ```
 
-**Key rule:** Features cannot import from other features. Compose features at the app level instead.
+**Key rule:** Features cannot import from other features. Compose features at the app level instead. Do not disable the boundary lint rule for one import. When two features need one component, move the component to `src/components/`. Pass its data in through props. The shared component does not import a feature API hook. The API module stays in the feature that owns the endpoint. Each feature that renders the shared component supplies that data itself: from its own API response, or through a feature-local component that calls the feature's own API hook. Alternatively, the app-level page composes the two features.
 
 ## ESLint Boundary Enforcement
 
@@ -68,16 +68,27 @@ Enforce unidirectional code flow: **shared → features → app**
       'error',
       {
         zones: [
-          // features cannot import from other features
+          // One zone per feature: the feature may import from itself,
+          // but not from any sibling feature (not even its index.ts)
           {
-            target: './src/features',
+            target: './src/features/orders',
             from: './src/features',
-            except: ['./index.ts']
+            except: ['./orders']
+          },
+          {
+            target: './src/features/customers',
+            from: './src/features',
+            except: ['./customers']
           },
           // features cannot import from app
           {
             target: './src/features',
             from: './src/app'
+          },
+          // shared code cannot import from features or app
+          {
+            target: ['./src/components', './src/hooks', './src/lib', './src/stores', './src/utils', './src/types', './src/config'],
+            from: ['./src/features', './src/app']
           }
         ]
       }

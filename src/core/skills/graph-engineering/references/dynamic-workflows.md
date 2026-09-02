@@ -74,6 +74,9 @@ You are one node in an execution graph. You build; you do not judge your own wor
    Also load: ${node.supporting.join(', ')}.
    If the Skill tool is unavailable, Read the skill's SKILL.md directly.
 2. Base: ${base}. Acknowledge it before editing.
+   Workspace: install dependencies before your first commit. Commit before you
+   merge an updated base; if the merge changed a lockfile or manifest,
+   re-install before any long check.
 3. Assertions you own:
 ${contract.filter(a => node.assertions.includes(a.id)).map(a => `   ${a.id} [${a.lane}] ${a.assertion}`).join('\n')}
 4. Owned paths: ${node.paths.join(', ')}. Siblings own ${node.siblings.join(', ')} — leave them alone.
@@ -161,9 +164,9 @@ const verified = await parallel(built.map(r => () =>   // parallel: verification
 
 return {
   checkpoint: args.checkpoint,
-  verified: verified.filter(Boolean),
+  verified: verified.filter(r => r.verdict),
   workerFailures: results.filter(r => r.failure),
-  verifierFailures: verified.length - verified.filter(Boolean).length,
+  verifierFailures: verified.filter(r => !r.verdict).length,
 }
 ```
 

@@ -1,0 +1,7 @@
+Skills installed under `.agents/skills/` in this workspace are available. Read a
+skill's SKILL.md only when its description applies to the request. Do not run
+builds, launch anything, or modify files. The workspace holds only the skills
+folder and no source files, so do not search it. Respond with a short plan.
+
+Request:
+{{request}}

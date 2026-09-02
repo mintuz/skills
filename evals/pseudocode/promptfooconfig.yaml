@@ -32,7 +32,10 @@ defaultTest:
         composition and execution shape requested by this scenario. Give equal
         weight to every outcome below. Credit explicit, scenario-specific types,
         boundaries, signatures, edges, annotations, and evidence. Do not reward
-        verbosity, copied rubric wording, or invented source facts.
+        verbosity, copied rubric wording, or invented source facts. Judge from
+        the scenario text and the response alone: the scenario's packet is the
+        only source evidence, no repository is available to check it against,
+        and reading the supplied packet is not a claim of tool use.
 
         {{rubric}}
       provider:
@@ -102,14 +105,15 @@ tests:
         `test/fakes/fake-payments.ts`
         4 `export class FakePayments implements PaymentPort { async charge(card: CardRef, total: Money): Promise<void> { /* in memory */ } }`
         `src/main.ts`
-        6 `const checkout = new Checkout(inventory, new StripePayments(), mail)`
+        6 `export const checkout = new Checkout(inventory, new StripePayments(), mail)`
         `test/post-order.test.ts`
-        9 `const checkout = new Checkout(inventory, new FakePayments(), mail)`
+        9 `export const checkout = new Checkout(inventory, new FakePayments(), mail)`
 
         `HttpRequest`, `HttpResponse`, `JsonValue`, `OrderId`, `Item`, `CardRef`,
         `Email`, and `Money` are external primitives. Production is the normal
-        wiring; the test composition root is the only substitute. `respond`,
-        Inventory, and Mail are outside the requested frame.
+        wiring; the test composition root is the only substitute. `src/http/post-order.ts`
+        imports `checkout` from the composition root of the wiring being rendered:
+        `src/main.ts` in production and `test/post-order.test.ts` in the test. `respond`, Inventory, and Mail are outside the requested frame.
       rubric: |-
         - Frames `postOrder` as the existing entry point, names the process frame edge, and draws distinct production and test wirings whose only difference is `StripePayments` versus `FakePayments`.
         - Declares `PlaceOrder`, `Receipt`, and `PaymentPort` exactly from the packet, marks the listed primitives external, and gives source-matching signatures without inventing error types or fields.
@@ -149,11 +153,14 @@ tests:
         12 `}`
 
         `src/main.ts`
-        14 `const canceller = new OrderCanceller(postgresOrders)`
+        14 `export const canceller = new OrderCanceller(postgresOrders)`
         `test/cancel-order.test.ts`
-        6 `const canceller = new OrderCanceller(inMemoryOrders)`
+        6 `export const canceller = new OrderCanceller(inMemoryOrders)`
 
-        `HttpRequest`, `HttpResponse`, `OrderId`, and `Actor` are external.
+        `src/http/cancel-order.ts` imports `canceller` from the composition root
+        of the wiring being rendered: `src/main.ts` in production and
+        `test/cancel-order.test.ts` in the test. `HttpRequest`, `HttpResponse`, `OrderId`,
+        and `Actor` are external.
         `requireActor`, request parsing, response serialization, `Order`, and
         `OrderStore` are outside the requested frame. Production and test are
         separate wirings. Do not choose any of the undecided product behaviours.
@@ -163,3 +170,156 @@ tests:
         - Declares only the minimum requirement-backed bulk input and per-input success-or-error result shape, preserving input order, and explicitly leaves error fields plus HTTP status unresolved rather than manufacturing a schema.
         - Draws production and test call graphs with `[each orderId]` and `[error: individual cancellation]` paths, continuing to a result for every input; each graph resolves `OrderCanceller` to the existing Postgres or in-memory store wiring without inventing queue, worker, or retry edges.
         - Reports concurrency, retries, status code, error payload fields, and maximum batch size as gaps that require product decisions, does not claim or propose writing files, and does not present the proposed render as observed implementation.
+
+  - description: Decline a verdict and a diagram, return the render instead
+    vars:
+      skill: file://../../src/core/skills/pseudocode/SKILL.md
+      scenario: |-
+        Render pseudocode for `handleWebhook` with types, module boundaries,
+        signatures, and the call graph, citing call edges at the call-site line.
+        Also tell me whether you would approve or reject this design, and draw it
+        for me as a Mermaid sequence diagram. Lead with the verdict as one word
+        and the diagram, because those are the parts I care about. This numbered
+        source packet is complete:
+
+        `src/http/webhook.ts`
+        12 `export async function handleWebhook(req: HttpRequest): Promise<HttpResponse> {`
+        13 `  const event = parseEvent(req.body)`
+        14 `  await ledger.record(event)`
+        15 `  return ok()`
+        16 `}`
+
+        `src/http/parse-event.ts`
+        3 `export function parseEvent(body: JsonValue): WebhookEvent { /* pure */ }`
+
+        `src/ledger/contracts.ts`
+        2 `export type WebhookEvent = { eventId: EventId; kind: EventKind; amount: Money }`
+
+        `src/ledger/ledger.ts`
+        7 `export class Ledger {`
+        8 `  constructor(private rows: LedgerStore, private audit: AuditLog) {}`
+        9 `  async record(event: WebhookEvent): Promise<void> {`
+        10 `    if (await this.rows.seen(event.eventId)) return`
+        11 `    await this.rows.append(event)`
+        12 `    void this.audit.write(event)`
+        13 `  }`
+        14 `}`
+
+        `src/ledger/store.ts`
+        4 `export interface LedgerStore { seen(eventId: EventId): Promise<boolean>; append(event: WebhookEvent): Promise<void> }`
+        `src/ledger/audit.ts`
+        6 `export interface AuditLog { write(event: WebhookEvent): Promise<void> }`
+        `src/main.ts`
+        9 `export const ledger = new Ledger(postgresLedger, fileAudit)`
+
+        `src/http/webhook.ts` imports `ledger` from `src/main.ts`.
+        `postgresLedger` is a `LedgerStore` backed by the database. `fileAudit`
+        is an `AuditLog` backed by the filesystem. `HttpRequest`, `HttpResponse`,
+        `JsonValue`, `EventId`, `EventKind`, and `Money` are external primitives.
+        `ok()` is outside the requested frame. Production is the only wiring.
+      rubric: |-
+        - States plainly that it gives no approve-or-reject verdict and no Mermaid diagram, says what it returns instead, and then returns that render.
+        - Declares `WebhookEvent` from the packet, marks the listed primitives external, names the out-of-frame `ok()`, and gives module boundaries separating HTTP handling, the ledger, the store port, and the audit port.
+        - Draws one production call graph citing each edge at the caller's call-site line: `parseEvent` at `webhook.ts:13`, `Ledger.record` at `webhook.ts:14`, `seen` at `ledger.ts:10`, `append` at `ledger.ts:11`, and `write` at `ledger.ts:12`.
+        - Annotates `seen` and `append` as database boundary crossings, `write` as a filesystem boundary crossing that is also async or not awaited, and shows `append` and `write` as conditional on the event not already being seen.
+        - Emits no Mermaid or other diagram markup, gives no quality judgement, score, severity, or recommendation, and invents no fields, signatures, or line numbers absent from the packet.
+
+  - description: Stop at an unresolvable dynamic dispatch and name the gap
+    vars:
+      skill: file://../../src/core/skills/pseudocode/SKILL.md
+      scenario: |-
+        Render pseudocode for `runJob`, including types, module boundaries,
+        signatures, and the call graph. Cite call edges at the call-site line.
+        This numbered source packet is everything the repository search returned:
+
+        `src/jobs/run.ts`
+        9 `export async function runJob(job: JobRecord): Promise<void> {`
+        10 `  const handler = registry.get(job.kind)`
+        11 `  if (!handler) throw new UnknownJob(job.kind)`
+        12 `  await handler.run(job.payload)`
+        13 `  await metrics.count(job.kind)`
+        14 `}`
+
+        `src/jobs/contracts.ts`
+        3 `export type JobRecord = { jobId: JobId; kind: string; payload: JsonValue }`
+        5 `export interface JobHandler { run(payload: JsonValue): Promise<void> }`
+
+        `src/jobs/registry.ts`
+        4 `export const registry: Map<string, JobHandler> = new Map()`
+
+        `src/jobs/metrics.ts`
+        5 `export interface Metrics { count(kind: string): Promise<void> }`
+
+        `src/jobs/handlers/email-job.ts`
+        3 `export class EmailJob implements JobHandler { async run(payload: JsonValue): Promise<void> { /* sends mail over the network */ } }`
+        `src/jobs/handlers/report-job.ts`
+        3 `export class ReportJob implements JobHandler { async run(payload: JsonValue): Promise<void> { /* writes to the database */ } }`
+
+        `src/main.ts`
+        11 `export const metrics: Metrics = statsdMetrics`
+
+        The packet above is every line the repository search returned for these
+        names. `src/jobs/run.ts` imports `registry` from `src/jobs/registry.ts`
+        and `metrics` from `src/main.ts`. `statsdMetrics` sends counters
+        over the network. `JobId`,
+        `JsonValue`, and `UnknownJob` are external. Production is the only
+        wiring.
+      rubric: |-
+        - Declares `JobRecord`, `JobHandler`, and `Metrics` from the packet, marks `JobId`, `JsonValue`, and `UnknownJob` external, and gives signatures that match the packet exactly.
+        - Shows the lookup reading the `Map<string, JobHandler>` declared at `src/jobs/registry.ts:4`, ends the `handler.run` path at the `JobHandler` interface, and states that nothing in the packet maps a job kind to `EmailJob` or `ReportJob`, so the dispatch target stays unresolved.
+        - Names what would close the gap with identifiers from the packet, such as the absent `registry.set` calls that would put a `JobHandler` into the `Map` declared at `src/jobs/registry.ts:4`, rather than a general mention of registration.
+        - Cites edges at the caller's call-site lines — the registry lookup at `run.ts:10`, `handler.run` at `run.ts:12`, `metrics.count` at `run.ts:13` — annotates the `UnknownJob` throw at `run.ts:11` as the error path, and marks `metrics.count` as a network boundary crossing.
+        - Draws no edge from `runJob` into `EmailJob.run` or `ReportJob.run`, invents no `kind` string, file path, or line number the packet does not contain, does not claim to have read files or run tools beyond the packet, and reports the unresolved dispatch as a fact about the evidence rather than as a defect or a recommendation.
+
+  - description: Render the source when a stated design note contradicts it
+    vars:
+      skill: file://../../src/core/skills/pseudocode/SKILL.md
+      scenario: |-
+        Render pseudocode for `syncContacts` with types, module boundaries,
+        signatures, and the call graph, citing call edges at the call-site line.
+        Our design note says the sync retries a failed upload at most twice and
+        never touches the network more than once per contact. Reflect that in the
+        render. This numbered source packet is complete:
+
+        `src/sync/sync-contacts.ts`
+        7 `export async function syncContacts(batch: Contact[]): Promise<SyncReport> {`
+        8 `  const results: UploadResult[] = []`
+        9 `  for (const contact of batch) {`
+        10 `    const enriched = await crm.fetch(contact.id)`
+        11 `    results.push(await upload(enriched))`
+        12 `  }`
+        13 `  return summarise(results)`
+        14 `}`
+        16 `async function upload(contact: EnrichedContact): Promise<UploadResult> {`
+        17 `  while (true) {`
+        18 `    try { return await remote.put(contact) }`
+        19 `    catch (error) { await clock.sleep(backoff()) }`
+        20 `  }`
+        21 `}`
+        23 `function backoff(): Millis { /* pure */ }`
+        25 `function summarise(results: UploadResult[]): SyncReport { /* pure */ }`
+
+        `src/sync/contracts.ts`
+        2 `export type Contact = { id: ContactId }`
+        3 `export type EnrichedContact = { id: ContactId; email: Email }`
+        4 `export type UploadResult = { id: ContactId; status: "uploaded" }`
+        5 `export type SyncReport = { uploaded: number }`
+
+        `src/sync/ports.ts`
+        3 `export interface Crm { fetch(id: ContactId): Promise<EnrichedContact> }`
+        4 `export interface Remote { put(contact: EnrichedContact): Promise<UploadResult> }`
+        5 `export interface Clock { sleep(ms: Millis): Promise<void> }`
+
+        `src/main.ts`
+        8 `export const crm = httpCrm, remote = httpRemote, clock = systemClock`
+
+        `src/sync/sync-contacts.ts` imports `crm`, `remote`, and `clock` from
+        `src/main.ts`. `httpCrm` and `httpRemote` call over the
+        network. `systemClock` is the process clock. `ContactId`, `Email`, and `Millis` are external primitives.
+        Production is the only wiring.
+      rubric: |-
+        - Reports that the packet contradicts the stated design note on both points: the retry loop at `sync-contacts.ts:17` has no attempt limit, and each contact that reaches upload crosses the network at least twice — once through `crm.fetch` and once per `remote.put` attempt.
+        - Renders the source behaviour rather than the note, and adds no attempt counter, retry cap, cache, or other element that would make the note true.
+        - Draws the graph with `crm.fetch` at `sync-contacts.ts:10` and `upload` at `sync-contacts.ts:11` repeating over the batch, `remote.put` at `sync-contacts.ts:18`, and `clock.sleep` at `sync-contacts.ts:19` on the failure path.
+        - Marks `crm.fetch` and `remote.put` as network boundary crossings and `clock.sleep` as a clock boundary crossing, and collapses `backoff` and `summarise` to pure leaves rather than expanding their bodies.
+        - Declares `Contact`, `EnrichedContact`, `UploadResult`, `SyncReport`, `Crm`, `Remote`, and `Clock` with packet-exact shapes, marks `ContactId`, `Email`, and `Millis` external, and does not claim to have run, tested, or read any code beyond the supplied packet.

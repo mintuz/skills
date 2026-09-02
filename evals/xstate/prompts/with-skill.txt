@@ -15,6 +15,10 @@ requested implementation and concise rationale using only supplied facts.
 {{lifecycles}}
 </lifecycles-reference>
 
+<react-reference>
+{{react}}
+</react-reference>
+
 <testing-reference>
 {{testing}}
 </testing-reference>

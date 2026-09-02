@@ -1,6 +1,6 @@
 ---
 name: decision-trace
-description: WHEN tracing a claimed meeting, transcript, or decision-record decision through specs, issues, PRs, and commits; NOT for meeting summaries, acceptance verdicts, or implementation; preserves source uncertainty, grades each delivery handoff, and prepares an acceptance-review contract.
+description: WHEN tracing a decision or delivery-status claim from a meeting, transcript, decision record, handover, or status document through specs, issues, PRs, and commits; NOT for meeting summaries, acceptance verdicts, or implementation; preserves source uncertainty, grades each delivery handoff, and prepares an acceptance-review contract.
 ---
 
 # Decision Trace
@@ -9,7 +9,7 @@ Treat a claimed decision as a lineage from its source to delivery artifacts. Pro
 
 ## 1. Frame the claim and cutoff
 
-Rewrite the claimed decision as one or more exact behaviors without strengthening it. Split behaviors whose lineage can differ. Record the source scope, relevant repositories, and the artifact date or revision that defines the trace cutoff. Use the available primary source regardless of provider.
+Rewrite the claimed decision as one or more exact behaviors without strengthening it. Split behaviors whose lineage can differ. Record the source scope, relevant repositories, and the artifact date or revision that defines the trace cutoff. Use the available primary source regardless of provider. Treat a delivery-status claim in a handover or status document as a trace claim. Verify it against PRs and commits dated after the document before you relay it as current. Match evidence to the claimed state: a merge proves integration only, a deployment record proves deployment, and a run log proves execution.
 
 **Complete when:** every claimed behavior, the source scope, and the trace cutoff are explicit, with unavailable inputs recorded as gaps.
 
@@ -38,12 +38,14 @@ Follow the chain as far as evidence permits:
 
 `source statement → decision record or brief → specification → issue → PR or commit`
 
-Read every discovered artifact. Cite the exact field, section, description, or commit message that connects each handoff, then grade it:
+Read every discovered artifact. Cite the exact field, section, description, or commit message that connects each handoff. Grade each handoff against its immediate upstream artifact, not against the source statement:
 
-- `explicit` — the downstream artifact directly names and preserves the decision unchanged;
-- `inferred` — its scope aligns without a direct link;
-- `changed` — it materially alters, narrows, or contradicts the decision, even when it directly links upstream;
+- `explicit` — the downstream artifact directly links to the upstream artifact and preserves its stated behavior unchanged;
+- `inferred` — its scope aligns with the upstream artifact without a direct link;
+- `changed` — it materially alters, narrows, or contradicts the upstream behavior, even when it directly links upstream;
 - `missing` — the expected handoff cannot be found.
+
+A downstream artifact that records explicit authority for a resolution or supersession is a new decision root. Record the transition into it as supersession instead of grading it, and trace the delivery chain from the new root. Otherwise, when the source classification is not `decision`, grade the first downstream artifact that states the behavior as settled `changed`.
 
 For PRs and commits, grade documentary linkage and represented scope, not code behavior. An approved specification, closed issue, merged PR, or present commit does not prove implementation correctness.
 
@@ -51,7 +53,7 @@ For PRs and commits, grade documentary linkage and represented scope, not code b
 
 ## 4. Prepare the acceptance handoff
 
-Identify the most authoritative downstream requirement and the implementation subject that `acceptance-review` should assess, such as a PR, branch, diff, commit, or current code baseline. Do not inspect implementation behavior or run acceptance checks here.
+For each behavior, select as the contract the artifact nearest the implementation that states the requirement with documented authority and whose lineage from the source contains no `changed` or `missing` link. An issue or PR that repeats an upstream requirement without independent documented authority is not the contract. When a later link in that behavior's chain is `changed`, report it as an authority ambiguity, mark the handoff provisional, and name the authority or supersession resolution as the next action before acceptance review. Identify the implementation subject that `acceptance-review` should assess, such as a PR, branch, diff, commit, or current code baseline. Do not inspect implementation behavior or run acceptance checks here, even when the user supplies code or a diff and asks for a verdict; state that the verdict belongs to `acceptance-review`.
 
 Prepare a handoff containing:
 

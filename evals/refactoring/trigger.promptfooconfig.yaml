@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the refactoring skill description. Not part of the
+# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
+# both commands from the repo root:
+#   mkdir -p evals/refactoring/workspace/.agents/skills/refactoring && cp src/web/skills/refactoring/SKILL.md evals/refactoring/workspace/.agents/skills/refactoring/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/refactoring/trigger.promptfooconfig.yaml
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: refactoring skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a refactor request with a green suite
+    vars:
+      request: >-
+        The suite is green. `buildInvoice()` in src/invoice.ts is 80 lines with
+        four levels of nesting and two magic numbers. Give me a plan to clean up
+        its structure without changing what it returns.
+    assert:
+      - type: skill-used
+        value: refactoring
+
+  - description: Activates when the suite has a known recorded failing set
+    vars:
+      request: >-
+        Two tests fail for an unrelated date-library upgrade and I have recorded
+        which two. Everything else passes. Plan how to safely remove the
+        duplicated tax rounding in src/cart.ts without changing behavior.
+    assert:
+      - type: skill-used
+        value: refactoring
+
+  - description: Does not activate for new feature delivery
+    vars:
+      request: >-
+        Add percentage-coupon support to `applyDiscount()` in src/discount.ts.
+        It only accepts fixed-amount coupons today. Plan the new behavior.
+    assert:
+      - type: not-skill-used
+        value: refactoring

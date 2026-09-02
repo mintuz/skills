@@ -1,6 +1,6 @@
 # Ratings Histogram
 
-Get detailed rating distribution (1-5 star breakdown).
+Get the rating distribution (1-5 star breakdown) for an app in one storefront.
 
 ## Endpoint
 
@@ -14,6 +14,8 @@ https://itunes.apple.com/{country}/customer-reviews/id{id}?displayable-kind=11
 X-Apple-Store-Front: {storefront_id}-1,29 l=en
 ```
 
+Without the header the endpoint returns an HTML "Connecting to the iTunes Store" page, not JSON.
+
 ## Common Storefront IDs
 
 | Country | Code | Storefront ID | Country | Code | Storefront ID |
@@ -26,6 +28,24 @@ X-Apple-Store-Front: {storefront_id}-1,29 l=en
 | India | `in` | `143467` | Mexico | `mx` | `143468` |
 | South Korea | `kr` | `143466` | China | `cn` | `143465` |
 
+## Response Structure
+
+The response is one JSON object. `ratingCountList` is an array of five integers in star order: index 0 is the 1-star count and index 4 is the 5-star count.
+
+```json
+{
+  "adamId": 553834731,
+  "kindExtId": "iosSoftware",
+  "ratingAverage": 4.5,
+  "ratingCount": 3994414,
+  "ratingCountList": [80491, 45615, 138729, 442636, 3286943],
+  "totalNumberOfReviews": 484403,
+  "ariaLabelForRatings": "4 and a half stars"
+}
+```
+
+The response does not separate current-version ratings from all-time ratings. For `averageUserRatingForCurrentVersion` and `userRatingCountForCurrentVersion`, use [App Lookup](app-lookup.md).
+
 ## Examples
 
 ### Basic Rating Histogram
@@ -33,10 +53,11 @@ X-Apple-Store-Front: {storefront_id}-1,29 l=en
 ```bash
 curl -s "https://itunes.apple.com/us/customer-reviews/id553834731?displayable-kind=11" \
   -H "X-Apple-Store-Front: 143441-1,29 l=en" | \
-  jq '.userReviewList.userReviewStatistics | {
-    avgRating: .averageUserRating,
-    totalRatings: .userRatingCount,
-    ratingCountList: .ratingCountList
+  jq '{
+    avgRating: .ratingAverage,
+    totalRatings: .ratingCount,
+    totalReviews: .totalNumberOfReviews,
+    ratingCountList
   }'
 ```
 
@@ -45,10 +66,7 @@ curl -s "https://itunes.apple.com/us/customer-reviews/id553834731?displayable-ki
 ```bash
 curl -s "https://itunes.apple.com/us/customer-reviews/id553834731?displayable-kind=11" \
   -H "X-Apple-Store-Front: 143441-1,29 l=en" | \
-  jq '.userReviewList.userReviewStatistics.ratingCountList[] | {
-    stars: .ratingCount,
-    count: .userRatingCount
-  }'
+  jq '[.ratingCountList | to_entries[] | {stars: (.key + 1), count: .value}]'
 ```
 
 ### Calculate Percentages
@@ -56,13 +74,12 @@ curl -s "https://itunes.apple.com/us/customer-reviews/id553834731?displayable-ki
 ```bash
 curl -s "https://itunes.apple.com/us/customer-reviews/id553834731?displayable-kind=11" \
   -H "X-Apple-Store-Front: 143441-1,29 l=en" | \
-  jq '
-    .userReviewList.userReviewStatistics |
-    .totalCount = .userRatingCount |
-    .ratingCountList[] |= (
-      . + {percentage: ((.userRatingCount / .totalCount) * 100 | round)}
-    )
-  '
+  jq '.ratingCount as $total
+    | [.ratingCountList | to_entries[] | {
+        stars: (.key + 1),
+        count: .value,
+        percentage: (if $total == 0 then 0 else (.value / $total * 100 | round) end)
+      }]'
 ```
 
 ### Format as Chart
@@ -70,10 +87,9 @@ curl -s "https://itunes.apple.com/us/customer-reviews/id553834731?displayable-ki
 ```bash
 curl -s "https://itunes.apple.com/us/customer-reviews/id553834731?displayable-kind=11" \
   -H "X-Apple-Store-Front: 143441-1,29 l=en" | \
-  jq -r '
-    .userReviewList.userReviewStatistics.ratingCountList[] |
-    "[\(.ratingCount)★] \("█" * (.userRatingCount / 100 | floor)) \(.userRatingCount)"
-  '
+  jq -r '.ratingCount as $total
+    | .ratingCountList | to_entries | reverse[]
+    | "[\(.key + 1)★] \("█" * (if $total == 0 then 0 else (.value / $total * 40) | floor end)) \(.value)"'
 ```
 
 ### Multiple Countries
@@ -90,69 +106,19 @@ for country in us gb de jp; do
   echo "=== $country ==="
   curl -s "https://itunes.apple.com/$country/customer-reviews/id553834731?displayable-kind=11" \
     -H "X-Apple-Store-Front: $storefront-1,29 l=en" | \
-    jq '.userReviewList.userReviewStatistics | {
-      avgRating,
-      totalRatings: .userRatingCount
-    }'
+    jq '{avgRating: .ratingAverage, totalRatings: .ratingCount, ratingCountList}'
   echo ""
+  sleep 1
 done
-```
-
-### Compare Current vs All-Time Ratings
-
-Some responses include both current version and all-time ratings:
-
-```bash
-curl -s "https://itunes.apple.com/us/customer-reviews/id553834731?displayable-kind=11" \
-  -H "X-Apple-Store-Front: 143441-1,29 l=en" | \
-  jq '{
-    currentVersion: .userReviewList.userReviewStatistics.averageUserRating,
-    allVersions: .userReviewList.userReviewStatistics.averageUserRatingForCurrentVersion
-  }'
-```
-
-## Response Structure
-
-```json
-{
-  "userReviewList": {
-    "userReviewStatistics": {
-      "averageUserRating": 4.5,
-      "userRatingCount": 12345,
-      "ratingCountList": [
-        {
-          "ratingCount": 5,
-          "userRatingCount": 8000
-        },
-        {
-          "ratingCount": 4,
-          "userRatingCount": 2500
-        },
-        {
-          "ratingCount": 3,
-          "userRatingCount": 1000
-        },
-        {
-          "ratingCount": 2,
-          "userRatingCount": 500
-        },
-        {
-          "ratingCount": 1,
-          "userRatingCount": 345
-        }
-      ]
-    }
-  }
-}
 ```
 
 ## Important Notes
 
-- **Requires X-Apple-Store-Front header** - Request will fail without it
+- **Requires X-Apple-Store-Front header** - the request returns HTML without it
 - Storefront ID must match the country in the URL
-- Response structure may vary slightly by region
+- An unknown app ID returns HTTP 404 with an empty body
 - Some apps may not have rating histogram data
-- Data may include current version vs all-time ratings
+- Verify the response keys against the live response before you depend on them; Apple changes this undocumented endpoint without notice
 
 ## Finding Storefront IDs
 
@@ -190,19 +156,21 @@ APP_NAME=$(curl -s "https://itunes.apple.com/lookup?id=$APP_ID" | jq -r '.result
 echo "Rating breakdown for: $APP_NAME"
 curl -s "https://itunes.apple.com/us/customer-reviews/id$APP_ID?displayable-kind=11" \
   -H "X-Apple-Store-Front: 143441-1,29 l=en" | \
-  jq -r '.userReviewList.userReviewStatistics.ratingCountList[] |
-    "\(.ratingCount) stars: \(.userRatingCount) ratings"'
+  jq -r '.ratingCountList | to_entries[] | "\(.key + 1) stars: \(.value) ratings"'
 ```
 
 ## Error Handling
 
 ```bash
-RESPONSE=$(curl -s "https://itunes.apple.com/us/customer-reviews/id999999999?displayable-kind=11" \
-  -H "X-Apple-Store-Front: 143441-1,29 l=en")
+APP_ID=999999999
 
-if echo "$RESPONSE" | jq -e '.errorMessage' > /dev/null 2>&1; then
-  echo "Error: App not found or no ratings available"
-else
-  echo "$RESPONSE" | jq '.userReviewList.userReviewStatistics'
-fi
+# -fsS exits non-zero on HTTP 404 (unknown app) and on transport errors.
+RESPONSE=$(curl -fsS "https://itunes.apple.com/us/customer-reviews/id${APP_ID}?displayable-kind=11" \
+  -H "X-Apple-Store-Front: 143441-1,29 l=en") || { echo '{"status":"fetch-failed"}'; exit 1; }
+printf '%s' "$RESPONSE" | jq -es 'length == 1 and (.[0] | type == "object")' > /dev/null || { echo '{"status":"parse-failed"}'; exit 1; }
+# Require the requested adamId and a five-number histogram before you accept the data.
+printf '%s' "$RESPONSE" | jq --argjson id "$APP_ID" '
+  if .adamId != $id then {status: "integrity-error"}
+  elif (.ratingCountList | type) == "array" and (.ratingCountList | length) == 5 then {status: "ok", ratingAverage, ratingCount, ratingCountList}
+  else {status: "unavailable"} end'
 ```

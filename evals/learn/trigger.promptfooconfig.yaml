@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the learn skill description. Not part of the
+# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
+# both commands from the repo root:
+#   mkdir -p evals/learn/trigger-workspace/.agents/skills/learn && cp src/core/skills/learn/SKILL.md evals/learn/trigger-workspace/.agents/skills/learn/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/learn/trigger.promptfooconfig.yaml
+# The fixture lives in its own workspace, so no installed skill can reach the
+# behavioural suite in evals/learn/workspace.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: learn skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on preserving a gotcha in repository instructions
+    vars:
+      request: >-
+        We just lost an afternoon to a gotcha: the worker silently drops jobs
+        when the queue name has a trailing space. Write that up in our
+        repository instructions so nobody hits it again.
+    assert:
+      - type: skill-used
+        value: learn
+
+  - description: Activates on recording an architectural decision in AGENTS.md
+    vars:
+      request: >-
+        We decided to keep all tenant scoping in the repository layer rather
+        than in the handlers. Record that decision in AGENTS.md.
+    assert:
+      - type: skill-used
+        value: learn
+
+  - description: Activates on an unanchored wish-I-had-known learning
+    vars:
+      request: >-
+        I wish I had known earlier that our migrations must run before the
+        cache warms. Put that somewhere the next person will see it.
+    assert:
+      - type: skill-used
+        value: learn
+
+  - description: Does not activate for a trivial documentation edit
+    vars:
+      request: >-
+        Fix the typo in the README heading: it says "Instalation" instead of
+        "Installation".
+    assert:
+      - type: not-skill-used
+        value: learn

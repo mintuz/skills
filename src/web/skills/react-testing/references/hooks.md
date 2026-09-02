@@ -5,7 +5,7 @@
 **Built into React Testing Library** (since v13):
 
 ```tsx
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 
 it('should toggle value', () => {
   const { result } = renderHook(() => useToggle(false));
@@ -22,22 +22,28 @@ it('should toggle value', () => {
 
 **Pattern:**
 - `result.current` - Current return value of hook
-- `act()` - Wrap state updates
+- `act()` - Wrap a state-changing callback that you invoke directly, because it runs outside Testing Library's auto-wrapped helpers
 - `rerender()` - Re-run hook with new props
 
 ## Hooks with Props
 
 ```tsx
-it('should accept initial value', () => {
+it('should format the current amount', () => {
   const { result, rerender } = renderHook(
-    ({ initialValue }) => useCounter(initialValue),
-    { initialProps: { initialValue: 10 } }
+    ({ amount }) => useFormattedPrice(amount),
+    { initialProps: { amount: 10 } }
   );
 
-  expect(result.current.count).toBe(10);
+  expect(result.current).toBe('£10.00');
 
-  // Test with different initial value
-  rerender({ initialValue: 20 });
-  expect(result.current.count).toBe(20);
+  // Re-run the hook with a new argument
+  rerender({ amount: 20 });
+  expect(result.current).toBe('£20.00');
 });
 ```
+
+**`rerender` changes the arguments of the hook callback only.** It does not
+change the props of the `wrapper`. Choose a hook whose return value derives from
+the argument; a hook that only seeds `useState` keeps its first value after a
+`rerender`. To change provider props, render a consumer component with
+`render()` and use that render result's `rerender()`.

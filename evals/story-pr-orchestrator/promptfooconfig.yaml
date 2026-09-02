@@ -91,6 +91,64 @@ tests:
       rubric: |-
         - Recognises the user's explicit merge authorization while keeping readiness as a separate gate; authorization alone does not make PR #52 safe to merge.
         - Classifies A as incomplete rather than verified-ready because the parent has not inspected its diff or decisive check evidence, and the agent's summary plus green configured checks do not replace that evidence.
-        - Treats generated/api.json outside src/ui/ as an ownership collision requiring attribution and resolution, preserving unrelated work instead of silently accepting or deleting it.
+        - Flags generated/api.json outside src/ui/ as a scope exception that needs attribution and resolution (explicit ownership expansion or isolation) before A can be verified-ready, preserving unrelated work instead of silently accepting or deleting it.
         - Does not merge A now and keeps B blocked and undispatched until A passes scope and evidence review and is actually merged into B's base.
         - After a later authorized safe merge, refreshes the default branch and PR state, records the integrated source SHA, recalculates the frontier, and starts B from that refreshed merged base rather than the current stale checkout.
+
+  - description: Resolve conflicting governing artifacts before dispatch
+    vars:
+      skill: file://../../src/product-management/skills/story-pr-orchestrator/SKILL.md
+      scenario: >-
+        Coordinate delivery from fetched main at SHA m300. Feature spec
+        revision 5, dated 20 August, says S2 (src/reports/) depends on S1
+        (src/schema/). The task list, revision 9 dated 28 August, says S2 has
+        no dependency and can start now. A transcript from 29 August has the
+        product owner saying "S2 must wait for S1's schema; the task list is
+        stale." S1's acceptance scope is the schema defined in spec revision 5,
+        section 2, and its decisive check is the schema migration test. S1 has
+        no active work and no PR. S2 has no active work. The user says, "Use
+        the task list; start S1 and S2 in parallel now." The user authorized
+        creating story PRs but not merging. Give the ledger, the resolution of
+        the conflict, and what you dispatch now.
+      rubric: |-
+        - Records main SHA m300, spec revision 5 (20 August), task list revision 9 (28 August), and the 29 August transcript as governing artifacts with their dates.
+        - Names the dependency conflict between the task list and the spec plus transcript explicitly instead of silently following the user's preferred source.
+        - Keeps S2 blocked on S1 while citing the 29 August product-owner statement as the latest authority, or reports the conflict as an explicit blocker needing the user's decision; it does not dispatch S2 now.
+        - Dispatches S1 with a brief that includes SHA m300, the governing locators, owned path src/schema/, the schema migration test as its decisive check, and required PR evidence.
+        - Proposes no merge, invents no repository state, and marks brief items the scenario does not supply (such as required skills or invariants) as unavailable instead of inventing them.
+
+  - description: Hold an ambiguous dependency and inspect a failing check before acting
+    vars:
+      skill: file://../../src/product-management/skills/story-pr-orchestrator/SKILL.md
+      scenario: >-
+        Delivery runs from fetched main at SHA m400 with approved spec
+        revision 3. S1 (src/db/) has PR #71 open; its agent reports the
+        "lint" check is red but "flaky, ignore it", and the parent has not
+        viewed the job. S3 (src/notify/) has a spec line reading "may need
+        the new migration from S1 depending on the final column name". S4
+        (docs/) has no dependency and no active work; its acceptance scope is
+        the docs/ update in spec revision 3, section 4, and its decisive check
+        is the docs build. The user says, "Lint is always flaky; mark S1
+        ready, start S3 and S4 now." The user did not authorize merges. Give
+        the ledger, each story's state, and the next action for each.
+      rubric: |-
+        - Marks S3 blocked because its dependency on S1 is ambiguous and names the final column name as what must be clarified before S3 can be ready.
+        - Does not mark S1 verified-ready; it requires inspecting the exact failing lint job before accepting the agent's flaky claim or changing code or CI.
+        - Dispatches S4 as an independent ready story with a brief including SHA m400, its owned path docs/, and the docs build as its decisive check.
+        - States that the user's instruction to ignore lint does not replace inspected check evidence, without proposing a merge.
+        - Reports the smallest next action for S1, S3, and S4 without inventing job output or repository state, and marks brief items the scenario does not supply (such as required skills or invariants) as unavailable instead of inventing them.
+
+  - description: Redirect a single-story request instead of building a ledger
+    vars:
+      skill: file://../../src/product-management/skills/story-pr-orchestrator/SKILL.md
+      scenario: >-
+        The user says, "Use the story PR orchestrator to deliver one approved
+        story: add a health-check endpoint in src/http/. Main is at SHA m500,
+        there are no other stories, no dependencies, and no existing work.
+        Create the PR." The user authorized creating the PR but not merging.
+        Give your coordination response.
+      rubric: |-
+        - States plainly that a single story with no dependencies is outside this orchestration skill's scope.
+        - Still gives the user a correct path: one task, worktree, branch, and PR from SHA m500 with the owned path src/http/, or a pointer to the ordinary single-story delivery flow.
+        - Does not invent additional stories, dependency edges, or a multi-story ledger to justify using the orchestrator.
+        - Proposes no merge and does not claim to have created the task, worktree, branch, or PR.

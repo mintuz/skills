@@ -101,7 +101,7 @@ I want to feel energized playing with my kids without getting winded, and I want
 
 **Confidence Assessment**:
 - Theory (will these actions produce the result?): 90%
-- Practice (will I actually do these actions?): 75%
+- Practice (will I actually do these actions?): 80%
 
 **Failure Forecast** (Crystal Ball Method):
 
@@ -163,7 +163,7 @@ I want to build something that solves a real problem I experienced as a project 
 5. Establish content marketing engine (2 blog posts/week)
 
 **Confidence Assessment**:
-- Theory (will these actions produce the result?): 70%
+- Theory (will these actions produce the result?): 80%
 - Practice (will I actually do these actions?): 85%
 
 **Failure Forecast** (Crystal Ball Method):

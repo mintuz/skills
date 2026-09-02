@@ -1,6 +1,13 @@
 ---
 name: local-ai-models
-description: Comprehensive guide for implementing on-device AI models on iOS using Foundation Models and MLX Swift frameworks. Use WHEN building iOS apps with (1) Local LLM inference, (2) Vision Language Models (VLMs), (3) Text embeddings, (4) Image generation, (5) Tool/function calling, (6) Multi-turn conversations, (7) Custom model integration, or (8) Structured generation.
+description: >-
+  WHEN building iOS features on on-device models with Foundation Models or MLX Swift:
+  local LLM inference, chat, Vision Language Models (VLMs), text embeddings, image
+  generation, tool calling, multi-turn conversations, custom models, or structured
+  generation; NOT for cloud-hosted model APIs, Core ML or coremltools model
+  conversion, or Vision framework classifiers; returns framework selection,
+  compatibility gates, session and streaming patterns, and device-proof
+  verification plans.
 ---
 
 # iOS On-Device AI Models
@@ -20,13 +27,14 @@ Production-ready guide for implementing on-device AI models in iOS apps using Ap
 
 ## Core Principles
 
-1. **Compatibility Gate** - Before selecting a framework, verify current SDK/OS compile availability and runtime Apple Intelligence eligibility, model readiness, and locale support against authoritative SDK/platform sources and every required deployment target and device. Runtime availability checks cannot satisfy an incompatible deployment or device promise.
-2. **Single-Flight Streaming** - Give one isolation boundary ownership of each conversation's session, transcript, and generation task. Queue or reject overlapping sends; Stop and teardown cancel and await that task, the stream checks cancellation, and only a completed response becomes a transcript turn.
+1. **Compatibility Gate** - Foundation Models requires iOS 26, iPadOS 26, or macOS 26 or later, and an Apple Intelligence-capable device with Apple Intelligence enabled. Compare this floor with the deployment target and with every device the feature must support before you select a framework. Always check `SystemLanguageModel.default.availability` at runtime before you create a session. Show a fallback UI for each unavailable state: `.modelNotReady` (model not ready, for example a download in progress), `.appleIntelligenceNotEnabled` (disabled in Settings), and `.deviceNotEligible` (hardware cannot run the model). A runtime check reports the state of one device. It cannot make the feature available on an OS version or device below the floor.
+2. **Single-Flight Streaming** - Give one isolation boundary ownership of each conversation's session, transcript, and generation task. Do not call the session while `isResponding` is true; reject or queue the new send so that `GenerationError.concurrentRequests` never occurs in normal use. Stop and teardown cancel the owned task and await it before a new send starts. Check `Task.checkCancellation()` while you consume the stream. Commit a transcript turn only when the response completes.
 3. **Session Persistence** - Reuse LanguageModelSession across completed turns and keep partial streaming text separate from committed history.
-4. **Memory Awareness** - Use quantized models and monitor memory usage.
+4. **Memory Awareness** - Use quantized models and monitor memory usage. iOS limits one app to a fraction of the device's total RAM. Reject any model whose weight files are about the size of, or larger than, the total RAM of the lowest-memory required device: it cannot load. Pick the smallest model that meets quality on that device and measure peak memory there. Give one `@Observable` owner the load state, the loaded model, and generation. For a multi-gigabyte download, ask for consent, default to Wi-Fi, make the download resumable, and keep the feature in an explicit "not downloaded" state until the files are complete.
 5. **Async Everything** - Load models asynchronously, never block the main thread.
 6. **Device Proof** - Before calling the design viable, exercise support boundaries and generation lifecycle in focused tests, then verify a Release build on the oldest or lowest-memory required physical device, including offline operation when the product promises on-device behavior.
-7. **Locale Support** - Use supportsLocale(_:) and locale instructions for Foundation Models.
+7. **Locale Support** - Call `supportsLocale(_:)` for each user locale before you create a session. Treat an unsupported locale as an unavailable state; do not use a prompt instruction such as "answer in <language>" to work around it. For a supported locale, put the locale in the session instructions, not in each prompt. Test each locale branch on a physical device set to that locale.
+8. **Typed Tools and Outputs** - For structured output, define a `@Generable` type and call `respond(to:generating:)`; do not parse free text with regular expressions. For an app action the model needs, implement the Foundation Models `Tool` protocol with `@Generable` arguments and pass the tool when you create the session. The session invokes the tool. The view never calls the service on the model's behalf. A tool error surfaces from the session call as `LanguageModelSession.ToolCallError`. Catch it and show the user a normal failure state; never crash or show an empty result.
 
 ## Quick Reference
 
@@ -66,8 +74,8 @@ Production-ready guide for implementing on-device AI models in iOS apps using Ap
 ### Which framework should I use?
 
 ```
-Can Foundation Models compile for the required deployment target and run on
-every device the feature promises to support?
+Is Foundation Models available on every OS version and device the feature
+must support (iOS 26 or later, Apple Intelligence-capable hardware)?
 ├── No → Can a suitable MLX model meet the same device floor?
 │   ├── Yes → MLX Swift (prove memory, latency, and output on that floor)
 │   └── No → The requirements are infeasible; change the support contract

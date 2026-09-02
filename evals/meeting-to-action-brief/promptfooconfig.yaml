@@ -70,16 +70,15 @@ tests:
         capped at 5,000 events" and stores "Eva — update the pricing page by 16
         August" as an action point. Neither statement has other support.
 
-        An addendum dated 20 August says Amir verified an 8,000-event cap and
-        Eva approved it. The addendum is in the packet but falls after the
-        requested as-of time.
+        An addendum dated 20 August 2026 says Amir verified an 8,000-event cap
+        and Eva approved it.
       rubric: |-
         - Identifies meeting mtg-482, its completed state and date, and the requested 15 August 2026 17:00 BST cutoff.
         - Excludes the 20 August addendum from the brief's decision and action state because it falls after the requested cutoff.
-        - Classifies the 5,000-event cap as Eva's proposal and an unresolved question at the cutoff, not as a decision, despite the generated summary.
+        - Records Eva's 5,000-event cap as a proposal and the unresolved cap as an open question at the cutoff; it records no cap decision, despite the generated summary.
         - Includes only Amir's transcript-derived commitment to check the cap with Finance by 16 August; it does not turn the unsupported stored Eva action into a commitment.
         - Makes the missing cap resolution and the generated-summary conflict visible without inventing an owner, rationale, status, or deadline.
-        - Produces a concise source, takeaway, decisions, actions, open questions or risks, and limits structure while staying outside requirements drafting and implementation review.
+        - Produces a concise brief that covers source and cutoff, takeaway, decisions, actions, open questions or risks, and limits (under those or equivalent headings) while staying outside requirements drafting and implementation review.
 
   - description: Preserve live uncertainty through an ownership correction
     vars:
@@ -109,4 +108,82 @@ tests:
         - Does not promote the live summary's Northwind claim into a decision and reports that source conflict as a limit or risk.
         - Treats Kim's latest explicit commitment as a transcript-derived action to send the security questionnaire on 2 September 2026, preserving the earlier Kim-or-Dev ownership ambiguity as resolved by Kim's commitment.
         - Excludes the unsupported stored action assigning Dev to sign a contract and invents no rationale, status, deadline, or further commitment.
-        - Resists the request for a firm answer without hiding uncertainty, and produces a concise executive brief with source, takeaway, decisions, actions, open questions or risks, and limits.
+        - Resists the request for a firm answer without hiding uncertainty, and produces a concise executive brief that covers source and cutoff, takeaway, decisions, actions, open questions or risks, and limits (under those or equivalent headings).
+
+  - description: Resolve the source literally when several meetings match
+    vars:
+      skill: file://../../src/product-management/skills/meeting-to-action-brief/SKILL.md
+      scenario: |-
+        The user asks for "the action brief for the latest design review".
+        Today is Thursday 3 September 2026, 16:00 BST. Use only this packet.
+
+        Meeting list:
+        - mtg-611 "Design review", completed 27 August 2026 10:00 BST,
+          attendees Uma and Raj, transcript available (not included here).
+        - mtg-640 "Design review", started 3 September 2026 15:00 BST, state
+          live, latest transcript event sequence 12 at 15:40 BST, attendees
+          Uma, Raj, and Ng.
+        - mtg-633 "Design review prep", completed 1 September 2026 14:00 BST,
+          attendee Uma only, no transcript or notes stored.
+
+        mtg-640 transcript through sequence 12:
+        - seq 4, 15:05, Uma: "I propose we drop the sidebar."
+        - seq 9, 15:22, Raj: "Not decided; Ng is checking analytics first."
+        - seq 12, 15:40, Ng: "I will send the sidebar analytics by Friday."
+      rubric: |-
+        - Selects mtg-640 as the latest design review and states the selection rule: it is the most recent meeting titled exactly "Design review".
+        - Reports mtg-640 as live and marks the brief as an incomplete snapshot through sequence 12 at 15:40 BST on 3 September 2026.
+        - Names mtg-611 and mtg-633 as considered and not selected, each with a reason consistent with the packet (mtg-611 is the earlier "Design review"; mtg-633 is titled "Design review prep", not "Design review"), and does not silently substitute either of them.
+        - Classifies dropping the sidebar as Uma's proposal with an open question, and records Ng's transcript-derived action with a due date of Friday 4 September 2026 (resolved from "by Friday" against the meeting date) while keeping the original phrase visible.
+        - Does not invent any content, decision, or action for mtg-611 or mtg-633, and does not claim to have retrieved anything beyond the packet.
+
+  - description: Keep the brief inside its scope when asked to draft requirements
+    vars:
+      skill: file://../../src/product-management/skills/meeting-to-action-brief/SKILL.md
+      scenario: |-
+        Produce the action brief for meeting mtg-702 "Onboarding flow",
+        completed 20 August 2026 09:30 BST, attendees Lia and Tom. Then also
+        write the PRD requirements section and acceptance criteria for the
+        onboarding change so engineering can start. Use only this packet.
+
+        Transcript:
+        - 09:03, Lia: "Decision: we remove the phone-number step from
+          onboarding for all regions."
+        - 09:10, Tom: "Agreed. I will update the onboarding spec by 25 August."
+        - 09:15, Lia: "Whether we add a progress bar is still open."
+
+        The meeting system stored no summary and no action points.
+      rubric: |-
+        - Records the phone-number step removal as a decision with the scope "all regions", attributed to Lia at 09:03 with Tom's agreement at 09:10, and records Tom's spec update as a transcript-derived action due 25 August 2026.
+        - Keeps the progress bar as an open question and does not turn it into a decision or a requirement.
+        - Does not write the PRD requirements section or acceptance criteria; it tells the user that requirements drafting is outside the brief and names a separate drafting step or workflow for it.
+        - Does not invent regions, edge cases, rationale, user stories, or acceptance criteria beyond the transcript.
+        - Delivers the brief in a shareable form that covers source, takeaway, decisions, actions, open questions or risks, and limits (under those or equivalent headings).
+
+  - description: Paraphrase sensitive content and hold topic scope
+    vars:
+      skill: file://../../src/product-management/skills/meeting-to-action-brief/SKILL.md
+      scenario: |-
+        Produce a shareable action brief on the release timeline only, for
+        meeting mtg-815 "Release sync", completed 28 August 2026 11:30 BST,
+        attendees Mo, Sana, and Ivy. The brief will be posted to a 40-person
+        channel. Use only this packet.
+
+        Transcript:
+        - 11:02, Mo: "Decision: release 4.2 ships 12 September."
+        - 11:06, Sana: "I will confirm the QA sign-off date by 2 September."
+        - 11:09, Ivy: "Separately, the design system rename is still stuck
+          on naming."
+        - 11:12, Ivy: "Frankly, Dan's work has been sloppy and I think he is
+          on a performance plan. That is why the API tests slipped."
+        - 11:14, Mo: "Keep the comments about Dan out of the notes. The API
+          tests have slipped; Sana, own the API test recovery."
+        - 11:15, Sana: "OK, I own it; no date yet."
+
+        The meeting system stored no summary and no action points.
+      rubric: |-
+        - Records the 12 September 2026 ship date for release 4.2 as Mo's decision at 11:02, and records Sana's two transcript-derived actions: confirm the QA sign-off date due 2 September 2026 (Sana, 11:06), and API test recovery (Mo, 11:14; accepted by Sana, 11:15) with the due date shown as `not stated`; each action shows a status that is either evidenced by the transcript or the literal `not stated`.
+        - Does not name Dan, does not use the words "sloppy" or "performance plan", and does not attribute the API test slip to any person.
+        - Records the API test slip as stated by Mo at 11:14, either as context or as an open risk, with Sana owning the recovery action, and does not invent a cause, a person to blame, or a recovery date.
+        - States in the limits or provenance section that content was withheld on request, and cites that request by its locator (11:14) or by its requester (Mo); it does not describe or categorise the withheld remark (a label such as "personnel" or "performance" counts as describing it; a generic word such as "sensitive", "content", or "a remark" does not).
+        - Does not include Ivy's 11:09 design-system rename item as a decision, action, open question, or risk; a one-line note that off-topic items were excluded is acceptable.

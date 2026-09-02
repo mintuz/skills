@@ -5,13 +5,13 @@ description: WHEN delivering an approved multi-story feature or several specs as
 
 # Story PR Orchestrator
 
-Treat delivery as a dependency frontier. A story is ready only when every prerequisite is merged into the base it will build on; approval, green checks, or an open PR do not satisfy that gate. Keep the parent agent as coordinator while story agents own implementation.
+Treat delivery as a dependency frontier. A story is ready only when every prerequisite is merged into the base it will build on; approval, green checks, or an open PR do not satisfy that gate. Keep the parent agent as coordinator while story agents own implementation. If the request contains one story with no dependencies, state that the request is outside this skill and hand the story to ordinary single-story delivery (one task, worktree, branch, and PR) without a ledger. When a user instruction conflicts with a dependency, evidence, or authority gate, name the instruction and the gate it fails in the output.
 
 ## 1. Refresh the delivery baseline
 
-Read the repository instructions, current default branch, selected specs and task lists, status document, latest relevant transcript, and current task, worktree, branch, and PR state. Fetch remote state when available and record the exact source SHA. Resolve stale or conflicting sources before dispatching implementation; record unavailable governing artifacts as named gaps.
+Read the repository instructions, current default branch, selected specs and task lists, status document, latest relevant transcript, and current task, worktree, branch, and PR state. Fetch remote state when available and record the exact source SHA. Resolve stale or conflicting sources before dispatching implementation. Rank conflicting sources by their documented change authority, then by date. When no source clearly outranks the others, record the conflict as a blocker that needs the user's decision. Record unavailable governing artifacts as named gaps.
 
-**Complete when:** the source SHA and revision or date of every governing artifact are recorded, and each discrepancy has an explicit resolution or blocker.
+**Complete when:** the source SHA and revision or date of every governing artifact are recorded, and each discrepancy is recorded with the sources on each side and an explicit resolution or blocker.
 
 ## 2. Derive the dependency ledger
 
@@ -36,13 +36,13 @@ Fan out only independent ready stories. Assign one isolated task, worktree, bran
 - non-goals and owned paths;
 - required deliverables, including PR and verification evidence.
 
-Require the story agent to acknowledge its base and ownership before editing. Leave dependent stories undispatched until their prerequisites are actually merged.
+Mark each brief item that the governing artifacts do not supply as `unavailable`; do not invent it. Record each dispatched brief in full in the delivery output. Require the story agent to acknowledge its base and ownership before editing. Leave dependent stories undispatched until their prerequisites are actually merged.
 
 **Complete when:** each frontier story has one acknowledged owner and isolated delivery path, while every blocked story remains undispatched with its gate named.
 
 ## 5. Monitor evidence, not activity
 
-Track child state, review feedback, CI and PR checks, and merge state against the ledger. Treat provisioning, a claimed implementation, or output without inspected diff and decisive checks as incomplete. Route story-local feedback to its owner; resolve cross-story ordering or contract conflicts in the parent. Inspect the exact failing job before changing code or CI.
+Track child state, review feedback, CI and PR checks, and merge state against the ledger. Treat provisioning, a claimed implementation, or output without inspected diff and decisive checks as incomplete. Treat a changed file outside a story's owned paths as a scope exception; attribute it, then expand ownership explicitly or isolate the unrelated work before the story is `verified-ready`. Route story-local feedback to its owner; resolve cross-story ordering or contract conflicts in the parent. Inspect the exact failing job before changing code or CI. An instruction from a user or agent to ignore a failing or flaky check does not replace inspected check evidence. Without inspection, classify the story `blocked` and name the uninspected job.
 
 **Complete when:** every active story is classified as `working`, `blocked` with evidence, or `verified-ready` with inspected scope, checks, and review state.
 

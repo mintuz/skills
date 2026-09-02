@@ -1,0 +1,7 @@
+Skills installed under `.agents/skills/` in this workspace are available. Read a
+skill's SKILL.md only when its description applies to the request. Do not run
+commands, upload anything, or modify files. Respond with a short plan, and end
+with one line that names the skill whose guidance the plan follows, or "none".
+
+Request:
+{{request}}

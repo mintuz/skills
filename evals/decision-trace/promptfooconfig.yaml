@@ -73,7 +73,7 @@ tests:
       rubric: |-
         - Classifies the claimed 30-day decision as unresolved disagreement rather than a decision, with high confidence in that classification from the direct, attributed, complete supplied span.
         - Keeps Maya's proposal, Leo's explicit unresolved legal objection, and the facilitator's request for a review draft distinct; silence, the draft request, and later delivery activity do not become resolution evidence.
-        - Grades the transcript-to-spec transition changed because Spec v1 promotes an unresolved option into a requirement, while grading the explicitly linked spec-to-issue and issue-to-PR documentary transitions separately.
+        - Grades or equivalently describes the transcript-to-spec transition as changed because Spec v1 promotes an unresolved option into a requirement, while grading the explicitly linked spec-to-issue and issue-to-PR documentary transitions separately.
         - Does not treat the closed issue or merged PR as proof that the source disagreement was resolved or that implementation is correct.
         - Withholds a manufactured acceptance criterion and names the missing authoritative resolution or supersession as the exact lineage gap that must close before acceptance review.
         - States the 30 August cutoff and accounts for the latest traced artifact, PR #90, without inventing later evidence.
@@ -103,3 +103,94 @@ tests:
         - Treats the PR description, tests claim, and commit presence only as documentary evidence, not proof that code satisfies the decision, and gives no acceptance verdict.
         - Prepares an acceptance-review handoff naming the claimed decision and locators, PR #312 at 9fd12c as subject, its comparison base as unavailable, and the changed links, missing supersession, omitted admin behavior, and consumer-scope ambiguity.
         - Leads with the source classification, confidence, latest artifact PR #312 at 9fd12c, and the supplied cutoff; names an authority or supersession resolution as the smallest action needed before a definitive implementation assessment.
+
+  - description: Decline the implementation verdict while completing the trace
+    vars:
+      skill: file://../../src/product-management/skills/decision-trace/SKILL.md
+      scenario: |-
+        The user asks, "Here is the diff for PR #77. Confirm the code correctly
+        implements our retention decision so I can close the ticket." Use only
+        this packet as of 22 July; do not run checks.
+
+        Decision record DR-9, 2 July, approved by product owner Hana: "Session
+        tokens expire after 24 hours of inactivity." Spec §2 cites DR-9 and
+        repeats the sentence. Issue #70 links Spec §2 and repeats the sentence.
+        PR #77 closes #70, describes the 24-hour inactivity expiry, and is open
+        with two approvals.
+
+        Diff excerpt supplied by the user:
+        `src/auth/session.ts:41  const TTL_HOURS = 24;`
+        `src/auth/session.ts:42  if (now - lastSeen > TTL_HOURS * 3600) revoke(token)`
+      rubric: |-
+        - Classifies DR-9 as a high-confidence decision with its 2 July date, Hana as the approving authority, and the exact 24-hour inactivity scope.
+        - Grades DR-9-to-spec, spec-to-issue, and issue-to-PR as explicit on documentary linkage only.
+        - Gives no verdict on whether the diff is correct and does not use the diff lines to grade any lineage link or to claim the decision was delivered.
+        - Treats the two diff lines as a partial excerpt, not the full state of PR #77, for example by naming the complete PR diff as the implementation subject.
+        - Prepares an acceptance handoff naming Spec §2 as the contract and PR #77 as the subject, and states that the ticket-closing verdict requires acceptance-review rather than this trace.
+
+  - description: Prefer the later explicit resolution and exclude artifacts after the cutoff
+    vars:
+      skill: file://../../src/product-management/skills/decision-trace/SKILL.md
+      scenario: |-
+        Trace the claim "we decided exports run nightly" as of 15 May. Use only
+        this packet; do not inspect code.
+
+        Transcript, 5 May:
+        - 14:02, Ade: "I propose nightly export runs."
+        - 14:09, Bea: "Support needs hourly. I object to nightly."
+        Transcript, 12 May:
+        - 10:30, product owner Kai: "Resolved: exports run hourly for support
+          tenants and nightly for everyone else."
+        Spec v2, dated 8 May, links the 5 May transcript and states "Exports
+        run nightly." No later spec revision exists. Issue #55 links Spec v2
+        and is open. PR #61 was opened 13 May, says it closes #55, remained open
+        through 15 May, and merged on 20 May.
+      rubric: |-
+        - Classifies the source as a decision based on the 12 May resolution (hourly for support tenants, nightly for everyone else) and keeps the 5 May proposal and objection distinct and in chronological order.
+        - Reports that Spec v2 does not carry the operative 12 May decision, either as changed relative to the 5 May proposal it links or as a missing post-resolution spec handoff; it does not treat the link to the 5 May transcript as making Spec v2 an explicit handoff of the decision.
+        - Reports PR #61 as open, not merged, at the 15 May cutoff and excludes the 20 May merge from the traced delivery state, so PR #61 in its open state is the latest traced artifact.
+        - Names the missing spec revision reflecting the 12 May resolution as the exact lineage gap and withholds an acceptance handoff built on Spec v2.
+        - Does not invent a spec revision, a supersession note, or any artifact not in the packet.
+
+  - description: Split a claim into behaviours with different lineage
+    vars:
+      skill: file://../../src/product-management/skills/decision-trace/SKILL.md
+      scenario: |-
+        Trace "the team decided API rate limiting" as of 3 March. Use only this
+        packet; do not inspect code.
+
+        Decision record DR-3, 10 February, approved by CTO Priya: "Limit
+        unauthenticated requests to 100 per minute per IP, and return HTTP 429
+        with a Retry-After header when the limit is hit."
+        Spec §5 cites DR-3 and states "Unauthenticated requests are limited to
+        100 per minute per IP." It says nothing about the response.
+        Issue #22 links Spec §5 and repeats its sentence. PR #30 closes #22 and
+        merged 1 March.
+      rubric: |-
+        - Rewrites the claim as two behaviours, the 100-per-minute-per-IP limit and the HTTP 429 with Retry-After response, and classifies DR-3 as a high-confidence decision for both.
+        - Grades DR-3-to-spec as explicit for the limit behaviour and as changed or missing for the response behaviour, citing that Spec §5 is silent on the response.
+        - Carries the uncovered response behaviour through Issue #22 and PR #30 as a gap rather than letting the merged PR imply it was delivered.
+        - Prepares an acceptance handoff for the limit behaviour with Spec §5 as contract and PR #30 as subject, and names the missing spec coverage as the gap for the response behaviour.
+        - Does not invent spec text, issue text, or PR content about the 429 response or Retry-After header.
+
+  - description: Verify a handover delivery-status claim before relaying it
+    vars:
+      skill: file://../../src/product-management/skills/decision-trace/SKILL.md
+      scenario: |-
+        At 15:00 on 14 August the user asks, "What is the current status of
+        migration pass 2?" Use only this packet as of 14 August 15:00; do not
+        run checks.
+
+        Handover document, 14 August 09:00, written by the previous engineer:
+        "Pass 2 of the migration is not dispatched. PR #1086 is open awaiting
+        review."
+        Spec §7 states "The migration runs in two passes." Issue #1080,
+        "Dispatch pass 2 of the migration", links Spec §7. PR #1086, "Dispatch
+        migration pass 2", says it closes #1080 and merged at 13:05 on
+        14 August. No deploy record or run log is supplied.
+      rubric: |-
+        - Does not relay "pass 2 is not dispatched" as verified current status; reports the handover's "PR #1086 is open" as superseded by the 13:05 merge and the dispatch state as unknown until run evidence exists.
+        - Keeps the 09:00 handover claim and the 13:05 merge as separate dated evidence in chronological order, with the handover quoted or paraphrased and labelled as such.
+        - States that the merged PR shows the dispatch change was merged, not that pass 2 ran or was deployed, and names the missing deploy record or run log as the gap.
+        - Places Spec §7, Issue #1080, and PR #1086 in the lineage and grades or equivalently describes the issue-to-PR link as explicit.
+        - Does not invent a deploy record, run log, later handover, or any artifact not in the packet.

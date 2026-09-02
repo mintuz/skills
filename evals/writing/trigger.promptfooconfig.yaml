@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the writing skill description. Not part of the
+# scripted suite. The fixture is disposable and git-ignored; refresh it, then run
+# both commands from the repo root:
+#   mkdir -p evals/writing/workspace/.agents/skills/writing && cp src/core/skills/writing/SKILL.md evals/writing/workspace/.agents/skills/writing/SKILL.md
+#   PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 pnpm exec promptfoo eval --no-cache -c evals/writing/trigger.promptfooconfig.yaml
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: writing skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a ruling put to the user
+    vars:
+      request: >-
+        You found two ways to fix the flaky checkout test and cannot pick one
+        without me. Write the message that asks me to decide between them.
+    assert:
+      - type: skill-used
+        value: writing
+
+  - description: Activates on a developer tutorial
+    vars:
+      request: >-
+        Write a short tutorial for backend developers on recording and
+        replaying an HTTP session with our `rex` CLI.
+    assert:
+      - type: skill-used
+        value: writing
+
+  - description: Does not activate for a commit message
+    vars:
+      request: >-
+        Write the conventional commit message for my staged change that fixes
+        the stale login redirect.
+    assert:
+      - type: not-skill-used
+        value: writing
+
+  - description: Does not activate for a pull request description
+    vars:
+      request: >-
+        Draft the pull request description for my branch that replaces the
+        retry loop with exponential backoff.
+    assert:
+      - type: not-skill-used
+        value: writing
+
+  - description: Does not activate for marketing copy
+    vars:
+      request: >-
+        Write the homepage hero headline and subheadline for our new
+        uptime-monitoring product.
+    assert:
+      - type: not-skill-used
+        value: writing

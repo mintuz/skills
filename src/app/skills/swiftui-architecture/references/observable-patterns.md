@@ -26,10 +26,11 @@ class SettingsManager {
 
 ## Observable Services Pattern
 
-Keep business logic in @Observable services for testability:
+Keep business logic in @Observable services for testability. Let a service hold data only when more than one screen reads that data; a single screen keeps its own items, loading flag, and error in `@State`. Mark a service whose state a view reads with `@MainActor`, so its stored state is written on the main actor:
 
 ```swift
 @Observable
+@MainActor
 class ItemService {
     private let api: APIClient
     var items: [Item] = []

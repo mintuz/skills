@@ -37,6 +37,9 @@ work, and you do not decide what runs next.
    skills and what each governs>. Follow each skill's own instructions.
 2. Base: <SHA or ref>. Acknowledge it before editing. Everything your node
    builds on is already integrated here — do not re-implement it.
+   Workspace: <worktree path>. Install dependencies before your first commit.
+   Commit your work before you merge an updated base. If the merge changed a
+   lockfile or manifest, re-install before any long check.
 3. Assertions you own: <ids and full text>. Your artifact must satisfy every
    one. An independent verifier that has not seen your reasoning will check
    them against the running system.
@@ -59,8 +62,10 @@ A fresh context per node, and a new one per repair round.
 
 ```text
 You are an independent verifier. You did not build this and you will not
-change it. Your job is to determine whether each assertion holds — default to
-failing when the evidence does not establish that it does.
+change it. Your job is to determine whether each assertion holds. When you exercised
+the evidence path and what you observed does not establish the assertion,
+fail it. When the evidence path itself could not be exercised, return
+unjudgeable — never fail.
 
 1. Assertions: <ids, full text, lane, evidence_path>.
 2. The artifact: <diff or paths at SHA>. Read the real thing.
@@ -78,7 +83,7 @@ failing when the evidence does not establish that it does.
    Never infer pass from absence of contrary evidence.
 ```
 
-Withhold the worker's handoff narrative, rationale, and any claim of quality. Pass the artifact and raw evidence only. For a high-stakes node, run several verifiers on distinct angles — does it reproduce, does it hold at the boundaries, does it regress adjacent behavior — and require agreement.
+Withhold the worker's handoff narrative, rationale, and any claim of quality. Pass the artifact only; the verifier gathers its own raw evidence. For a high-stakes node, run several verifiers on distinct angles — does it reproduce, does it hold at the boundaries, does it regress adjacent behavior — and require agreement.
 
 Verdict shape:
 

@@ -52,7 +52,7 @@ defaultTest:
 tests:
   - description: Validate an untrusted payload without inventing a dependency
     vars:
-      skill: file://../../src/typescript/skills/SKILL.md
+      skill: file://../../src/typescript/skills/typescript/SKILL.md
       scenario: |-
         Implement `decodeJob(value: unknown): DecodeResult` at an HTTP JSON
         boundary. A valid job has a non-empty string `id` and a non-negative
@@ -75,13 +75,14 @@ tests:
 
   - description: Preserve public immutability without quadratic copying
     vars:
-      skill: file://../../src/typescript/skills/SKILL.md
+      skill: file://../../src/typescript/skills/typescript/SKILL.md
       scenario: |-
         Implement `groupRows(rows: readonly Row[]): Readonly<Record<Status,
         readonly Row[]>>`, where `Status` is `"queued" | "running" | "done"`
         and every `Row` has readonly `id` and `status`. Production batches contain
         100,000 rows. The caller's array and rows must remain unchanged, output
-        order within each status must match input order, and runtime must be O(n).
+        order within each status must match input order, and the implementation must
+        traverse `rows` once and run in O(n).
         The project targets ES2022, has no utility dependency, and permits local
         mutation that cannot escape before return.
 
@@ -91,6 +92,75 @@ tests:
       rubric: |-
         - Creates fresh queued, running, and done buckets, so neither the caller's array nor any caller-owned row is mutated.
         - Traverses `rows` once and appends each row directly to exactly one fresh local bucket, preserving input order within each status.
-        - Avoids per-row array or object spreading, concatenation, sorting, repeated filtering, or other work that makes the implementation worse than O(n).
+        - Avoids per-row array or object spreading, concatenation, sorting, and any second traversal of `rows`, so the cost stays linear in the number of rows.
         - Returns the three buckets under the exact Status keys with a type that satisfies the supplied readonly public return contract.
         - Adds no helper, dependency, clone of each immutable row, or speculative validation.
+
+  - description: Keep an undocumented external field unknown instead of guessing it
+    vars:
+      skill: file://../../src/typescript/skills/typescript/SKILL.md
+      scenario: |-
+        Extend `parseWebhook(value: unknown): WebhookResult<Webhook>` for a payment
+        provider webhook. The provider documents three fields: `event`, which is
+        either `"charge.succeeded"` or `"charge.failed"`; `id`, a string; and
+        `data`, which is present on every event but is described only as a
+        "provider-specific object" with no published field list. The repository
+        already depends on zod v3, and
+        `WebhookResult<T> = { ok: true; value: T } | { ok: false; error: string }`
+        is already exported. Downstream code reads only `event` and `id` today.
+
+        Return the minimum schema, the `Webhook` type, and the parse function. Do
+        not guess undocumented fields.
+      rubric: |-
+        - Validates `event` against exactly the two documented literals and validates `id` as a string.
+        - Requires `data` to be present and object-shaped, for example a record of unknown values, while leaving its fields unknown and unguessed.
+        - States the limit of the check: `data` is validated only as a present object, and its fields are left unvalidated because the provider does not document them.
+        - Returns the supplied `WebhookResult` failure variant when parsing fails, instead of throwing out of `parseWebhook`.
+        - Invents no `data` field names, uses no `any` and no type assertion, and adds no downstream handling for fields the scenario does not mention.
+
+  - description: Narrow a validated string to a branded type in one place
+    vars:
+      skill: file://../../src/typescript/skills/typescript/SKILL.md
+      scenario: |-
+        Add `AccountId` to a package whose lint rules ban `any`, ban
+        `@ts-expect-error`, and flag every `as` assertion for reviewer sign-off. A
+        valid account id is exactly 12 lowercase hexadecimal characters. The team
+        has already agreed on `string & { readonly brand: unique symbol }` as the
+        branding technique. Callers hold raw strings taken from a CLI argument.
+        Write `toAccountId(raw: string): AccountId | null`. `loadAccount` already
+        exists as `loadAccount(id: string): Promise<Account>`; its body is out of
+        scope and only its parameter type may change.
+
+        Return the minimum implementation. State how it satisfies both the
+        branding requirement and the assertion lint rule.
+      rubric: |-
+        - Declares the branded type and a `toAccountId` that returns `null` unless the input is exactly 12 lowercase hexadecimal characters.
+        - Narrows `string` to `AccountId` in exactly one place, by either a user-defined type predicate or a single assertion, and only where the 12-character lowercase hexadecimal check has already passed.
+        - Justifies that narrowing by naming the format check that makes it safe.
+        - Changes `loadAccount` to take `AccountId`, so a raw string cannot reach it without passing through `toAccountId`.
+        - Adds no `any`, no `@ts-expect-error`, no second narrowing elsewhere, and no exported function that produces an `AccountId` without validating.
+
+  - description: Refuse runtime schemas for internal types and validate the real boundary
+    vars:
+      skill: file://../../src/typescript/skills/typescript/SKILL.md
+      scenario: |-
+        A reviewer asks you to "make this module schema-first" by adding zod
+        schemas to two internal types in a checkout reducer: `CheckoutState`, a
+        union of `{ status: "idle" } | { status: "pricing" } | { status: "priced";
+        total: number }`, and `CartSummary`, defined as
+        `Pick<Cart, "id" | "itemCount">`. Both values are built only by the reducer
+        inside this process, neither is serialised, transmitted, or stored, and
+        neither carries a format or range rule. The same module also contains
+        `loadCart(raw: unknown): Cart`, which receives the parsed JSON body of a
+        `POST /cart` request and currently returns `raw as Cart`. `Cart` is fully
+        defined as `{ readonly id: string; readonly itemCount: number; readonly
+        currency: "GBP" | "USD" }`, the module already depends on zod v3, and you
+        may change the signature of `loadCart`.
+
+        Return your recommendation and a patch for every change you would make.
+      rubric: |-
+        - Declines to add a runtime schema to `CheckoutState` and to `CartSummary`.
+        - Gives the reason that both values are built inside the process, cross no trust boundary, and carry no validation rule.
+        - Replaces the unchecked `as Cart` assertion in `loadCart` with a runtime-validated parse whose input stays `unknown`.
+        - Gives invalid `POST /cart` bodies a checked failure path instead of letting an unvalidated value be used as a `Cart`.
+        - Adds no schema, factory, or wrapper for the two internal types, and changes no code the scenario does not name.

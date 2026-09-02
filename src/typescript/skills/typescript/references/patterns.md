@@ -90,19 +90,30 @@ if (result.success) {
 type UserId = string & { readonly brand: unique symbol };
 type OrderId = string & { readonly brand: unique symbol };
 
-const createUserId = (id: string): UserId => id as UserId;
-const createOrderId = (id: string): OrderId => id as OrderId;
+const createUserId = (id: string): UserId | null => {
+  if (!id.startsWith("usr_")) return null;
+  // SAFE: id matches the checked `usr_` prefix that defines UserId
+  return id as UserId;
+};
+
+const createOrderId = (id: string): OrderId | null => {
+  if (!id.startsWith("ord_")) return null;
+  // SAFE: id matches the checked `ord_` prefix that defines OrderId
+  return id as OrderId;
+};
 
 // Compile-time safety - cannot accidentally swap
 const processPayment = (userId: UserId, orderId: OrderId) => {
   // Implementation
 };
 
-// Usage
-const userId = createUserId("user-123");
-const orderId = createOrderId("order-456");
-processPayment(userId, orderId); // OK
-processPayment(orderId, userId); // Compiler error!
+// Usage - handle the failed check before calling
+const userId = createUserId("usr_123");
+const orderId = createOrderId("ord_456");
+if (userId !== null && orderId !== null) {
+  processPayment(userId, orderId); // OK
+  processPayment(orderId, userId); // Compiler error!
+}
 ```
 
 ## Immutable Array Operations
