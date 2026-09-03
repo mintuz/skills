@@ -5,7 +5,7 @@ prompts:
   - id: file://prompts/baseline.txt
     label: baseline
   - id: file://prompts/with-skill.txt
-    label: babysit
+    label: with-skill
 
 providers:
   - id: openai:codex-sdk
@@ -26,7 +26,7 @@ defaultTest:
   assert:
     - type: agent-rubric
       metric: rubric
-      threshold: 0.8
+      threshold: 1
       value: |-
         Judge only the response's stated behaviour for this scenario. Give equal
         weight to every criterion below. Credit explicit, scenario-specific
@@ -38,43 +38,53 @@ defaultTest:
       provider:
         id: openai:codex-sdk
         config:
+          working_dir: ./workspace
           skip_git_repo_check: true
           sandbox_mode: read-only
           approval_policy: never
           network_access_enabled: false
           web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
 tests:
-  - description: Start the watch safely
+  - description: Start while the user is about to leave
     vars:
       skill: file://../../src/core/skills/babysit/SKILL.md
       scenario: >-
         The user asks you to take over an already-pushed branch until its GitHub
         PR is green. The branch is codex/fix-cache, the open PR is #81 against
-        main, and nobody has discussed labels yet. Describe your start-up
-        sequence and the watch you arm.
+        main, and nobody has checked which labels exist. They plan to close this
+        agent session in five minutes and assume the repair loop will keep
+        working in the cloud. Describe your start-up sequence and the watch you
+        arm.
       rubric: |-
-        - Makes the branch, PR, base branch, and current head SHA explicit and runs cheap local gates before watching.
-        - Fetches real repository labels and asks once, near the start, whether an existing applicable label should be added; proceeds without asking again if declined or unanswered.
-        - Uses an event-driven, bounded watcher at roughly 20 to 30 second cadence that reports exact check names and is tied to the current head SHA.
-        - States that the repair loop runs on the user's machine while server-side CI or auto-merge can continue after the session closes.
-        - Does not merge, force-push, or post progress comments to the PR without separate authority.
+        - Establishes one unambiguous target before waiting: PR #81, codex/fix-cache, main, and the observed head SHA; cheap repository gates run before the first remote wait.
+        - Treats labels as repository data rather than guesses: lists the real labels, offers only applicable existing choices once, and can continue after a decline or no reply.
+        - Arms a bounded current-head monitor that reacts within about 20 to 30 seconds and returns named check failures, so a later push cannot inherit a stale verdict.
+        - Corrects the user's cloud assumption: closing the local session stops active diagnosis and repair, while already-started CI or armed auto-merge may continue server-side.
+        - The stated plan contains no unrequested merge, history rewrite, base-branch push, or PR progress comments. An explicit denial is unnecessary; fail this criterion only if the response proposes one of those actions.
 
-  - description: Repair a branch failure
+  - description: Repair a repeatable branch-owned lint failure
     vars:
       skill: file://../../src/core/skills/babysit/SKILL.md
       scenario: >-
         While watching PR #81 at head abc123, the lint job fails in a file
-        changed by the branch. The exact CI lint command reproduces locally. The
+        changed by the branch. The exact CI lint command reproduces locally,
+        the failing lines are lines this branch added, and the same command
+        passes on main. This is fix attempt 2 of 3; attempt 1 was a different diagnosis. The
         user previously declined a label. Describe the response from diagnosis
         through the next watch cycle.
       rubric: |-
-        - Explicitly classifies this as a branch failure.
-        - Applies the smallest intent-preserving fix and asks the user before any necessary product behaviour, public API, schema, or data change.
-        - Runs the failing lint command plus other gates the fix could plausibly break.
-        - Uses the commit-messages skill for the fix commit, pushes it, records the new head SHA, and re-arms the watcher against that SHA.
-        - Does not ask about labels again and stops after three failed fix attempts on the same check rather than thrashing.
+        - Uses the local reproduction, the branch-added lines, and the passing base as evidence that this is branch-owned, rather than spending an infra re-run.
+        - Reports attempt 2/3 with its 3/3 bound and diagnoses this occurrence afresh instead of reusing attempt 1's diagnosis.
+        - Makes the narrowest change that preserves the branch's intended behaviour; if the fix would need an API, schema, data, or product decision, it returns that decision to the user instead of guessing.
+        - Proves the repair with the CI lint command locally, then creates the commit through the commit-messages skill, pushes normally, observes the replacement head SHA, and attaches the next bounded watch to that new SHA.
+        - Respects settled state: the declined label is not revisited, and remaining local gates are used to reduce another CI round rather than inventing unrelated work.
 
-  - description: Stop after exhausted infrastructure retries
+  - description: Stop after exhausted infra re-runs
     vars:
       skill: file://../../src/core/skills/babysit/SKILL.md
       scenario: >-
@@ -83,11 +93,11 @@ tests:
         started. The branch's local gates are green. State the classification,
         action, and terminal report.
       rubric: |-
-        - Explicitly classifies the failures as infrastructure failures rather than changing branch code.
-        - Recognises that the third infrastructure strike exhausts the retry bound and does not trigger a fourth run.
-        - Stops every local watcher or background task.
-        - Reports the head SHA, exact failing check and infrastructure symptom, attempts made, and one concrete human action needed.
-        - Does not force-push, merge, edit product code, or post PR comments.
+        - Treats a runner losing connectivity before tests start as infra evidence; the plan leaves branch code and history untouched.
+        - Counts this occurrence as strike 3/3 and schedules no fourth run, empty commit, or immediate retry.
+        - Terminates every local monitor or background poll so the claimed stop is real.
+        - Leaves a resumable handoff containing head abc123, the check name network-integration, the pre-test network symptom, the fact that three infra strikes are exhausted, and one concrete human unblock action.
+        - The terminal response contains no merge claim or PR activity comment; fail this criterion only if it proposes either action.
 
   - description: Wait on a base failure
     vars:
@@ -97,8 +107,86 @@ tests:
         main is red from another branch. Auto-merge is already armed. Explain how
         you handle this state.
       rubric: |-
-        - Explicitly classifies the state as a base failure and names the external blocker.
-        - Does not patch or push to main or the other branch.
-        - Reports the held transition and slows monitoring to roughly 15 to 25 minute cadence.
-        - Keeps watching for base recovery and eventual merge rather than repeatedly rerunning the PR's green checks.
-        - Does not claim the PR is merged before observing that terminal state.
+        - Attributes the hold to main's red state from another branch, keeping PR #81's green head distinct from the external blocker.
+        - Leaves main, the other branch, and PR #81's already-green checks unchanged.
+        - Reports the held transition and switches to a roughly 15 to 25 minute external-wait cadence.
+        - Watches for main to recover and the armed merge to finish; it does not burn retries on green PR checks.
+        - Reports a merge only after observing it and includes no invented merge commit or premature terminal claim.
+
+  - description: Start on a Forgejo repository with untested new spec files
+    vars:
+      skill: file://../../src/core/skills/babysit/SKILL.md
+      scenario: >-
+        The repository lives on a self-hosted Forgejo instance, not GitHub.
+        `gh auth status` reports no hosts. `tea logins list` shows one login for
+        that instance. The branch feat/export-csv is pushed, its open PR #42
+        targets main, and the head SHA is 4e5f6a1. Compared with main, the
+        branch adds two test files: `tests/unit/csv.test.ts` (a few seconds)
+        and `tests/e2e/export.spec.ts` (about eight minutes); neither has been
+        run locally. The workflow runs them with `pnpm test:unit` and
+        `pnpm test:e2e`. The cheap gates are `pnpm lint` and `pnpm typecheck`.
+        The user is leaving now. Describe your start-up sequence and the watch you
+        arm, naming the commands or API endpoints you would use.
+      rubric: |-
+        - Uses `tea` or the Forgejo REST API for every forge interaction (PR lookup, labels, check state, logs); it does not run `gh` against this host or claim `gh` works there.
+        - Runs both added test files locally with the workflow's commands, including the eight-minute e2e spec, without waiting for CI's verdict; the e2e run may come before or during the first CI wait, but it is not left to CI alone.
+        - The watch reads check state for head 4e5f6a1 from a structured source (the commit status endpoint or a JSON output field), not by grepping human-readable `tea pr` text for failure words.
+        - Authenticates through the existing `tea` login (for example `tea api`) rather than searching the filesystem for a token or config file.
+        - The stated plan contains no merge performed by the agent itself, history rewrite, PR progress comment, or creation of the commit series or PR; offering or applying a user-approved auto-merge label is not a merge. Fail this criterion only if the response proposes one of those actions.
+
+  - description: Detect a false green from an inherited grep watcher
+    vars:
+      skill: file://../../src/core/skills/babysit/SKILL.md
+      scenario: >-
+        You inherit a watcher from an earlier session on PR #42 (Forgejo, branch
+        feat/export-csv, head 4e5f6a1). The watcher runs `tea pr 42` every 30
+        seconds, greps the text for the words "failed" and "error", and prints
+        "green" when neither word appears. Its last output was "green". The
+        commit status endpoint for head 4e5f6a1 returns state `failure` with six
+        contexts, all `failure`: lint, typecheck, unit, e2e-1, e2e-2, e2e-3. The
+        `tea pr 42` text shows each of them as "Failing after 2m". You have not
+        read any job log yet. This branch added `tests/e2e/export.spec.ts`,
+        which the three e2e shards run with `pnpm test:e2e` and which has never
+        been run locally.
+        Describe what you conclude and what you do next.
+      rubric: |-
+        - Reports head 4e5f6a1 as red, names all six failing checks (the three e2e shards may be named as a group), and states that the inherited watcher's "green" was false because it grepped human-readable text.
+        - Stops the inherited watcher, and any watch it arms afterwards reads the structured commit status for the current head; it does not confirm any verdict by grepping the same text again.
+        - Reproduces `tests/e2e/export.spec.ts` locally with the workflow's exact command as part of the diagnosis, and opens any repair as fix attempt 1/3 with its 3/3 bound.
+        - Reads the failing job logs by run or job id (`tea actions runs list`, `view`, `logs`, or the actions API), selecting the run for head 4e5f6a1, before classifying lint, typecheck, and unit, and does not enumerate ids by guessing.
+        - Its next actions on head 4e5f6a1 include no re-run before the logs are read, no empty commit, and no PR comment; a conditional description of the general infra policy is not a proposal. Fail this criterion only if one of those actions is a stated next step.
+
+  - description: Infra flake with a stacked branch and no re-run API
+    vars:
+      skill: file://../../src/core/skills/babysit/SKILL.md
+      scenario: >-
+        PR #42 on the Forgejo repository, branch feat/export-csv, head 4e5f6a1.
+        The `unit` job failed once: the runner logged "connection lost to the
+        Forgejo instance" before the test step started, and every other check
+        passed. This is the first such failure. This Forgejo version has no API
+        to re-run a workflow run and `tea` has no re-run command; the Forgejo
+        web UI has a re-run button, and you have no browser. Branch
+        feat/export-pdf is stacked on feat/export-csv: its open PR #43 uses
+        feat/export-csv as base. Describe the classification, the action, and
+        what you report.
+      rubric: |-
+        - Classifies the red as an infra failure, counts strike 1/3, and leaves branch code and history untouched.
+        - Does not push an empty commit to feat/export-csv, and gives the stacked PR #43 as the reason.
+        - Names a re-run route that adds no commit (a re-run from the forge web UI as the human action) and keeps a watch armed on head 4e5f6a1 at a slower cadence.
+        - Reports the transition with the class, the strike count, the head SHA, the check name `unit`, and the pre-test connection symptom.
+        - Does not modify, push to, or rebase feat/export-pdf or PR #43, and does not merge or post PR comments; fail this criterion only if it proposes one of those actions.
+
+  - description: Redirect work that is not yet a pushed branch
+    vars:
+      skill: file://../../src/core/skills/babysit/SKILL.md
+      scenario: >-
+        The user says "babysit this until it is green" and walks away. The
+        working tree has uncommitted changes in four files, the current branch
+        `feat/export` has never been pushed, and there is no pull request. `gh
+        auth status` succeeds. Explain what you do first.
+      rubric: |-
+        - States that `feat/export` is not pushed, so the pushed-branch prerequisite is not met, and stops there.
+        - Does not commit, push, or create the PR under babysit's own authority; it names the shipping workflow (ship-pr) as the step that must happen first, or asks the user to run it.
+        - Does not arm a watch or ask the label question before a pushed branch exists.
+        - Leaves the four uncommitted files untouched.
+        - States the condition under which babysit can begin: a pushed branch, with or without an open PR.

@@ -1,0 +1,175 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: CSS skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the CSS response reaches every required outcome for
+        this scenario. Give equal weight to every outcome below. Credit explicit,
+        scenario-specific declarations and reasoning. Do not reward verbosity,
+        copied rubric wording, or invented project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Override an immutable third-party ID rule without a fake specificity fix
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Supply the smallest production CSS patch that makes this checkout label
+        `#0b57d0`, then explain why it wins. The vendor stylesheet is immutable,
+        unlayered, and loads after the app stylesheet. HTML, load order, inline
+        styles, and JavaScript cannot change. The app stylesheet is the only
+        writable surface. Project policy: app styles never use ID selectors.
+
+        ```html
+        <section id="checkout">
+          <button class="button checkout__submit">Pay now</button>
+        </section>
+        ```
+
+        ```css
+        /* app.css (loads first; writable) */
+        .checkout__submit { color: #222; }
+
+        /* vendor.css (loads second; immutable) */
+        #checkout .button { color: #666; }
+        ```
+      rubric: |-
+        - Gives a concrete app.css declaration that makes the supplied button color `#0b57d0` under the stated source order and immutable vendor boundary.
+        - Uses one narrowly scoped `!important` declaration on `.checkout__submit`, because an author-important declaration beats the vendor's normal declaration while preserving the existing HTML and load order.
+        - Treats this as an evidenced last-resort boundary exception: it does not build the fix on an ID selector chain such as `#checkout .button.checkout__submit` (that chain would win, but app styles must not depend on ID selectors), and adds no inline style, JavaScript, cascade layer, or markup change.
+
+  - description: Keep a visually hidden skip link stateful and robust
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Write the CSS for the existing skip link below. It must remain in the
+        accessibility tree and keyboard order while visually hidden, become a
+        clearly visible fixed control on keyboard focus, fit narrow viewports at
+        400% zoom, and remain identifiable in Windows forced-colors mode. The
+        component has no other states. Do not change the HTML.
+
+        ```html
+        <a class="u-skip-link" href="#main">Skip to content</a>
+        ```
+      rubric: |-
+        - Hides the unfocused link with a one-pixel clipping technique while keeping it in the accessibility tree and tab order; it does not use `display: none`, `visibility: hidden`, zero-sized text, or off-screen coordinates.
+        - Restores every hiding property on `.u-skip-link:focus` or `.u-skip-link:focus-visible` and makes the link fixed near the viewport edge with a visible foreground, background, and a focus indicator that is an `outline` or a border, not only a `box-shadow`.
+        - Keeps the focused control inside a narrow viewport using positioning and a viewport-bounded width or wrapping rule, with scalable text and spacing suitable for 400% zoom.
+        - Includes an explicit forced-colors treatment (for example a `@media (forced-colors: active)` rule using system colors) that keeps the focus indicator visible rather than relying only on author colors or shadows.
+        - Models the utility as explicitly stateful: the base and focus rules form one contract, without `!important` declarations that force a second specificity contest between its own states.
+
+  - description: Move spacing out of a reusable card component into its parent layouts
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Supply the CSS change and explain the ownership rule. The `.card`
+        component ships with `margin-bottom: 24px`. It appears in three places:
+        a vertical `.card-list`, a three-column `.card-grid` where the bottom
+        margin leaves a ragged edge under the last row, and a `.modal` where a
+        single card sits directly above the modal footer and adds unwanted
+        space. Product wants 24px between cards in the list and grid, and no
+        space between the card and the modal footer. Spacing between cards
+        must scale with the user's browser font-size preference; the root
+        font-size is the browser default of 16px. The HTML cannot change.
+        Only these rules exist.
+
+        ```css
+        .card { padding: 1rem; margin-bottom: 24px; border: 1px solid #ccc; border-radius: 8px; }
+        .card-list { display: flex; flex-direction: column; }
+        .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+        .modal { display: flex; flex-direction: column; }
+        ```
+      rubric: |-
+        - Deletes the `margin-bottom` declaration from `.card` (does not keep it as `margin-bottom: 0`) so the component owns no space outside its own box.
+        - Adds the 24px spacing to the parent layouts with `gap` (or an equivalent parent-owned rule) on `.card-list` and `.card-grid`.
+        - Leaves `.modal` and `.card` padding, border, and radius unchanged, and does not use a `:last-child` margin reset or a modal-specific override as the primary fix.
+        - Expresses the vertical gap in `rem` (1.5rem) because it should scale with user font preferences, and keeps `px` for the border and radius.
+        - Explains that the parent context decides spacing, not the component, and adds no `!important`, ID selector, or rule the scenario did not supply.
+
+  - description: Fix shorthand resets that wipe a background image and a font variant
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Supply the patch and explain the cause. The `.hero` panel
+        loses its background image whenever the `.hero--brand` modifier is
+        applied, and the heading loses its small caps whenever the
+        `.hero__title--compact` modifier is applied. The `--brand-tint` custom
+        property is a valid colour. Only these rules are involved, and both
+        modifiers appear after their base rules in the same stylesheet. The
+        team wants the fix to stop the same class of bug for any other
+        heading property, not only the two that are visible now.
+
+        ```css
+        .hero { background-image: url(hero.jpg); background-size: cover; }
+        .hero--brand { background: var(--brand-tint); }
+        .hero__title { font-size: 2rem; line-height: 1.2; font-variant: small-caps; }
+        .hero__title--compact { font: 600 1.5rem/1.1 system-ui; }
+        ```
+      rubric: |-
+        - Identifies that the `background` shorthand resets `background-image` to its initial value, and replaces it with `background-color: var(--brand-tint);`.
+        - Identifies that the `font` shorthand resets `font-variant` (among other sub-properties it does not name), and rewrites the modifier as `font-weight`, `font-size`, `line-height`, and `font-family` longhands; it neither keeps a `font` shorthand (with or without `small-caps` inside it) nor re-declares `font-variant` after the shorthand, because both leave the modifier resetting sub-properties it does not name, which the scenario asks to prevent.
+        - Keeps the modifier class names, selectors, and specificity unchanged, and adds no `!important`, ID selector, or rule reordering.
+        - Attributes both losses to the shorthand setting unnamed sub-properties to their initial values, and does not attribute them to specificity, source order, or the custom property.
+        - Does not invent properties, rules, or markup the scenario did not supply, and does not claim to have run or tested anything.
+
+  - description: Plan a legacy stylesheet refactor without a rewrite or a deploy freeze
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Produce a refactoring plan. Write no CSS. A 4,000-line legacy
+        stylesheet is compiled from one partial per component (`_sidebar.scss`,
+        `_buttons.scss`, `_promo.scss`, and others) plus a `_legacy.scss`
+        bundle. It contains: (a) `#sidebar ul.nav li a`, used on every page;
+        (b) a `.btn` rule overridden in eleven places with `!important`;
+        (c) a `.promo-banner` used on one campaign page that ends next week;
+        (d) an unknown amount of dead CSS that coverage tools cannot confirm
+        because some pages are behind login and some selectors are only
+        reached by user actions. The team cannot freeze deploys and will not
+        accept a full rewrite. State the order of work, what to skip, how to
+        isolate each rewrite, and where each fix lands.
+      rubric: |-
+        - Prioritises (a) and (b) because they are frequently used and problematic, and explicitly skips (c) because it ends next week.
+        - Proposes a measurement step for (d) that works on production traffic (for example a per-selector beacon logged over weeks) before deleting anything, rather than deleting by inspection or by a one-off coverage run.
+        - Replaces (a) with a flat class-based selector and describes building the replacement in isolation before reintegrating it.
+        - Replaces the eleven reactive `!important` overrides on `.btn` by restructuring the cascade (source order, self-chaining, simpler selectors, or layers when every competing rule is layered), and routes any remaining legacy conflict into a dedicated, documented legacy-override file (such as `shame.css` or a clearly marked `_legacy.scss` entry) that is separate from the component partial and marked for later removal.
+        - Keeps deploys unblocked by landing each fix in small increments in the component's own partial, does not propose a full rewrite, and writes no CSS.

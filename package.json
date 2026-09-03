@@ -9,6 +9,7 @@
     "eval:skills:check": "node scripts/run-skill-evals.mjs check",
     "eval:skills": "node scripts/run-skill-evals.mjs compare",
     "test:skills": "node scripts/run-skill-evals.mjs test",
+    "test:skills:triggers": "node scripts/run-skill-evals.mjs trigger",
     "eval:skills:view": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 promptfoo view"
   },
   "devDependencies": {

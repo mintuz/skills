@@ -102,14 +102,15 @@ Or use a build tool to concatenate files.
 When automated tools can't determine if CSS is truly unused:
 
 1. **Hypothesis:** Identify selectors you believe are from deprecated features
-2. **Beacon:** Add transparent 1x1px GIF as background with unique URL:
+2. **Beacon:** Add a transparent 1x1px GIF as background with a unique URL. First check the computed `background-image` of the matched elements in every state; if any rule gives them a real image, the beacon replaces it. In that case log usage another way (for example a build-time class-usage report or a script that reports matched selectors):
    ```css
    .legacy-modal {
      background-image: url("/beacon.gif?selector=legacy-modal");
    }
    ```
-3. **Monitor:** Check server logs over 2-3 months
-4. **Analyze:** Zero requests = safe to delete
+3. **Verify delivery:** Confirm one beacon request reaches the server logs. Caches, CSP `img-src`, and service workers can drop beacon requests.
+4. **Monitor:** Check server logs over 2-3 months
+5. **Analyze:** Zero requests marks a deletion candidate, not proof. Delete candidates in small, reversible increments and monitor for regressions.
 
 ## CSS Refactoring: The Three I's
 
@@ -143,8 +144,8 @@ Reintegrate carefully:
 
 | Smell                    | Problem                           | Solution                                 |
 | ------------------------ | --------------------------------- | ---------------------------------------- |
-| Reactive `!important`    | Creates specificity arms race     | Use self-chaining or restructure cascade |
-| ID selectors             | 255x more specific than classes   | Use classes or `[id="x"]`                |
+| Unexplained `!important` | Creates specificity arms race     | Restructure, or document an immutable external boundary |
+| ID selectors             | No number of classes beats one ID | Use classes or `[id="x"]`                |
 | Shorthand causing resets | Unintentionally resets properties | Use longhand for precision               |
 | Broad selectors          | `header {}` affects too much      | Use specific class names                 |
 

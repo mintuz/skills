@@ -4,7 +4,14 @@ When users are struggling to make progress, use this guide to identify the break
 
 ## Diagnostic Framework
 
-Run through these three diagnostic questions in order:
+First ask whether available capacity changed. Did the Goal, the Plan, and the
+System work until an outside event reduced the time, money, or energy available?
+If it did, the current Plan is the broken component, because it no longer fits
+capacity. Rescale the Plan to fit current capacity. Keep the anti-goals. Treat
+the target and the deadline as provisional until the user knows how long the new
+capacity will last.
+
+Otherwise run through these three diagnostic questions in order:
 
 ### 1. Goal Diagnosis
 
@@ -116,38 +123,23 @@ Run through these three diagnostic questions in order:
 
 ## Diagnostic Decision Tree
 
-```
-User says they're struggling with a goal
-          |
-          v
-    Ask about GOAL clarity
-          |
-    Is goal specific & compelling?
-    /                    \
-   NO                    YES
-   |                      |
-Rework goal          Ask about PLAN
-   |                      |
-   |              Confident it will work
-   |              AND they'll do it (>80%)?
-   |              /                    \
-   |            NO                     YES
-   |             |                      |
-   |        Revise plan          Ask about SYSTEM
-   |             |                      |
-   |             |              Tracking, reminders,
-   |             |              and accountability in place?
-   |             |              /                    \
-   |             |            NO                     YES
-   |             |             |                      |
-   |             |        Fix system           Deep dive:
-   |             |             |              - Execution quality
-   |             |             |              - Timeline realistic?
-   v_____________v_____________v              - External factors?
-          |
-   Goal fully defined
-   All components working
-```
+Work through these checks in order. Stop at the first one that identifies the
+breakdown.
+
+1. **Did the Goal, the Plan, and the System work until available capacity
+   changed?** If they did, and an outside event then reduced the time, money, or
+   energy available, the current Plan is the broken component. Rescale the Plan
+   to fit current capacity. Keep the anti-goals. Treat the target and the
+   deadline as provisional. If capacity fell but the plan never worked, record
+   the constraint and continue with check 2.
+2. **Is the Goal specific and compelling?** If not, rework the Goal before
+   anything else.
+3. **Is the user confident the Plan will work, and confident they will do it?**
+   If either rating is below 80%, revise the Plan.
+4. **Are tracking, reminders, and accountability all in place?** If not, fix the
+   System.
+5. **All components work.** Look deeper at execution quality, at whether the
+   timeline is realistic, and at external factors.
 
 ## Common Breakdown Patterns
 

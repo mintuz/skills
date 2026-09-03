@@ -9,9 +9,13 @@ Treat the authoritative requirement as an acceptance contract and the implementa
 
 ## 1. Build the contract
 
-Resolve the subject, comparison base, authoritative issue, specification, or decision contract, repository rules, linked decisions, and stated exclusions. When authority begins in a meeting or transcript, or the claimed decision is disputed, invoke `decision-trace` first and consume its acceptance handoff rather than reinterpreting the raw meeting here.
+Resolve the subject, comparison base, authoritative issue, specification, or decision contract, repository rules, linked decisions, and stated exclusions. When authority begins in a meeting or transcript, when the claimed decision is disputed, or when two policies conflict and neither is marked superseded, invoke `product-management:decision-trace` first and consume its acceptance handoff rather than reinterpreting the raw source here.
 
-Map every in-scope normative statement to one independently decidable criterion. Preserve its source identifier and meaning; split combined statements only when their outcomes can differ. Record each criterion's observable outcome, affected surfaces, edge cases, assumptions, and exclusions. Record missing or conflicting authority as an ambiguity criterion.
+Map every in-scope normative statement to one independently decidable criterion. Preserve its source identifier and meaning; split combined statements only when their outcomes can differ. Record each criterion's observable outcome, affected surfaces, edge cases, assumptions, and exclusions. Represent each missing or conflicting authority question as one ambiguity criterion; defer only criteria that depend on it and continue judging criteria with settled authority.
+
+Never select one of two competing unresolved policies as the authority, and never report a status that holds under only one of them. Test the criterion against every candidate policy. When the candidates produce different statuses, mark the criterion unverified and request the lineage or supersession evidence that would select the authority. When every candidate produces the same status, record the conflict and report that status. When no decision-lineage handoff is available, still test every candidate this way, and name the lineage or supersession evidence that would resolve the conflict.
+
+When no authoritative issue, specification, or decision record is supplied, stop and request one. Never build the contract from the diff, the pull request description, or the review request itself. Say that no acceptance decision is possible without an authoritative requirement, and route a request about general code quality to a general code review.
 
 **Complete when:** the authoritative contract and implementation subject are explicit, every in-scope normative statement maps exactly once, and every ambiguity and exclusion is recorded.
 
@@ -33,7 +37,7 @@ Cite the exact file and line for code. Every citation must support the criterion
 
 ## 3. Exercise the contract
 
-Run the smallest check that exercises each observable outcome. Broaden for shared code, cross-surface behavior, regression risk, or high-risk boundaries. Record each command, result, and what it proves. Cite tests by file and case name. Treat test presence as static coverage evidence; a passing run proves execution.
+Run the smallest check that exercises each observable outcome in the environment and for the duration the criterion names; bind live observations to the reviewed revision or deployment. Broaden for shared code, cross-surface behavior, regression risk, or high-risk boundaries. Record each command, result, and what it proves. Cite tests by file and case name. Treat test presence as static coverage evidence; a passing run proves execution.
 
 When a check is unavailable, record its reason as a verification gap.
 

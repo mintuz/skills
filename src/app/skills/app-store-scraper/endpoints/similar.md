@@ -1,6 +1,6 @@
 # Similar Apps
 
-Find apps similar to a given app (based on "Customers Also Bought").
+Find apps that Apple presents as similar to a given app. The App Store page shows these in the shelf headed **"You Might Also Like"** (older documentation calls this shelf "Customers Also Bought").
 
 ## Endpoint
 
@@ -10,108 +10,78 @@ https://apps.apple.com/{country}/app/id{id}
 
 **Note:** This requires web scraping, not a structured API.
 
-## How It Works
+## Retrieval Contract
 
-1. Fetch the App Store page HTML
-2. Extract app IDs from "Customers Also Bought" section
-3. Use Lookup API to get full details
+1. Fetch the page and parse it as HTML, or parse the JSON page-state that the page embeds in a `<script type="application/json">` element.
+2. Locate the "You Might Also Like" section and extract app links only within it.
+3. If the section cannot be identified, report recommendations as unavailable. A page-wide app-ID scan mixes navigation, developer, source-app, and unrelated links.
+4. Exclude the source ID, validate numeric IDs, deduplicate in page order, and apply the requested limit.
+5. Batch the selected IDs through App Lookup with `entity=software` and the same country. Return metadata only for requested IDs that the lookup actually resolves.
 
 ## Examples
 
-### Extract Similar App IDs
+### Extract Similar Apps from the Recommendation Section
 
 ```bash
-# Fetch app page and extract similar app IDs
-curl -s "https://apps.apple.com/us/app/id553834731" | \
-  grep -oE 'id[0-9]{9,}' | \
-  grep -oE '[0-9]{9,}' | \
-  sort -u | \
-  head -20
+APP_ID=553834731
+COUNTRY=us
+LIMIT=10
+
+# -L is required: the id-only URL redirects to the app's slug URL and the redirect body is empty.
+PAGE=$(curl -fsSL "https://apps.apple.com/${COUNTRY}/app/id${APP_ID}") || { echo '{"source":"apple-recommendation","status":"fetch-failed"}'; exit 1; }
+
+# Keep only the recommendation section: from its <section id="similarItems"> open tag to the end of that <section>.
+# Anchor on the id, not on the heading text: the heading text also appears in embedded JSON.
+SHELF=$(printf '%s' "$PAGE" | perl -0777 -ne 'print $1 if /(<section id="similarItems".*?<\/section>)/s')
+
+if [ -z "$SHELF" ]; then
+  echo '{"source":"apple-recommendation","status":"unavailable"}'
+  exit 0
+fi
+
+# Section-scoped IDs: numeric, not the source app, first occurrence only, page order.
+SIMILAR_IDS=$(printf '%s' "$SHELF" | \
+  grep -oE '/app/[^"'"'"' ]*id[0-9]+' | \
+  grep -oE '[0-9]+$' | \
+  grep -vx "$APP_ID" | \
+  awk '!seen[$0]++' | \
+  head -n "$LIMIT" | \
+  paste -sd, -)
+
+[ -n "$SIMILAR_IDS" ] || { echo '{"source":"apple-recommendation","status":"unavailable"}'; exit 0; }
+
+# Validate the lookup body before extraction. Keep only iOS results whose trackId is one of the requested IDs.
+LOOKUP=$(curl -fsS -G "https://itunes.apple.com/lookup" \
+  --data-urlencode "id=${SIMILAR_IDS}" \
+  --data-urlencode "country=${COUNTRY}" \
+  --data-urlencode "entity=software") || { echo '{"source":"apple-recommendation","status":"fetch-failed"}'; exit 1; }
+printf '%s' "$LOOKUP" | jq -es 'length == 1 and (.[0] | type == "object")' > /dev/null || { echo '{"source":"apple-recommendation","status":"parse-failed"}'; exit 1; }
+printf '%s' "$LOOKUP" | jq --arg ids "$SIMILAR_IDS" '
+  ($ids | split(",") | map(tonumber)) as $want
+  | {source: "apple-recommendation", status: "ok",
+     apps: [.results[] | select(.kind == "software" and (.trackId as $t | $want | index($t) != null))
+            | {name: .trackName, id: .trackId, developer: .artistName, rating: .averageUserRating}]}'
 ```
 
-### Get Full Details for Similar Apps
+On the live page the shelf is `<section id="similarItems" aria-label="You Might Also Like">`; the example above anchors on that id. If you have `pup` or `htmlq` installed, select links inside that section only, for example `pup 'section#similarItems a[href*="/app/"] attr{href}'`.
 
-```bash
-# Get similar app IDs
-SIMILAR_IDS=$(curl -s "https://apps.apple.com/us/app/id553834731" | \
-  grep -oE 'id[0-9]{9,}' | \
-  grep -oE '[0-9]{9,}' | \
-  sort -u | \
-  head -10 | \
-  tr '\n' ',')
-
-# Remove trailing comma
-SIMILAR_IDS=${SIMILAR_IDS%,}
-
-# Lookup details
-curl -s "https://itunes.apple.com/lookup?id=${SIMILAR_IDS}&entity=software" | \
-  jq '.results[] | {
-    name: .trackName,
-    id: .trackId,
-    developer: .artistName,
-    rating: .averageUserRating
-  }'
-```
-
-### Alternative: Using HTML Parser
-
-If you have `pup` or `htmlq` installed:
-
-```bash
-# Using pup
-curl -s "https://apps.apple.com/us/app/id553834731" | \
-  pup 'a[href*="/app/id"] attr{href}' | \
-  grep -oE 'id[0-9]+' | \
-  grep -oE '[0-9]+' | \
-  sort -u
-```
-
-### Filter Out Original App
-
-```bash
-ORIGINAL_ID=553834731
-
-curl -s "https://apps.apple.com/us/app/id${ORIGINAL_ID}" | \
-  grep -oE 'id[0-9]{9,}' | \
-  grep -oE '[0-9]{9,}' | \
-  sort -u | \
-  grep -v "^${ORIGINAL_ID}$" | \
-  head -10
-```
-
-### Get Similar Apps with Ratings
-
-```bash
-# Extract IDs
-IDS=$(curl -s "https://apps.apple.com/us/app/id553834731" | \
-  grep -oE 'id[0-9]{9,}' | \
-  grep -oE '[0-9]{9,}' | \
-  sort -u | \
-  head -10 | \
-  tr '\n' ',')
-
-# Get details and filter by rating
-curl -s "https://itunes.apple.com/lookup?id=${IDS}&entity=software" | \
-  jq '.results[] | select(.averageUserRating >= 4.0) | {
-    name: .trackName,
-    rating: .averageUserRating,
-    category: .primaryGenreName
-  }'
-```
+Verify the heading text and the markup against the live page before you depend on this example. Apple changes the page without notice.
 
 ## Limitations
 
 - Requires HTML parsing (not a structured API)
 - Page structure may change without notice
-- "Customers Also Bought" section may not always be present
+- "You Might Also Like" section may not always be present
 - Results depend on Apple's recommendation algorithm
 - Rate limiting may apply for frequent requests
 
-## Alternative Approaches
+## Separate Discovery Signals
+
+The following can supply comparison candidates, but they do not prove Apple presented those apps as similar. Label the source as `category` or `same-developer`, not `apple-recommendation`.
 
 ### By Category
 
-Find similar apps by browsing the same category:
+Find comparison candidates by browsing the same category:
 
 ```bash
 # Get app's category
@@ -119,7 +89,11 @@ CATEGORY=$(curl -s "https://itunes.apple.com/lookup?id=553834731&entity=software
   jq -r '.results[0].primaryGenreName')
 
 # Search for apps in same category
-curl -s "https://itunes.apple.com/search?term=${CATEGORY}&media=software&entity=software&limit=20" | \
+curl -s -G "https://itunes.apple.com/search" \
+  --data-urlencode "term=${CATEGORY}" \
+  --data-urlencode "media=software" \
+  --data-urlencode "entity=software" \
+  --data-urlencode "limit=20" | \
   jq '.results[] | {name: .trackName, category: .primaryGenreName}'
 ```
 
@@ -147,6 +121,6 @@ curl -s "https://itunes.apple.com/lookup?id=${DEV_ID}&entity=software" | \
 
 1. Cache results to minimize requests
 2. Add delays between scraping requests
-3. Handle missing "Similar Apps" section gracefully
+3. Handle a missing "You Might Also Like" section gracefully
 4. Validate extracted IDs before lookup
 5. Consider using official API endpoints when possible

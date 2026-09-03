@@ -1,0 +1,170 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Swift Testing skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed Swift Testing response reaches the safe,
+        observable outcome requested by this scenario. Give equal weight to
+        every criterion below. Credit explicit, scenario-specific decisions and
+        evidence gates. Do not reward verbosity, copied rubric wording, or
+        invented command output or project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Migrate an XCTest unit test class to Swift Testing
+    vars:
+      skill: file://../../src/app/skills/swift-testing/SKILL.md
+      scenario: >-
+        Rewrite one XCTest class as Swift Testing from the description below;
+        the file is not available to you, so work from these facts only.
+        `PaymentFormatterTests: XCTestCase` has a `setUpWithError` that assigns a
+        fresh `PaymentFormatter(locale: Locale(identifier: "en_GB"))` to a stored
+        property. `testFormatsMinorUnits`
+        calls `XCTAssertEqual(formatter.string(1099), "£10.99")`.
+        `testRejectsNegative` wraps `try formatter.validate(-1)` in
+        `XCTAssertThrowsError` and only checks that some error was thrown,
+        although the code throws `FormatError.negativeAmount`.
+        `testCurrencyLookup` writes `let symbol = formatter.symbol(for: "GBP")!`
+        and then asserts `XCTAssertEqual(symbol, "£")`. `testEverything` asserts three unrelated
+        behaviours in one method: `formatter.string(0) == "£0.00"`,
+        `formatter.string(1234567) == "£12,345.67"`, and
+        `formatter.symbol(for: "ZZZ") == nil`. Other XCTest classes in the same target are out
+        of scope for this change. Give the converted test code and the migration
+        decisions; do not execute anything or invent results.
+      rubric: |-
+        - Converts each XCTest method into a `@Test` function that imports `Testing`, and names the converted tests without XCTest's `test` prefix, for example `formatsMinorUnits` or a `@Test("...")` display name.
+        - Replaces the shared `setUpWithError` property with a `PaymentFormatter` created per test invocation, for example in the test body or in a suite type's `init`, rather than a fixture shared across tests.
+        - Replaces `XCTAssertThrowsError` with a Swift Testing throws assertion, `#expect(throws:)` or `#require(throws:)`, that pins the specific `FormatError.negativeAmount` case rather than only that some error was thrown.
+        - Replaces the force-unwrapped `symbol(for:)` result with `try #require(...)` in a `throws` test, so a nil value fails that test instead of crashing the test process.
+        - Splits `testEverything` into three separate tests, one supplied behaviour each, leaves the out-of-scope XCTest classes untouched and running, and neither invents Swift Testing APIs nor claims to have run the tests.
+
+  - description: Isolate parameterised persistence tests under parallel execution
+    vars:
+      skill: file://../../src/app/skills/swift-testing/SKILL.md
+      scenario: >-
+        Redesign a flaky Swift Testing suite for a money-transfer repository.
+        Four input/output cases should be one parameterised test. The current
+        suite reaches one in-memory ModelContainer and one mutable repository
+        through `static let shared` properties on the suite type, which a suite
+        initializer configures once; every case deletes and inserts records
+        through those shared objects, and the suite
+        passes alone but intermittently observes another case's balance in the
+        full test target. Production behavior is safe and the user does not want
+        the product serialized merely to satisfy tests. Give the smallest safe
+        test shape and the proof needed before calling the flake fixed; do not
+        execute it or invent results.
+      rubric: |-
+        - Identifies the `static` shared container and repository, reached by every case under Swift Testing's default parallel execution, as the test defect, without changing or serializing production behavior.
+        - Expresses the four cases as one `@Test(arguments:)` parameterised test whose case data is immutable and independently identified when a case fails.
+        - Builds the in-memory container, the objects derived from it, and the seeded records inside each test invocation, so no mutable persistence object is reached through `static`, singleton, or global state.
+        - Does not reach for `.serialized`, a shared lock, or any other serialization to hide this fixable shared-state defect, and leaves production concurrency unchanged.
+        - Requires repeated full-target execution with the expected case count and clean Swift Testing/result-bundle evidence, not a single isolated pass, before declaring the flake fixed.
+
+  - description: Hold UI automation and performance tests outside Swift Testing
+    vars:
+      skill: file://../../src/app/skills/swift-testing/SKILL.md
+      scenario: >-
+        Plan a migration for an iOS project from these facts only. It has three
+        test targets. `AppUnitTests` holds 120 XCTest unit tests of pure
+        formatting and pricing logic. `AppUITests` holds 18 tests that drive the
+        running app through `XCUIApplication`, tapping elements and asserting on
+        labels. `AppPerfTests` holds 6 tests that wrap launch and JSON parsing in
+        XCTest's `measure { }` block to track duration against a baseline. The
+        team wants every target moved to Swift Testing in a single change so
+        that only one test framework is left in the repository. The repository
+        rejects any pull request over 400 changed lines; converting the 120 unit
+        tests touches about 1,500 lines. Say what should
+        move, what must not, and how the test targets run after the change; do
+        not execute commands or invent results.
+      rubric: |-
+        - Moves only the `AppUnitTests` logic tests to Swift Testing, and converts them in stages rather than in the requested single change.
+        - Declines to convert the `XCUIApplication` tests in `AppUITests`, stating that Swift Testing offers no UI-automation replacement for XCUITest.
+        - Declines to convert `AppPerfTests`, stating that Swift Testing offers no equivalent of XCTest's `measure` performance-baseline API.
+        - Explains that XCTest and Swift Testing tests run side by side in the same project, so the remaining XCTest targets are a supported end state rather than unfinished work.
+        - Does not invent a Swift Testing UI-automation or performance-measurement API, and does not claim to have inspected or run any target.
+
+  - description: Diagnose a Swift Testing run that failed before any test ran
+    vars:
+      skill: file://../../src/app/skills/swift-testing/SKILL.md
+      scenario: >-
+        Diagnose a test run from supplied evidence only. A CI job ran
+        `xcodebuild test-without-building` for the `PaymentTests` target. The log
+        prints `Executed 0 tests, with 0 failures`, then `** TEST FAILED **`, and
+        the process exits non-zero. No `Test run with N tests` line appears
+        anywhere in the log. The result bundle was kept; its summary lists no
+        tests at all and one issue: `Failed to load the test bundle` with
+        `Library not loaded: @rpath/PaymentKit.framework/PaymentKit`. The target
+        holds 84 Swift Testing tests and 12 remaining XCTest tests, and all 96
+        ran on the previous green run. A colleague proposes
+        marking the newest test `.disabled()` and running the same command again.
+        State the verdict, what this evidence does and does not prove about the
+        tests, the next command, and the evidence needed for a pass; do not
+        execute commands or invent results.
+      rubric: |-
+        - States that neither the Swift Testing tests nor the XCTest tests executed, so the run is a failure and the evidence proves nothing about any individual test; does not read `Executed 0 tests, with 0 failures` as a report on the Swift Testing tests.
+        - Attributes the failure to the test bundle failing to load before test execution, rather than to a failing, flaky, or newly added test.
+        - Rejects the `.disabled()` proposal, because disabling a test cannot make a bundle that never loads succeed.
+        - Reruns with `xcodebuild test` so the build graph runs before the tests, instead of repeating `test-without-building` against the same built product, and writes a fresh result bundle.
+        - Requires, before calling the target green, a fresh result bundle that reports the expected non-zero test count with no failure or crash, together with a successful exit; does not assert a root cause beyond the supplied load error, and does not promise that the rebuild alone will fix it.
+
+  - description: Reject a green CI step that ran zero Swift Testing tests
+    vars:
+      skill: file://../../src/app/skills/swift-testing/SKILL.md
+      scenario: >-
+        Judge a CI result from supplied evidence only, then say what to run. The
+        machine runs Xcode 16.4, and the job runs `xcodebuild test
+        -only-testing:AppTests/PaymentTotalTests`. Its
+        log ends with `Executed 0 tests, with 0 failures` and
+        `** TEST SUCCEEDED **`, the process exits zero, and CI marks the step
+        green. No `Test run with N tests` line appears anywhere in the log. The
+        result bundle was kept and its summary lists zero tests and zero
+        failures. The suite in that target was renamed in the last merged change
+        and is now written as `@Suite struct PaymentTotals`. Nobody has recorded
+        how many tests the target should run. Do not execute commands or invent
+        results.
+      rubric: |-
+        - Rejects the green step: a run that executed zero tests is not a pass, whatever `** TEST SUCCEEDED **` and the zero exit status report.
+        - Rests the verdict on the kept result bundle listing zero tests rather than on the zero exit status or the XCTest counters, and does not read `Executed 0 tests, with 0 failures` as evidence about Swift Testing tests.
+        - Traces the empty run to the `-only-testing` selector no longer matching the renamed suite, so no test was selected, instead of concluding that the tests were deleted or that they passed.
+        - Names the missing evidence and how to obtain it: an expected test count taken from the target's tests or test plan rather than from the run under judgement, then a run whose selector is corrected or removed, written to a fresh result bundle that reports that count.
+        - Does not state a current test count, a per-test outcome, or any log line that the scenario did not supply.

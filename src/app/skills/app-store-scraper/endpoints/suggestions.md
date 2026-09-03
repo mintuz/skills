@@ -43,7 +43,7 @@ curl -s "https://search.itunes.apple.com/WebObjects/MZSearchHints.woa/wa/hints?c
 ```bash
 for letter in p ph pho phot photo; do
   echo "Suggestions for: $letter"
-  curl -s "https://search.itunes.apple.com/WebObjects/MZSearchHints.woa/wa/hints?clientApplication=Software&term=$letter" | \
+  curl -s -G "https://search.itunes.apple.com/WebObjects/MZSearchHints.woa/wa/hints" --data-urlencode "clientApplication=Software" --data-urlencode "term=$letter" | \
     jq -r '.hints[:3][]'
   echo ""
 done
@@ -59,7 +59,7 @@ SUGGESTION=$(curl -s "https://search.itunes.apple.com/WebObjects/MZSearchHints.w
 echo "Top suggestion: $SUGGESTION"
 
 # Search using suggestion
-curl -s "https://itunes.apple.com/search?term=$(echo $SUGGESTION | sed 's/ /%20/g')&media=software&entity=software&limit=5" | \
+curl -s -G "https://itunes.apple.com/search" --data-urlencode "term=$SUGGESTION" --data-urlencode "media=software" --data-urlencode "entity=software" --data-urlencode "limit=5" | \
   jq '.results[] | {name: .trackName, developer: .artistName}'
 ```
 
@@ -91,7 +91,7 @@ curl -s "https://itunes.apple.com/search?term=$(echo $SUGGESTION | sed 's/ /%20/
 - Results are language and region-specific
 - Minimum 2-3 characters recommended for meaningful suggestions
 - Suggestions update based on trending searches
-- URL encode special characters in term parameter
+- Pass the `term` value with `curl -G --data-urlencode` so that spaces and `&` are encoded
 
 ## Example: Build Autocomplete UI
 
@@ -100,7 +100,7 @@ curl -s "https://itunes.apple.com/search?term=$(echo $SUGGESTION | sed 's/ /%20/
 
 get_suggestions() {
   local query="$1"
-  curl -s "https://search.itunes.apple.com/WebObjects/MZSearchHints.woa/wa/hints?clientApplication=Software&term=${query}" | \
+  curl -s -G "https://search.itunes.apple.com/WebObjects/MZSearchHints.woa/wa/hints" --data-urlencode "clientApplication=Software" --data-urlencode "term=${query}" | \
     jq -r '.hints[]'
 }
 
@@ -116,11 +116,11 @@ get_suggestions "$search_term" | nl
 # Get suggestions and search each
 TERM="weather"
 
-curl -s "https://search.itunes.apple.com/WebObjects/MZSearchHints.woa/wa/hints?clientApplication=Software&term=$TERM" | \
+curl -s -G "https://search.itunes.apple.com/WebObjects/MZSearchHints.woa/wa/hints" --data-urlencode "clientApplication=Software" --data-urlencode "term=$TERM" | \
   jq -r '.hints[:3][]' | \
   while read suggestion; do
     echo "=== Results for: $suggestion ==="
-    curl -s "https://itunes.apple.com/search?term=$(echo $suggestion | sed 's/ /%20/g')&media=software&entity=software&limit=3" | \
+    curl -s -G "https://itunes.apple.com/search" --data-urlencode "term=$suggestion" --data-urlencode "media=software" --data-urlencode "entity=software" --data-urlencode "limit=3" | \
       jq -r '.results[] | "  - \(.trackName) by \(.artistName)"'
     echo ""
   done

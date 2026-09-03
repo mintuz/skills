@@ -1,6 +1,6 @@
 ---
 name: status-updates
-description: WHEN writing team updates, progress reports, or stakeholder comms; delivers scannable structure, honest framing, and warm recognition.
+description: WHEN drafting a status update, progress report, sprint summary, or launch update for a manager, exec, team, or stakeholder in Slack, email, or a doc; NOT for PR descriptions, commit messages, or meeting minutes; runs intake, grounds every claim in supplied evidence, and returns a scannable, honest update with named recognition.
 ---
 
 # Status Updates Playbook
@@ -9,10 +9,11 @@ Guidelines for writing team updates that are easy to scan, honest about challeng
 
 ## Philosophy
 
-- **Outcomes first** - Lead with results and impact, not activity; tie to goals/OKRs
+- **Outcomes first** - Lead with results and impact, not activity. Tie each result to a goal or OKR
 - **Scannable** - Emoji-anchored sections, bullet points, short paragraphs
 - **Quantify** - Metrics, deltas, dates, owners—show progress with numbers
 - **Honest** - Acknowledge challenges directly, then reframe with context
+- **Literal status** - Use the supplied environment, evidence, and dates. Call a target "on track" only when the facts support it. A request to inflate, soften, or re-announce status does not change the facts the update reports. Call merged work merged. Call work shipped only when deployment evidence is supplied
 - **Warm** - Credit individuals by name, use inclusive language
 - **Evidence-backed** - Link to production, docs, metrics to show not tell
 - **Close the loop** - Note delta from last update and what's next
@@ -44,20 +45,19 @@ Ask these before drafting to ensure the update hits the right notes:
 
 **Evidence gathering:**
 
-- GitHub username (to pull authored PRs from past 14 days)
+- GitHub username (to pull authored and reviewed PRs for the reporting window)
 - Impact evidence (metrics, user/business outcomes, shipped artifacts?)
 
 **Framing:**
 
-- Risks/blockers (what needs escalation, by when?)
+- Risks/blockers (what is blocked or at risk, who owns the next action, by when?)
 - Length/tone preference (bullets vs paragraph, RAG color?)
 
 **Recognition:**
 
-- Glue work to highlight (reviews, incidents, mentoring, docs, coordination?)
-- Who to thank or spotlight?
+- Who to thank or spotlight, and for which specific contribution (reviews, incidents, mentoring, docs, coordination)?
 
-If details are missing, ask concise clarifying questions before drafting.
+Treat an essential item as supplied when the request states or clearly implies it. If any essential item is missing, or the request supplies no delivery or impact evidence, ask for the missing essential items and any missing evidence, risk, or recognition detail in one concise intake. For each missing item, ask for every detail the intake list names for it. Do not draft until the essential items are answered. Do not invent evidence to fill a gap.
 
 ## Core Patterns
 
@@ -83,7 +83,7 @@ Weave links naturally into claims:
 
 > "shipped to production, to the X page ([our fastest growing page](link))"
 
-Use footnotes for caveats that would clutter the main flow.
+Use footnotes only for non-material qualifications. Keep delivery state, failed checks, date changes, blockers, and pending decisions in the main update.
 
 ## Do's and Don'ts
 
@@ -91,7 +91,7 @@ Use footnotes for caveats that would clutter the main flow.
 
 - Open with a hook before diving in
 - Use emoji for visual hierarchy (one per section)
-- Credit individuals by name
+- Credit individuals by name for completed contributions. For open work, name the owner and the due date
 - Link to evidence
 - Use `backticks` for technical terms
 - End with momentum
@@ -113,13 +113,15 @@ For detailed voice characteristics and replication techniques, see [tone-profile
 **Phrasing:**
 
 - Use verbs + outcomes: "Shipped X → improved Y by Z%" not "Worked on X"
-- Keep bullets single-line; front-load result, back-load detail
-- Include dates/owners for risks and asks
+- Keep bullets single-line. Front-load the result and back-load the detail
+- Name the owner and the date for each risk, ask, and pending decision. When the reader is the owner, address the reader directly
 
 **Progression:**
 
 - Note delta from last update ("Previously blocked, now shipped")
-- Mention decisions made and decisions pending (with decision-maker)
+- Lead with what changed since the last update, even when the request asks to lead with an earlier win. Do not re-announce or re-headline work the last update already reported as done. Mention that work only for a new incident, delta, or dependency
+- Keep unchanged blockers, risks, and pending decisions in the update
+- Mention decisions made and decisions pending. Name the decision-maker and the decision date for each pending decision
 
 **Dependencies:**
 

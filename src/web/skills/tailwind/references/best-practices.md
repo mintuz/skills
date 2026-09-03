@@ -5,15 +5,27 @@ Guidelines for building maintainable Tailwind CSS design systems.
 ## Do's ✓
 
 ### Use CSS Variables for Theming
-Enable runtime theme changes without rebuilding:
+Enable runtime theme changes without rebuilding.
+
+Tailwind 3, in `tailwind.config.*`:
 ```typescript
 colors: {
   primary: "hsl(var(--primary))",
 }
 ```
 
-### Compose with CVA
-Create type-safe component variants:
+Tailwind 4, in CSS:
+```css
+@theme inline {
+  --color-primary: var(--app-primary);
+}
+```
+
+### Compose Variants with a Literal Map or CVA
+Give each variant a complete literal class string, never an interpolated one.
+Use CVA when the project already installs `class-variance-authority`, or when
+the requester asks for CVA and accepts the dependency. Otherwise use an
+exhaustive `Record<Variant, string>` map.
 ```typescript
 const buttonVariants = cva("base-styles", {
   variants: { size: { sm: "...", lg: "..." } }
@@ -57,13 +69,20 @@ Extend the theme instead:
 // Bad
 <div className="w-[347px]">
 
-// Good - extend theme
+// Good - Tailwind 3, extend the theme in tailwind.config.*
 theme: {
   extend: {
     width: { sidebar: '347px' }
   }
 }
 <div className="w-sidebar">
+```
+```css
+/* Good - Tailwind 4, declare the token in the namespace that owns the
+   utility. Sizing utilities such as w-*, p-* and gap-* come from --spacing-*. */
+@theme {
+  --spacing-sidebar: 347px;
+}
 ```
 
 ### Don't Nest @apply
@@ -77,6 +96,17 @@ Hurts readability and defeats Tailwind's purpose:
 
 /* Good - use utilities directly in JSX */
 <button className="px-4 py-2 rounded-md">
+```
+
+### Don't Build Class Names Dynamically
+Tailwind scans source as plain text and never generates an interpolated name:
+```typescript
+// Bad - `bg-emerald-600` is never generated
+<button className={`bg-${color}-600`}>
+
+// Good - the full name is literal in the source
+const tone = { success: 'bg-emerald-600', warning: 'bg-amber-600' } as const
+<button className={tone[t]}>
 ```
 
 ### Don't Skip Focus States

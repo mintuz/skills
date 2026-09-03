@@ -40,6 +40,8 @@ class ChatViewModel {
         guard let session else {
             throw ChatError.sessionNotInitialized
         }
+        // Single-flight: ignore a send while a response is in progress.
+        guard !isLoading, !session.isResponding else { return }
 
         isLoading = true
         defer { isLoading = false }
@@ -49,8 +51,8 @@ class ChatViewModel {
 
         // Stream response
         var response = ""
-        for try await chunk in session.streamResponse(to: text) {
-            response += chunk
+        for try await snapshot in session.streamResponse(to: text) {
+            response = snapshot.content
             // Update last message or add new one
             if let lastIndex = messages.indices.last,
                messages[lastIndex].role == .assistant {
@@ -168,8 +170,8 @@ class ConversationManager {
 
         // Session automatically maintains context
         var response = ""
-        for try await chunk in session.streamResponse(to: message) {
-            response += chunk
+        for try await snapshot in session.streamResponse(to: message) {
+            response = snapshot.content
         }
 
         messages.append(Message(role: .assistant, content: response))
@@ -188,8 +190,8 @@ class ConversationManager {
 // ❌ DON'T: This breaks conversation context
 func send(_ text: String) async throws {
     let session = LanguageModelSession() // New session each time!
-    for try await chunk in session.streamResponse(to: text) {
-        print(chunk)
+    for try await snapshot in session.streamResponse(to: text) {
+        print(snapshot.content)
     }
 }
 
@@ -202,8 +204,8 @@ func initialize() async throws {
 
 func send(_ text: String) async throws {
     guard let session else { return }
-    for try await chunk in session.streamResponse(to: text) { // Reuse
-        print(chunk)
+    for try await snapshot in session.streamResponse(to: text) { // Reuse
+        print(snapshot.content)
     }
 }
 ```
@@ -234,8 +236,8 @@ class StreamingChatViewModel {
         }
 
         // Stream with UI updates
-        for try await chunk in session.streamResponse(to: text) {
-            currentStreamingResponse += chunk
+        for try await snapshot in session.streamResponse(to: text) {
+            currentStreamingResponse = snapshot.content
             // SwiftUI automatically updates UI
         }
 
@@ -308,8 +310,8 @@ class MultilingualChat {
             throw ChatError.sessionNotInitialized
         }
 
-        for try await chunk in session.streamResponse(to: text) {
-            print(chunk)
+        for try await snapshot in session.streamResponse(to: text) {
+            print(snapshot.content)
         }
     }
 }
@@ -351,41 +353,51 @@ struct LanguageSelectorView: View {
 
 ## Pattern 5: Cancellable Requests
 
-Allow users to stop generation.
+Allow users to stop generation. This pattern is the production owner for a session: Patterns 1 to 4 show one concern each and omit the single-flight guard and owned task for brevity. Combine them with this pattern before you ship.
 
 ```swift
 @Observable
+@MainActor
 class CancellableChatViewModel {
     private var session: LanguageModelSession?
-    private var currentTask: Task<Void, Error>?
+    private var currentTask: Task<Void, Never>?
     var messages: [Message] = []
-    var isGenerating = false
+    var partialResponse = ""
+    var lastError: Error?
+    var isGenerating: Bool { currentTask != nil }
 
+    /// Single-flight: reject a send while the owned task or the session is busy.
     func send(_ text: String) {
+        guard let session, currentTask == nil, !session.isResponding else { return }
+
         messages.append(Message(role: .user, content: text))
+        partialResponse = ""
+        lastError = nil
 
         currentTask = Task {
-            guard let session else { return }
-
-            isGenerating = true
-            defer { isGenerating = false }
-
-            var response = ""
-            for try await chunk in session.streamResponse(to: text) {
-                // Check for cancellation
-                try Task.checkCancellation()
-
-                response += chunk
+            defer {
+                partialResponse = ""
+                currentTask = nil
             }
-
-            messages.append(Message(role: .assistant, content: response))
+            do {
+                for try await snapshot in session.streamResponse(to: text) {
+                    try Task.checkCancellation()
+                    partialResponse = snapshot.content
+                }
+                // Commit only a completed response to the transcript.
+                messages.append(Message(role: .assistant, content: partialResponse))
+            } catch is CancellationError {
+                // Discard partial text. Completed turns stay intact.
+            } catch {
+                lastError = error
+            }
         }
     }
 
-    func cancelGeneration() {
+    /// Stop: cancel the owned task and await it before the next send can start.
+    func stop() async {
         currentTask?.cancel()
-        currentTask = nil
-        isGenerating = false
+        await currentTask?.value
     }
 }
 
@@ -398,9 +410,13 @@ struct CancellableChatView: View {
 
             if viewModel.isGenerating {
                 Button("Stop Generating") {
-                    viewModel.cancelGeneration()
+                    Task { await viewModel.stop() }
                 }
             }
+        }
+        // View teardown cancels and awaits the owned generation task.
+        .onDisappear {
+            Task { await viewModel.stop() }
         }
     }
 }
@@ -436,8 +452,8 @@ class PersistentChatViewModel {
         messages.append(Message(role: .user, content: text))
 
         var response = ""
-        for try await chunk in session.streamResponse(to: text) {
-            response += chunk
+        for try await snapshot in session.streamResponse(to: text) {
+            response = snapshot.content
         }
 
         messages.append(Message(role: .assistant, content: response))
@@ -480,7 +496,7 @@ extension Message: Codable {
 ### DO:
 
 - ✅ Reuse LanguageModelSession for multi-turn conversations
-- ✅ Stream responses for better UX using `streamResponse(to:)`
+- ✅ Stream responses for better UX using `streamResponse(to:)`; each snapshot's `content` is the cumulative partial response, so assign it and do not append it
 - ✅ Check availability before initialization with `SystemLanguageModel.default.isAvailable`
 - ✅ Handle all availability states in UI (`.available`, `.unavailable(.modelNotReady)`, etc.)
 - ✅ Use string prompts (or PromptBuilder for advanced prompt composition)

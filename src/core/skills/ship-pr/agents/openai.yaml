@@ -1,4 +1,4 @@
 interface:
   display_name: "Ship PR"
-  short_description: "Ship a GitHub PR and stay through merge"
-  default_prompt: "Use $ship-pr to commit these changes, open a GitHub PR, resolve minor blockers, and monitor it until merge."
+  short_description: "Ship a PR on GitHub, Forgejo, or Gitea and stay through merge"
+  default_prompt: "Use $ship-pr to commit these changes, open a pull request, resolve minor blockers, and monitor it until merge."

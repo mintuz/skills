@@ -168,14 +168,14 @@ Components receive `locale` via `window.openai`. Mirror it to `document.document
 ### Action Methods
 
 - **callTool(toolName, params)** - Invoke MCP tools directly from widget
-- **sendFollowUpMessage(message)** - Insert messages into conversation
+- **sendFollowUpMessage({ prompt })** - Insert a message into the conversation
 - **uploadFile(file)** - Upload file and get reference
-- **getFileDownloadUrl(fileId)** - Get download URL for uploaded file
+- **getFileDownloadUrl({ fileId })** - Get download URL for uploaded file
 
 ### Layout Methods
 
 - **requestModal()** - Request modal display mode
-- **requestDisplayMode(mode)** - Switch between inline/fullscreen/pip
+- **requestDisplayMode({ mode })** - Switch between inline/fullscreen/pip
 - **notifyIntrinsicHeight(height)** - Update widget container height
 
 ### Context Properties

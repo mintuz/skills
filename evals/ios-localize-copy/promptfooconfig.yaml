@@ -1,0 +1,204 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: iOS localization skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the proposed iOS localization operation for this scenario.
+        Give equal weight to every criterion below. Credit explicit,
+        scenario-specific outcomes only. Do not reward verbosity, copied rubric
+        wording, or invented command output, translations, or repository facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Sync an extracted key without deleting an unrelated shipping key
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        Plan the smallest safe fix for an iOS app whose expected key `Start run`
+        is absent from `App/Localizable.xcstrings` after a Release build. The
+        catalog has target membership and the app target has
+        `SWIFT_EMIT_LOC_STRINGS = YES`. The call site currently assigns the
+        literal to `let title: String` and later passes `Text(title)`. The build
+        emitted `/tmp/App.build/App.stringsdata`; a widget build also emitted
+        `/tmp/Widget.build/Widget.stringsdata`. The catalog contains a shipping
+        key `Legacy export` that is intentionally produced outside Swift source
+        and therefore appears in neither `.stringsdata` file. The user asks you
+        to add `Start run` by hand, then run bare `xcstringstool sync` so it can
+        clean out anything stale. Give the exact edit and command shape plus the
+        evidence required before accepting the catalog change; do not execute
+        anything or invent results.
+      rubric: |-
+        - Fixes extraction at the owning call site by placing the literal inside a localizable API call (for example `Text("Start run")`, `String(localized: "Start run")`, or `LocalizedStringResource("Start run")`) instead of adding the missing catalog key by hand.
+        - Rebuilds the app target and uses only its emitted `/tmp/App.build/App.stringsdata`, excluding the widget's unrelated extraction data.
+        - Backs up the catalog and gives a sync shape equivalent to `xcrun xcstringstool sync App/Localizable.xcstrings --stringsdata /tmp/App.build/App.stringsdata --skip-marking-strings-stale`.
+        - Preserves `Legacy export` and treats stale-key deletion as outside scope instead of accepting the user's proposed destructive cleanup.
+        - Accepts the change only after the structural diff contains the intended extraction change, the catalog parses, and an `xcstringstool compile` of the catalog into a temporary output directory (for example `xcrun xcstringstool compile <catalog> --output-directory <tmp>`) passes.
+
+  - description: Respect a non-English catalog source language over stale copy
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        Review one requested localization in a String Catalog whose
+        `sourceLanguage` is `fr`. The key and French source value are `Fermer`.
+        The call site is the cancel button that dismisses a share sheet without
+        changing account data. The current Spanish value is `Eliminar cuenta`
+        with state `needs_review`; shipped Spanish UI consistently uses `Cerrar`
+        for dismissal. An old English stakeholder spreadsheet says `Dismiss`,
+        and the user tells you to translate from that spreadsheet to `Descartar`
+        because English is normally authoritative. German and Italian values for
+        this key are already translated and are outside the request. State the
+        scoped value and review/validation plan; do not edit files or invent
+        results.
+      rubric: |-
+        - Treats the catalog-declared French source language and the verified dismiss action as authoritative, rejecting the stale English spreadsheet as source truth.
+        - Proposes the exact Spanish value `Cerrar`, rejecting `Eliminar cuenta` because it falsely promises account deletion and `Descartar` because it departs from the term shipped Spanish UI already uses for dismissal.
+        - Keeps the key `Fermer` and the existing German and Italian localizations unchanged, limiting the planned merge to the Spanish value and its superseded review state.
+        - Validates source-key mapping, locale coverage, catalog structure, and the final diff without claiming that a review or command has already passed.
+        - Gives the fresh language reviewer the French source, Spanish candidate, locale, and dismiss-button context rather than substituting an English source.
+
+  - description: Reorder placeholders only with typed positional markers
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        Localise the key `%@ finished %lld laps` (catalog `sourceLanguage`
+        `en`) into German in `App/Localizable.xcstrings`. At the call site the
+        first argument is the runner's display name (a `String`) and the second
+        is an integer lap count. Natural German word order for this sentence
+        puts the lap count first: "<count> Runden hat <name> beendet". A
+        teammate submitted two candidates: `%lld Runden hat %@ beendet` and
+        `%2$@ Runden hat %1$@ beendet`. Give the exact German value you will
+        merge, say why each candidate is or is not acceptable, state which
+        catalog entries change, and list the placeholder validation you will
+        run; do not execute anything or invent results.
+      rubric: |-
+        - Rejects `%lld Runden hat %@ beendet` because bare specifiers bind to arguments in order, so the first placeholder would consume the name argument at runtime.
+        - Rejects `%2$@ Runden hat %1$@ beendet` because a positional marker must match the conversion type of the argument it references and `%2$@` points at the integer argument.
+        - Gives a value equivalent to `%2$lld Runden hat %1$@ beendet`, with each marker's conversion type matching the source argument it references.
+        - Lists a placeholder check that compares count, conversion type, and argument mapping between the source and the German value before hand-back.
+        - Changes only this key's German entry, leaves every other key and locale untouched, and does not claim that any build, sync, or validation command has already run.
+
+  - description: Keep release notes out of scope unless requested
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        The request is: "Translate the three new onboarding keys in
+        `App/Localizable.xcstrings` into es-ES and ja-JP." The repository also
+        contains `fastlane/metadata/es-ES/release_notes.txt` and
+        `fastlane/metadata/ja-JP/release_notes.txt`, both stale from the
+        previous version, and a teammate comments in the diff "might as well
+        refresh release notes while you're in there". `knownRegions` lists en,
+        es-ES, ja-JP, and fr-FR. The catalog contains es-ES and ja-JP entries
+        for older keys but no fr-FR entries for any key at all. State the
+        scope, the locale classification, the steps you take before you edit,
+        and what you will and will not edit; do not execute anything or invent
+        translations.
+      rubric: |-
+        - Limits the edit scope to the three onboarding keys in `App/Localizable.xcstrings` for es-ES and ja-JP.
+        - States that the two `release_notes.txt` files stay unmodified and offers release-notes work only as a separate, explicitly requested task.
+        - Reports fr-FR as a locale declared in `knownRegions` with no catalog coverage and asks the user whether it is supported or excluded instead of translating into it or ignoring it.
+        - Describes the pre-edit audit (keys against locales, state counts, missing-key list) as a step before any translation.
+        - Does not present any translated es-ES, ja-JP, or fr-FR text and does not claim an audit or command has already run.
+
+  - description: Diagnose an empty catalog caused by a custom catalog name
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        After a Release build of the `App` target,
+        `App/Strings/Onboarding.xcstrings` still has no keys. The file has
+        target membership and the target sets `SWIFT_EMIT_LOC_STRINGS = YES`.
+        The six onboarding call sites use `Text("Welcome back")` and
+        `String(localized: "Welcome back")` forms with no `table:` or
+        `tableName:` argument. No other `.xcstrings` file exists in the target.
+        The user asks you to add the six onboarding keys by hand so they can
+        start translating today. Give the cause, the smallest fix, the sync
+        command shape, and the evidence you need before accepting the catalog
+        change; do not execute anything or invent results.
+      rubric: |-
+        - Identifies the catalog name `Onboarding.xcstrings` combined with call sites that pass no table name as the reason extraction produces nothing.
+        - Proposes one consistent fix: either rename the catalog to `Localizable.xcstrings` or pass the matching table name at every call site.
+        - Declines to add the six keys by hand and explains that the build plus sync must produce them.
+        - Rebuilds the `App` target, backs up the catalog, and gives a sync shape equivalent to `xcrun xcstringstool sync <catalog> --stringsdata <App target .stringsdata> --skip-marking-strings-stale`.
+        - Accepts the result only after the structural diff shows the six keys as extracted entries, the catalog parses, and an `xcstringstool compile` of the catalog into a temporary output directory (for example `xcrun xcstringstool compile <catalog> --output-directory <tmp>`) passes, without claiming any of these has already happened.
+
+  - description: Decline keyword optimization and submission while localizing whatsNew
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        The user asks for three things for version 2.4 of an iOS app: write the
+        localized App Store `whatsNew` text for de-DE and fr-FR from the diff,
+        choose a stronger German App Store keyword field to improve search
+        ranking, and submit the build for App Review. The diff contains one
+        user-facing change (a new offline map download screen) and one internal
+        change (a Swift 6 concurrency migration). Metadata locale directories
+        exist for en-US, de-DE, and fr-FR. State what you will do, what you
+        will not do, and why; do not execute anything or invent text.
+      rubric: |-
+        - Accepts the `whatsNew` task for de-DE and fr-FR because the user explicitly requested it.
+        - Grounds the planned `whatsNew` content in the offline map download screen only and excludes the internal concurrency migration.
+        - Declines the keyword optimization task and names it as outside this skill's scope rather than attempting it.
+        - Declines to submit the build for App Review and states that boundary in the handoff.
+        - Does not present drafted German or French release text as final and does not claim any metadata validation has already run.
+
+  - description: Translate many missing values without re-serialising the catalog
+    vars:
+      skill: file://../../src/app/skills/ios-localize-copy/SKILL.md
+      scenario: >-
+        The request is: "Translate the 127 missing strings in
+        `App/Localizable.xcstrings` into all 14 supported locales." The catalog
+        is 44,839 lines long, its `sourceLanguage` is `en`, and every one of
+        the 14 locales already has translated values for roughly 600 other
+        keys. The repository contains `Scripts/validate_strings.py`, which
+        checks placeholder signatures and locale coverage. A teammate proposes
+        a script that runs `json.load`, fills the 127 values for every locale
+        from machine translation, writes the result back with
+        `json.dumps(indent=2)`, and saves a copy as
+        `App/Localizable.xcstrings.bak` beside the catalog; they also propose a
+        new ad hoc placeholder checker inside the same script. Say how you will
+        produce and merge the values, where the backup lives, and how you will
+        validate; do not execute anything or invent translations.
+      rubric: |-
+        - Rejects writing the catalog back with `json.dumps(indent=2)` and merges each value into the existing file in place, keeping Xcode's formatting for unchanged entries.
+        - Places the catalog backup outside the repository tree, or states that no backup file stays inside the repository at hand-back.
+        - Builds a per-locale glossary from the roughly 600 already translated keys and reuses those terms for the 127 new values instead of raw machine output.
+        - Uses the existing `Scripts/validate_strings.py` for placeholder and coverage checks instead of the proposed ad hoc checker, and adds the gate steps (`jq empty`, key count per locale, an `xcstringstool compile` of the catalog into a temporary output directory, `git diff --check`).
+        - Does not present any translated values and does not claim that a merge, validation, or command has already run.

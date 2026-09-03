@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the ios-localize-copy skill description.
+# Run it from the repo root with:
+#   pnpm test:skills:triggers -- ios-localize-copy
+# which refreshes the git-ignored fixture from src/ first.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: ios-localize-copy skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a translate request for many locales
+    vars:
+      request: >-
+        Translate the 127 missing strings in App/Localizable.xcstrings into all
+        14 supported locales.
+    assert:
+      - type: skill-used
+        value: ios-localize-copy
+
+  - description: Activates on a translate-for-each-supported-locale request
+    vars:
+      request: >-
+        Translate the new settings screen copy for each supported locale in
+        this iOS app.
+    assert:
+      - type: skill-used
+        value: ios-localize-copy
+
+  - description: Activates on localized App Store screenshot caption copy
+    vars:
+      request: >-
+        Write the German and Japanese caption text for the five App Store
+        screenshots of this iOS app.
+    assert:
+      - type: skill-used
+        value: ios-localize-copy
+
+  - description: Does not activate for screenshot image upload
+    vars:
+      request: >-
+        Upload the new 6.9-inch screenshot images for the de-DE locale of this
+        app version to App Store Connect.
+    assert:
+      - type: not-skill-used
+        value: ios-localize-copy
+
+  - description: Does not activate for screenshot image design
+    vars:
+      request: >-
+        Design and frame the five App Store screenshot images for this app,
+        with device bezels and a background gradient.
+    assert:
+      - type: not-skill-used
+        value: ios-localize-copy
+
+  - description: Does not activate for App Store keyword work
+    vars:
+      request: >-
+        Pick a stronger German App Store keyword field for this app so it ranks
+        higher in search.
+    assert:
+      - type: not-skill-used
+        value: ios-localize-copy

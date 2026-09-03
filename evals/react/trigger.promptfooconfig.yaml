@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the react skill description. Not part of the
+# scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- react
+# which refreshes the git-ignored fixture from src/ first.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: react skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on an edit to an existing component effect
+    vars:
+      request: >-
+        In our existing React `CodePanel` component, the Monaco editor keeps
+        its default width when the panel mounts collapsed; it only resizes
+        after the user expands and collapses it once. The resize lives in a
+        useEffect. Fix the effect.
+    assert:
+      - type: skill-used
+        value: react
+
+  - description: Activates on a new React page with URL filters
+    vars:
+      request: >-
+        Build a React product list page with status, search, and page-number
+        filters that survive reload and can be shared as links. The app uses
+        React Router and TanStack Query.
+    assert:
+      - type: skill-used
+        value: react
+
+  - description: Does not activate for a React Testing Library test
+    vars:
+      request: >-
+        Write React Testing Library tests for our `LoginForm` component: submit
+        with valid credentials calls `onSubmit`, and an empty password shows the
+        inline validation message. No component changes.
+    assert:
+      - type: not-skill-used
+        value: react
+
+  - description: Does not activate for Tailwind styling only
+    vars:
+      request: >-
+        Restyle the existing `Card` component with Tailwind: add a dark-mode
+        variant, tighter spacing on mobile, and a subtle hover shadow. Do not
+        change its props or behaviour.
+    assert:
+      - type: not-skill-used
+        value: react

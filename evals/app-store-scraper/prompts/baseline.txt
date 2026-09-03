@@ -1,0 +1,8 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Use only general App Store data
+retrieval judgement; do not load, search for, or use any installed skill.
+Respond with the retrieval plan, commands or pseudocode, validation, and output
+semantics requested by the scenario.
+
+Scenario:
+{{scenario}}

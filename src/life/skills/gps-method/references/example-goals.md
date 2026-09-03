@@ -90,7 +90,7 @@ We've been coasting and I want to actively invest in our relationship before pro
 
 **Confidence Assessment**:
 - Theory (will these actions produce the result?): 90%
-- Practice (will I actually do these actions?): 70%
+- Practice (will I actually do these actions?): 80%
 
 **Failure Forecast**:
 
@@ -151,7 +151,7 @@ I have tons of knowledge from 10 years building software that I want to share. I
 5. Get 5 guest interviews from devs I respect
 
 **Confidence Assessment**:
-- Theory (will these actions produce the result?): 75%
+- Theory (will these actions produce the result?): 80%
 - Practice (will I actually do these actions?): 85%
 
 **Failure Forecast**:
@@ -214,7 +214,7 @@ Living paycheck to paycheck creates constant anxiety. I want financial security 
 
 **Confidence Assessment**:
 - Theory (will these actions produce the result?): 95%
-- Practice (will I actually do these actions?): 75%
+- Practice (will I actually do these actions?): 80%
 
 **Failure Forecast**:
 

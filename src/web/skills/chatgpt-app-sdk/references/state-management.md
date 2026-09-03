@@ -11,7 +11,7 @@
 
 ### Business Data (Server-Owned)
 
-- MCP server maintains authoritative source of truth
+- MCP server owns business data and diagnostics; responses expose only authorized data and opaque correlation IDs
 - Widget sees updated data when tool call completes
 - Reapply local UI state on top of snapshot
 
@@ -40,6 +40,10 @@
 - Ephemeral UI interactions (selections, expansions, sort orders)
 - Use `window.openai.widgetState` and `setWidgetState()`
 - Or `useWidgetState` hook in React
+- Treat widget state as model-visible context, not private client storage. It
+  costs tokens on later turns. Keep it to identifiers and view preferences.
+  Store answers, records, and file contents on the server and re-fetch them with
+  a tool call. See the payload boundary rule in [SKILL.md](../SKILL.md).
 
 **When to use:**
 
@@ -106,19 +110,26 @@ Widget Event Handler
 
 ### Optimistic Updates
 
-```typescript
-async function handleToggleTask(taskId) {
-  // 1. Update UI state immediately
-  const [uiState, setUiState] = useWidgetState();
-  setUiState({ ...uiState, optimisticUpdate: taskId });
+Call the hook at the top level of the component. The handler closes over it.
 
-  // 2. Call server
-  try {
-    await window.openai.callTool("toggle_task", { taskId });
-  } catch (error) {
-    // 3. Revert on failure
-    setUiState({ ...uiState, optimisticUpdate: null });
+```typescript
+function TaskRow({ taskId }) {
+  const [uiState, setUiState] = useWidgetState({ optimisticUpdate: null });
+
+  async function handleToggleTask() {
+    // 1. Update UI state immediately
+    setUiState((prev) => ({ ...prev, optimisticUpdate: taskId }));
+
+    // 2. Call server
+    try {
+      await window.openai.callTool("toggle_task", { taskId });
+    } catch (error) {
+      // 3. Revert on failure
+      setUiState((prev) => ({ ...prev, optimisticUpdate: null }));
+    }
   }
+
+  return <button onClick={handleToggleTask}>Toggle</button>;
 }
 ```
 

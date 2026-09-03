@@ -1,6 +1,6 @@
 ---
 name: gps-method
-description: Evidence-based goal achievement framework using Goal, Plan, and System methodology. Use when users want to set goals, create actionable plans, build execution systems, or diagnose why they're struggling to make progress on existing goals. Triggers include requests to "set a goal", "help me achieve", "create a plan", "why am I not making progress", or similar goal-setting and achievement queries.
+description: WHEN a user wants to set a goal, create an actionable plan, build an execution system, or diagnose why progress on an existing goal has stalled; triggers include "set a goal", "help me achieve", "create a plan", and "why am I not making progress"; NOT a substitute for a qualified professional: it declines to plan a decision that only a clinician, a lawyer, or a financial adviser may make, and redirects that part to them; returns a Goal, Plan, and System breakdown or a component-level diagnosis.
 ---
 
 # GPS Method - Goal Achievement Framework
@@ -42,6 +42,7 @@ Guide the user through three factors:
 **Specificity and Concreteness**
 
 - Avoid vague goals like "start a business" or "get fit"
+- Quote the user's own goal wording back and name the measurable detail it lacks
 - Ask: "Can you make this more specific and measurable?"
 - Push for quantifiable outcomes: "reduce visceral fat by 50%" or "build a business making $100k/year"
 
@@ -57,6 +58,9 @@ Guide the user through three factors:
 - Identify what they want to avoid while pursuing the goal
 - Ask: "What would you NOT be willing to sacrifice for this?"
 - Examples: "not working weekends", "not sacrificing family time", "not going into debt"
+- Test each anti-goal against the goal it constrains
+- If an anti-goal removes supervision, expertise, or support that this particular goal needs, say which one does
+- Ask the user to reconsider that anti-goal. Never design around such a conflict in silence.
 
 ### Step 2: Build the Plan (The Roadmap)
 
@@ -71,19 +75,41 @@ Guide the user through three components:
 
 **Realistic Assessment**
 
+- Reconcile the target, the deadline, the major moves, and the anti-goals against the quantities the user supplies
+- Treat anti-goals as constraints unless the user revises them
+- If the numbers cannot reach the target, show the arithmetic
+- Stop there. Design no System until the user says whether the target or the deadline can change. Complete no goal document until then either.
 - Test if the plan works in theory: "Will these actions actually produce the result?"
 - Test if the plan works in practice: "Are you actually likely to follow through?"
-- Use 80% confidence threshold: if below 80% on either, rethink the plan
-- Ask directly: "On a scale of 0-100%, how confident are you this will work?"
+- Use an 80% confidence threshold: if the user rates theory or practice below 80%, rethink the plan
+- Ask for the theory rating directly: "On a scale of 0-100%, how confident are you that these actions produce the result?"
+- Ask for the practice rating directly: "On a scale of 0-100%, how confident are you that you will do them?"
+- Say which of the two ratings meets the threshold and which does not. A rating below 80% is a Plan fault, so do not answer it with extra tracking, reminders, or accountability.
+- When practice confidence is below 80%, propose a specific smaller plan. Ask the user to rate theory confidence and practice confidence again against that smaller plan before you continue.
 
 **Crystal Ball Method (Mental Forecasting)**
 
 - Have them imagine they failed in 6 months
 - Ask: "What are the top 3 reasons this didn't work out?"
-- For each failure reason, create a preemptive strategy
+- Name each failure reason. Create a preemptive strategy for each one.
+- When the user already reports a failure pattern from past attempts, use that pattern as a forecast obstacle and give it its own preemptive strategy. Do not ask the user to imagine an obstacle they have already described.
 - This builds in resilience before obstacles arise
 
 ### Step 3: Design the System (The Execution)
+
+Design the System only after the Goal states a measurable target and the Plan
+names its major moves. If the user asks for the System first, do this:
+
+1. Open the reply with the components that are incomplete. Write their
+   framework names: the Goal, the Plan, or both.
+2. Say what each System mechanism would have to measure or remind the user of.
+3. Ask for every missing input: a measurable target, a date, why the goal matters
+   to the user, the anti-goals, and the 3-5 major moves. Treat an input the user
+   has not stated as missing, even when the user says the Goal and the Plan are
+   settled. Never ask again for an input the user already supplied.
+4. Do not invent the missing numbers, dates, or actions.
+5. Give the user one concrete action they can take at once, such as naming a
+   single measurable outcome.
 
 Guide the user through three mechanisms:
 
@@ -154,6 +180,15 @@ Create a structured document using this template (see `references/goal-template.
 
 When a user is struggling, run through this diagnostic:
 
+**Question 0: Has available capacity changed?**
+
+- Did the Plan and the System work until an outside event reduced the time, money, or energy available?
+- If yes → the current Plan is the broken component, because it no longer fits available capacity. The Goal and the System are not broken, so do not diagnose weak motivation, poor execution, or missing accountability.
+- Keep the anti-goals. Rescale the Plan to the largest action that fits current capacity and still produces an outcome.
+- Treat the target and the deadline as provisional until the user knows how long the new capacity will last.
+- Set a date to reassess capacity.
+- Add a System mechanism only when it fixes the cause you diagnosed. A mechanism that consumes capacity without advancing the goal makes the mismatch worse.
+
 **Question 1: Is the Goal clear?**
 
 - Can they articulate it in one specific sentence?
@@ -173,6 +208,16 @@ When a user is struggling, run through this diagnostic:
 - If not → Strengthen the System
 
 See `references/diagnostic-guide.md` for detailed troubleshooting questions.
+
+## When Not To Use GPS
+
+Do not build a Goal, a Plan, or a System for an outcome that a qualified
+professional must decide. Examples are changing a prescribed medicine,
+self-treating a medical or mental-health condition, and acting against legal or
+clinical advice. Say which part is outside the framework. Direct the user to the
+qualified professional for that part. Apply GPS only to the parts the user
+controls. State no schedule, dose, threshold, or deadline for the part you have
+declined. Promise no outcome for it.
 
 ## The GPS Analogy
 

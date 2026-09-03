@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the app-intent-driven-development skill description.
+# Run it from the repo root with:
+#   pnpm test:skills:triggers -- app-intent-driven-development
+# which refreshes the git-ignored fixture from src/ first.
+# The fixture lives in its own workspace so the scripted suite's no-skill baseline
+# cannot discover it.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise. The heuristic counts any
+# read of SKILL.md as use, so an exclusion the agent applies after reading the
+# skill is judged from the response with agent-rubric instead.
+description: app-intent-driven-development skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates for a Siri and widget surface
+    vars:
+      request: >-
+        Users should be able to say "log a workout" to Siri and run the same
+        action from a Home Screen widget button. Plan how to build it in our
+        SwiftUI app.
+    assert:
+      - type: skill-used
+        value: app-intent-driven-development
+
+  - description: Activates for a UIKit app that needs a Shortcuts surface
+    vars:
+      request: >-
+        Our app is entirely UIKit. Product wants the "Start delivery" action to
+        appear in the Shortcuts app so drivers can automate it. Plan how to
+        build it.
+    assert:
+      - type: skill-used
+        value: app-intent-driven-development
+
+  - description: Does not drive the plan for a screen-only action with no system surface
+    vars:
+      request: >-
+        Our SwiftUI settings screen needs a "Reset local cache" button. Security
+        has decided this action must never appear in Siri, Shortcuts, Spotlight,
+        a widget, or Control Center, and it must stay reachable only from that
+        screen. Plan how to wire the button up.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          Judge only the response text.
+          - The plan wires the button to a shared service or view model call; it does not define an App Intent, AppEntity, EntityQuery, or AppShortcutsProvider for this button.
+          - The plan does not propose exposing the action through Siri, Shortcuts, Spotlight, a widget, or Control Center.
+          - The plan does not claim to have run builds, read project files the request did not supply, or inspected App Intents metadata.
+        provider:
+          id: openai:codex-sdk
+          config:
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+
+  - description: Does not activate for test-only work on the same service
+    vars:
+      request: >-
+        KeyRotationService.rotate() already works and ships. Write Swift Testing
+        unit tests for its retry and failure paths.
+    assert:
+      - type: not-skill-used
+        value: app-intent-driven-development

@@ -33,7 +33,7 @@ Use public event names when readable. Describe guard meaning in plain language i
 
 ## Keep composite transitions legal
 
-Mermaid rejects transitions between internal states of different composites. Keep both endpoints in one lexical composite. For an exit from a nested state, draw the transition from the nearest owning composite and explain the internal source when it matters.
+Mermaid does not support a transition between internal states of two different composites, and its parser still accepts such a line, so parsing alone will not catch the mistake. Keep both endpoints in one lexical composite. For an exit from a nested state, draw the transition from the nearest owning composite and explain the internal source when it matters. Draw only transitions the machine can take; do not invent a child-to-root shortcut in place of the legal parent transition.
 
 ```mermaid
 stateDiagram-v2
@@ -89,13 +89,13 @@ stateDiagram-v2
 
 Start with exactly `stateDiagram-v2`. Use `direction TB` for hierarchy or concurrency and `direction LR` for a small flat lifecycle.
 
-Use stable identifiers without spaces or punctuation. Add readable labels separately with `stateId: Readable label`. Keep labels on one plain-text line. Replace semicolons with commas or hyphens because Mermaid treats semicolons as statement separators. Prefer prose below the diagram to crowded notes. Avoid `classDef` styling inside composite states.
+Use stable identifiers without spaces or punctuation. Add readable labels separately with `stateId: Readable label`. Keep labels on one plain-text line. Replace a semicolon in a label with a comma or a hyphen: a state description ends at the first semicolon, and Mermaid reparses the remainder as further syntax, so the label is truncated and a stray node can appear while the diagram still parses. Prefer prose below the diagram to crowded notes. Avoid `classDef` styling inside composite states.
 
 ## Validate and deliver
 
 Use the repository renderer or Mermaid CLI when available. Otherwise preview the diagram when practical and inspect it against the [official state-diagram grammar](https://mermaid.js.org/syntax/stateDiagram.html).
 
-Say `rendered` only after a renderer accepts the diagram. Otherwise report that syntax was inspected and mechanical rendering was unavailable.
+Report one validation status and name the method that produced it: `rendered` after a renderer produced output, `parser-checked` after a parser such as `mermaid.parse` accepted the text without drawing it, `previewed` after visual inspection in a viewer, and `inspection-only` when no mechanical check was available. A parser check does not prove the chart means what you intended, because the grammar accepts unsupported transitions. Never report `rendered` for a diagram you only parsed or only read.
 
 For each machine, return:
 

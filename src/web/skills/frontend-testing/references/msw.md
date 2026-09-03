@@ -20,7 +20,7 @@ vi.spyOn(global, 'fetch').mockResolvedValue({
 ```typescript
 // ✅ CORRECT - MSW intercepts at network level
 // Works in tests, Storybook, dev server
-http.get('/api/users', () => {
+http.get('https://api.example.com/users', () => {
   return HttpResponse.json({ users: [...] });
 });
 ```
@@ -48,7 +48,7 @@ afterAll(() => server.close());
 import { http, HttpResponse } from 'msw';
 
 export const handlers = [
-  http.get('/api/users', () => {
+  http.get('https://api.example.com/users', () => {
     return HttpResponse.json({
       users: [
         { id: 1, name: 'Alice' },
@@ -67,7 +67,7 @@ export const handlers = [
 it('should handle API error', async () => {
   // Override for this test only
   server.use(
-    http.get('/api/users', () => {
+    http.get('https://api.example.com/users', () => {
       return HttpResponse.json(
         { error: 'Server error' },
         { status: 500 }
@@ -75,16 +75,30 @@ it('should handle API error', async () => {
     })
   );
 
-  render('<div id="user-list"></div>');
-
-  // Simulate component fetching users
-  fetch('/api/users').then(() => {
-    document.getElementById('user-list').innerHTML =
-      '<p>Failed to load users</p>';
-  });
+  // The application under test owns the request and the error branch
+  document.body.innerHTML = '<div id="user-list"></div>';
+  await mountUserList(document.getElementById('user-list'));
 
   await screen.findByText(/failed to load users/i);
 });
 ```
 
 **After test, `afterEach` resets to default handlers.**
+
+**Two rules for this pattern:**
+
+- Mount the real application code, so the assertion depends on how that code
+  reads `response.ok`. A `fetch` call written inside the test renders the error
+  branch for every response and would still pass against a 200.
+- Match the URL the application actually requests. Here every handler and the
+  application use `https://api.example.com/users`.
+- Prefer absolute URLs in handlers under `msw/node`. A relative path resolves
+  against the current origin, which jsdom supplies but a plain Node environment
+  does not, so an absolute URL behaves the same in both.
+
+## When Not to Use MSW
+
+Use MSW when the test exercises the network boundary. When the component
+receives its request function by injection, for example
+`mountOrderForm({ submitOrder })`, pass a mock for that function instead. Adding
+MSW there would mock a boundary the component does not cross.

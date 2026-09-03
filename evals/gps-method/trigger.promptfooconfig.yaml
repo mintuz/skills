@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the gps-method skill description. Not part of the
+# scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- gps-method
+# which refreshes the git-ignored fixture from src/ first.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: gps-method skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a new goal that needs a plan and a system
+    vars:
+      request: >-
+        I want to set a goal to get my savings under control this year. Help me
+        turn it into a plan I will actually follow and set up something that
+        keeps me on it.
+    assert:
+      - type: skill-used
+        value: gps-method
+
+  - description: Activates on stalled progress against an existing goal
+    vars:
+      request: >-
+        In January I set a goal to run three times a week. I have not run since
+        February. Why am I not making progress, and what should I change?
+    assert:
+      - type: skill-used
+        value: gps-method
+
+  - description: Does not activate for a decision a qualified professional must make
+    vars:
+      request: >-
+        Should I move my pension into a stocks and shares ISA this year, and how
+        much should I move?
+    assert:
+      - type: not-skill-used
+        value: gps-method
+
+  - description: Does not activate for a summary request
+    vars:
+      request: >-
+        Summarise this article about habit formation into five bullet points for
+        my reading notes.
+    assert:
+      - type: not-skill-used
+        value: gps-method

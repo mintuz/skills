@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the frontend-testing skill description.
+# Run it from the repo root with:
+#   pnpm test:skills:triggers -- frontend-testing
+# which refreshes the git-ignored fixture from src/ first.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: frontend-testing skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a framework-agnostic DOM test request
+    vars:
+      request: >-
+        Write a Vitest test with DOM Testing Library for our vanilla-JS
+        newsletter widget: typing an email enables the Subscribe button, and
+        submitting shows a confirmation message once the request resolves.
+    assert:
+      - type: skill-used
+        value: frontend-testing
+
+  - description: Does not activate for an end-to-end browser journey
+    vars:
+      request: >-
+        Write a Playwright end-to-end test that signs a user in at /login,
+        follows the redirect to /dashboard, asserts the browser URL, and checks
+        the session cookie is set.
+    assert:
+      - type: not-skill-used
+        value: frontend-testing
+
+  - description: Activates on a userEvent async query question
+    vars:
+      request: >-
+        Our test asserts the error banner is absent right after clicking Save
+        and it always passes. How should we query and await this so the test
+        actually fails when the banner appears?
+    assert:
+      - type: skill-used
+        value: frontend-testing
+
+  - description: Does not activate for visual-regression screenshot work
+    vars:
+      request: >-
+        Set up visual regression testing for our design system: capture
+        screenshots of each component in light and dark themes at three
+        viewport widths, and diff them against approved baseline images.
+    assert:
+      - type: not-skill-used
+        value: frontend-testing

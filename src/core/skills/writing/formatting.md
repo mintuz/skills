@@ -28,5 +28,5 @@ Structural formatting rules for developer-facing content.
 
 ## Intros & Outros
 
-- Intro: 1–2 short paragraphs stating the goal and payoff; for tutorials, "In this guide you'll learn to…".
+- Intro: 1–2 short paragraphs stating the goal and payoff; for tutorials, "In this guide you'll learn to…" plus what the reader needs before the first step (tools, access, running services) when the source facts establish it; do not invent prerequisites.
 - Outro: 1–3 short paragraphs (optionally a brief bullet list) with key takeaways and a clear call-to-action.

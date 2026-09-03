@@ -1,0 +1,199 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: PR skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+evaluateOptions:
+  repeat: 3
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the requested PR advice or description. Give equal weight to
+        every criterion below. Credit explicit, scenario-specific outcomes only.
+        Do not reward verbosity, matching the rubric's wording, or claims not
+        supported by the scenario.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Preserve evidence boundaries in a UI PR description
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-description.md
+      scenario: >-
+        Draft a ready-to-paste pull request description for a settings-page
+        redesign. The supplied evidence says the layout and labels changed in
+        four files, `pnpm test` passed, manual testing was not performed, and no
+        screenshots were captured. The work fixes issue #72. Do not inspect the
+        repository or invent any other details.
+      rubric: |-
+        - Summarizes the supplied settings-page layout and label changes without inventing components, behavior, business results, or architectural claims.
+        - Records `pnpm test` as passed and does not imply that any other automated check ran.
+        - States that manual testing was not performed rather than presenting it as completed or hiding its status behind an ambiguous checklist.
+        - States that screenshots are missing or still required for this UI change rather than claiming visual evidence exists or writing `N/A`.
+        - Links issue #72 with closing semantics and invents no other issue, reviewer, risk mitigation, or deployment fact.
+
+  - description: Keep a coupled migration in one large PR
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-sizing.md
+      scenario: >-
+        Size this proposed pull request and decide whether to split it. It has 22
+        files and about 900 changed lines: a database migration, the only
+        application code that can read the new schema, and generated client
+        bindings for that exact schema. Deploying or merging any piece without
+        the others breaks the build or makes the application unable to read the
+        database. Give concise reviewer-facing advice using only these facts.
+      rubric: |-
+        - Classifies the work as large based on the supplied file and line counts.
+        - Recommends keeping it as one PR because the migration, compatible application reader, and generated bindings form one atomic change.
+        - Does not mechanically recommend splitting by layer, file count, or generated code despite the size thresholds.
+        - Calls out the concrete review risk that schema, reader, and bindings must remain compatible, without inventing runtime, rollout, or test evidence.
+        - Directs the author to the large-PR template, or names risk, rollback, and deployment as content the description must carry; invents no risk level, rollback plan, or deployment fact beyond the supplied constraint that the pieces must merge and deploy together.
+
+  - description: Open a draft PR on Forgejo with tea, not gh
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-creation.md
+      scenario: >-
+        The repository is hosted on a self-hosted Forgejo instance. The `tea`
+        CLI is installed and logged in; `gh` is not configured for this host.
+        Branch `fix/retry-backoff` is pushed. The author wants the pull request
+        opened against `main` with the title "Add exponential backoff to retry
+        client" and this body: "Draft: backoff works for HTTP 503 only; the 429
+        path and its tests are still missing. `go test ./...` passes." Give the
+        exact command to open the pull request. Do not run anything.
+      rubric: |-
+        - Uses the `tea` CLI (`tea pr create` or `tea pulls create`) rather than `gh`, because the host is Forgejo.
+        - Passes `--draft`, because the body says it is a draft with work missing.
+        - Passes `--title "Add exponential backoff to retry client"`, `--base main`, and `--head fix/retry-backoff`, and passes the body through `--description`.
+        - Preserves the body facts: HTTP 503 handled, 429 path and tests missing, `go test ./...` passes; adds no labels, assignees, or reviewers that the scenario does not name.
+        - Does not claim the command was executed or that the pull request now exists.
+
+  - description: Infer the draft flag from a WIP body on GitHub
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-creation.md
+      scenario: >-
+        Give the exact `gh pr create` invocation for branch `feat/export-csv`
+        against `main`, requesting review from `octo-reviewer`, with the title
+        "Add CSV export for orders". The body must have two sections, Summary
+        and Testing. The author's notes read: "WIP - export works for orders
+        under 1000 rows, pagination is not done. Unit tests pass. No manual
+        testing yet." The repository's labels are unknown. Do not run anything.
+      rubric: |-
+        - Passes `--draft` because the author's notes call the work WIP, and does not present the PR as ready for review.
+        - Uses `--base main`, `--head feat/export-csv`, `--reviewer octo-reviewer`, and the title "Add CSV export for orders".
+        - Passes the multi-line body through a quoted HEREDOC or `--body-file`, not an unescaped inline string.
+        - The Testing section records only that unit tests pass and that manual testing was not performed; the Summary states that pagination is not done.
+        - Adds no `--label` because the repository's labels are unknown, and does not claim the command was executed.
+
+  - description: Report the real diff size before describing a "small tweak"
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-sizing.md
+      scenario: >-
+        The author asks for a PR description and says the branch is "a small
+        tweak to the logger format, two files". The supplied output of
+        `git diff main...HEAD --stat` ends with: "314 files changed, 44,120
+        insertions(+), 38 deletions(-)". The supplied `--name-only` list shows
+        `src/logger.ts`, `src/logger.test.ts`, and 312 files under `dist/` and
+        `vendor/`. No other facts are available. Respond to the author.
+      rubric: |-
+        - Reports the diff size from the supplied stat (314 files, about 44k lines) before or instead of drafting a description, and does not describe the branch as a small two-file change.
+        - Points out that 312 of the files are under `dist/` and `vendor/` and that this does not match the author's account of the change.
+        - Asks the author to confirm whether the `dist/` and `vendor/` files belong in the PR, or to remove them, before a description is written.
+        - Does not draft a description that claims the `dist/` and `vendor/` changes are intentional, generated, or safe.
+        - Does not claim to have run git or any other command; uses only the supplied output.
+
+  - description: Decline the commit message and draft only the PR description
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-description.md
+      scenario: >-
+        The author asks for two things: the commit message for their single
+        staged commit, and the pull request description. Supplied facts: two
+        files change so that `parseDate` accepts ISO week strings such as
+        `2024-W05`; `pnpm test` passes; manual testing was not performed; issue
+        #91 asked for this; no UI is involved. Do not inspect the repository.
+      rubric: |-
+        - Drafts the pull request description from the supplied facts: `parseDate` accepts ISO week strings, `pnpm test` passes, and issue #91 is linked with closing semantics.
+        - Does not write the commit message, and names the commit-messages skill or another place to get one.
+        - Uses a small-PR structure suited to a two-file change rather than a large template with breaking-change or rollback sections.
+        - Marks manual testing as not performed rather than checked, and does not invent a screenshot requirement for a non-UI change.
+        - Invents no other issue, reviewer, test result, or behaviour claim.
+
+  - description: Describe a breaking change with placeholders for unknown facts
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-description.md
+      scenario: >-
+        Draft the PR description for a change that removes the deprecated
+        `GET /v1/orders` endpoint and keeps `GET /v2/orders`. Supplied facts:
+        18 files changed; the v1 route, its handler, and its tests are
+        deleted; two internal clients were migrated to v2 last month; external
+        client usage is unknown; `pnpm test` passes; manual testing was not
+        performed; rollback is a revert of this PR. No issue number exists and
+        no deployment date is known.
+      rubric: |-
+        - Uses a breaking-change structure with an explicit Breaking Changes section that names the removed `GET /v1/orders` endpoint and the migration step of switching callers to `GET /v2/orders`.
+        - Gives the rollback plan as a revert of this PR and nothing more.
+        - Leaves external client usage and deployment timing as visible, clearly marked placeholders for the author, rather than asserting they are safe, inventing values, or dropping the sections.
+        - Records `pnpm test` as passed and marks manual testing as not performed; does not claim integration or E2E runs.
+        - Invents no issue reference, affected-customer count, or deployment date.
+
+  - description: Size a two-file change by its line count and compare against the fork's upstream base
+    vars:
+      skill: file://../../src/core/skills/pr/SKILL.md
+      reference: file://../../src/core/skills/pr/pr-sizing.md
+      scenario: >-
+        The author works on a fork: remote `origin` is the fork and remote
+        `upstream` is the repository that owns the base branch `main`. The
+        author ran `git diff origin/main...HEAD --stat`, which reports "2 files
+        changed, 600 insertions(+), 20 deletions(-)" for `src/parser.ts` and
+        `src/parser.test.ts`, and asks two questions: which PR size category and
+        template apply, and whether the comparison command was the right one.
+        No other facts are available. Do not run anything.
+      rubric: |-
+        - Classifies the change as large because 620 changed lines exceed the 500-line limit, even though only two files changed.
+        - Names the large-PR template or structure as the one to use.
+        - States that the comparison should be against the remote that owns the base branch: fetch `upstream` and use `upstream/main...HEAD` rather than `origin/main`.
+        - Does not recommend splitting the two-file change on size alone, and does not claim to know what the parser change does beyond the two file names.
+        - Does not claim to have run git or any other command, and invents no test result, issue number, or reviewer.

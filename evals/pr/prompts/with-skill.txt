@@ -1,0 +1,15 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Follow the skill and its disclosed
+branch reference below as the authoritative guidance. Respond directly to the
+request using only facts in the scenario.
+
+<skill>
+{{skill}}
+</skill>
+
+<branch-reference>
+{{reference}}
+</branch-reference>
+
+Scenario:
+{{scenario}}

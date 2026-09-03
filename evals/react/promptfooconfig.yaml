@@ -1,0 +1,245 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: React skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+evaluateOptions:
+  repeat: 3
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the React response reaches every observable outcome
+        required by this scenario. Give equal weight to every outcome below.
+        Credit concrete, runnable logic and explicit boundary reasoning rather
+        than copied rubric wording, verbosity, or invented project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep authorization at the server boundary despite a client permission gate
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        Implement the smallest React and TypeScript change for a comment delete
+        action. `currentUser` is `User | null`; a `User` has `id` and role
+        `"admin" | "member"`; a `Comment` has `id` and `authorId`.
+        `deleteComment(comment.id)` calls an existing HTTP endpoint and rejects
+        with `ApiError { status: number }`. Product wants the Delete button shown
+        only to the comment author or an admin. The endpoint currently deletes by
+        comment ID without checking the authenticated actor. You may edit only
+        the frontend repository in this task.
+
+        Return the component-side implementation and a short security rationale.
+        Be precise about what this task can and cannot make secure. Do not invent
+        a dependency, backend implementation, or new application-wide state.
+      rubric: |-
+        - States that a hidden or disabled React control is only a UX permission gate and cannot authorize the delete request; it does not claim this frontend-only task makes deletion secure.
+        - Names the required server contract: authenticate the actor and authorize admin-or-resource-owner access before deleting, returning 403 with no deletion when unauthorized.
+        - Implements one small, typed owner-or-admin predicate that is false for `currentUser === null`, and renders an accessible `button` only when that predicate passes.
+        - Calls the existing `deleteComment(comment.id)` directly from the user event and handles a rejected 403 locally as a non-success state; it does not redirect globally, log out the user, or treat a client role as proof of authority.
+        - Adds no dependency, duplicated permission store, effect-driven mutation, backend code, or claim that client validation prevents a crafted HTTP request.
+
+  - description: Prevent stale async effect results after identity change and unmount
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        Patch this React component. The repository has no data-fetching library,
+        and dependencies cannot change. `loadUser(userId, signal)` rejects with a
+        DOM `AbortError` when cancelled.
+
+        ```tsx
+        type Props = {
+          userId: string;
+          loadUser: (userId: string, signal: AbortSignal) => Promise<User>;
+        };
+
+        function UserPanel({ userId, loadUser }: Props) {
+          const [state, setState] = useState<State>({ status: "loading" });
+
+          useEffect(() => {
+            setState({ status: "loading" });
+            loadUser(userId, new AbortController().signal).then(
+              (user) => setState({ status: "success", user }),
+              (error) => setState({ status: "error", error }),
+            );
+          }, [userId, loadUser]);
+
+          return <UserState state={state} />;
+        }
+        ```
+
+        When `userId` changes from A to B, request B may settle before request A;
+        A must never replace B. Unmount must cancel outstanding work. React
+        Strict Mode's development setup-cleanup-setup cycle must not produce an
+        error state. Return the smallest component patch and a concise rationale.
+      rubric: |-
+        - Creates one `AbortController` inside each effect setup and passes that controller's signal to `loadUser`.
+        - Returns cleanup that prevents that setup's later settlements from writing state and aborts its controller, so prop changes, unmount, and Strict Mode cleanup invalidate that setup.
+        - Guards both fulfillment and rejection state writes so an invalidated setup never writes, ensuring request A cannot replace request B even if it settles late.
+        - Treats an `AbortError` as cancellation rather than an application error and leaves it out of the rendered error state.
+        - Keeps `userId` and `loadUser` as honest dependencies and adds no data-fetching dependency or global state.
+
+  - description: Synchronise an imperative editor from the current prop, not from a transition
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        Fix this React component. `editor` is an imperative code-editor handle
+        that the parent creates; `editor.layout(width)` re-measures the editor
+        to `width` pixels and is cheap and idempotent. The parent toggles
+        `collapsed` when the user clicks the sidebar button. Bug report: when the
+        page loads with `collapsed` already `false`, the editor renders at the
+        wrong width until the user collapses and expands the sidebar once.
+        Dependencies cannot change and the parent cannot change. Return the
+        smallest patch and explain why the original effect was wrong.
+
+        ```tsx
+        type Props = { collapsed: boolean; editor: EditorHandle };
+
+        function EditorFrame({ collapsed, editor }: Props) {
+          const frameRef = useRef<HTMLDivElement>(null);
+          const wasCollapsed = useRef(collapsed);
+
+          useEffect(() => {
+            // Only relayout when the sidebar expands; the editor lays itself out on mount.
+            if (wasCollapsed.current && !collapsed) {
+              editor.layout(frameRef.current!.clientWidth);
+            }
+            wasCollapsed.current = collapsed;
+          }, [collapsed, editor]);
+
+          return (
+            <div ref={frameRef} className={collapsed ? "frame frame--narrow" : "frame frame--wide"}>
+              <EditorView editor={editor} />
+            </div>
+          );
+        }
+        ```
+      rubric: |-
+        - Removes the previous-value comparison (`wasCollapsed`) so the effect calls `editor.layout` with the frame's current width on every run, including the first run after mount.
+        - Applies the layout for both values of `collapsed` (collapse and expand), not only on the expand transition.
+        - Keeps one effect for this synchronisation; it does not add a separate mount-only (`[]`) effect beside the transition guard and does not move the `layout` call into a click handler.
+        - Keeps `collapsed` and `editor` as dependencies and adds no state copy of `collapsed`, no dependency, and no change to the parent component.
+        - Explains the defect as an effect that reacted to a transition instead of synchronising the editor with the current value; it does not claim to have run or tested the code.
+
+  - description: Resolve a cross-feature import against the boundary rules
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        The project uses `src/features/<name>` modules with an ESLint boundary
+        rule that forbids any import from another feature folder, including
+        that feature's `index.ts`. `features/orders` now needs the
+        `CustomerBadge` component that lives in
+        `features/customers/components/customer-badge.tsx`. The badge calls the
+        `useCustomer(customerId)` hook from
+        `features/customers/api/get-customer.ts` itself.
+        `features/customers/components/customer-panel.tsx` renders
+        `<CustomerBadge customerId={customer.id} />` today and must keep
+        working. The order response
+        from `features/orders/api/get-order.ts` already includes
+        `customer: { id: string; name: string }`. A teammate proposes
+        disabling the lint rule for that one import. Return the placement
+        decision with its reason, the resulting file moves, what stays
+        feature-local, how `features/orders` obtains the customer data it
+        gives to the badge, and how `features/customers` keeps feeding the
+        badge. Do not write the component code.
+      rubric: |-
+        - Rejects disabling the boundary rule and leaves no import from `features/customers` (including its `index.ts`) inside `features/orders`.
+        - Moves `CustomerBadge` to `src/components/` because two features now use it, and states that criterion.
+        - Keeps `useCustomer` and `get-customer.ts` inside `features/customers/api`; has the shared badge receive its customer data through props rather than importing a feature API from the shared layer; and keeps `customer-panel.tsx` working by having a customers-owned component (the panel itself or a feature-local wrapper) call `useCustomer` and pass its result to the shared badge.
+        - Has `features/orders` pass the `customer` data from its own order response to the shared badge (or composes the two features in an app-level page), without creating a new feature folder.
+        - Creates no shared API module, no new feature folder, and no dependency.
+
+  - description: Remove effect-driven derived state and event-driven work
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        Patch this React component. `items` is a prop; `search` is local state.
+        Return the smallest change and the reason for each removed effect.
+
+        ```tsx
+        function Inventory({ items, onExport }: Props) {
+          const [search, setSearch] = useState("");
+          const [visible, setVisible] = useState(items);
+          const [exportRequested, setExportRequested] = useState(false);
+
+          useEffect(() => {
+            setVisible(items.filter((i) => i.name.includes(search)));
+          }, [items, search]);
+
+          useEffect(() => {
+            if (exportRequested) {
+              onExport(visible);
+              setExportRequested(false);
+            }
+          }, [exportRequested, visible, onExport]);
+
+          return (
+            <>
+              <input value={search} onChange={(e) => setSearch(e.target.value)} />
+              <button onClick={() => setExportRequested(true)}>Export</button>
+              <List items={visible} />
+            </>
+          );
+        }
+        ```
+      rubric: |-
+        - Removes the `visible` state and its effect, and computes the filtered list during render (a plain expression or `useMemo`).
+        - Removes the `exportRequested` state and its effect, and calls `onExport` with the computed list directly in the button's click handler.
+        - Gives the reason for each removal: the first effect only derived a value from `items` and `search`, and the second only did work that the click caused.
+        - Keeps `search` as the only local state and preserves the rendered input, button, and list.
+        - Adds no dependency, context, or reducer, and does not claim to have run or tested the code.
+
+  - description: Put filter and pagination state in the URL, not a global store
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        A product list page has a status filter, a search term, and a page
+        number. A teammate proposes a Zustand store for all three so the values
+        survive navigation and can be shared as links. Zustand is not installed.
+        The app already uses React Router and React Query, and the product list
+        comes from `fetchProducts({ status, search, page })`. Return the state
+        placement decision for each value with the smallest implementation
+        sketch, and say what the proposal gets wrong. Add no dependency.
+      rubric: |-
+        - Places the status filter, search term, and page number in URL search params through React Router, and rejects the global store for them.
+        - Keeps the product list in React Query, passes the three parsed URL values to `fetchProducts`, and includes the same three values in the query key, rather than copying the list into any store.
+        - Shows the component reading and updating the search params directly, without a duplicate `useState` copy that must be kept in sync with the URL.
+        - States that a global store would not give shareable links or back-button behaviour that the URL gives for free.
+        - Adds no Zustand or other dependency and no application-wide state.

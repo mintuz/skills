@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Xcode command-line development loop versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed Xcode command-line loop reaches the safe,
+        observable outcome requested by this scenario. Give equal weight to
+        every outcome below. Credit explicit, scenario-specific commands and
+        evidence gates. Do not reward verbosity, copied rubric wording, or
+        invented command output or project facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep a duplicate-name beta-runtime build tied to one simulator
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        Give a command plan to build and visually verify an iOS app whose scheme
+        also builds a watchOS beta companion. The machine has stable Xcode as the
+        default plus `/Applications/Xcode-27.0-beta.app`, and two available
+        simulators are both named `iPhone 17 Pro`. The app currently installed on
+        one device may be from another branch. The build can exceed the command
+        tool timeout. End at one persistent screenshot of the Settings screen;
+        do not execute commands, guess project identifiers, or invent results.
+      rubric: |-
+        - Lists the schemes and the available simulator JSON before it builds, shows the step that picks one UDID out of the two same-named devices, and uses `platform=iOS Simulator,id=<udid>` rather than any name-based destination or booted-device guess.
+        - Applies `DEVELOPER_DIR=/Applications/Xcode-27.0-beta.app/Contents/Developer` to every Xcode command in the session, by exporting it or by prefixing each `xcodebuild` and `xcrun` call, disables signing for the simulator build, preserves a log, and runs the long build in the background.
+        - Waits for the actual background task to finish and judges its exit status and terminal build log instead of assuming success, timing out the wait, or chaining arbitrary foreground sleeps.
+        - Installs the freshly built `.app` on that same UDID with `xcrun simctl install`, then launches it with `xcrun simctl launch` under the same beta developer directory, taking the bundle identifier from the built app's Info.plist, so neither the other branch's installation nor a differently configured tool can supply the evidence.
+        - Reaches Settings through a deep link or an existing debug scenario rather than a blind coordinate tap, captures exactly one persistent numbered image with `simctl io <udid> screenshot`, and labels any visual state it has not inspected as unproved.
+
+  - description: Correct a timing-out, name-addressed test command after a runner hang
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        Repair a test command that never reaches a verdict on this Mac. The project
+        builds from `App.xcworkspace` with the scheme `App`. The command runs
+        `xcodebuild test-without-building -only-testing:AppTests
+        -destination 'platform=iOS Simulator,name=iPhone 17 Pro'` with
+        `TEST_RUNNER_MODE=stress`, and passes no `-resultBundlePath`. Two
+        available simulators are named `iPhone 17 Pro`. The last two attempts ran
+        in the foreground and were killed at the 600 s command timeout before any
+        terminal marker was read. The one attempt that did finish printed `The
+        test runner hung before establishing connection`. Give the corrected
+        command, the run and wait mechanics, the single recovery step for the
+        hang, and the evidence that ends the loop; do not execute commands or
+        invent results.
+      rubric: |-
+        - Runs the corrected command in the background with its output redirected to a log file of its own, instead of in the foreground where the two earlier attempts were killed before any marker was read.
+        - Reads the run's exit status — from the harness's task handle, or from a status that the background command itself records — together with the log's terminal marker, instead of waiting with chained foreground sleeps or judging the run by grep alone.
+        - Adds a `xcrun simctl list devices available -j` step and pins the destination as `platform=iOS Simulator,id=<udid>` with the identifier taken from that output, because two available simulators share the name `iPhone 17 Pro`.
+        - Switches `test-without-building` to `xcodebuild test` with `-workspace App.xcworkspace -scheme App`, so the run is valid, rebuilds the product under test, and passes `TEST_RUNNER_MODE=stress` to the test runner, and adds a `-resultBundlePath` bundle so a failure is read with `xcresulttool get test-results summary` instead of by rerunning blind.
+        - Treats the runner hang as a suspected environmental fault, shuts down the pinned simulator and retries once with a result-bundle path that does not already exist, and states no test count, per-test outcome, or log line that the scenario did not supply.
+
+  - description: Decline to author the test and supply only the verification loop
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        A colleague asks you to write the missing Swift Testing case for a
+        `CartTotal` type and then prove from the command line that the target is
+        green. You have not been given the type's API, the file, the scheme name,
+        the test target name, or any simulator identifier. Say what you will and
+        will not do here, then give the verification loop; do not execute
+        commands or invent results.
+      rubric: |-
+        - Declines to author the Swift Testing case in this answer and points that work at the dedicated Swift Testing guidance.
+        - Contains no Swift test source: no `@Test` function, `#expect` call, or suite definition for `CartTotal`.
+        - Supplies the command-line loop anyway: discover the scheme and one simulator UDID first, then run `xcodebuild test` scoped to the test target in the background with a kept log and a `-resultBundlePath` bundle.
+        - States the terminal evidence for a pass as the Swift Testing run summary with a non-zero test count plus `** TEST SUCCEEDED **` and a successful exit, and says `Executed 0 tests, with 0 failures` proves nothing.
+        - Does not assert a scheme name, test target name, simulator UDID, bundle identifier, or any `CartTotal` API detail that the scenario did not supply.
+
+  - description: Order the loop when the project details are still unknown
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        You are asked to build an iOS app in a checkout you have not inspected
+        and to end at a saved image of its home screen. You do not know the
+        project or workspace filename, the scheme, the bundle identifier, or
+        which simulators are installed, and no simulator is booted. The default
+        Xcode has every runtime this app needs. Give the ordered commands and say
+        what each one supplies to the next; do not execute commands or invent
+        results.
+      rubric: |-
+        - Lists the checkout for a `.xcworkspace` or `.xcodeproj` and runs `xcodebuild -list` with the flag that matches what it finds, and lists the devices with `xcrun simctl list devices available -j` to resolve one UDID, before any build, install, or capture command.
+        - Builds in the background with the output redirected to a log file, with `CODE_SIGNING_ALLOWED=NO` and a destination pinned as `platform=iOS Simulator,id=<udid>`, and confirms the build's exit status before the next step.
+        - Waits for that UDID to finish booting before it installs, then installs the freshly built app and launches it, either through the simulator MCP install action then its launch action, or through `simctl install` then `simctl launch`, with the bundle identifier read from the built app's Info.plist.
+        - Saves the image with one capture mechanism only — a numbered `xcrun simctl io <udid> screenshot <path>.png` file — and does not also take an MCP screenshot of the same frame.
+        - Writes every unknown as a placeholder that a named earlier command fills, states no concrete scheme name, project or workspace filename, UDID, or bundle identifier, and does not treat the home screen as reached without evidence, either an accessibility read of that screen or an inspection of the saved image.
+
+  - description: Review a verification script that keeps a foreground build on request
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        Review a teammate's verification script before it lands. It runs
+        `xcodebuild build test` in the foreground; then waits with `sleep 420`;
+        uses `-destination 'platform=iOS Simulator,name=iPhone 17 Pro'` on a
+        machine where two available simulators carry that name; runs `xcrun
+        simctl erase <udid>` and captures its first screenshot five seconds
+        later; captures every frame twice, once with `xcrun simctl io <udid>
+        screenshot` and once with the simulator MCP screenshot action; and taps
+        the fixed coordinates 120,480 to reach the paywall. On this machine that
+        build-and-test step has taken between 11 and 20 minutes. The teammate insists
+        the foreground run must stay because the log is easier to read that way.
+        Say which items you change, why, and which you keep; do not execute
+        commands or invent results.
+      rubric: |-
+        - Rejects keeping the foreground run despite the stated preference, because a step of 11 to 20 minutes cannot finish inside one foreground command and is killed without a verdict, and keeps the output readable by redirecting the background run to a log file.
+        - Replaces `sleep 420` with a wait for the run's own completion — the harness task handle, or a status the background command records — judged by the exit status and the log's terminal marker.
+        - Replaces the name-based destination with a UDID resolved from the device list, because two available simulators share that name.
+        - Keeps one capture mechanism per frame, and gates the first capture after the erase on an observable readiness check — boot completion plus a screen state with no system alert — rather than on the fixed five-second delay.
+        - Replaces the fixed-coordinate tap with a deep link or an existing debug scenario and reads the accessibility hierarchy before any fallback tap, without inventing the app's URL scheme, a debug entry point, or the paywall's contents.

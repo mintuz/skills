@@ -1,0 +1,312 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Tailwind skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the Tailwind response reaches every observable outcome
+        required by this scenario. Give equal weight to every outcome below.
+        Credit concrete, version-correct patches and explicit build or scanning
+        reasoning rather than copied rubric wording, verbosity, or invented facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep a Tailwind 4 Vite setup CSS-first and dependency-minimal
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Supply the smallest patch that wires Tailwind into this Vite app and adds
+        semantic `bg-canvas text-ink` utilities whose values switch under the
+        existing `[data-theme="dark"]` attribute. `src/app.css` is already
+        imported by the app entry point, so it reaches the browser. Tailwind's
+        browser targets are acceptable. Do not change dependencies or add files.
+
+        ```json
+        {
+          "dependencies": {
+            "@tailwindcss/vite": "4.1.12",
+            "@vitejs/plugin-react": "latest",
+            "tailwindcss": "4.1.12",
+            "vite": "latest"
+          }
+        }
+        ```
+
+        ```ts
+        // vite.config.ts
+        import { defineConfig } from "vite";
+        import react from "@vitejs/plugin-react";
+
+        export default defineConfig({ plugins: [react()] });
+        ```
+
+        ```css
+        /* src/app.css */
+        :root {
+          --app-canvas: oklch(0.98 0.01 250);
+          --app-ink: oklch(0.22 0.03 250);
+        }
+
+        [data-theme="dark"] {
+          --app-canvas: oklch(0.18 0.03 250);
+          --app-ink: oklch(0.94 0.01 250);
+        }
+        ```
+      rubric: |-
+        - Adds the already-installed `@tailwindcss/vite` plugin alongside the existing React plugin in `vite.config.ts`, preserving React and adding no package or PostCSS setup.
+        - Imports Tailwind in `src/app.css` with `@import "tailwindcss";`, not the removed v3 `@tailwind base/components/utilities` directives.
+        - Maps `--color-canvas` and `--color-ink` to the existing runtime variables in a top-level `@theme inline` block, so `bg-canvas` and `text-ink` are generated and follow the supplied theme attribute.
+        - Adds no `tailwind.config.*`, content glob, `darkMode` setting, duplicate palette, or unrelated CVA/merge/animation dependency.
+        - Explains that this is Tailwind 4's CSS-first Vite path and that `inline` makes the generated utilities reference the runtime-switching values.
+
+  - description: Replace interpolated utilities with scanner-visible variants
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Patch this Tailwind 4 component. It looks correct in development only
+        because a nearby demo happens to contain the generated classes; the
+        production build omits some status styles. The prop type and rendered
+        button semantics must stay the same. Dependencies and Tailwind config
+        cannot change.
+
+        ```tsx
+        type Tone = "success" | "warning";
+
+        export function StatusAction({ tone }: { tone: Tone }) {
+          const color = tone === "success" ? "emerald" : "amber";
+
+          return (
+            <button
+              className={`rounded-md bg-${color}-600 px-4 py-2 text-${color}-50 hover:bg-${color}-700 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50`}
+            >
+              Continue
+            </button>
+          );
+        }
+        ```
+
+        Return the smallest component patch and explain why it remains correct
+        when the unrelated demo is removed. Do not propose a safelist.
+      rubric: |-
+        - Replaces the interpolation with an exhaustive selection over `Tone` — a lookup map, a switch, or a ternary all count — where every branch is a complete literal utility string that Tailwind's source scanner can read.
+        - Gives both variants literal background, foreground, hover, and visible focus utilities; keeps the shared shape, spacing, and disabled utilities shared rather than duplicating the whole component.
+        - Selects the mapped string from `tone` and renders the same native `button` with the same prop API and label.
+        - Explains why the patched component keeps its styles once the unrelated demo file is deleted, grounding the answer in which class names now appear literally in this file.
+        - Adds no dependency, CVA wrapper, runtime style object, config change, safelist, or invented build step.
+
+  - description: Stay on the installed Tailwind 3 config path
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Add a semantic `surface` colour to this app so `bg-surface` works and its
+        value switches with the existing `.dark` class. Use `0 0% 100%` in light
+        mode and `217.2 32.6% 17.5%` in dark mode. Give the smallest patch.
+        Do not change dependencies. Our other repo declares tokens in a `@theme`
+        block, so match that approach here if you can.
+
+        ```json
+        {
+          "dependencies": { "react": "18.3.1" },
+          "devDependencies": {
+            "autoprefixer": "10.4.20",
+            "postcss": "8.4.47",
+            "tailwindcss": "3.4.14"
+          }
+        }
+        ```
+
+        ```typescript
+        // tailwind.config.ts
+        import type { Config } from "tailwindcss";
+
+        const config: Config = {
+          content: ["./src/**/*.{ts,tsx}"],
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                primary: "hsl(var(--primary))"
+              }
+            }
+          },
+          plugins: []
+        };
+
+        export default config;
+        ```
+
+        ```css
+        /* src/globals.css */
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        @layer base {
+          :root {
+            --primary: 222.2 47.4% 11.2%;
+          }
+
+          .dark {
+            --primary: 210 40% 98%;
+          }
+        }
+        ```
+      rubric: |-
+        - Declares a `--surface` CSS variable under both `:root` and `.dark` in the existing `@layer base` block, reusing the file's bare-channel HSL number format.
+        - Registers the token under `theme.extend.colors` in `tailwind.config.ts` as `hsl(var(--surface))`, so the `bg-surface` utility is generated.
+        - Declines the request's `@theme` suggestion rather than following it, and attributes the incompatibility to the Tailwind major version the project installs.
+        - Leaves the `@tailwind base/components/utilities` directives, the `content` glob, and `darkMode: "class"` unchanged.
+        - Introduces no Tailwind 4 syntax or packages (`@import "tailwindcss"`, `@theme`, `@theme inline`, `@custom-variant`, `@tailwindcss/vite`, `@tailwindcss/postcss`), adds no dependency, and does not claim to have run a build or read files outside the packet.
+
+  - description: Surface a frozen-dependency conflict instead of importing CVA
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Add a `variant` prop with values `info` and `danger`, and a `size` prop
+        with values `sm` and `md`, to this Badge. Use CVA, the way shadcn/ui
+        writes its components. We are in a dependency freeze for this sprint, so
+        `package.json` must not change. This is the whole of the project's
+        manifest.
+
+        ```json
+        {
+          "dependencies": {
+            "@tailwindcss/vite": "4.1.12",
+            "react": "18.3.1",
+            "tailwindcss": "4.1.12",
+            "vite": "5.4.8"
+          }
+        }
+        ```
+
+        ```tsx
+        // src/components/badge.tsx
+        export function Badge({ children }: { children: React.ReactNode }) {
+          return (
+            <span className="inline-flex items-center rounded-full font-medium">
+              {children}
+            </span>
+          );
+        }
+        ```
+      rubric: |-
+        - States the conflict directly: CVA needs the `class-variance-authority` package, the supplied manifest does not list it, and the freeze forbids adding it.
+        - Ships a working patch that does not need the package, covering every `variant` and every `size` with complete literal class strings, and keeping the shared utilities in one base string.
+        - Keeps every utility class name literal, using no interpolated name, safelist, inline style object, or arbitrary value for the variant colours.
+        - Composes the final class string without `clsx` or `tailwind-merge`, or notes that those packages are absent too before using them.
+        - Adds no import of `class-variance-authority`, no package, and no claim that the package is already installed or that CVA was used.
+
+  - description: Refuse to invent a missing brand token
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Give this button a visible keyboard focus ring in our brand purple. The
+        two files below are the whole of the styling setup; there is no other
+        theme file and no design document available. Just pick a purple that
+        looks close enough for this PR; the exact value does not matter much.
+
+        ```css
+        /* src/app.css */
+        @import "tailwindcss";
+
+        @theme {
+          --color-surface: oklch(0.98 0.01 250);
+          --color-ink: oklch(0.22 0.03 250);
+          --color-accent: oklch(0.62 0.15 155);
+        }
+        ```
+
+        ```tsx
+        // src/components/save-button.tsx
+        export function SaveButton() {
+          return (
+            <button className="rounded-md bg-accent px-4 py-2 text-surface outline-none">
+              Save
+            </button>
+          );
+        }
+        ```
+      rubric: |-
+        - States that the supplied setup defines no brand-purple token, so the colour value is missing input rather than something to be chosen.
+        - Does not present any invented hex or `oklch` value as the brand purple; any placeholder value is explicitly marked as a value the design owner must supply.
+        - Proposes adding the colour as a named `--color-*` token in the existing `@theme` block, rather than an arbitrary value written inside the component.
+        - Patches the button so the ring appears on keyboard focus only (a `focus-visible` utility), and sets an outline or ring colour utility built from the new token as well as a width, not a width or offset alone.
+        - Adds no package, config file, or `tailwind.config.*`, and does not claim to have searched the repository, read other files, or run a build.
+
+  - description: Add CVA when the requester chooses the dependency
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Rewrite this Chip so it takes a `variant` prop (`neutral` or `critical`)
+        and a `size` prop (`sm` or `md`), and so the variant props are typed from
+        the style definition rather than declared twice. Use CVA. I know
+        `class-variance-authority` is not installed yet; adding it is fine and I
+        approve the dependency, so include the install step in your answer. The
+        manifest below is the whole of the project's dependencies.
+
+        ```json
+        {
+          "dependencies": {
+            "@tailwindcss/vite": "4.1.12",
+            "react": "18.3.1",
+            "tailwindcss": "4.1.12",
+            "vite": "5.4.8"
+          }
+        }
+        ```
+
+        ```tsx
+        // src/components/chip.tsx
+        export function Chip({ label }: { label: string }) {
+          return (
+            <span className="inline-flex items-center rounded-full px-2 py-1 text-xs">
+              {label}
+            </span>
+          );
+        }
+        ```
+      rubric: |-
+        - Uses CVA and shows the install step for `class-variance-authority`, rather than refusing the package or substituting a hand-written map against the stated approval.
+        - Defines both axes in one `cva` call: a `variant` group covering `neutral` and `critical`, and a `size` group covering `sm` and `md`, with the shared utilities in the base string.
+        - Derives the component's variant prop types from the style definition itself, so `neutral`, `critical`, `sm` and `md` are not written out a second time as a hand-maintained union.
+        - Gives every variant and size complete literal utility strings, with no interpolated class name and no safelist.
+        - Adds no package other than `class-variance-authority`, and makes no claim to have installed anything, inspected the repository, or run a build.

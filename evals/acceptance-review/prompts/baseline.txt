@@ -1,0 +1,7 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Use only general software-engineering
+judgement; do not load, search for, or use any installed skill. Produce the
+acceptance verdict and supporting criterion analysis requested by the scenario.
+
+Scenario:
+{{scenario}}

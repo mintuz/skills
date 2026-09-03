@@ -3,97 +3,83 @@ name: debug
 description: >
   WHEN an iOS app fails in the simulator — a build failure, a crash, a wrong
   screenshot, or wrong behaviour — and either the user reports it or you observe
-  it yourself; NOT for Xcode project setup or writing new tests; runs a capture,
-  diagnose, propose, confirm, and verify loop.
+  it yourself; NOT for Xcode project setup, or for a test that fails while the
+  app itself builds and runs (use app:swift-testing); runs an
+  evidence-to-root-cause loop and proves the terminal state.
 ---
 
-# Debug - iOS App Debugging Loop
+# Debug — iOS App Debugging Loop
 
-Use XcodeBuildMCP and ios-simulator MCPs to diagnose issues, capture app state, and collaborate with users on fixes. Always confirm before making changes.
+## Authorisation rule
 
-Run this loop for a user-reported issue and for an issue you observe yourself, such as a simulator crash, a failed build, or a wrong screenshot. If you observed the issue yourself, skip the questions to the user in steps 2 and 6. State what you observed and what the fix will be. Step 5 still applies: confirm before you change code.
+Edit code only when an instruction asks for a fix. An explicit fix request, or a
+standing instruction that the fix serves (for example "get the app building"),
+authorises ordinary code and test edits; do not ask for that approval again. A
+symptom report, or a failure you observed yourself with no such instruction,
+authorises diagnosis only: report the cause, state the exact change you would
+make, and ask before you edit. When a fix is authorised, stop and ask again only
+when the proved fix needs a materially different, destructive, or externally
+visible action, such as deleting stored data or resetting a shared store.
 
-## Workflow
+## Root-cause loop
 
-1. **Capture current state** — Use ios-simulator to capture screenshots and understand the current visual state of the app. Use XcodeBuildMCP to read build logs and runtime errors.
+1. **Bound and reproduce** — Name the failing surface, expected state, exact
+   sequence, and requested terminal outcome. Reproduce before choosing a cause.
+   Capture the evidence that matches the failing surface: the build log for a
+   build failure, runtime logs for a crash or wrong behaviour, and a screenshot
+   only when the failure is visual. Do not launch the app or capture runtime
+   evidence for a failure that occurs before the app builds. Preserve user data
+   and treat clean builds, reinstalls, or resets as controlled experiments, never
+   as proof or a shortcut.
 
-2. **Gather diagnostic information** — Collect relevant information:
+   **Complete when:** the failure is repeatable with evidence, or the missing
+   runtime proof is explicit.
 
-   - Screenshot of the issue using ios-simulator
-   - Console logs and error messages from XcodeBuildMCP
-   - App state and behavior observations
-   - Ask: "Looking at this screenshot and these logs, can you describe exactly what's wrong or what you expected to happen?"
+2. **Prove the runtime identity** — When the failure occurs in a launched app,
+   verify the selected scheme and configuration, built product, bundle
+   identifier, installed app, launched process, and named UI surface before
+   blaming source. Map the expected surface to the exact source view and
+   styling rule. Skip this step for a build failure.
 
-3. **Analyze the problem** — Review the captured information:
+   **Complete when:** the observed runtime is tied to the source under review, or
+   a stale/wrong runtime is proven.
 
-   - Identify error patterns in logs
-   - Compare visual output to expected behavior
-   - Locate relevant code sections that might be causing the issue
+3. **Trace the owner** — Follow the real entry point through state, lifecycle,
+   storage, and dependencies to the narrowest shared cause. Search every caller
+   of the shared function before changing it. Keep observations, hypotheses, and
+   inferences distinct; test competing hypotheses against the captured evidence.
 
-4. **Propose changes clearly** — Describe intended fixes with specifics:
+   **Complete when:** one cause explains the evidence and every affected caller
+   and lifecycle state is accounted for.
 
-   - Bad: "I'll fix the layout"
-   - Good: "I'll update the VStack spacing from 8 to 16 points and add .padding(.horizontal, 20) to fix the alignment issue shown in the screenshot"
+4. **Fix once** — State the change with specifics: the file, the declaration,
+   and the values or calls that change. For diagnosis-only work, report the
+   cause and the proposed change, then stop. For an authorised fix, make the
+   smallest change at the shared owner. Do not rename, move, or restructure code
+   when a local change at that owner resolves the proved cause. Leave one
+   focused regression check for non-trivial logic; the check must fail on the
+   reproduced defect and cover data preservation when persistence is involved.
+   State whether the proved fix remains inside the supplied authorisation; stop
+   before any materially different or destructive action.
 
-5. **Confirm before implementing** — Use AskUserQuestion to get explicit approval. Never modify code without confirmation.
+   **Complete when:** for diagnosis-only work, the cause and the proposed change
+   are reported; for an authorised fix, the change and its regression check
+   express the proved cause without widening scope.
 
-6. **Verify with comparison** — After changes:
-   - Rebuild the app using XcodeBuildMCP
-   - Capture a new screenshot to confirm the fix
-   - Check logs to ensure errors are resolved
-   - Ask: "Does this match what you were looking for?"
+5. **Prove the terminal state** — Rebuild and rerun the exact failing sequence.
+   Run the focused check, inspect fresh logs, compare the same visual surface when
+   relevant, and exercise the lifecycle boundary such as backgrounding or
+   relaunch. Report observed proof separately from any remaining gap. Do not
+   report a planned step as an observed result.
 
-## XcodeBuildMCP Tools
-
-Use these XcodeBuildMCP tools for building and analyzing:
-
-- `build` — Build the Xcode project/workspace
-- `get-build-logs` — Retrieve build logs to diagnose compilation errors
-- `get-runtime-logs` — Get runtime logs from the running app
-- `clean` — Clean build artifacts before rebuilding
-- `test` — Run unit tests to verify fixes
-
-## ios-simulator Tools
-
-Use these ios-simulator tools for app interaction and state capture:
-
-- `launch-app` — Launch the app in the simulator
-- `take-screenshot` — Capture the current simulator screen
-- `tap` — Tap at specific coordinates on the screen
-- `swipe` — Perform swipe gestures
-- `enter-text` — Type text into focused text fields
-- `get-device-info` — Get simulator device information
-- `install-app` — Install the app on the simulator
-- `uninstall-app` — Uninstall the app from the simulator
+   **Complete when:** the original failure no longer reproduces, relevant logs are
+   clean, persisted state survives the tested lifecycle, and any unproved live
+   state is labelled as a gap rather than a pass.
 
 ## Related Skills
 
-When implementing fixes, load these skills for guidance:
-
-- **`app:swiftui-architecture`** — SwiftUI patterns, state management, and architectural guidance
-- **`app:swift-testing`** — Testing patterns and best practices
-
-## Debugging Workflow Example
-
-1. User reports: "The login button doesn't work"
-2. Capture screenshot showing the button
-3. Check runtime logs for tap events or errors
-4. Identify the issue in code (e.g., missing action binding)
-5. Propose fix: "I'll connect the button's action to the LoginIntent as defined in app-intent-driven-development"
-6. Get confirmation
-7. Implement fix
-8. Rebuild app
-9. Take new screenshot showing working button
-10. Verify logs show successful tap handling
-
-## Before/After Verification
-
-After implementing changes:
-
-1. Rebuild the app with XcodeBuildMCP
-2. Launch the updated app in the simulator
-3. Take a new screenshot of the same view
-4. Compare build/runtime logs (before and after)
-5. Present screenshots side by side
-6. Ask: "Does this resolve the issue?"
-7. If not, repeat the feedback loop
+- **`app:xcode-dev-loop`** — the build, test, install, launch, and screenshot
+  mechanics that steps 1, 2, and 5 run.
+- **`app:swift-testing`** — how to write and run the regression check in step 4.
+- **`app:swiftui-architecture`** — SwiftUI state and data-flow patterns for the
+  code under repair.

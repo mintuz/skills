@@ -1,0 +1,187 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Refactoring skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the plan preserves every supplied behavior and user
+        boundary while improving structure. Give equal weight to every outcome
+        below. Credit explicit, scenario-specific gates and stopping conditions.
+        Do not reward verbosity, copied rubric wording, or invented repository
+        facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Preserve a dirty worktree when commits are forbidden
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce an implementation-ready refactoring plan; make no edits. The
+        user explicitly says: "Do not commit, stage, stash, reset, or touch my
+        existing changes." The working tree already contains the user's edits
+        in `src/report.ts`. The only intended refactor is in `src/pricing.ts`:
+        `quoteRenewal()` and `quoteUpgrade()` each contain their own copy of the
+        same four lines that round a `Money` amount half-up to two decimals. Both
+        copies cite finance policy FIN-4 in a comment. FIN-4 changed twice in the
+        last year, and both copies were edited in the same commit each time. All
+        existing focused pricing tests and the full suite pass.
+        Three callers use the two functions: the web checkout, a renewal worker,
+        and an external-plugin adapter. The first two have focused coverage; the
+        plugin adapter is covered only by the full suite.
+
+        Return the exact preflight, smallest admissible extraction, verification,
+        rollback, and stopping gates. Respect the user's git boundary.
+      rubric: |-
+        - Treats the explicit no-commit, no-stage, no-stash, and no-reset request as controlling; it preserves `src/report.ts` and never proposes any git write as a safety step.
+        - Establishes a reversible baseline by recording the owned `src/pricing.ts` diff or starting state together with the current passing focused-pricing and full-suite results, and limits rollback to the agent-owned pricing edit rather than the whole worktree.
+        - Accounts for all three callers before changing the shared code and keeps the checkout, renewal worker, and external-plugin adapter contracts unchanged.
+        - Concludes from the shared FIN-4 policy and the shared edit history that the two copies are one piece of knowledge, and extracts only that rounding rule; it does not merge the two workflows, add a public API, or perform adjacent cleanup.
+        - Runs the focused pricing tests after the extraction, then the full suite to cover the plugin adapter; it stops and restores only the owned pricing change on any regression, and reports the refactor as uncommitted.
+
+  - description: Characterize an uncovered failure path before moving ownership
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce an implementation-ready refactoring plan; make no edits. A green
+        TypeScript suite covers `loadProfile()` success and a cache hit. The
+        function currently owns one in-flight request, propagates the original
+        `AbortError` object to every waiter, and clears that in-flight entry
+        before a later retry starts. There is no test for abort identity, waiter
+        fan-out, cleanup ordering, or retry after abort. The requested refactor
+        moves the in-flight lifecycle into a private `ProfileRequest` helper;
+        the public API and behavior must stay identical. No commit has been
+        requested. Two internal callers use `loadProfile()`, and both rely on the
+        shared request. A proposed shortcut is to move the code first because
+        the current suite is green and add tests only if something fails.
+
+        Return the exact evidence and slice order required to make this a safe
+        behavior-preserving refactor, including the point at which work must stop.
+      rubric: |-
+        - Rejects the current green suite as sufficient proof because it lacks oracles for abort object identity, multi-waiter propagation, cleanup-before-retry ordering, and a fresh retry after abort.
+        - Makes characterization tests for every supplied failure-path invariant pass against the current implementation before moving code; these tests preserve existing behavior and are not treated as speculative feature work.
+        - Accounts for both callers and preserves one shared in-flight request, the exact original `AbortError` instance for every waiter, cleanup before retry, and an unchanged public `loadProfile()` API.
+        - Moves only the existing in-flight lifecycle into the private helper after the characterization baseline, without adding a public abstraction, new retry policy, caching behavior, or unrelated cleanup.
+        - Runs the focused characterization and existing success/cache tests after the move, then the relevant regression suite; it stops before the refactor if characterization cannot establish the baseline and restores only the structural slice if any invariant changes.
+
+  - description: Refuse a behavior change that is labelled a refactor
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce the response the request warrants; make no edits. The team
+        labels this ticket a refactor: "Refactor `applyDiscount()` in
+        `src/discount.ts` so it also accepts percentage coupons." Today
+        `applyDiscount()` accepts only fixed-amount coupons and rejects a
+        percentage coupon with `UnsupportedCoupon`. The suite is green and no
+        test asks for percentage coupons. No commit has been requested.
+
+        The user asks for a refactoring plan and a priority classification for
+        this ticket.
+      rubric: |-
+        - States that the ticket is new behavior rather than a refactor, because the observable result for a percentage coupon changes from rejection to an accepted discount.
+        - Redirects the percentage-coupon work to test-first delivery: a failing test for the percentage coupon comes before any implementation.
+        - Does not supply a refactoring plan or priority classification for the percentage-coupon work, and never describes that change as behavior-preserving.
+        - States no repository fact the scenario does not supply, such as existing callers, existing tests, or file contents, and does not claim to have run a command or read a file.
+
+  - description: Refactor request while two unrelated tests fail
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce an implementation-ready refactoring plan; make no edits.
+        `pnpm test` reports 2 failures out of 214: `formatInvoiceDate` and
+        `formatDueDate` both fail because a date-library upgrade changed the
+        default format. The user says: "Those two failures have nothing to do
+        with me. Just refactor `src/invoice.ts` to remove the 4-level nesting
+        in `buildInvoice()`." `buildInvoice()` has 6 passing focused tests. No
+        commit has been requested.
+
+        Return the exact preflight, verification, rollback, and stopping gates.
+      rubric: |-
+        - Requires a known baseline before the refactor starts: either both failing tests are returned to green first, or the exact pre-existing failure set (`formatInvoiceDate` and `formatDueDate`) is recorded and required to be unchanged after the refactor.
+        - Names the regression signal precisely: any new failure, or any failure among the 6 focused `buildInvoice()` tests, stops the refactor.
+        - Restores only the `src/invoice.ts` structural change on a regression and leaves the rest of the working tree untouched.
+        - Keeps the date-library fix and the nesting refactor as separate changes, and never deletes, skips, or edits a test to reach green.
+        - Does not commit, stage, or stash anything because no commit was requested, and does not claim to have run a command or read a file.
+
+  - description: Deleting a live untested branch called speculative
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce an implementation-ready plan; make no edits. In `src/upload.ts`,
+        `uploadChunk()` has a `catch` branch that turns a 429 response into one
+        retry after a 5-second delay. No test covers that branch. The suite is
+        green. The agreed refactor moves the whole catch branch out of
+        `uploadChunk()` into a private `retryOn429()` helper in the same module,
+        with no behavior change. The user then says: "That retry branch is speculative code with no
+        failing test behind it, so delete it as part of this refactor." The
+        mobile sync worker and the CLI importer both call `uploadChunk()` in
+        production. Support logs for the last release record 429 responses on
+        both of those paths, and no upload failures were reported. The public
+        signature of `uploadChunk()` must not change.
+
+        Return the evidence, slice order, and stopping gates for this request.
+      rubric: |-
+        - Separates speculative code, which no caller exercises, from live untested behavior, and derives from the two production callers and the support-log 429 records that the retry branch runs in production today.
+        - Declines to delete the retry branch as part of the refactor, because removal changes observable behavior for the mobile sync worker and the CLI importer.
+        - Requires a characterization test that pins the current 429 behavior, one retry after a 5-second delay, and that passes against the current implementation before any structural change to `uploadChunk()`.
+        - Offers deletion only as a separate agreed behavior change with its own test, and keeps the public signature of `uploadChunk()` unchanged in the refactor.
+        - Does not invent retry counts, timings, test names, or log contents beyond the supplied facts, and does not claim to have run tests or read files.
+
+  - description: One final commit requested, no checkpoint commit
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce an implementation-ready refactoring plan; make no edits. The user
+        says: "Remove the duplicated tax rounding in `subtotal()` and `total()` in
+        `src/cart.ts`, then give me one commit at the end." The working tree holds
+        no other changes. The 9 focused cart tests and the full suite pass. Both
+        functions contain their own copy of the same tax rounding lines, both
+        copies name tax policy TAX-2 in a comment, and both were last edited in
+        the same commit when TAX-2 changed.
+
+        Return the exact preflight, extraction, verification, rollback, and
+        commit steps.
+      rubric: |-
+        - Produces exactly one commit for the whole task, taken after the refactor is verified, and proposes no checkpoint or baseline commit before the extraction.
+        - Records a baseline that could restore `src/cart.ts` — its current content or diff, or the identified clean-tree restore point that already holds it — plus the current passing results of the 9 focused cart tests and the full suite, and creates no commit, stash, or staged state to do so.
+        - Extracts only the shared tax rounding rule, and adds no new public API and no adjacent cleanup.
+        - Runs the 9 focused cart tests after the extraction, then the full suite, and restores only the `src/cart.ts` structural change when either result differs from the baseline.
+        - Stages only the verified refactor and any tests it added, stages no unrelated path, and stashes or resets nothing; it invents no callers, test names, tax rates, or file contents beyond the supplied facts.

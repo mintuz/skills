@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the github-monitor skill description.
+# Run it from the repo root with:
+#   pnpm test:skills:triggers -- github-monitor
+# which refreshes the git-ignored fixture from src/ first.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise. The heuristic counts any
+# read of the fixture SKILL.md as use, so the not-skill-used case fails when
+# Codex opens the file to confirm the exclusion before declining it.
+description: github-monitor skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a Forgejo agent inbox watched with tea
+    vars:
+      request: >-
+        Our repo lives on a self-hosted Forgejo instance and I have a tea
+        login for it. Act as agent builder-1: watch the open PRs and issues
+        every two minutes, pick up comments that other agents address to
+        builder-1, and answer them in the same thread.
+    assert:
+      - type: skill-used
+        value: github-monitor
+
+  - description: Activates on sending a message to another agent through a PR comment
+    vars:
+      request: >-
+        Post a comment on PR #12 on GitHub that asks the reviewer agent to
+        review the session-handling change in src/auth/session.ts, in the
+        format the other agents can route automatically, and then wait for
+        its reply.
+    assert:
+      - type: skill-used
+        value: github-monitor
+
+  - description: Does not activate for escorting one PR to green CI and merge
+    vars:
+      request: >-
+        PR #88 is open and CI is red. Watch the checks, fix whatever fails on
+        the branch, push, and keep going until it is green and merged.
+    assert:
+      - type: not-skill-used
+        value: github-monitor

@@ -4,7 +4,7 @@
 
 Keep WebSocket, EventSource, media, CRDT, DOM, SDK, credential, subscription, and similar handles inside an invoked actor. Put serialisable facts in context. Send typed control events to the actor when the handle must do work.
 
-Use `fromCallback` for subscription-shaped resources. Open, use, and close the handle in one closure. Return one idempotent disposer.
+Use `fromCallback` for subscription-shaped resources. Acquire, use, and release the handle in one closure, so one owner controls its whole lifetime. When another layer must acquire it — a DOM event handler that must call `setPointerCapture` synchronously, for example — pass the handle into the actor and let the actor own the release. Return one disposer. XState runs that disposer once when the actor stops, so add a run-once flag only when another path can release the same resource; the example below has no second path, so it returns a plain disposer.
 
 ```ts
 import { fromCallback, setup } from "xstate";
@@ -25,10 +25,7 @@ export const makeResourceOwner = (open: () => Handle) => {
     );
     receive((event) => handle.send(event.value));
 
-    let disposed = false;
     return () => {
-      if (disposed) return;
-      disposed = true;
       unsubscribe();
       handle.close();
     };
@@ -68,9 +65,9 @@ State entry starts the resource. State exit or parent stop runs the disposer. If
 
 ## Fence attempts and own retry policy
 
-Give each asynchronous unit an attempt, generation, command, or version identity. Pass the identity into the invoked actor and echo it in results. Accept only the identity held by current context.
+Give each asynchronous unit an attempt, generation, command, or version identity. Choose an identity that no replaced attempt can share, such as a monotonic generation counter. Add the values that scope the work, such as a subscribed symbol, when the identity alone cannot tell two attempts apart. Pass every part of the identity into the invoked actor and echo every part in its results. Accept a result only when every part still matches current context. Reset attempt-scoped evidence when a replacement attempt starts.
 
-Use actor cancellation and identity fencing together. Cancellation stops cooperative work. Fencing rejects buffered, replicated, or late results.
+Use actor cancellation and identity fencing together, and know what each one does. Stopping an actor makes XState ignore that actor's own outcome, so a replaced `fromPromise` invocation cannot update the machine. Stopping does not retract an event the actor already handed to the parent: a `sendBack` that runs while the parent is mid-transition, or that runs from the actor's own cleanup, is already enqueued and reaches the parent after the replacement. Stopping does not stop the work either: a port that takes no abort signal runs to completion, and its side effects still land. Fence by identity wherever a result can still reach the machine — through the mailbox, a long-lived callback actor, a shared subscription, a cache, or a replayed stream. Say which mechanism makes each late result harmless.
 
 Keep retry count, backoff, delayed transition, and cancellation in the lifecycle that decides whether to retry. Inject the delay policy. Leaving a state cancels its `after` transition; stopping a promise actor aborts its signal.
 
@@ -164,4 +161,6 @@ export const acceptsObservation = (
   (value.observedVersion === null || event.version > value.observedVersion);
 ```
 
-Use these conditions in guarded transitions after either acceptance or observation updates context. Ignore nonmatching command identities and non-increasing versions.
+Use these conditions in guarded transitions after either acceptance or observation updates context. Fence attempt evidence by identity and by version: only the current attempt's acceptance and its matching observation may complete or clear that attempt, and that observation counts only when its version advances the version already recorded for that attempt, as `acceptsObservation` shows.
+
+Keep authoritative truth outside that fence. Apply to the document any observation that advances the newest document version already applied, whatever command produced it, and never let such an observation complete or discard the current attempt. A replayed observation that does not advance the recorded version changes nothing.

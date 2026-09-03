@@ -1,11 +1,22 @@
 ---
 name: app-intent-driven-development
-description: WHEN designing or debugging App Intent-first iOS features for Siri, Shortcuts, widgets, Live Activities, or SwiftUI reuse; NOT UIKit-only flows; provides AppEntity, metadata, prompting, and view-reuse patterns.
+description: WHEN designing or debugging App Intent-first iOS features for Siri, Shortcuts, widgets, Live Activities, or reuse of an existing intent in SwiftUI; NOT for actions with no system surface; provides AppEntity, metadata, prompting, and view-reuse patterns.
 ---
 
 # App Intent-First Driven Development
 
 Design features as App Intents first, then reuse those intents across Shortcuts, widgets, and SwiftUI views so automation and UI stay in lockstep.
+
+## Scope Check
+
+An action earns an App Intent when it needs a system surface. System surfaces include Siri, Shortcuts, App Shortcuts, Spotlight, widgets, Controls, the Action button, Focus filters, and Live Activities. Treat the list as examples, not as a closed set.
+
+- The UI framework does not decide this. A UIKit app can adopt App Intents. A SwiftUI app can hold actions that must stay inside one screen.
+- Keep an action with no system surface in the shared domain service the screen already calls. Do not add an intent for consistency alone.
+- An unused intent still costs work. It widens discoverability in system surfaces. It adds App Intents metadata and Shortcuts cache upkeep. It adds system-facing verification with no user benefit.
+- A refusal is a product decision about surfaces. It is not a limit of the app's UI framework.
+- When a system surface becomes a requirement, extract the intent around the same service. Leave the service unchanged.
+- A scope decision is a deliverable. Record the surface that is missing, the cost the refusal avoids, and the condition that reverses the decision.
 
 ## Core Ideas
 
@@ -64,10 +75,12 @@ struct TaskQuery: EntityQuery {
 ## Entity Design Rules
 
 - Treat `AppEntity` as a Shortcuts/system boundary, not as the real model object. If the app needs a SwiftData model, resolve the entity by stable `id` in the current `ModelContext`.
-- Store only primitive values, dates, ids, and display strings on entities. If an entity needs to refer to another model, store `profileID` and `profileName`, not `profile: ProfileEntity`.
+- Prefer primitive values, dates, ids, and display strings on entities. Use an entity-typed property only when the system needs that relationship. If an entity needs to refer to another model, store `profileID` and `profileName`, not `profile: ProfileEntity`.
 - Start with plain `EntityQuery`. Add `EntityStringQuery` only when search is required and verify generated metadata after adding it.
 - Keep `suggestedEntities()` conservative. For child values such as laps/results, prefer active-run/current-profile suggestions over global history.
 - Entity IDs do not have to be UUIDs. Use a `String` id when the selectable thing can be a domain candidate that is not persisted yet, such as a `"final"` lap.
+- Use an identifier that stays the same across launches. Never reuse an identifier for a different record. Never derive an identifier from an array index, a row position, or a display name, because a saved shortcut stores the identifier and would then resolve to whatever record later takes that place.
+- Return only the records that still exist from `entities(for:)`. Omit an identifier you cannot resolve. Never substitute a nearby record. The system then treats the value as unavailable, and the intent can report the missing item or prompt again.
 - Keep entity display independent of app-only formatting state. Shortcuts may render it without your SwiftUI environment.
 
 ## Intent Pattern
@@ -78,7 +91,7 @@ import AppIntents
 struct CompleteTaskIntent: AppIntent {
     nonisolated static let title: LocalizedStringResource = "Complete Task"
     nonisolated static let description = IntentDescription("Marks a task as done and returns the updated item.")
-    nonisolated static let openAppWhenRun = true
+    nonisolated static var supportedModes: IntentModes { .foreground }
 
     @Parameter(title: "Task", requestValueDialog: "Which task should I complete?")
     var task: TaskEntity
@@ -98,7 +111,9 @@ struct CompleteTaskIntent: AppIntent {
 }
 ```
 
-- **Parameters**: keep them few; provide `requestValueDialog` to make Siri prompts natural.
+- **Parameters**: keep them few. Make a value the action cannot work without a required, non-optional parameter. Give that parameter a `requestValueDialog`, and the system asks the user for it before `perform()` runs.
+- **Missing values**: never substitute a guessed or remembered default for a value the user did not supply. An optional parameter is not requested automatically. Call `try await $parameter.requestValue(...)` or `$parameter.requestDisambiguation(among:)` inside `perform()`, or throw `$parameter.needsValueError(...)`. Define the behavior for an optional value that stays nil.
+- **Callers that already know a value**: construct the same intent with that value from a widget, a Control, or a view, so no prompt appears. Do not add a second intent for the pre-filled path. A widget or Control cannot show a request-value prompt, so it must supply every value the action needs.
 - **Results**: return entities when the system should render the updated object. For mutation intents where return entities cause metadata complexity, a dialog-only `.result()` is acceptable.
 - **Dialogs**: use `ProvidesDialog` for expected conflicts and success states. Prefer a helpful dialog over throwing for normal user-facing conditions such as "already running".
 - **Isolation**: mark `perform()` or helpers `@MainActor` when touching SwiftData contexts, app settings, Live Activities, or UI-bound services. Mark static metadata `nonisolated` when Swift 6 isolation complains.
@@ -134,13 +149,14 @@ func perform() async throws -> some IntentResult & ProvidesDialog {
 
 @MainActor
 private func selectedBenchmarkLap(for run: BenchmarkRun) async throws -> BenchmarkLapEntity {
-    if let benchmarkLap {
-        return benchmarkLap
-    }
-
     let candidates = try SaveDecisionModule.snapshot(for: run)
         .candidates
         .map(BenchmarkLapEntity.init)
+
+    if let benchmarkLap,
+       let current = candidates.first(where: { $0.id == benchmarkLap.id }) {
+        return current
+    }
 
     return try await $benchmarkLap.requestDisambiguation(
         among: candidates,
@@ -150,15 +166,15 @@ private func selectedBenchmarkLap(for run: BenchmarkRun) async throws -> Benchma
 ```
 
 - Build disambiguation candidates after resolving the current run/profile. Do not rely on a global entity query for context-sensitive choices.
-- If the Shortcuts editor should show a dropdown, use `DynamicOptionsProvider` with `@IntentParameterDependency` on the parameters that define the context. Still keep runtime disambiguation as the final guard.
+- If the Shortcuts editor should show a dropdown, use `DynamicOptionsProvider` with `@IntentParameterDependency` on the parameters that define the context. At runtime, rebuild the scoped candidates. Accept a supplied entity only when its id is still present in that set. Otherwise disambiguate again.
 - Keep the entity identifier aligned with the domain candidate identifier so selected values map back to the save/resolve module without guessing.
 - Do not assume `requestValue` on an optional parameter will produce the desired editor or runtime behavior. Use `requestDisambiguation` when there are scoped candidates to choose from.
 
 ## Reusing Intents in SwiftUI
 
 - Prefer calling intents from UI so automation and in-app flows share one path.
-- Use `AppIntentButton` for direct, fire-and-forget actions.
-- Use `intentExecutor.perform(...)` when the view needs progress/error handling.
+- Use `Button(intent:)` or `Toggle(isOn:intent:)` for direct, fire-and-forget actions. Importing both `AppIntents` and `SwiftUI` makes these initialisers available. The system runs the intent and owns its result handling.
+- The system-run button does not expose progress or errors to the view. When the row must show in-flight state, an error alert, or navigation, call the intent with `callAsFunction(donate:)` inside your own `Button`. Do not reimplement the action against the service behind the intent's back.
 - Translate entity selections into view state by stable id. Do not copy entity fields into a SwiftData model object.
 
 ```swift
@@ -172,7 +188,7 @@ struct EventRow: View {
         HStack {
             Text(event.name)
             Spacer()
-            AppIntentButton(intent: UndoLastEventOccuranceIntent(event: event)) {
+            Button(intent: UndoLastEventOccuranceIntent(event: event)) {
                 Label("Undo", systemImage: "arrow.uturn.backward")
             }
         }
@@ -180,14 +196,13 @@ struct EventRow: View {
 }
 ```
 
-- For more control, invoke intents imperatively with the app intent executor:
+- When the row must own progress and errors, invoke the intent itself with `callAsFunction(donate:)`. It resolves parameters, runs `perform()`, and returns the result value, so the view keeps the single action path:
 
 ```swift
 import AppIntents
 import SwiftUI
 
 struct EventRow: View {
-    @Environment(\.intentExecutor) private var executor
     @State private var isWorking = false
     @State private var error: Error?
 
@@ -198,11 +213,12 @@ struct EventRow: View {
             Text(event.name)
             Spacer()
             Button {
+                guard !isWorking else { return }
                 Task {
                     isWorking = true
                     defer { isWorking = false }
                     do {
-                        try await executor.perform(UndoLastEventOccuranceIntent(event: event))
+                        _ = try await UndoLastEventOccuranceIntent(event: event)()
                     } catch {
                         self.error = error
                     }
@@ -227,9 +243,13 @@ struct EventRow: View {
 }
 ```
 
+- Return the app's own SwiftUI view as the intent result snippet with `.result(value:view:)`, which conforms the result to `ShowsSnippetView`. Do not rebuild a second copy of the layout for Siri and Shortcuts.
+- Put that shared view in a target or module that both the app and the intent build against.
+- A snippet renders outside the app's view hierarchy. Pass resolved values into the shared view. Remove `@Environment` app objects and `ModelContext` fetches from it.
+- Return the value alongside the snippet so a following Shortcuts action still receives it. A snippet built from `.result(value:view:)` is static; an interactive snippet needs a `SnippetIntent` on iOS 26 or later.
 - Keep the intent signature identical between Shortcuts and SwiftUI usage.
 - Avoid reimplementing service calls in views; route through the intent to keep analytics, validation, and side effects consistent.
-- If a view needs to navigate to a live SwiftData model after an intent returns, resolve the returned entity `id` in the view's `ModelContext`. If opaque `perform()` result typing makes that awkward, choose explicitly between `AppIntentButton`, `intentExecutor`, or a shared domain service used by both the intent and view. Do not create a second hidden implementation path.
+- If a view needs to navigate to a live SwiftData model after an intent returns, resolve the returned entity `id` in the view's `ModelContext`. If opaque `perform()` result typing makes that awkward, choose explicitly between `Button(intent:)` and `callAsFunction(donate:)`. Do not create a second hidden implementation path.
 
 ## Shortcuts Provider
 
@@ -255,8 +275,10 @@ struct TimelineShortcuts: AppShortcutsProvider {
 }
 ```
 
-- Call `TimelineShortcuts.updateAppShortcutParameters()` at app launch when shortcuts depend on dynamic app data.
-- Set `openAppWhenRun = true` for mutations that need the app process, app state, Live Activities, or foreground continuation.
+- Call `TimelineShortcuts.updateAppShortcutParameters()` at app launch when shortcuts depend on dynamic app data. Call it again from the code path that adds, renames, or deletes that data, or the phrase keeps offering the old values until the next launch.
+- Declare `supportedModes` for the execution the action needs. Use `.background` when the action finishes without app UI. Use `.foreground` to bring the app forward before the action runs. Use `.foreground(.dynamic)` when the action starts in the background and may need to continue in the foreground. A dynamic intent stays in the background until it calls `continueInForeground(_:alwaysConfirm:)` or throws `needsToContinueInForegroundError(_:alwaysConfirm:)`.
+- Adopt `LiveActivityIntent` for an action that starts or updates a Live Activity, so the action runs in the app process without opening the app.
+- `openAppWhenRun` is deprecated from iOS 26. Keep it only for deployment targets before iOS 26.
 - When changing an intent parameter type or entity graph, tell the user to delete and re-add existing Shortcuts actions. Existing actions can hold stale serialized entity tokens.
 
 ## Metadata And Cache Checks
@@ -276,17 +298,17 @@ Always verify the system-facing metadata, not just Swift compilation.
 3. Implement focused `AppIntent`s that call shared domain services or modules; keep expected conflicts in dialogs.
 4. Add context-aware prompting with `requestDisambiguation` for conditional choices.
 5. Expose shortcuts through `AppShortcutsProvider` and refresh dynamic parameters at launch.
-6. Reuse the same action path in SwiftUI via `AppIntentButton`, `intentExecutor`, or deliberate shared services.
+6. Reuse the same action path in SwiftUI via `Button(intent:)` or `callAsFunction(donate:)`.
 7. Validate build, App Intents metadata, installed simulator/device metadata, and Shortcuts cache behavior.
 8. Localize strings early (`LocalizedStringResource`) to keep Siri responses natural in all supported languages.
 
 ## Quick Checklist
 
-- [ ] Entity has stable `id`, `typeDisplayRepresentation`, rich `displayRepresentation`, and flat stored properties.
+- [ ] Entity has an identifier that is stable across launches and never reused, plus `typeDisplayRepresentation`, rich `displayRepresentation`, and flat stored properties.
 - [ ] Child/contextual entity suggestions are scoped to the current run/profile, not global history.
 - [ ] Queries are fast, cancellable, and start as plain `EntityQuery` unless search is required.
 - [ ] Intent reuses shared domain services; no duplicated business logic.
-- [ ] Parameters are minimal and phrased with `requestValueDialog` where helpful.
+- [ ] Parameters are minimal; a required value is non-optional with a `requestValueDialog`, and no missing value is guessed.
 - [ ] Conditional choices use `requestDisambiguation` with context-built candidates.
 - [ ] Results return entities only when the metadata graph stays simple and useful.
 - [ ] `AppShortcutsProvider` is registered; dynamic parameters refresh on launch when needed.

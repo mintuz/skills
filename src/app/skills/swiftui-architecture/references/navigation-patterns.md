@@ -2,6 +2,8 @@
 
 Comprehensive guide to navigation using AppRouter for SwiftUI apps on iOS 17+.
 
+AppRouter is an external Swift package. Add it to the project before you use these patterns. Use SwiftUI's own `NavigationStack` with typed destinations when the project does not depend on AppRouter.
+
 Terminology: use “AppRouter” for the library, and “router” for an instance.
 
 ## Core Concepts

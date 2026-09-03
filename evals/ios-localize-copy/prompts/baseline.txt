@@ -1,0 +1,7 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Use only general iOS localization
+judgement; do not load, search for, or use any installed skill. Respond directly
+to the request using only facts supplied in the scenario.
+
+Scenario:
+{{scenario}}

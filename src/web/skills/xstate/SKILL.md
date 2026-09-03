@@ -21,7 +21,7 @@ Each of the following is a lifecycle already being modelled by hand:
 - a `pointerdown`, `dragstart`, or gesture handler that binds listeners to the document and must unbind them;
 - handling for a response that arrives after cancel, replacement, or unmount.
 
-Any one of them is the entry point to step 1, however small the request, and whether or not the file imports `xstate`.
+Any one of them is the entry point to step 1, however small the request, and whether or not the file imports `xstate`. When the code already exists, name each defect it has today and the wrong behaviour a user would see, before you propose the machine that removes it.
 
 For a visualisation-only request, inspect the current machine source and go to step 6 instead.
 

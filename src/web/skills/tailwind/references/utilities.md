@@ -71,11 +71,21 @@ export const transition = "transition-colors duration-200";
 
 ## Installation
 
+Install these packages only when the project does not already provide `clsx`
+and `tailwind-merge`, and the requester asks for them or accepts the dependency.
+Do not add either package on your own initiative; plain string joining is the
+dependency-free equivalent.
+
 ```bash
 yarn add clsx tailwind-merge
 # or
 pnpm add clsx tailwind-merge
 ```
+
+When you cannot add a dependency, join class strings with plain JavaScript, for
+example `[base, variantClasses, className].filter(Boolean).join(" ")`. Such a
+join does not resolve conflicts, so make sure the strings you join do not set
+the same property twice.
 
 ## TypeScript Support
 

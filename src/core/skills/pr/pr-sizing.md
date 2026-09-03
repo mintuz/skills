@@ -6,9 +6,11 @@ How to assess pull request size and decide whether to split into smaller PRs.
 
 | Size   | Files Changed | Lines Changed | Approach                                             |
 | ------ | ------------- | ------------- | ---------------------------------------------------- |
-| Small  | 1-3 files     | < 100 lines   | Summary + Changes + Testing checklist                |
-| Medium | 4-15 files    | 100-500 lines | Full template with context and manual testing steps  |
-| Large  | 15+ files     | 500+ lines    | Consider splitting; if unavoidable, add risk section |
+| Small  | 1-3 files     | 1-100 lines   | Summary + Changes + Testing checklist                |
+| Medium | 4-15 files    | 101-500 lines | Full template with context and manual testing steps  |
+| Large  | 16+ files     | 501+ lines    | Consider splitting; if unavoidable, add risk section |
+
+Use the largest category that either the file count or the line count reaches. A 2-file, 600-line change is large.
 
 ## Signs a PR Should Be Split
 

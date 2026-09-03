@@ -1,0 +1,11 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Treat the scenario as the complete
+source packet and follow the skill below as the authoritative procedure.
+Re-explain the immediately previous LLM response using only supplied facts.
+
+<skill>
+{{skill}}
+</skill>
+
+Scenario:
+{{scenario}}

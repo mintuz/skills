@@ -1,0 +1,177 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: ChatGPT Apps SDK skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the ChatGPT app design reaches every required outcome
+        for this scenario. Give equal weight to every outcome below. Credit
+        explicit, scenario-specific boundaries and failure semantics. Do not
+        reward verbosity, copied rubric wording, or invented platform behavior.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Make a charged-order tool replay-safe across tenants and restarts
+    vars:
+      skill: file://../../src/web/skills/chatgpt-app-sdk/SKILL.md
+      reference: file://../../src/web/skills/chatgpt-app-sdk/references/mcp-server.md
+      scenario: |-
+        Design the MCP server boundary for a public `charge_order` tool. The model
+        or widget may retry the same invocation concurrently or after the server
+        restarts. Every original user action supplies a stable `requestId`.
+        `orderId`, `accountId`, and `amount` can all be forged by the caller; the
+        authenticated account comes from the server's OAuth context. The payment
+        provider accepts an idempotency key.
+
+        Return the input contract, handler flow, response partition, and the
+        smallest boundary checks that prove the design. Do not add a queue or a
+        new service.
+      rubric: |-
+        - Validates a stable `requestId` and `orderId` at the tool boundary, derives the account and charge amount from authenticated server-owned data, and verifies order ownership before charging; caller-supplied `accountId` or `amount` is never authoritative.
+        - Uses a durable idempotency record uniquely scoped to the authenticated account, operation, and `requestId`, stores an input fingerprint and terminal result, and coordinates it transactionally with the charge transition or the provider idempotency key so concurrent calls and process restarts cannot double-charge.
+        - Replays the stored result for the same key and same fingerprint, but returns an explicit conflict for the same key with changed arguments; it does not use wall-clock time or an in-memory map as the idempotency identity or source of truth.
+        - Keeps model-needed status and identifiers concise in `structuredContent`, places only widget-needed non-secret presentation data in `_meta`, and returns expected conflicts as user-safe content without credentials, provider internals, or stack traces.
+        - Proves the boundary with focused checks for concurrent duplicates, replay after restart, key reuse with changed arguments, and cross-account order access, while preserving one handler rather than adding speculative infrastructure.
+
+  - description: Keep credentials and private case data out of widget persistence
+    vars:
+      skill: file://../../src/web/skills/chatgpt-app-sdk/SKILL.md
+      reference: file://../../src/web/skills/chatgpt-app-sdk/references/state-management.md
+      scenario: |-
+        Design the payload and state boundaries for a customer-support widget.
+        The server has an OAuth access token, 500 cases containing customer email
+        addresses and internal audit notes, and a model-safe summary containing
+        total count plus three case titles. The widget needs a paginated view of
+        cases the signed-in agent may see and must retain only its selected case,
+        page, and sort order between renders. A teammate proposes returning the
+        token, full cases, and error stack in `_meta`, then copying all cases into
+        widget state so refreshes are instant.
+
+        Return the server response shape, widget state shape, authorization and
+        error boundaries, and focused checks. Use the existing MCP server and
+        widget; do not add a client-side credential store.
+      rubric: |-
+        - Keeps the OAuth token out of `structuredContent`, `content`, `_meta`, widget state, and browser code entirely; `_meta` is widget-visible transport, not a secret store.
+        - Authorizes every case query on the server for the authenticated agent, minimizes the widget-visible case fields to what that agent and view need, and keeps internal audit notes out unless an explicitly authorized UI requirement needs them.
+        - Returns only the total and three safe titles in concise model-visible `structuredContent`, while `_meta` carries only the authorized page or opaque retrieval data needed by the widget rather than all 500 cases.
+        - Persists only selected case ID, page, and sort order in widget state, with business data remaining server-owned and refreshed through the tool; it does not copy credentials, cases, email addresses, or audit notes into model-visible widget persistence.
+        - Maps expected failures to safe user-facing content and an opaque correlation code, logs technical details server-side without returning stack traces, and checks unauthorized access plus payload and widget-state redaction.
+
+  - description: Reject a bulk _meta dump in favour of an authorized projection
+    vars:
+      skill: file://../../src/web/skills/chatgpt-app-sdk/SKILL.md
+      reference: file://../../src/web/skills/chatgpt-app-sdk/references/mcp-server.md
+      scenario: |-
+        A `usage_report` MCP tool loads 4,000 telemetry rows for the signed-in
+        workspace. The widget renders one 50-row page at a time with client-side
+        sorting, plus a chart of 30 daily totals that the server already computes.
+        Each row also carries an `internalCostCents` field that only finance staff
+        may see, and the signed-in user is not finance staff.
+
+        A teammate proposes: put all 4,000 rows in `_meta.initialData` "because
+        `_meta` never reaches the model, so it is private", and copy the same rows
+        into widget state so sorting never needs another round trip.
+
+        Return the tool response shape, the widget state shape, and the paging
+        boundary. Keep one tool and one widget; do not add a new service.
+      rubric: |-
+        - Rejects the teammate's premise that `_meta` is private, and puts only data this signed-in user is authorized to see into `_meta`.
+        - Drops `internalCostCents` from every payload that leaves the server for this user, rather than sending it and hiding it in the widget.
+        - Sends only the currently rendered page of rows plus the 30 precomputed daily totals in `_meta`, and gets later pages through another tool call using an opaque cursor or page argument instead of shipping all 4,000 rows at once.
+        - Keeps `structuredContent` to a concise model-readable summary such as row count and date range, rather than row data or the 30-point chart series, and keeps widget state to page, sort order, and selection identifiers.
+        - Does not invent an Apps SDK field, transport, or privacy guarantee beyond the supplied packet, and does not add a queue, cache service, or second widget.
+
+  - description: Decline to invent platform APIs for out-of-scope requirements
+    vars:
+      skill: file://../../src/web/skills/chatgpt-app-sdk/SKILL.md
+      reference: file://../../src/web/skills/chatgpt-app-sdk/references/ui-components.md
+      scenario: |-
+        Assume the ChatGPT app platform gives you exactly this and nothing more:
+        an MCP server you control, with its own OAuth login and database; tools on
+        that server that the model or the widget can invoke during a conversation;
+        a widget that ChatGPT renders as an iframe inside the conversation while
+        the user is looking at it; and a small widget state object that survives
+        re-renders of that widget.
+
+        A product manager asks for a ChatGPT app with four requirements:
+
+        1. The widget keeps polling a job every 10 minutes after the user closes
+           the conversation, and shows the result next time.
+        2. The widget writes the user's stated dietary preference into ChatGPT's
+           long-term memory so other conversations pick it up.
+        3. The widget sends the user a push notification when the job finishes.
+        4. The widget shows the user's saved delivery address when the app opens.
+
+        Say which requirements this platform surface supports and which it does
+        not. For each unsupported one, give the closest supported alternative.
+        Do not design the full app.
+      rubric: |-
+        - Separates the four requirements into supported and unsupported, and gives a per-requirement verdict rather than one blanket answer.
+        - States that the widget only runs while ChatGPT renders it, so requirements 1 and 3 cannot be met by widget code; any waiting or notifying work belongs to the MCP server or another system outside the widget lifecycle.
+        - Treats requirement 2 as unsupported by the described surface and offers server-side per-user storage behind the app's own authenticated account as the alternative, instead of a ChatGPT memory API.
+        - Treats requirement 4 as supported through the MCP server returning the address for the authenticated user in the tool response, and does not propose storing the address in widget state as the source of truth.
+        - Names no ChatGPT background-execution hook, no push-notification API, and no ChatGPT memory-write API, and says plainly that the described platform offers no such mechanism instead of guessing one.
+
+  - description: Resolve a wizard whose retained state conflicts with model context
+    vars:
+      skill: file://../../src/web/skills/chatgpt-app-sdk/SKILL.md
+      reference: file://../../src/web/skills/chatgpt-app-sdk/references/state-management.md
+      scenario: |-
+        Design the state and display boundaries for an eight-step insurance quote
+        wizard. Users move back and forth between steps over several minutes and
+        must be able to resume after leaving the conversation and returning.
+
+        The product manager asks for all eight steps of answers, plus a base64
+        preview of an uploaded 2 MB damage photo, to be held in widget state so
+        that going back a step is instant. The same product manager also wants the
+        model to answer follow-up questions such as "which cover did I pick?" and
+        "how much is the excess?" after the wizard finishes.
+
+        The MCP server already has a `save_quote_step` tool and a database. Return
+        the display mode, the widget state shape, the server response shape, and
+        how resume works. Do not add a new service.
+      rubric: |-
+        - Chooses fullscreen for the multi-step wizard and justifies the choice by the workflow shape rather than by preference.
+        - Keeps the eight steps of answers and the base64 photo preview out of widget state, and identifies widget state as model-visible context rather than private client storage.
+        - Puts the answers and the uploaded photo in server-owned storage through `save_quote_step`, and keeps widget state to a small set such as quote identifier, current step, and view preferences.
+        - Makes resume work by re-fetching the saved quote from the server on the next tool call, and reapplying the small retained widget state on top, rather than by restoring answers from the widget.
+        - Returns the chosen cover and excess as concise fields in model-readable `structuredContent` so follow-up questions are answerable, without also sending the photo, full step history, or unrelated internal quote fields to the model.

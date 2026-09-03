@@ -7,7 +7,7 @@ description: >
 
 # App Store Scraper
 
-Comprehensive toolkit for retrieving structured data from Apple's App Store and iTunes APIs using curl and jq. All endpoints return JSON that can be parsed and formatted for analysis.
+Comprehensive toolkit for retrieving structured data from Apple's App Store and iTunes APIs using curl and jq. The API endpoints return JSON that can be parsed and formatted for analysis. The similar-apps page returns HTML.
 
 ## Quick Start
 
@@ -15,10 +15,10 @@ Comprehensive toolkit for retrieving structured data from Apple's App Store and 
 - `curl` for HTTP requests
 - `jq` for JSON parsing and formatting
 
-**Example:**
+**Example (field selection only; scripts must run the Retrieval Validation gates first):**
 ```bash
 # Get app details
-curl -s "https://itunes.apple.com/lookup?id=553834731&entity=software" | \
+curl -fsS "https://itunes.apple.com/lookup?id=553834731&entity=software" | \
   jq '.results[0] | {name: .trackName, rating: .averageUserRating}'
 ```
 
@@ -134,7 +134,7 @@ Requires HTML parsing, less reliable:
 
 | Endpoint | Description | File |
 |----------|-------------|------|
-| **Similar Apps** | Find related apps (web scraping) | [endpoints/similar.md](endpoints/similar.md) |
+| **Similar Apps** | Read the "You Might Also Like" section only; label category/developer discovery as proxies | [endpoints/similar.md](endpoints/similar.md) |
 
 ## Common Use Cases
 
@@ -189,7 +189,7 @@ See: [App Lookup](endpoints/app-lookup.md) → [Developer Apps](endpoints/develo
 ### Essential Parameters
 
 - **country** - Market code (default: `us`)
-- **entity** - Always use `software` for apps
+- **entity** - `software` for iOS apps, `macSoftware` for macOS apps; the result's `kind` is `software` or `mac-software`. The endpoint examples target iOS. For a macOS app, substitute `entity=macSoftware` and check `kind == "mac-software"`
 - **limit** - Max results (varies by endpoint)
 - **lang** - Language preference (e.g., `en-US`, `ja-JP`)
 
@@ -207,6 +207,8 @@ See: [App Lookup](endpoints/app-lookup.md) → [Developer Apps](endpoints/develo
 
 ### Common Commands
 
+Field-selection shortcuts. In a script, run the Retrieval Validation gates first (Best Practice 1).
+
 ```bash
 # Get app by ID
 curl -s "https://itunes.apple.com/lookup?id=553834731&entity=software" | jq '.results[0]'
@@ -223,18 +225,19 @@ curl -s "https://itunes.apple.com/us/rss/customerreviews/page=1/id=553834731/sor
 
 ## Best Practices
 
-1. **Validate responses** before processing with `jq empty`
-2. **Implement caching** to reduce API load
-3. **Add rate limiting** (1-2s between requests)
-4. **Batch requests** when possible using comma-separated IDs
-5. **Handle errors gracefully** with retries and fallbacks
+1. **Validate responses** before you extract fields. For every endpoint: transport (`curl -fsS`). For every JSON endpoint: exactly one JSON object (`jq -es 'length == 1 and (.[0] | type == "object")'`); for the similar-apps HTML page: the `similarItems` section is present. Then apply the endpoint's own checks: for lookups, non-zero `resultCount` and an identity and `kind` match; for search, zero results is a valid empty result; for the reviews feed, a missing `entry` key is the end of the data. Stop at the first failed check and report a distinct status per failure class. See [Retrieval Validation](endpoints/app-lookup.md#retrieval-validation)
+2. **Encode free-text values** such as search terms and bundle IDs with `curl -G --data-urlencode`. Numeric IDs, page numbers, and country codes contain no reserved characters, so they are safe in the URL as literals or as shell variables
+3. **Implement caching** to reduce API load
+4. **Add rate limiting** (1-2s between requests)
+5. **Batch requests** when possible using comma-separated IDs
+6. **Handle errors gracefully** with retries and fallbacks
 
 ## API Limitations
 
 - **Rate limiting**: No official limits, but be respectful (1-2s between requests)
 - **Pagination**: Limited on some endpoints (max 200 results for search)
 - **History**: Only current version data available via API
-- **Web scraping**: Required for similar apps (unreliable, structure may change)
+- **Similar apps**: Only IDs inside the page's "You Might Also Like" section qualify. Report unavailable when that section cannot be found; category and developer discovery are separate proxies.
 
 ## External Resources
 

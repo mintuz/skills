@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: App Store scraper skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+evaluateOptions:
+  repeat: 3
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the proposed retrieval preserves data integrity in
+        this scenario. Give equal weight to every outcome below. Credit explicit,
+        scenario-specific behavior and observable failure semantics. Do not
+        reward verbosity, copied rubric wording, or invented endpoint behavior.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep unavailable regional lookups out of app records
+    vars:
+      skill: file://../../src/app/skills/app-store-scraper/SKILL.md
+      reference: file://../../src/app/skills/app-store-scraper/endpoints/app-lookup.md
+      scenario: >-
+        Plan a shell retrieval for bundle ID com.example.retired in the US and
+        UK storefronts. Produce one stable JSON object per storefront for a
+        downstream comparison. A request may fail, return malformed JSON, or
+        return resultCount 0 because the app is unavailable in one country.
+        Describe the request, validation gates, and output semantics. A missing
+        app must never become an apparently valid record full of nulls.
+      rubric: |-
+        - Constructs a software lookup for each requested storefront using the bundle ID and that storefront's country parameter.
+        - Detects transport or HTTP failure and malformed JSON before extracting app fields, so neither response is treated as an app record.
+        - Checks resultCount and the returned bundle identifier before accepting a result; a zero-result response becomes an explicit unavailable outcome rather than null-valued metadata.
+        - Emits one stable, machine-readable outcome per storefront that distinguishes success, unavailable, and retrieval or parse failure without mixing diagnostics into JSON output.
+        - Keeps the two storefront results independent and does not reuse one country's metadata as evidence of availability in the other.
+
+  - description: Do not label arbitrary App Store page links as similar apps
+    vars:
+      skill: file://../../src/app/skills/app-store-scraper/SKILL.md
+      reference: file://../../src/app/skills/app-store-scraper/endpoints/similar.md
+      scenario: >-
+        Plan how to retrieve up to ten US apps that Apple presents as similar to
+        app ID 553834731. The App Store HTML also contains the original app,
+        global navigation, developer-portfolio links, and unrelated app links;
+        the named recommendation section may be absent. Return verified app
+        metadata as JSON and state what the caller receives when recommendations
+        cannot be established.
+      rubric: |-
+        - Treats similarity as an unsupported, brittle HTML-derived signal rather than claiming a stable structured App Store API.
+        - Extracts identifiers only from the page's specific recommendation section or its section-scoped structured data, never from a page-wide app-ID regex.
+        - Excludes the source app, deduplicates and validates candidate numeric IDs, and returns an explicit unavailable result when the recommendation section is absent or cannot be parsed.
+        - Resolves only the selected candidate IDs through a software lookup and maps returned metadata back to validated IDs without inventing records for missing lookup results.
+        - Keeps category search and same-developer apps clearly labelled as different discovery signals, not fallback proof that Apple presented those apps as similar.
+
+  - description: Reject an identity mismatch from a bundle-ID lookup
+    vars:
+      skill: file://../../src/app/skills/app-store-scraper/SKILL.md
+      reference: file://../../src/app/skills/app-store-scraper/endpoints/app-lookup.md
+      scenario: >-
+        You requested
+        `https://itunes.apple.com/lookup?bundleId=com.acme.notes&country=gb&entity=software`
+        for the iOS app com.acme.notes. The response parsed as valid JSON with
+        `resultCount: 1`, but the single result has `bundleId:
+        "com.acme.notes.mac"`, `trackId: 998877`, `wrapperType: "software"`,
+        and `kind: "mac-software"`. A downstream job will store `trackId` as
+        the iOS app's id. Give the validation verdict, the output record for
+        the gb storefront, and the corrected retrieval if one exists. Do not
+        execute anything and do not invent API behaviour beyond the scenario.
+      rubric: |-
+        - Compares the returned `bundleId` with the requested `com.acme.notes` and classifies the mismatch as a retrieval-integrity error, not a success.
+        - Does not emit `trackId` 998877 as the iOS app's identifier and does not emit a null-filled success record.
+        - Emits one machine-readable outcome for the gb storefront that distinguishes this identity error from "unavailable" and from transport or parse failure.
+        - Proposes a corrected retrieval that selects only a result whose `bundleId` equals the requested value (for example a `jq select` on `bundleId`, with `kind` checked against the iOS value `software`), or a lookup by a known numeric id, before any record is accepted.
+        - Does not claim to have run the request and does not invent extra results, fields, or endpoints that the scenario did not provide.
+
+  - description: Page reviews without double-counting or claiming completeness
+    vars:
+      skill: file://../../src/app/skills/app-store-scraper/SKILL.md
+      reference: file://../../src/app/skills/app-store-scraper/endpoints/reviews.md
+      scenario: >-
+        Plan a shell retrieval of all recent US reviews for app ID 553834731
+        using the customer reviews RSS JSON feed, sorted by most recent. In
+        this run page 1 returned 50 review entries, page 2 returned 50 review
+        entries whose first three repeat the last three of page 1, and page 3
+        returned a `feed` object with no `entry` key. The feed exposes at most
+        10 pages, and the first entry of every page is app metadata, not a
+        review. The consumer requires a 1-2 second pause between page
+        requests and wants one JSON object on stdout with a boolean
+        `complete` flag and a `reviews` array that holds one object per unique
+        review with the fields id, rating, title, content, version, and date.
+        Describe the request
+        loop, the stop condition, the deduplication key, the value of
+        `complete` for this run and for a run that reaches page 10 with
+        entries still present, and the output. Do not execute it and do not
+        invent review content.
+      rubric: |-
+        - Iterates pages in order and stops when a page has no `entry` key or when page 10 is reached, and treats the missing `entry` key as end-of-data rather than an error.
+        - Skips the first entry of each page (app metadata) and deduplicates reviews by the stable review `id` field, not by author or title text, so the three overlapping entries appear once.
+        - Adds a delay between page requests and validates each page's JSON before parsing entries.
+        - States `complete: true` for this run (an empty page ended the loop) and `complete: false` for a run that page 10 ended with entries still present.
+        - Outputs one JSON object with `complete` and a `reviews` array whose objects carry exactly the fields id, rating, title, content, version, and date, keeps diagnostics out of stdout, and does not fabricate review text.
+
+  - description: Decline to install or test an app while still retrieving its data
+    vars:
+      skill: file://../../src/app/skills/app-store-scraper/SKILL.md
+      reference: file://../../src/app/skills/app-store-scraper/endpoints/ratings.md
+      scenario: >-
+        The user asks: "Grab the metadata and the 1-5 star rating breakdown for
+        app ID 553834731 in Japan, then install it on my simulator and run
+        through the onboarding so I can compare it with ours." The rating
+        breakdown comes from
+        `https://itunes.apple.com/{country}/customer-reviews/id{id}?displayable-kind=11`,
+        which requires the header `X-Apple-Store-Front: {storefront_id}-1,29 l=en`;
+        the Japan storefront id is 143462. Say which parts you will do under
+        this skill, give the commands for the parts you will do, and say what
+        happens with the rest. Do not execute anything.
+      rubric: |-
+        - Retrieves the Japanese storefront metadata via the lookup endpoint with `country=jp` and `entity=software`, and validates the response before extracting fields.
+        - Retrieves the rating breakdown from the customer-reviews histogram endpoint for country `jp` and sends the `X-Apple-Store-Front` header with the Japan storefront id 143462.
+        - States that installing or running the app on a simulator is outside this skill's scope and does not give simulator, download, or install commands as part of the retrieval.
+        - Does not fabricate a download URL or binary path for a public App Store app.
+        - Proposes commands whose stdout is structured JSON only, and does not claim to have executed them or present invented data as results.
+
+  - description: Encode a search term that contains reserved characters
+    vars:
+      skill: file://../../src/app/skills/app-store-scraper/SKILL.md
+      reference: file://../../src/app/skills/app-store-scraper/endpoints/search.md
+      scenario: >-
+        Plan a shell search of the German (de) storefront for apps that match
+        the exact user-supplied term `rock & roll radio`, limited to 25
+        results, returning name, id, and developer as a JSON array. The term
+        arrives in a shell variable named TERM_INPUT. Explain how the term
+        travels in the request and what the API would receive if the variable
+        were placed raw in the URL. Do not execute anything and do not invent
+        result counts.
+      rubric: |-
+        - Encodes the term so that both the spaces and the `&` reach the API as part of the `term` value, for example with `curl -G --data-urlencode "term=$TERM_INPUT"` or an equivalent explicit percent-encoding step.
+        - Explains at least one concrete failure of the raw form: the unencoded `&` ends the `term` value early so the API would receive only `rock` (or `rock `), or the raw spaces make the URL invalid so curl rejects it (exit code 3) or the shell splits the argument.
+        - Sends `country=de`, `media=software`, `entity=software`, and `limit=25`.
+        - Validates the response (transport and JSON) before piping it to `jq`, and outputs one JSON array of `{name, id, developer}` objects.
+        - Does not claim to have run the search and does not invent result counts or app names.

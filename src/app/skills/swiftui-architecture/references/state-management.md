@@ -127,7 +127,12 @@ struct ItemListView: View {
 
 ### Keep State Close to Usage
 
-Don't lift state unnecessarily. Only promote state to a parent or shared manager when multiple views need it.
+Two moves are available, and they are not the same move.
+
+1. Lift the value to the nearest common ancestor of the views that read it. Keep it in `@State` there. Pass it down as an argument or a `@Binding`. Two sibling views under one parent need only this move.
+2. Move the value into a shared `@Observable` service. Do this when the value must outlive that ancestor view, when it is domain state that unrelated features read, or when passing it down would thread it through views that do not use it.
+
+A value in a shared service takes the service's lifetime. It therefore stays set after the screen closes. Every view that reads it is invalidated when it changes, including a view that shows it only incidentally. The service also grows concerns that belong to one screen, which makes its ownership and its tests harder to follow.
 
 **WRONG - Premature lifting:**
 

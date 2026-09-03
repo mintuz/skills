@@ -121,10 +121,10 @@ Manage persisted widget state with bidirectional sync to `window.openai.widgetSt
 
 ```typescript
 // With required default (state guaranteed non-null)
-useWidgetState<T>(defaultState: T | (() => T)): readonly [T, (state: T) => void]
+useWidgetState<T>(defaultState: T | (() => T)): readonly [T, (state: SetStateAction<T>) => void]
 
 // With optional default (state may be null)
-useWidgetState<T>(defaultState?: T | (() => T)): readonly [T | null, (state: T | null) => void]
+useWidgetState<T>(defaultState?: T | (() => T)): readonly [T | null, (state: SetStateAction<T | null>) => void]
 ```
 
 **Implementation:**
@@ -431,8 +431,8 @@ function DataVisualization() {
   // Server data (concise, model-readable)
   const summary = toolOutput?.summary;
 
-  // Widget data (comprehensive, from _meta)
-  const fullDataset = metadata?.initialData?.records ?? [];
+  // Widget data (the authorised page, from _meta)
+  const pageRecords = metadata?.initialData?.records ?? [];
 
   const [uiState, setUiState] = useWidgetState({
     chartType: "bar",
@@ -443,7 +443,7 @@ function DataVisualization() {
     <div>
       <p>{summary}</p>
       <Chart
-        data={fullDataset}
+        data={pageRecords}
         type={uiState.chartType}
         groupBy={uiState.groupBy}
       />
@@ -507,7 +507,7 @@ const [state, setState] = useWidgetState({
 // BAD - Large dataset
 const [state, setState] = useWidgetState({
   selectedId: 2,
-  allTasks: [...1000 tasks...], // Store in _meta instead
+  allTasks: [...1000 tasks...], // Server-owned; send the rendered page in _meta
   fullHistory: [...] // Too large for widget state
 });
 ```
@@ -541,14 +541,20 @@ useEffect(() => {
 }, [tasks]);
 ```
 
-### Don't: Store Sensitive Data in Widget State
+### Don't: Put Secrets in Widget State or `_meta`
 
-Widget state is visible to the model:
+Treat widget state as model-visible. `_meta` reaches the widget in the user's browser.
+Neither is a secret store. Keep every credential on the MCP server and call the
+third-party API from there. See the payload boundary rule in
+[SKILL.md](../SKILL.md).
 
 ```typescript
-// GOOD - Use metadata for sensitive data
-const apiKey = useOpenAiGlobal("toolResponseMetadata")?.apiKey;
+// GOOD - the server holds the key and returns only the result
+const rate = useOpenAiGlobal("toolOutput")?.exchangeRate;
 
-// BAD - Exposed to model
+// BAD - the model reads widget state
 const [state, setState] = useWidgetState({ apiKey: "secret" });
+
+// BAD - _meta is delivered to the browser
+const apiKey = useOpenAiGlobal("toolResponseMetadata")?.apiKey;
 ```

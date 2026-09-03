@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the decision-trace skill description.
+# Run it from the repo root with:
+#   pnpm test:skills:triggers -- decision-trace
+# which refreshes the git-ignored fixture from src/ first.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: decision-trace skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a handover delivery-status claim
+    vars:
+      request: >-
+        The handover doc from last night says "pass 2 of the migration is not
+        dispatched; PR #1086 is open awaiting review." Give me the current
+        status of pass 2 before standup.
+    assert:
+      - type: skill-used
+        value: decision-trace
+
+  - description: Activates on a meeting decision traced to a PR
+    vars:
+      request: >-
+        In Tuesday's planning call we decided exports run nightly. Trace that
+        decision through the spec, the issue, and PR #61 and tell me where
+        the lineage breaks.
+    assert:
+      - type: skill-used
+        value: decision-trace
+
+  - description: Does not activate for a meeting summary
+    vars:
+      request: >-
+        Summarise this transcript of Tuesday's planning call into five bullet
+        points for people who missed it.
+    assert:
+      - type: not-skill-used
+        value: decision-trace
+
+  - description: Does not activate for an implementation verdict on a diff
+    vars:
+      request: >-
+        Here is the diff for PR #77 and the spec section it implements. Tell
+        me whether the code satisfies the spec so I can approve it.
+    assert:
+      - type: not-skill-used
+        value: decision-trace

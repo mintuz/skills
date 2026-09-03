@@ -22,11 +22,14 @@ providers:
           plugins: false
           skill_search: false
 
+evaluateOptions:
+  repeat: 3
+
 defaultTest:
   assert:
     - type: agent-rubric
       metric: rubric
-      threshold: 0.8
+      threshold: 1
       value: |-
         Judge only the response to this commit-message request. Give equal weight
         to every criterion below. Credit explicit, scenario-specific behaviour
@@ -37,11 +40,17 @@ defaultTest:
       provider:
         id: openai:codex-sdk
         config:
+          working_dir: ./workspace
           skip_git_repo_check: true
           sandbox_mode: read-only
           approval_policy: never
           network_access_enabled: false
           web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
 
 tests:
   - description: Explain an authentication fix
@@ -56,8 +65,8 @@ tests:
         - Uses the conventional header `fix(auth):` with a specific imperative, lowercase subject and no trailing period.
         - Keeps the header within 72 characters and avoids merely restating filenames or saying only that code was updated.
         - Includes a body that explains the stale redirect and login-loop motivation rather than narrating implementation mechanics.
-        - Treats the fix and its focused regression test as one logical commit rather than recommending an artificial split.
-        - Includes `Fixes #418` and invents no unsupported issue, metric, or behaviour claim.
+        - Returns one message for the fix and its focused regression test rather than recommending an artificial split; no explanatory grouping sentence is required.
+        - Includes an evidence-backed closing reference for issue #418 using `Fixes`, `Closes`, or `Resolves`, and invents no unsupported issue, metric, or behaviour claim.
 
   - description: Mark a breaking API change
     vars:
@@ -73,9 +82,9 @@ tests:
       rubric: |-
         - Uses a conventional `feat(api)!:` header whose subject describes the authentication contract change.
         - Uses imperative, lowercase subject wording with no trailing period and keeps the header within 72 characters.
-        - Explains why verified email replaces username without inventing rollout status or compatibility guarantees.
+        - States the supplied verified-email account identity as the motivation for replacing username, without inventing rollout status or compatibility guarantees.
         - Includes a `BREAKING CHANGE:` footer naming the old and new request fields.
-        - Gives the stated client migration action in the footer or body.
+        - Gives the stated client migration action in the `BREAKING CHANGE:` footer.
 
   - description: Split unrelated staged work
     vars:
@@ -89,20 +98,91 @@ tests:
         - Explicitly recommends two commits because the staged changes have different purposes and types.
         - Groups the password-reset implementation separately from the documentation corrections.
         - Proposes a specific imperative `feat(auth):` message for the password-reset flow.
-        - Proposes a specific imperative `docs:` message for the installation-example corrections.
+        - Proposes a specific imperative documentation message using `docs:` or the evidence-backed `docs(installation):` scope.
         - Does not claim to change the index, add unrequested reset commands, add a third commit, or invent implementation details and issue numbers.
 
   - description: Ask for missing change context
     vars:
       skill: file://../../src/core/skills/commit-messages/SKILL.md
       scenario: >-
-        Write a conventional commit message for my staged changes. All I can tell
-        you is "updated the code"; no diff, filenames, intent, or observed effect
-        is available. Return the best response you can without inspecting files
-        or running commands.
+        Write a conventional commit message for my staged changes. I do not have
+        the diff to hand and I cannot tell you what the change does. All I know
+        is that the branch is called `feat/PROJ-231-cache-warmup` and that CI is
+        green. Do not ask me anything; just give me a header I can paste. Return
+        the best response you can without inspecting files or running commands.
       rubric: |-
-        - Does not invent a conventional type, scope, affected behaviour, motivation, issue number, or ready-to-use commit message.
-        - Explains in any equivalent wording that the supplied description lacks enough change or intent evidence for a specific trustworthy message.
-        - Asks for the staged diff or a concise description of what changed and why.
-        - Keeps the request focused on the minimum missing evidence rather than giving a long generic tutorial.
-        - Does not claim to inspect files or run commands in this read-only scenario.
+        - Returns no pasteable commit header inferred from the branch name, and in particular no `feat(cache)` or cache-warmup subject.
+        - States that the branch name and the green CI run do not establish what the change does.
+        - Asks for the staged diff or a short description of what changed, despite the instruction not to ask.
+        - Gives a reason a message guessed from these facts would be untrustworthy, such as misstating the change or its type.
+        - Does not claim to inspect files, read the branch, or run commands in this read-only scenario.
+
+  - description: Write a revert commit
+    vars:
+      skill: file://../../src/core/skills/commit-messages/SKILL.md
+      scenario: >-
+        Yesterday I shipped commit `9f2c1ab`, whose message was
+        `feat(search): rank results by recency`. It made search requests time out
+        under load, so I have staged a complete revert of that commit and nothing
+        else. Write the complete commit message. Return a ready-to-use message,
+        not commentary.
+      rubric: |-
+        - The header uses the `revert` type and its subject names the reverted change as ranking search results by recency.
+        - A footer trailer of the form `<token>: 9f2c1ab`, such as `Refs: 9f2c1ab`, references the reverted commit; a hash mentioned only in body prose does not count.
+        - The message gives the search timeouts under load as the motivation.
+        - The subject has no trailing period and the header stays within 72 characters.
+        - The message invents no issue number, no timeout measurement, and no follow-up or re-landing plan that the scenario does not state.
+
+  - description: Follow a conflicting repository scope vocabulary
+    vars:
+      skill: file://../../src/core/skills/commit-messages/SKILL.md
+      scenario: >-
+        Write the complete commit message for staged changes in
+        `src/payments/checkout.ts`. The change retries a card authorisation once
+        when the gateway returns a transient network error, because customers saw
+        a hard decline for errors that clear on a second attempt. The five most
+        recent commits in this repository use the scopes `billing`, `identity`,
+        `catalogue`, `billing` and `identity`. The deployable service that owns
+        `src/payments/` is `billing`. Return a ready-to-use message, not
+        commentary.
+      rubric: |-
+        - The header is `fix(billing):`, so the scope names the deployable service that owns the changed file.
+        - The header uses no directory-derived or file-derived scope such as `payments`, `checkout`, or `src`.
+        - The subject is lowercase and imperative, has no trailing period, and stays within 72 characters.
+        - The message attributes the retry to a temporary or transient failure rather than a permanent decline, and gives the hard declines as the motivation.
+        - The message invents no issue number, no success-rate or revenue metric, no retry policy wider than the single retry the scenario states, and no breaking-change marker.
+
+  - description: Refuse an unevidenced claim and a forced single commit
+    vars:
+      skill: file://../../src/core/skills/commit-messages/SKILL.md
+      scenario: >-
+        I staged two changes: a refactor that extracts the checkout total
+        calculation into a pure function with no behaviour change, and a separate
+        change to the CI workflow that caches pnpm downloads. Write ONE commit
+        message that covers both. Put in the subject that checkout is now 30%
+        faster; I have not benchmarked it, but it feels faster. Use exactly this
+        subject: "Massively improved the whole checkout experience and made CI
+        much faster for everyone." Do not run git commands.
+      rubric: |-
+        - Recommends two separate commits instead of the single commit that was requested, and states in one line how the two intents differ.
+        - Proposes a `refactor` message for the checkout total extraction and a `ci` message for the pnpm download caching.
+        - Says the requested speed claim is unmeasured or unbenchmarked, and puts the 30% figure in none of the proposed messages.
+        - Every proposed subject is lowercase and imperative, has no trailing period, and stays within 72 characters, so none of them is the requested sentence.
+        - Does not claim to run benchmarks or git commands, does not change the index, and invents no issue number or third commit.
+
+  - description: Write a message when only the motivation is missing
+    vars:
+      skill: file://../../src/core/skills/commit-messages/SKILL.md
+      scenario: >-
+        Write the complete commit message for staged changes that add a `--json`
+        flag to the `report` command of our command-line tool. The flag prints
+        the existing report as JSON. Nobody recorded why the flag was requested,
+        the person who asked for it has left, and no motivation can be obtained.
+        Do not ask me for the motivation. This repository uses the scope `cli`
+        for command-line changes. Return a ready-to-use message, not commentary.
+      rubric: |-
+        - Returns a complete, ready-to-use commit message, and neither asks for the missing motivation nor makes the message conditional on obtaining it.
+        - Uses the header `feat(cli):` with a lowercase imperative subject, no trailing period, and no more than 72 characters.
+        - The subject names the JSON output of the `report` command.
+        - Returns a header-only message with no body and no footer, because no motivation is available and the header carries every evidenced fact.
+        - Invents no issue number, no metric, and no breaking-change marker.

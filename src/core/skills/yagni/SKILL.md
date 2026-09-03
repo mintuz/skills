@@ -11,8 +11,8 @@ If you cannot prove a design is necessary, do not ship it. TDD is the one except
 
 ## Workflow
 
-1. Understand the requirement and read the relevant code before you touch anything. Do not change code and then guess the intent.
-2. Ask clarifying questions when the requirement is ambiguous. A wrong premise cannot be fixed by correct reasoning later.
+1. Understand the requirement and read the relevant code before you change anything. Do not change code and then guess the intent. For a bug, find every caller of the code you plan to change. Put the fix where the accepted contract lives. When every caller shares that contract, fix the shared function once instead of guarding each caller.
+2. Ask clarifying questions when the requirement is ambiguous or incomplete. Name the facts you need and wait for them. Do not fill a missing requirement with your own assumption. You may name the options you can see, but ask the user to choose, and plan no work that depends on an unconfirmed answer. A wrong premise cannot be fixed by correct reasoning later.
 3. Produce a minimal plan before you execute. The plan states:
    - the goal;
    - the non-goals, including what is explicitly out of scope;
@@ -46,13 +46,14 @@ Each of these ends the same way: work that is larger than the requirement.
    - stacking more constraints to satisfy existing constraints;
    - touching many unrelated files;
    - creating a second implementation to keep old logic alive.
+5. A request to build extra mechanism is not by itself an accepted requirement. When the user asks for work that no accepted behaviour needs, leave it out of the plan, name it as a non-goal, and say why. Ask the user to raise it as a separate requirement if they still want it.
 
 ## Testing
 
 Tests serve the acceptance of the current change. Nothing else.
 
 1. Write one failing test for the next behaviour change, then write the minimum code that makes it pass. This covers behaviour you add, alter, or remove. **If you find yourself changing behaviour without a failing test, stop and write the test first.**
-2. Refactoring is the exception: while the tests are green, you may change production code that adds no behaviour, then re-run the tests to prove none changed.
+2. Refactoring is the exception: while the tests are green, you may change production code that adds no behaviour, then re-run the tests as the regression check that none changed.
 3. Run the related existing tests before you add anything. If one of them already fails for the behaviour you are about to build, that is your red — do not write a second test for it.
 4. When no existing test is your red, extend a related test that does not yet express the required behaviour, provided it can carry that behaviour without taking on a second responsibility. If none can, add one focused test.
 5. Cover one main path and, where the behaviour can fail meaningfully, one critical failure path. That is per behaviour, not per file or per module.
@@ -80,23 +81,11 @@ Test code that is longer or more complex than the implementation is a signal of 
 
 At the end of every significant change, ask: **"What do I wish I'd known at the start?"**
 
-Document the answer when it would save a future developer more than 30 minutes, prevent a class of bugs, or reveal something the code does not show on its face — a non-obvious constraint, an architectural trade-off, a domain rule, an edge case, or a tool setup gotcha. Keep project docs current: update CLAUDE.md and AGENTS.md when a change makes it wrong.
+Record the answer when it would save a future developer more than 30 minutes, prevent a class of bugs, or reveal something the code does not show on its face — a non-obvious constraint, an architectural trade-off, a domain rule, an edge case, or a tool setup gotcha. Record nothing when an existing rule already covers it. Keep project docs current: correct CLAUDE.md and AGENTS.md when your change makes them wrong.
 
-Use this format, and include the code examples only when the learning is code-shaped. An architectural trade-off usually needs the alternative you rejected instead:
+Write the reusable rule, not the incident that revealed it. Give the action and the condition that makes it necessary. When the change fixed a fault, write the rule so that a reader can detect the fault and then follow the approved repair. In a repository instruction file such as CLAUDE.md or AGENTS.md, amend the rule that already owns the subject when one exists. Otherwise add one imperative sentence or bullet in the section that owns the subject, in that file's voice. Add a heading or a code example only when a reader cannot apply the rule without it; for an architectural trade-off, name the alternative you rejected instead.
 
-```markdown
-#### Gotcha: [Descriptive Title]
-
-**Context**: When this occurs
-**Issue**: What goes wrong
-**Solution**: How to handle it
-
-// CORRECT - Solution
-const example = "correct approach";
-
-// WRONG - What causes the problem
-const wrong = "incorrect approach";
-```
+Decline a template, a Context/Issue/Solution breakdown, a retrospective, or a verification checklist in that file, however the user asks for it, and give this reason: the instruction file carries the rule alone. Put your reasoning in your reply to the user, not in the file. When you propose the text rather than apply it, say that the files stay unchanged. `core:learn` sets out this procedure in full.
 
 ## Communication
 
@@ -120,5 +109,5 @@ Confirm every item before you report the task as done:
 
 ## Relationship to Other Skills
 
-- `core:reducer` removes mechanism from an existing system. This skill keeps mechanism out of new work.
+- `core:reducer` removes mechanism from an existing system. This skill keeps mechanism out of new work. When a task only removes mechanism from code that already works, and adds no behaviour, say that `core:reducer` owns it. Write no removal plan of your own. State only the limits that still hold: name the module or modules the change stays inside and say the rest stay untouched, and keep the behaviour identical. Re-run the existing tests afterwards as the regression check, not as proof of equivalence. Add no test for the removal itself. Name any affected behaviour the existing tests do not cover, because that gap must be closed before the removal is safe.
 - `web:tdd` drives the Red-Green-Refactor cycle in detail. This skill sets the scope limits that apply inside that cycle.

@@ -1,0 +1,214 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Reducer skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the response derives a whole-system reduction while
+        conserving the supplied behavior and guarantees. Give equal weight to
+        every outcome below. Credit explicit, scenario-specific ledgers, proof
+        gaps, deltas, gates, and verdicts. Do not reward verbosity, copied rubric
+        wording, or invented repository facts. Judge substance. Ignore naming
+        slips, typographic errors, and formatting when the intended referent is
+        unambiguous.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Refuse a reliability rewrite without failure-path oracles
+    vars:
+      skill: file://../../src/core/skills/reducer/SKILL.md
+      scenario: |-
+        Diagnose a proposed simplification of an order-dispatch worker; make no
+        edits. Today `dispatch()` writes an outbox row in the order transaction.
+        A worker claims a row, calls the carrier, and records the receipt. On a
+        timeout it retries up to three times with the same idempotency key. A
+        dead-letter job alerts an operator after the final failure, and operators
+        can replay the row. The public guarantees are: order creation never waits
+        on the carrier, a committed order is eventually dispatched or alerted,
+        duplicate carrier calls reuse the idempotency key, and replay preserves
+        the original order ID. The database transaction test and happy-path
+        worker test pass. There is no timeout, retry-exhaustion, duplicate-call,
+        alert, or replay oracle, and no production trace.
+
+        The proposed replacement deletes the outbox, worker state, dead-letter
+        job, and replay tool. `createOrder()` would call the carrier after the
+        database commit; the carrier SDK would retry timeouts internally and
+        generate a new key for each attempt. This removes four local types and 260 lines. The user says
+        the missing tests are obsolete implementation details and asks you to
+        approve the rewrite because the diff is smaller. Return the behavior and
+        mechanism baselines, reduction verdict, and the next admissible slice.
+      rubric: |-
+        - Builds a behavior ledger that includes non-blocking creation, eventual dispatch-or-alert, timeout retries with one idempotency key, final-failure alerting, and replay with the original order ID; it marks each missing failure-path oracle as a proof gap rather than an implementation detail.
+        - Baselines the complete current mechanism across transaction/outbox, worker claim and retry state, carrier call, dead-letter alert, operator replay, and their ordering or ownership boundaries instead of using four types or 260 lines as the measure.
+        - Rejects the proposed replacement because it changes the non-blocking, eventual-outcome, idempotency-key, alert, and replay guarantees and transfers retry state or policy into the SDK rather than proving a whole-system reduction.
+        - Keeps this run in diagnosis mode with no edit or equivalence claim, and does not manufacture passing evidence from the two happy-path tests or unavailable production traces.
+        - Makes characterization of every affected failure/replay guarantee the prerequisite, then offers at most a smaller reversible slice that removes one complete mechanism only after its affected oracles pass, with an expected before/after mechanism delta and rollback boundary.
+
+  - description: Remove a pass-through layer without exporting authorization policy
+    vars:
+      skill: file://../../src/core/skills/reducer/SKILL.md
+      scenario: |-
+        Produce an implementation-ready reduction plan; make no edits. A billing
+        endpoint flows through `BillingController -> BillingFacade ->
+        InvoiceService -> InvoiceStore`. The facade has no state and only forwards
+        all arguments. The controller authenticates the caller. The service owns
+        tenant authorization, invoice validation, audit emission, and the store
+        transaction. The supported contract is the same response and error
+        mapping, tenant isolation, one audit event after a successful commit, and
+        compatibility for an external plugin that still calls
+        `BillingFacade.issue(actor, request)`. Tests cover the endpoint's success,
+        validation error, cross-tenant denial, store rollback, and audit ordering;
+        an integration test covers the plugin call. All pass. The plugin already
+        depends on the package that exports `InvoiceService`, so it can call the
+        service without a new API, representation, or release constraint.
+
+        Two candidates are proposed. A moves authorization and audit emission into
+        the controller, leaving the facade and service as wrappers; it deletes 40
+        service lines. B makes the controller and facade call the existing service
+        directly, then removes the facade after the plugin migrates. The plugin
+        owner can migrate this week and accepts a one-release compatibility shim.
+        Give the selected slice, preservation and rollback gates, and exact
+        before/target mechanism deltas. Do not choose by line count alone.
+      rubric: |-
+        - Records the endpoint and plugin entry points plus response/error mapping, tenant isolation, validation, transaction rollback, successful-commit audit ordering, and one-release compatibility as the behavior ledger, tied to the supplied passing oracles.
+        - Baselines four layers and three hops, one facade pass-through, one authorization owner, one audit owner, one transaction owner, and two live entry points; it records unrelated retry, queue, cache, or scheduled-job dimensions as absent, whether as N/A or as zero, rather than inventing them.
+        - Rejects candidate A because it exports authorization and audit policy, retains wrappers, and only moves complexity despite deleting service lines; selects candidate B as the smaller reversible complete-mechanism removal.
+        - Defines a live-boundary compatibility shim, assigns the plugin migration that closes it to the plugin owner under the one-release removal condition, preserves the service as the sole authorization/validation/audit/transaction owner, and does not claim the facade is removed until the plugin migrates.
+        - States exact staged deltas: first, controller plus plugin shim still expose two entry points while the internal controller path drops from three hops to two and authorization, audit, and transaction each keep their single owner in the service; after plugin migration, layers fall from four to three, the facade and shim fall from one to zero, and both entry paths reach the service without adding another owner or representation.
+        - Requires the focused endpoint and plugin checks before the slice, after the direct controller path, and after shim removal; compares response, errors, denial, rollback, and audit ordering, rechecks callers for exported policy, and names reverting only the current slice as the rollback boundary.
+
+  - description: Separate a functionality cut from an in-scope reduction
+    vars:
+      skill: file://../../src/core/skills/reducer/SKILL.md
+      scenario: |-
+        Produce a reduction plan for a booking service; make no edits. The team
+        wants less complexity and proposes four changes at once.
+
+        1. Delete the recurring-appointment feature (weekly and monthly
+           recurrence plus exception dates). It is supported, documented, and
+           used by 4% of bookings. It owns a recurrence expander, an exceptions
+           table, and two booking states.
+        2. Delete the SMS reminder channel. It is supported and documented, and
+           it owns one adapter and one credential.
+        3. Collapse three duplicated timezone-conversion helpers, one in the API
+           layer, one in the reminder job, and one in the nightly export job,
+           into a single helper. All three implement the same rule, run in the
+           same deployable, are owned by the same team, and are covered by
+           passing tests.
+        4. Delete the `legacy_ics_v1` export flag. A code and configuration
+           search shows no caller sets it, no environment defines it, no test
+           covers it, and the product owner confirmed in writing that no
+           supported contract exposes it.
+
+        The team says all four are the same kind of work and asks for one
+        combined mechanism count so they can report a single reduction number.
+        Return the disposition of each proposal and the plan.
+      rubric: |-
+        - Classifies proposals 1 and 2 as removals of supported behavior that fall outside a behavior-conserving reduction, and makes a recorded owner decision to withdraw each behavior the prerequisite for deleting it.
+        - Accepts proposals 3 and 4 as in-scope, distinguishing unification of duplicated policy from deletion of a path that no supported contract reaches, and cites the evidence given for the dead flag.
+        - Refuses the single combined mechanism count and reports the in-scope reduction separately from any behavior withdrawal, so that removing supported behavior is not credited as reduced mechanism.
+        - Gives the in-scope slices an expected before/after mechanism delta and a rollback boundary, and orders them as separate reversible slices rather than one change.
+        - Does not design or schedule the removal of the recurring-appointment or SMS behavior, and does not invent usage figures, callers, tests, or owner decisions beyond the facts supplied.
+
+  - description: Detect guarantees dropped by an equal-behavior claim
+    vars:
+      skill: file://../../src/core/skills/reducer/SKILL.md
+      scenario: |-
+        Diagnose a proposed simplification of a notification fan-out service;
+        make no edits. Today each tenant has its own durable FIFO queue with a
+        maximum depth of 1000 and one consumer. A consumer acknowledges a
+        message only after the handler succeeds, and an unacknowledged message
+        is redelivered after a restart. When a tenant queue is full, `enqueue()`
+        rejects the request with HTTP 429. The documented guarantees are: a
+        tenant's notifications are delivered in the order accepted; every
+        accepted notification is delivered at least once, including across a
+        process restart; the service holds at most 1000 pending notifications
+        per tenant; and one slow tenant cannot delay another tenant.
+
+        The proposal replaces every tenant queue with one shared in-memory list
+        and a pool of eight workers that take the next item from that list. The
+        handler and its retry logic are unchanged. The author writes: "Same
+        handler, same output, same retries. One list instead of N queues, no
+        back-pressure code, three fewer types, 310 fewer lines. Behavior is
+        identical, so no new tests are needed."
+
+        The handler unit tests and a single-tenant end-to-end delivery test
+        pass. There is no ordering test, no queue-saturation test, no restart or
+        redelivery test, and no multi-tenant test. Return the reduction verdict
+        and the next admissible step.
+      rubric: |-
+        - Names each documented guarantee the proposal breaks: per-tenant delivery order, at-least-once delivery across a restart, the bounded pending limit with its 429 rejection, and tenant isolation.
+        - Rejects the author's identical-behavior claim and rejects the verdict because behavior is not conserved, rather than because the counted totals are wrong.
+        - Names the failure path the unbounded shared list exposes, such as unbounded memory growth or an unsignalled drop under load, and states that the falling queue, type, and line counts do not establish an admissible whole-system reduction.
+        - Marks the absent ordering, saturation, restart or redelivery, and multi-tenant oracles as proof gaps that must be closed by characterization before any slice touches this path, and does not treat the passing handler and single-tenant tests as covering them.
+        - Does not invent load figures, message volumes, benchmark results, or queue contents, and offers at most a smaller reversible slice that removes one complete mechanism with an expected before/after delta and a rollback boundary.
+
+  - description: Reject a state collapse that lowers the count and changes behavior
+    vars:
+      skill: file://../../src/core/skills/reducer/SKILL.md
+      scenario: |-
+        Diagnose a proposed simplification of a document upload pipeline; make
+        no edits. A document row carries a status enum with five values:
+        `pending`, `uploading`, `scanning`, `ready`, and `failed`. A transition
+        table permits `pending -> uploading -> scanning -> ready`, and any value
+        to `failed`. The supported behavior is: the download endpoint serves a
+        document only in `ready`; the web client shows a distinct "virus scan in
+        progress" message while the status is `scanning`; and a retry job
+        re-enqueues a `failed` document only when the `failure_step` column
+        records `upload`, because a scan failure is terminal and the document
+        goes to quarantine. Tests cover the download refusal, the scanning
+        message, and both retry outcomes. All pass.
+
+        The proposal deletes the enum, the transition table, and the
+        `failure_step` column, and stores two `NOT NULL` boolean columns,
+        `is_ready` and `is_failed`, each defaulting to false. It removes three of the five branches in the status
+        reducer. The author reports: "Five states become two fields, the
+        transition table and the failure column are gone, and branches fall by
+        60%. Strictly less mechanism." The proposal says nothing about how the
+        scanning message or the retry rule would work afterwards. Return the
+        reduction verdict and the next admissible step.
+      rubric: |-
+        - Counts the four combinations the two booleans admit and identifies `is_ready` and `is_failed` set together as a combination that the five-value enum cannot express and that nothing in the proposal excludes.
+        - States that the booleans stop distinguishing the in-flight values before `ready`, so the scanning message loses its input, and that deleting `failure_step` leaves the retry rule without the upload-versus-scan distinction it needs; concludes that supported behavior changes.
+        - Treats the reported five-to-two and 60%-fewer-branches figures as a local count that does not measure the whole system, and states that the lost distinction must reappear as some other mechanism or caller inference.
+        - Returns a reject verdict for the proposal as written and keeps the run in diagnosis with no edit or equivalence claim.
+        - Does not invent columns, timestamps, tests, or callers that the scenario does not supply, and any alternative it offers conserves all three tested behaviors and states an expected before/after mechanism delta with a rollback boundary.

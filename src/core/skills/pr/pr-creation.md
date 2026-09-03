@@ -1,6 +1,6 @@
-# Creating Pull Requests with GitHub CLI
+# Creating Pull Requests from the Command Line
 
-Reference for using `gh pr create` to submit pull requests from the command line.
+Reference for using `gh pr create` on GitHub and `tea pr create` on Forgejo or Gitea. Identify the host from the remote URL before you choose the tool. `gh` does not work against a Forgejo or Gitea host.
 
 For PR description templates, see [pr-description.md](pr-description.md).
 
@@ -10,13 +10,15 @@ Before creating a PR:
 
 1. **Committed changes** - All changes must be committed locally
 2. **Branch pushed** - Your branch must be pushed to the remote
-3. **GitHub CLI authenticated** - Run `gh auth status` to verify
+3. **CLI authenticated** - On GitHub run `gh auth status`; on Forgejo/Gitea run `tea whoami`
 
 ## Basic Command
 
 ```bash
 gh pr create --title "PR title" --body "PR description"
 ```
+
+Pass `--head <branch>` when the request names the branch. Without it, `gh` and `tea` use the checked-out branch, which can differ.
 
 ## Recommended Workflow
 
@@ -27,7 +29,7 @@ gh pr create --title "PR title" --body "PR description"
 git status
 
 # Verify commits are ready
-git log main..HEAD --oneline
+git fetch origin && git log origin/main..HEAD --oneline
 
 # Ensure branch is pushed
 git push -u origin HEAD
@@ -39,19 +41,29 @@ Use a HEREDOC to properly format multi-line PR bodies. Use the appropriate templ
 
 ```bash
 gh pr create --title "Your PR title" --body "$(cat <<'EOF'
-# Paste template from pr-description.md here
-# Small PR: 1-3 files
-# Medium PR: 4-15 files
-# Large PR: 15+ files
+# Paste the template from pr-description.md here.
+# Choose the template by the size category in pr-sizing.md.
 EOF
 )"
 ```
 
-### 3. Common Options
+### 3. Draft Status
+
+Pass `--draft` whenever the title or body calls the PR a draft, WIP, or not ready. Text in the body does not change the PR state. On GitHub the `--draft` flag sets draft state. On Forgejo and Gitea a `WIP:` title prefix sets draft state, and `tea pr create --draft` adds that prefix. Without the flag or prefix the host opens the PR as ready for review.
+
+```bash
+gh pr create --draft --title "Feature name" --body "..."
+```
+
+### 4. Labels
+
+Pass only labels that exist in the repository. List them with `gh label list` (or `tea labels` on Forgejo/Gitea). If the repository's labels are unknown and you cannot list them, pass no `--label`. Say why you passed none.
+
+### 5. Common Options
 
 ```bash
 # Create as draft PR
-gh pr create --draft --title "WIP: Feature name" --body "..."
+gh pr create --draft --title "Feature name" --body "..."
 
 # Assign reviewers
 gh pr create --reviewer username1,username2 --title "..." --body "..."
@@ -68,6 +80,43 @@ gh pr create --base develop --title "..." --body "..."
 # Open in browser after creation
 gh pr create --web --title "..." --body "..."
 ```
+
+## Forgejo and Gitea with `tea`
+
+Use `tea pr create` (alias `tea pulls create`). The same prerequisites and draft rule apply. Flag names differ from `gh`:
+
+| Purpose | `gh pr create` | `tea pr create` |
+| ------- | -------------- | --------------- |
+| Title | `--title` | `--title` |
+| Body | `--body` or `--body-file` | `--description` |
+| Base branch | `--base` | `--base` (default: repository default branch) |
+| Head branch | `--head` | `--head` (default: current branch) |
+| Draft | `--draft` | `--draft` (prepends `WIP: ` to the title; Gitea treats WIP-prefixed PRs as drafts) |
+| Labels | `--label a --label b` | `--labels a,b` |
+| Assignees | `--assignee` | `--assignees a,b` |
+| Milestone | `--milestone` | `--milestone` |
+| Reviewers | `--reviewer` | Not available at creation; request reviews in the web UI after creation |
+
+```bash
+tea pr create \
+  --base develop \
+  --head feat/search-index \
+  --draft \
+  --title "Add search index rebuild command" \
+  --description "$(cat <<'EOF'
+## Summary
+
+WIP: adds `search reindex`; incremental mode is not implemented yet.
+
+## Testing
+
+- Automated: `make test` passed
+- Manual testing: not performed
+EOF
+)"
+```
+
+If `tea` is not installed but the host is Forgejo or Gitea, do not fall back to `gh`. Give the `tea` command and state that `tea` must be installed and logged in first.
 
 ## Full Example
 
@@ -103,8 +152,8 @@ Related to #100
 
 ### Automated
 
-- [ ] Unit tests pass
-- [ ] Integration tests pass
+- `npm test`: passed
+- Integration tests: not performed
 
 ### Manual Testing
 
@@ -159,7 +208,11 @@ A PR already exists for this branch. Use `gh pr view` to see it or `gh pr edit` 
 
 ### Authentication errors
 
-Run `gh auth login` to re-authenticate with GitHub.
+Run `gh auth login` to re-authenticate with GitHub. On Forgejo/Gitea run `tea login add`.
+
+### PR opened as ready when it should be a draft
+
+The body said draft or WIP but `--draft` was not passed. On GitHub run `gh pr ready --undo` (draft PRs must be available for the repository's plan). On Forgejo/Gitea edit the title to start with `WIP:`.
 
 ### Wrong base branch
 

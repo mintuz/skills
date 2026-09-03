@@ -1,0 +1,148 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Local AI models skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+evaluateOptions:
+  repeat: 3
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the plan produces a safe, supportable on-device AI
+        feature in this scenario. Give equal weight to every outcome below.
+        Credit explicit, scenario-specific decisions and executable evidence
+        gates. Do not reward verbosity, copied rubric wording, or invented API
+        behavior.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Respect deployment and device support before selecting a framework
+    vars:
+      skill: file://../../src/app/skills/local-ai-models/SKILL.md
+      scenario: >-
+        Plan an entirely on-device travel chat assistant for an existing iOS app.
+        The app's deployment target must remain iOS 18, the feature must work on
+        every device the app supports, and no server fallback is permitted. The
+        product manager calls it a "standard chat interface" and asks whether to
+        use Foundation Models or MLX Swift. Give the framework decision,
+        implementation outline, and proof required before committing to it; do
+        not execute the plan or invent results.
+      rubric: |-
+        - Treats the iOS 18 deployment target and every-supported-device requirement as hard compatibility gates that must be resolved before choosing a framework; it does not select Foundation Models merely because this is standard chat.
+        - States the minimum OS version and hardware class that Foundation Models requires and compares that floor with the iOS 18 deployment target and the every-supported-device requirement.
+        - Does not propose a runtime availability check with a fallback UI as the way to meet the iOS 18 every-device requirement; a runtime check cannot make the framework available below its OS or hardware floor.
+        - Makes the decision conditional: either change the product/deployment support contract, or prove a suitably sized MLX model can run acceptably across the entire required device floor; if neither is true, reports the requirements as infeasible rather than inventing a fallback.
+        - Requires physical-device Release evidence on the oldest/lowest-memory supported hardware for model load, memory pressure, latency, offline operation, and representative output before calling the framework choice viable.
+
+  - description: Serialize a stateful session through cancellation and rapid input
+    vars:
+      skill: file://../../src/app/skills/local-ai-models/SKILL.md
+      scenario: >-
+        Plan the Foundation Models service for a multi-turn SwiftUI chat. A user
+        can double-tap Send, tap Stop during streaming, immediately send another
+        prompt, or leave the screen. The transcript must preserve completed
+        turns, must not present cancelled partial text as a completed answer, and
+        one conversation must retain its context. Give the ownership, lifecycle,
+        error handling, and verification plan; do not execute it or invent results.
+      rubric: |-
+        - Gives one isolation boundary ownership of the LanguageModelSession, transcript mutation, and current generation Task for each conversation, preserving one session across completed turns.
+        - Defines a single-flight policy before invoking the stateful session: rapid submissions are rejected or queued deliberately, and concurrentRequests is treated as a prevented invariant breach rather than a normal retry case.
+        - Connects Stop and view/task teardown to cancellation of the owned generation task, checks cancellation while consuming the stream, and returns the service to a sendable terminal state without starting a replacement until cancellation has settled.
+        - Separates in-progress partial text from committed transcript state, commits an assistant turn only after successful completion, and deterministically removes or labels partial output on cancellation or error while preserving prior completed turns.
+        - Leaves focused test cases, each with setup, action, and expected result, that cover at least double-send, stop-then-send, and view teardown, and requires a physical-device Release pass.
+
+  - description: Treat an unsupported locale as unavailable instead of prompting around it
+    vars:
+      skill: file://../../src/app/skills/local-ai-models/SKILL.md
+      scenario: >-
+        Plan the Foundation Models summariser for an app whose users are in
+        Turkey and Poland. The deployment target and hardware are already
+        confirmed compatible. On the test device,
+        `SystemLanguageModel.default.supportsLocale(_:)` returns false for
+        `tr_TR` and true for `pl_PL`. The product manager suggests adding the
+        instruction "answer in Turkish" so Turkish users still get the feature.
+        Give the locale handling, UI behaviour, and verification plan; do not
+        execute it or invent results.
+      rubric: |-
+        - Calls supportsLocale(_:) for each user locale at runtime before any session is created and treats an unsupported locale as a feature-unavailable state, not as a prompting problem.
+        - Rejects the "answer in Turkish" instruction as a way to bypass an unsupported locale and does not present model output in an unsupported language as a supported feature.
+        - Shows an explicit unavailable state or a non-model path for Turkish users while enabling the feature for Polish users.
+        - Places locale information for supported locales in session instructions rather than in each user prompt.
+        - Leaves focused checks for the supported and unsupported locale branches, requires a physical-device pass with each locale set, and does not claim additional locales are supported beyond the two stated.
+
+  - description: Reject a model that cannot fit the lowest-memory required device
+    vars:
+      skill: file://../../src/app/skills/local-ai-models/SKILL.md
+      scenario: >-
+        The compatibility gate already ruled out Foundation Models for this
+        app. The team proposes MLX Swift with a 7B model quantised to 4-bit
+        (about 4 GB on disk) for an app that must run on every supported
+        device, including an iPhone with 4 GB of RAM. The model would be
+        downloaded on first launch over any network connection. Give the model
+        decision, the download and memory plan, and the evidence required
+        before committing; do not execute anything or invent measurements.
+      rubric: |-
+        - States that a model of about 4 GB cannot load within the app memory limit of a 4 GB-RAM iPhone and does not accept the 7B model for the stated device floor.
+        - Proposes a smaller quantised model or a changed support contract, and requires memory, latency, and output quality to be measured on the lowest-memory required device before the choice is final.
+        - Loads the model asynchronously and gives one owner the load state and generation.
+        - Requires user consent or a Wi-Fi default for the multi-gigabyte download and handles an interrupted download without leaving the feature in a broken state.
+        - Requires a Release build test on the lowest-memory physical device, including offline generation, and does not invent memory or latency numbers.
+
+  - description: Use typed tools and guided generation instead of parsing free text
+    vars:
+      skill: file://../../src/app/skills/local-ai-models/SKILL.md
+      scenario: >-
+        Plan a travel assistant on Foundation Models (compatibility confirmed)
+        that must look up live train times through the app's existing
+        `TrainService.departures(from:to:)` and return a structured itinerary
+        with departure time, platform, and duration. `departures(from:to:)` is
+        `async throws`; it throws `TrainServiceError.noDepartures` when no
+        train matches and `TrainServiceError.network` when the request fails. A developer proposes
+        parsing the model's free-text answer with regular expressions and
+        calling `TrainService` from the view when the regex matches. Give the
+        generation and tool design and the verification plan; do not execute
+        it or invent API behaviour beyond the scenario.
+      rubric: |-
+        - Exposes TrainService to the model as a Foundation Models Tool with typed arguments and rejects regex parsing of free text.
+        - Uses guided generation with a typed itinerary schema so that departure time, platform, and duration are fields of a generated type, not parsed prose.
+        - Keeps the session as the single owner of tool invocation and transcript state; the view does not call TrainService on the model's behalf.
+        - Treats a tool error (no departures, network failure) as a normal generation outcome shown to the user rather than a crash or a silent empty result.
+        - Leaves focused checks for tool invocation, schema conformance, and a thrown tool error, and does not claim to have run them.

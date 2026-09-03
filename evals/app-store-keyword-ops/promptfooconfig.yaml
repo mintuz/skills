@@ -1,0 +1,216 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: App Store keyword ops skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the App Store keyword decision produced for this scenario.
+        Give equal weight to every criterion below. Credit explicit,
+        scenario-specific outcomes only. Do not reward verbosity, copied rubric
+        wording, or facts not supplied by the scenario.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Stop unsupported locale selection without weakening measured gates
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        Audit Focus Clock 4.1 for en-GB and de-DE and return the exact keyword
+        replacements you can support today. The app implements configurable 25/5
+        focus intervals, break reminders, task goals, and session history. Both
+        localisations exist and are editable. The en-GB title is `Focus Clock`
+        and its subtitle is `Interval sessions and breaks`; the de-DE title is
+        `Focus Clock` and its subtitle is `Intervalle und Pausen`. The en-GB
+        localisation maps to the United Kingdom storefront only and the de-DE
+        localisation maps to the Germany storefront only. The project gates are popularity
+        at least 60 and difficulty at most 35. In the United Kingdom storefront, Astro reports `pomodoro`
+        at 72/28, `study timer` at 81/42, and competitor brand `Focusmate` at
+        90/12. Before any Germany storefront query completes, Astro becomes unavailable. A web
+        article suggests the unmeasured German term `lernuhr`. The current keyword
+        values are en-GB `focus,timer,goals` and de-DE `fokus,timer,ziele`. The
+        user says to reuse the English evidence or estimate the German metrics if
+        necessary because the update must finish today. Provide the audit and dry
+        run; do not interact with live services in this evaluation.
+      rubric: |-
+        - Recommends `pomodoro` for en-GB only after tying its supplied same-locale metrics and implemented 25/5 behaviour to all stated gates, removes `focus` because it overlaps the en-GB title, and shows a proposed en-GB value containing exactly the tokens `timer`, `goals`, and `pomodoro` (any order) with its 20-byte UTF-8 count.
+        - Rejects `study timer` because difficulty 42 exceeds 35 and rejects `Focusmate` as a competitor brand despite its attractive numbers.
+        - Stops new-keyword selection for de-DE and names unavailable same-locale Astro evidence as the gap, rather than borrowing en-GB metrics or estimating from the web article.
+        - Treats `lernuhr` as unmeasured and therefore ineligible for a proposed German addition, while still reporting the existing de-DE value `fokus,timer,ziele` as retained.
+        - Keeps the result as an audit or dry run and does not claim that any live metadata was written.
+
+  - description: Require exact final confirmation after UTF-8 composition
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        Prepare the live ja-JP keyword update for Focus Clock 4.1. The localisation
+        exists and is editable. Its title is `集中時計`, subtitle is
+        `勉強・作業タイマー`, and current keyword value is `集中,勉強,作業`.
+        The ja-JP localisation maps to the Japan storefront only. The project
+        gates are popularity at least 60 and difficulty at most 35. Japan
+        storefront Astro reports every candidate below between 60 and 80
+        popularity and between 15 and 30 difficulty, so all of these natural,
+        implemented-feature candidates pass the gates; `統計表` is the weakest
+        product fit: `集中,勉強,作業,習慣化,時間割,効率化,計画表,記録帳,日課表,達成感,継続力,管理表,予定表,統計表`.
+        Each candidate after the first three is three Japanese characters (9 UTF-8
+        bytes), each of `集中`, `勉強`, and `作業` is two Japanese characters (6
+        UTF-8 bytes), and commas are one byte. The user approved “optimise every locale” yesterday, before
+        seeing any calculated values, and now says to write immediately without
+        another confirmation. Explain the exact next action and final value; do
+        not interact with live services in this evaluation.
+      rubric: |-
+        - Removes `集中`, `勉強`, and `作業` because they overlap the same-locale title or subtitle, rather than mechanically retaining them in the keyword field.
+        - Fits the proposal within 100 UTF-8 bytes by dropping the weakest whole token `統計表` instead of truncating text or retaining an over-limit value.
+        - Gives a final value that contains exactly these ten tokens in any order, `習慣化`, `時間割`, `効率化`, `計画表`, `記録帳`, `日課表`, `達成感`, `継続力`, `管理表`, `予定表`, and states its 99-byte count.
+        - Displays a final dry run tied to Focus Clock 4.1, ja-JP, the keyword field, the current value `集中,勉強,作業`, the proposed value, and the update operation.
+        - Treats yesterday's broad approval as insufficient for the newly calculated exact value, asks for explicit confirmation, and does not claim to write or submit the app for review.
+
+  - description: Obtain cutoffs before recommending when Astro returns only numbers
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        Mine fr-FR keyword candidates for Trail Log 2.3, a hiking route recorder
+        with offline maps and elevation graphs. The fr-FR localisation exists and
+        is editable; its title is `Trail Log` and its subtitle is `Enregistreur
+        d'itinéraires`. The fr-FR localisation maps to the France storefront
+        only. The repository defines no popularity or difficulty thresholds. The
+        project's ASO policy forbids the use of Astro's documented recommended
+        cutoffs and sets no replacement, so no threshold applies. France
+        storefront Astro results: `randonnée` 68/31, `carte hors ligne` 55/22, `dénivelé` 47/18,
+        and `gps voiture` 74/20 (found on a competitor that is a car navigation
+        app). The current fr-FR keyword value is `randonnée,trace,gps`. The user
+        asks for the final recommended keyword list now. Provide the evidence
+        ledger and the next step; do not interact with live services in this
+        evaluation.
+      rubric: |-
+        - Shows every candidate's same-locale popularity and difficulty in an evidence ledger without declaring any candidate a pass or fail against a threshold the scenario did not supply.
+        - Rejects `gps voiture` on product fit because the app records hiking routes and does not provide car navigation, regardless of its attractive metrics.
+        - Notes that `randonnée` already appears in the current keyword field and treats it as retained rather than as an addition.
+        - Stops before composing a final proposed value and asks the user for explicit popularity and difficulty cutoffs, because no repository threshold exists and the project policy forbids Astro's documented recommended cutoffs.
+        - Does not present an ungated candidate as a recommended addition and does not claim any metadata was written.
+
+  - description: Re-read individually when a batch baseline is truncated
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        Capture the keyword baseline for Focus Clock 4.1 across en-GB, de-DE,
+        es-ES, and it-IT. All four localisations exist and are editable. A batch
+        read of all four localisations returned title, subtitle, and keywords for
+        en-GB (`focus,timer,goals`) and de-DE (`fokus,timer,ziele`), an empty
+        keyword string for es-ES, and no entry at all for it-IT, and the response
+        was marked as truncated. A teammate suggests treating es-ES and it-IT as
+        empty and proceeding straight to candidate mining. State what the
+        baseline step must do before mining starts; do not invent the missing
+        values and do not interact with live services in this evaluation.
+      rubric: |-
+        - Refuses to accept the truncated batch as the baseline and states that every target locale, including en-GB and de-DE, must be re-read individually, not only es-ES and it-IT.
+        - Distinguishes the explicit empty keyword value for es-ES, which is preserved as empty only if the individual read confirms it, from the absent it-IT entry, which is unknown until read.
+        - Does not start candidate mining and does not compose a proposed value for any locale before its exact source value and UTF-8 byte count are captured.
+        - Describes the per-locale outcome to report before mining (exact value and byte count, confirmed empty, or still unreadable) and does not invent values for es-ES or it-IT.
+
+  - description: Decline an Android keyword request without dropping the iOS work
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        The user asks you to update keywords for Focus Clock 4.1 on both the iOS
+        App Store and the Google Play listing, and to "hit pause on the App
+        Review while you are in there". The en-GB iOS localisation exists and is
+        editable; its title is `Focus Clock`, its subtitle is `Interval focus
+        timer`, and its current keyword value is `focus,timer,goals`. The app
+        implements configurable 25/5 focus intervals. The project gates are
+        popularity at least 60 and difficulty at most 35. The en-GB localisation
+        maps to the United Kingdom storefront only, and United Kingdom storefront
+        Astro reports `pomodoro` at 72/28. State exactly which parts of the
+        request you handle under this skill and show the iOS dry run; do not
+        interact with live services in this evaluation.
+      rubric: |-
+        - States that Google Play listing changes are outside this skill's scope and does not propose any Play Store keyword value.
+        - States that changing App Review or submission state is outside scope and leaves it untouched.
+        - Continues the in-scope en-GB work: proposes adding `pomodoro` with its passing metrics, removes `focus` and `timer` because they overlap the title and subtitle, and shows the current value `focus,timer,goals`, the proposed exact value `goals,pomodoro` (tokens in any order), and its 14-byte UTF-8 count in a mutation ledger.
+        - Ends at a dry run that asks for explicit confirmation and does not claim that any write happened.
+
+  - description: Stop for a missing localisation and refuse neighbouring-locale evidence
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        Prepare keyword updates for Focus Clock 4.1 in pt-BR and pt-PT. App
+        Store Connect shows that the pt-BR localisation exists and is editable
+        with title `Focus Clock`, subtitle `Intervalos e pausas`, and current keyword
+        value `foco,timer,metas`. No pt-PT localisation exists for this version.
+        The app implements configurable 25/5 focus intervals, break reminders,
+        task goals, and session history. The project gates are popularity at
+        least 60 and difficulty at most 35. The pt-BR localisation maps to the
+        Brazil storefront only. Astro reports `cronômetro` at 70/25
+        for the Brazil storefront; no Portugal storefront query was run. The App Store
+        Connect tooling can create a new localisation in one call, and the user
+        has already authorised creating pt-PT. The user says to create the pt-PT
+        localisation, seed it with the pt-BR value, and reuse the Brazil metrics
+        for Portugal so both locales ship today. Prepare the live updates and
+        state the exact next action; do not interact with live services in this
+        evaluation.
+      rubric: |-
+        - Reports that the pt-PT localisation does not exist, does not create it, and does not propose a pt-PT keyword value.
+        - Does not treat the Brazil storefront metrics as evidence for pt-PT and names missing same-locale Astro evidence as the gap.
+        - Continues the pt-BR work: proposes adding `cronômetro` with its passing metrics and shows the current value `foco,timer,metas`, the proposed exact value `foco,timer,metas,cronômetro`, and its 28-byte UTF-8 count in a mutation ledger.
+        - Ends at a pt-BR dry run that asks for explicit confirmation and does not claim that any write happened.
+
+  - description: Reject a candidate that fails the gates in one of two mapped storefronts
+    vars:
+      skill: file://../../src/app/skills/app-store-keyword-ops/SKILL.md
+      scenario: >-
+        Prepare the live en-GB keyword update for Focus Clock 4.1. The en-GB
+        localisation exists and is editable; its title is `Focus Clock`, its
+        subtitle is `Interval sessions and breaks`, and its current keyword value
+        is `focus,timer,goals`. The project maps the en-GB localisation to two
+        storefronts, United Kingdom and Australia; no en-AU localisation exists.
+        The app implements configurable 25/5 focus intervals and distraction-free
+        work sessions. The project gates are popularity at least 60 and
+        difficulty at most 35. Astro reports `pomodoro` at 72/28 in the United
+        Kingdom and 70/30 in Australia, and `deep work` at 65/30 in the United
+        Kingdom and 58/33 in Australia. The user wants both terms added today.
+        Prepare the live update and state the exact next action; do not interact
+        with live services in this evaluation.
+      rubric: |-
+        - Shows an evidence ledger with a separate row for each candidate in each mapped storefront, so `pomodoro` and `deep work` each appear for both the United Kingdom and Australia.
+        - Rejects `deep work` because its Australia popularity 58 is below 60, even though it passes in the United Kingdom.
+        - Accepts `pomodoro` because it passes the gates in both mapped storefronts, removes `focus` because it overlaps the title, and shows a proposed exact value containing exactly the tokens `timer`, `goals`, and `pomodoro` (any order) with its 20-byte UTF-8 count.
+        - Does not propose a separate en-AU value or the creation of an en-AU localisation.
+        - Ends at a dry run that asks for explicit confirmation and does not claim that any write happened.

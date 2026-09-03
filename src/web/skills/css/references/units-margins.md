@@ -15,6 +15,7 @@ Ask: **"Should this value scale when users increase their browser's default font
 | Vertical margins on text  | Larger text benefits from proportional spacing          |
 | Media queries             | User enlarging text effectively reduces available space |
 | Spacing that should scale | Maintains proportions with font size                    |
+| Padding around text in a control | Keeps the hit area proportional to the label     |
 
 ### When to Use px
 
@@ -22,7 +23,7 @@ Ask: **"Should this value scale when users increase their browser's default font
 | --------------------------- | ------------------------------------ |
 | Border widths               | Shouldn't thicken because text grew  |
 | Box shadows                 | Visual effect, not content-related   |
-| Horizontal padding          | Scaling reduces available line width |
+| Horizontal padding of wide text blocks | Scaling reduces available line width |
 | Values that shouldn't scale | Fixed visual elements                |
 
 ### Use Unitless for line-height
@@ -94,8 +95,8 @@ Margin on components violates encapsulation by affecting space outside the compo
 
 ```css
 /* Parent controls spacing */
-.card-grid { gap: 20px; }
-.card-stack > * + * { margin-top: 20px; }
+.card-grid { gap: 1.25rem; }
+.card-stack > * + * { margin-top: 1.25rem; }
 
 /* Or utility classes */
 <div class="card mb-4">
@@ -126,17 +127,18 @@ Margins collapse in Flow layout only. Key rules:
 | Rule            | Description                            |
 | --------------- | -------------------------------------- |
 | Only vertical   | Horizontal margins never collapse      |
-| Only adjacent   | Elements must be neighbors in DOM      |
-| Larger wins     | Bigger margin value determines the gap |
+| Only adjoining  | The margins touch with nothing between them: block siblings, a parent and its first or last child, or an empty block's own top and bottom |
+| Positive: larger wins | Two positive margins collapse to the larger one |
+| Negative: add   | Largest positive plus most negative; two negatives collapse to the most negative |
 | Nesting allowed | Parent and child margins can merge     |
 
-**What blocks collapse:**
+**What blocks collapse (scoped to the relationship it affects):**
 
-- Padding or border between margins
-- Fixed height creating empty space
-- `overflow: auto/hidden/scroll` on container
-- Flexbox or Grid layouts
-- Floated or absolutely positioned elements
+- Padding or border between the two margins
+- Content or a fixed height between the two margins
+- `overflow: hidden`, `auto`, or `scroll` on the parent (or `display: flow-root`): creates a new block formatting context, which stops parent-child collapse; siblings inside the parent still collapse with each other. `overflow: clip` does not create a formatting context, so add `display: flow-root` when you need one.
+- Flexbox or Grid layouts: children's margins never collapse
+- Floated or absolutely positioned elements: their margins never collapse
 
 ## Layout Algorithm Awareness
 

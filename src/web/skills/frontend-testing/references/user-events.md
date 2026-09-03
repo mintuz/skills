@@ -5,10 +5,13 @@
 ## userEvent vs fireEvent
 
 **Why userEvent is superior:**
-- Simulates complete interaction sequence (hover → focus → click → blur)
-- Triggers all associated events
-- Respects browser timing and order
-- Catches more bugs
+- Dispatches the whole pointer, focus, and mouse event sequence a browser fires
+  for the interaction, not one synthetic event
+- Respects the order and the timing a browser uses
+- Throws when the target has `pointer-events: none`, and suppresses the mouse
+  activation events on a disabled control, so `click` never fires there and the
+  test fails on an unreachable element instead of passing
+- Catches bugs that a single synthetic event hides
 
 ```typescript
 // ❌ WRONG - fireEvent (incomplete simulation)
@@ -35,25 +38,26 @@ await user.click(button);
 // ✅ CORRECT - Setup per test
 it('should handle user input', async () => {
   const user = userEvent.setup(); // Fresh instance per test
-  render('<input aria-label="Email" />');
+  document.body.innerHTML = '<input aria-label="Email" />';
 
   await user.type(screen.getByLabelText(/email/i), 'test@example.com');
 });
 ```
 
 ```typescript
-// ❌ WRONG - Setup in beforeEach
+// ❌ AVOID - Setup in beforeEach
 let user;
 beforeEach(() => {
-  user = userEvent.setup(); // Shared state across tests
-});
-
-it('test 1', async () => {
-  await user.click(...); // Might affect test 2
+  user = userEvent.setup();
 });
 ```
 
-**Why:** Each test gets clean state, prevents test interdependence.
+**Why:** `setup()` binds to the current `document` and installs its clipboard and
+pointer state when you call it. Calling it in the test body keeps that setup next
+to the markup it drives, and makes per-test options such as
+`userEvent.setup({ advanceTimers: vi.advanceTimersByTime })` obvious at the point
+of use. Under fake timers, pass `advanceTimers`; do not disable the delay with
+`delay: null`.
 
 ## Common Interactions
 

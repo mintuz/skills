@@ -231,7 +231,16 @@ const Form = () => {
 | Integrate with non-React code     | jQuery plugins, D3 charts     |
 
 ```typescript
-// ✅ Appropriate - synchronizing with external system
+// ❌ Bad - reacts to a change; the map keeps its default zoom on mount
+const previousZoom = useRef(zoomLevel);
+useEffect(() => {
+  if (previousZoom.current !== zoomLevel) {
+    mapRef.current.setZoomLevel(zoomLevel);
+  }
+  previousZoom.current = zoomLevel;
+}, [zoomLevel]);
+
+// ✅ Appropriate - synchronizing with external system on every run, including mount
 useEffect(() => {
   const map = mapRef.current;
   map.setZoomLevel(zoomLevel);
@@ -249,6 +258,41 @@ useEffect(() => {
   post("/analytics/event", { eventName: "visit_form" });
 }, []);
 ```
+
+### Async Work in an Effect
+
+Prefer a data-fetching library (TanStack Query) when the project has one. When it does not, each effect run owns its request:
+
+```typescript
+// ✅ Appropriate - each run owns one request and its cleanup
+useEffect(() => {
+  const controller = new AbortController();
+  let stale = false;
+  setState({ status: "loading" });
+
+  loadUser(userId, controller.signal).then(
+    (user) => {
+      if (!stale) setState({ status: "success", user });
+    },
+    (error) => {
+      if (stale || error?.name === "AbortError") return; // stale run or cancellation: not an error
+      setState({ status: "error", error });
+    },
+  );
+
+  return () => {
+    stale = true;
+    controller.abort();
+  };
+}, [userId, loadUser]);
+```
+
+Rules:
+
+- Create the `AbortController` inside the effect so each run has its own. Use it when the operation accepts an `AbortSignal`; the stale flag alone protects operations that cannot be cancelled.
+- Cleanup marks the run stale and aborts it. A stale run writes no state on success or on failure, so a late response for the previous `userId` cannot overwrite the current one.
+- Identify cancellation by the operation's own contract: a DOM `AbortError` by `error?.name`, an axios request by `axios.isCancel(error)`. Treat cancellation as no error. Every rejection that is not cancellation is a failure of the current run; write it to state, whatever its class. A class check such as `instanceof DOMException` must not decide which failures reach state. A stale run ignores every settlement, including a non-abort failure.
+- React Strict Mode runs setup, cleanup, setup in development. The first run is aborted and ignored, and the second run completes normally. No error state appears.
 
 ## Dependency Array Rules
 

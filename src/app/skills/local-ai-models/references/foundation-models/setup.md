@@ -6,7 +6,7 @@ Setup guide for Apple's Foundation Models framework.
 
 ### Platform Requirements
 
-Foundation Models requires Apple Intelligence on a supported device. Always check availability at runtime and provide a fallback UI when unavailable.
+Foundation Models requires iOS 26, iPadOS 26, or macOS 26 or later, and an Apple Intelligence-capable device with Apple Intelligence enabled. If the deployment target is lower than iOS 26, guard the feature with `#available(iOS 26, *)`. Always check availability at runtime and provide a fallback UI when unavailable.
 
 ## Framework Import
 
@@ -18,7 +18,7 @@ No package dependencies needed - Foundation Models is built into supported iOS v
 
 ## Checking Availability
 
-ALWAYS check model availability before use.
+ALWAYS check model availability before use. Each element of `streamResponse(to:)` is a snapshot whose `content` holds the cumulative partial response: assign it, do not append it.
 
 ```swift
 let systemModel = SystemLanguageModel.default
@@ -36,8 +36,8 @@ case .available:
     print("Model is available")
 
 case .unavailable(.modelNotReady):
-    // Model is still downloading
-    print("Model is downloading")
+    // Model not ready, for example still downloading
+    print("Model not ready")
 
 case .unavailable(.appleIntelligenceNotEnabled):
     // Apple Intelligence disabled in Settings
@@ -80,7 +80,7 @@ struct ChatAvailabilityView: View {
             if !isAvailable {
                 switch systemModel.availability {
                 case .unavailable(.modelNotReady):
-                    availabilityStatus = "Model is downloading. Please try again later."
+                    availabilityStatus = "The model is not ready yet. Please try again later."
                 case .unavailable(.appleIntelligenceNotEnabled):
                     availabilityStatus = "Please enable Apple Intelligence in Settings"
                 case .unavailable(.deviceNotEligible):
@@ -142,23 +142,24 @@ class ChatService {
 
     func sendStreaming(_ message: String) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
-            Task {
-                guard let session else {
-                    continuation.finish(throwing: ChatError.sessionNotInitialized)
-                    return
-                }
+            // Single-flight: no session, or the session is already responding.
+            guard let session, !session.isResponding else {
+                continuation.finish(throwing: ChatError.sessionNotInitialized)
+                return
+            }
 
+            let task = Task {
                 do {
-                    let stream = session.streamResponse(to: message)
-
-                    for try await chunk in stream {
-                        continuation.yield(chunk)
+                    for try await snapshot in session.streamResponse(to: message) {
+                        continuation.yield(snapshot.content)
                     }
                     continuation.finish()
                 } catch {
                     continuation.finish(throwing: error)
                 }
             }
+            // Consumer teardown cancels the producer task.
+            continuation.onTermination = { _ in task.cancel() }
         }
     }
 }
@@ -215,7 +216,7 @@ guard systemModel.isAvailable else {
     // Show error UI based on specific reason
     switch systemModel.availability {
     case .unavailable(.modelNotReady):
-        // Model downloading
+        // Model not ready, for example still downloading
         break
     case .unavailable(.appleIntelligenceNotEnabled):
         // Prompt user to enable in Settings
@@ -232,13 +233,13 @@ guard systemModel.isAvailable else {
 
 ### App Crashes on Model Usage
 
-**Cause:** Missing "Increased Memory Limit" capability
+**Cause:** Memory pressure in the app process. The system model runs outside the app process, so the crash usually points at the app's own memory use, not at the model.
 
 **Solution:**
 
-1. Add capability in project settings
-2. Test on physical device with Release build
-3. Monitor memory usage in Instruments
+1. Read the crash or jetsam report and measure peak memory in Instruments on a physical device with a Release build
+2. Reduce the app's own memory use (images, caches, transcript size) before you change entitlements
+3. For a custom MLX model, the Increased Memory Limit entitlement may raise the limit on some devices; the app must still work correctly without it
 
 ### Slow Model Loading
 
@@ -252,9 +253,9 @@ let systemModel = SystemLanguageModel.default
 if case .unavailable(.modelNotReady) = systemModel.availability {
     // Show loading UI
     ContentUnavailableView(
-        "Model Downloading",
+        "Model Not Ready",
         systemImage: "arrow.down.circle",
-        description: Text("The model is being downloaded. Please try again later.")
+        description: Text("The model is not ready yet. It may still be downloading. Please try again later.")
     )
 }
 ```

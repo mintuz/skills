@@ -10,6 +10,7 @@ Conserve behavior. Minimize mechanism.
 ## Conservation law
 
 - Preserve every supported behavior and non-functional guarantee in scope: outputs, side effects, errors, ordering, persistence, integrations, authorization, security, privacy, reliability, resource budgets, and compatibility.
+- Treat a proposal to remove supported behavior as a scope change, not a reduction. Delete supported behavior only after a recorded owner decision withdraws it. Report the withdrawal separately from mechanism reduction.
 - Derive the target from domain truths and external constraints, not the current implementation.
 - Measure the whole system. Moving a branch, dependency, state transition, or failure mode across a boundary is not a reduction.
 - Keep essential complexity visible. Optimize complete change, request, and failure paths for maintainers and operators.
@@ -38,13 +39,13 @@ Trace every behavior end to end:
 Count applicable dimensions with the same scope and method before and after:
 
 - **Control:** aggregate and maximum cyclomatic complexity, conditions, error, retry, fallback, and ordering paths.
-- **State and time:** states, transitions, mutable owners, caches, queues, tasks, callbacks, locks, synchronization points, lifecycle phases.
+- **State and time:** states, transitions, mutable owners, caches, queues, tasks, callbacks, locks, synchronization points, lifecycle phases. Count a state space by the combinations its representation admits across all its fields, not by the number of fields. Separate the admitted combinations from the valid and reachable ones. Name the invariant that excludes the rest.
 - **Structure:** modules, types, layers, hops, internal and external dependencies, cycles, adapters, representations.
 - **Variability and operations:** flags, modes, configuration, extension points, deployables, jobs, migrations, monitors, failure and recovery paths.
 
 Mark irrelevant dimensions `N/A`. Include tests and operational machinery when they impose ongoing cost; exclude generated artifacts unless their source or runtime mechanism changes. A smaller function or diff is not evidence unless the complete mechanism shrinks.
 
-**Complete when:** every mechanism on an in-scope behavior path is accounted for and the baseline shows where complexity is created, transferred, and paid.
+**Complete when:** every mechanism on an in-scope behavior path is accounted for, every listed dimension is counted with the same scope and method or marked `N/A`, and the baseline shows where complexity is created, transferred, and paid.
 
 ## 3. Derive the minimum
 
@@ -63,7 +64,7 @@ Sketch the minimum mechanism. Name the constraint that requires each remaining p
 4. Flatten pass-through layers, translation chains, coordination, and temporal hops.
 5. Replace custom machinery with a stable primitive only when total ownership and operational cost fall.
 
-Reject changes that merely rename, split, wrap, relocate, or conceal complexity, and local simplifications that increase coupling, coordination, comprehension cost, change cost, or failure modes elsewhere.
+Reject changes that merely rename, split, wrap, relocate, or conceal complexity, and local simplifications that increase coupling, coordination, comprehension cost, change cost, or failure modes elsewhere. Moving a policy or a decision out of its single owner is redistribution, not deletion. Before you delete a bound, limit, timeout, or back-pressure control, prove that another control still enforces the guarantee it serves. Without that proof, treat the guarantee as withdrawn. Name the exposed failure path in concrete terms, such as resource exhaustion or silent loss. Record it and any replacement control alongside the counts.
 
 **Complete when:** every target mechanism has a named behavioral or external reason and the expected whole-system reduction is explicit.
 
@@ -73,10 +74,10 @@ Rank candidates by `mechanism removed × confidence ÷ blast radius`; use the sm
 
 - the mechanism and affected behaviors;
 - their passing oracles and affected callers, data, integrations, and operations;
-- the expected before/after delta;
+- the expected before/after delta, stated for each stage when the slice lands in stages;
 - migration, rollback, and verification needs.
 
-Apply the gap rule: diagnosis may carry proof gaps; implementation remains diagnosis until every behavior and guarantee the slice can affect has a passing preservation oracle. Keep a compatibility shim only for a live boundary, with an owner and removal condition.
+Apply the gap rule: diagnosis may carry proof gaps; implementation remains diagnosis until every behavior and guarantee the slice can affect has a passing preservation oracle. Keep a compatibility shim only for a live boundary, with an owner and removal condition. Assign the migration that closes a shim to the caller or integration owner. Assign the shim's deletion to the component owner. Record one measurable removal condition.
 
 Diagnosis now reports the proposal. Implementation continues to Step 5.
 
@@ -96,7 +97,7 @@ For each authorized implementation slice:
 
 If evidence fails or another affected behavior appears, stop. Derive its oracle only from the recorded pre-slice state or independent pre-change evidence; restore only this slice's edits when necessary. Never characterize modified behavior as the baseline.
 
-A slice passes only when both gates pass and total in-scope mechanism falls. Treat a net-neutral or displaced result as unfinished. Repeat only after the current slice passes.
+Apply both gates at every stage of a staged slice, including after you remove a shim. A slice passes only when both gates pass and total in-scope mechanism falls. Treat a net-neutral or displaced result as unfinished. Repeat only after the current slice passes.
 
 **Complete when:** all behavior-ledger entries are preserved, the old mechanism is gone, the before/after ledger proves a net reduction, and every temporary bridge has an owner and removal condition.
 
@@ -107,4 +108,4 @@ For implementation, lead with the conserved behavior and removed mechanism:
 | Dimension | Before | After | Evidence |
 |-----------|--------|-------|----------|
 
-List verification results and essential complexity retained. Report proof gaps, compatibility shims, and follow-up slices with owners and closure or removal conditions. For diagnosis, report ranked slices, expected before/target deltas, proof obligations, and blockers; claim neither realized reduction nor equivalence.
+List every baseline dimension, including explicit `N/A` rows, and state whether the target adds any owner or representation. List verification results and essential complexity retained. Report proof gaps, compatibility shims, and follow-up slices with owners and closure or removal conditions. For diagnosis, report ranked slices, proof obligations, and blockers; claim neither realized reduction nor equivalence. Give every slice you name its expected whole-system before/after mechanism delta and its slice-local rollback boundary. This includes a rejected proposal's replacement and a slice deferred behind missing oracles. Do not design or schedule a behavior withdrawal. Report it as a prerequisite decision only. State each delta as counted before and after numbers per dimension. Do not defer the count to later work.

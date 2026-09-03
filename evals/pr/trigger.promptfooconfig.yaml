@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the pr skill description. Not part of the
+# scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- pr
+# which refreshes the git-ignored fixture from src/ first.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: pr skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a Forgejo pull request with tea
+    vars:
+      request: >-
+        Our repo is on a self-hosted Forgejo instance. Open a pull request for
+        branch `fix/retry-backoff` with `tea`; it is still work in progress.
+    assert:
+      - type: skill-used
+        value: pr
+
+  - description: Activates on a GitHub pull request with gh
+    vars:
+      request: >-
+        Open a pull request on GitHub for branch `feat/export-csv` against
+        `main` with `gh`, and request review from `octo-reviewer`.
+    assert:
+      - type: skill-used
+        value: pr
+
+  - description: Activates on splitting a branch into pull requests
+    vars:
+      request: >-
+        This branch has 27 commits mixing a rename refactor and a new export
+        feature. Plan how to split it into reviewable pull requests.
+    assert:
+      - type: skill-used
+        value: pr
+
+  - description: Does not activate for a commit message
+    vars:
+      request: >-
+        Write the conventional commit message for my staged change that fixes
+        the stale login redirect.
+    assert:
+      - type: not-skill-used
+        value: pr

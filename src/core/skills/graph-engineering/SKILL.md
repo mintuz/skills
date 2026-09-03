@@ -5,7 +5,7 @@ description: WHEN orchestrating interdependent specs, stories, or work items acr
 
 # Graph Engineering
 
-A fan-out is not a graph. Launching N agents at one scope is scatter-gather; a graph exists only when some units depend on others, and then the ordering *is* the work. Build the graph: a verification contract fixed before any node runs, nodes cut at judging seams, edges that state why order matters, a schedule that defaults to serial and earns every concurrency, one independent verifier per node — and a rendering the user reads and approves before the first node is dispatched.
+A fan-out is not a graph. Launching N agents at one scope is scatter-gather; a graph exists only when some units depend on, inform, or exclude others, and then the ordering *is* the work. Build the graph: a verification contract fixed before any node runs, nodes cut at judging seams, edges that state why order matters, a schedule that defaults to serial and earns every concurrency, one independent verifier per node — and a rendering the user reads and approves before the first node is dispatched.
 
 Three rules carry the rest.
 
@@ -13,7 +13,7 @@ Three rules carry the rest.
 - **Whoever built it does not judge it.** Every node is judged by a fresh context that never saw the building.
 - **Concurrency is an exception with evidence.** Serial is the default because conflicting edits, duplicated work, and divergent decisions cost more than the wall-clock they save.
 
-Build a graph only when there are edges to schedule. One unit of work in one context is not a graph, and no amount of structure rescues a goal that was never fixed.
+Build a graph only when there are edges to schedule: one unit depends on or is informed by another's result, or two units share a write scope or a single-writer resource. When no unit writes and no unit depends on another, run the units as plain concurrent reads and return their results — no contract, no ledger, no verifier seat, no heartbeat. One unit of work in one context is not a graph, and no amount of structure rescues a goal that was never fixed.
 
 ## Roles
 
@@ -28,7 +28,7 @@ Compose each agent from **skills, not one skill per agent**. A node's brief name
 
 ## 1. Fix the verification contract
 
-Read the specs, stories, issues, and repository rules that govern the run. Record each source's locator and revision.
+Fetch the remote first. A local view that is hours old is not evidence of what the base branch contains or lacks, and a spec cut first on a stale view invalidates every node behind it. Then read the specs, stories, issues, and repository rules that govern the run, and record each source's locator and revision as fetched. When the run names several specs, confirm their full priority order with the user before cutting any node. Record a conflict between the user's latest message and an earlier ledger as an open question, and do not resolve it by choosing one.
 
 Derive the contract **before cutting any node**: every in-scope normative statement becomes one independently decidable assertion, stated as an observable outcome rather than an implementation. Preserve each assertion's source identifier. Record conflicting or missing authority as an open question, never as a silent assumption.
 
@@ -90,7 +90,7 @@ Admit concurrent writers only when all four hold, and record which node pairs qu
 1. Owned paths are disjoint, including generated files, lockfiles, and migrations.
 2. No shared open decision — neither node will settle a question the other also settles.
 3. Each is independently verifiable against its own assertions.
-4. Each is isolated at the workspace level, so an unverified artifact cannot leak into a sibling's base.
+4. Each is isolated at the workspace level — its own worktree with dependencies installed — so an unverified artifact cannot leak into a sibling's base.
 
 Otherwise the wall-clock gain is borrowed against the integration bill.
 
@@ -140,18 +140,27 @@ For each node carrying a reference-judged assertion, the approval also confirms 
 
 When the graph is too large to read at once, render one diagram per checkpoint plus a checkpoint-level overview. Never drop a node to make the picture fit; a diagram that omits work reads as work that does not exist.
 
-**Complete when:** every node and every edge in the ledger appears in the render with its kind, every box names its deliverable, skills, assertions, and paths, the concurrency claims are visible, every reference-judged node's depth, threshold, and critic seat are confirmed, and the user has approved the graph or asked for it to be re-cut.
+**Complete when:**
+
+- the render preserves the governing sources and their open contract gaps;
+- every node and edge in the ledger appears with its kind;
+- every box names its deliverable, lead and supporting skills, assertions, and paths;
+- each concurrency claim records all four qualifying conditions;
+- every reference-judged node's depth, threshold, and critic seat are confirmed; and
+- the user has approved the graph or asked for it to be re-cut.
 
 ## 6. Dispatch with isolation
 
 Give each worker a brief and nothing else. Session history carries the orchestrator's assumptions into the node, and every node then inherits the same blind spot. Brief contents and templates are in [`references/briefs.md`](references/briefs.md).
+
+Bootstrap every isolated workspace before its first commit: a fresh worktree has no installed dependencies, so hooks and checks that run through them fail until the install has run. Merge an updated base only onto committed work, so the merge cannot mix with unrecorded edits. Re-install after every base merge that changes a lockfile or manifest, before any long check runs on the merged base. A hook rejection caused by missing dependencies is a workspace failure: repair it by installing and retrying the commit, not by editing the artifact and not by bypassing the hook.
 
 Pick the runtime, then read how this graph maps onto it — each reference names the parts of this skill the runtime does **not** enforce for you:
 
 | Host | Reference | Nodes run as |
 |---|---|---|
 | Claude Code | [`references/dynamic-workflows.md`](references/dynamic-workflows.md) | `agent()` calls in a workflow script — deterministic ordering, enforced contracts, ephemeral contexts |
-| Codex | [`references/codex-threads.md`](references/codex-threads.md) | Managed threads — durable contexts, worktree per node, ordering held by the coordinator against a written ledger |
+| Codex | [`references/codex-threads.md`](references/codex-threads.md) | Managed threads — durable contexts, a worktree per node where the runtime provides one, ordering held by the coordinator against a written ledger |
 
 Step 5's approval gate runs inline before either is launched, because neither a background script nor a spawned thread can pause to be approved.
 
@@ -171,22 +180,24 @@ At the headroom threshold — **90% of any limit** unless the user set another �
 
 On resume, trust the repository over memory: re-read the ledger, recompute the frontier from observed integration state, resume durable agents where the runtime keeps them alive, and re-dispatch parked nodes from their partial handoffs where it does not. A resumed graph that skips this re-derivation continues the run the orchestrator remembers, not the one that exists.
 
-When the nodes are stories delivered as pull requests, hand the delivery mechanics to `story-pr-orchestrator` — it owns the task, worktree, branch, PR, and merge gating. This skill keeps the contract, the edges, and verification, and treats a merge as what releases a `needs` edge.
+When the nodes are stories delivered as pull requests, hand the delivery mechanics to `product-management:story-pr-orchestrator` — it owns the task, worktree, branch, PR, and merge gating. This skill keeps the contract, the edges, and verification, and treats a merge as what releases a `needs` edge.
 
 **Complete when:** every dispatched node has an acknowledged brief, owned paths, and an isolated workspace; the shared state is current; every seat assignment is recorded; and the heartbeat is running with a named threshold and a working resume mechanism.
 
 ## 7. Verify each node independently
 
-Every node gets its own verifier in a **fresh context**, given only the assertions it owns, the real artifact, and the raw evidence. Withhold the worker's narration, rationale, summaries, and any claim of quality — a verifier that reads the argument for the work inherits it.
+Every node gets its own verifier in a **fresh context**, given only the assertions it owns and the real artifact; that verifier gathers its own raw evidence. Withhold the worker's narration, rationale, summaries, and any claim of quality — a verifier that reads the argument for the work inherits it.
 
-Verify both lanes. Static assertions are checked by running the checks and reading the artifact; parallel reviewers inside this lane are cheap and independent. Behavioral assertions are checked by **exercising the running system** — start it, drive it, observe the outcome. Passing tests written alongside the implementation are the weakest evidence in the graph, because they were shaped by the code rather than by the contract.
+The fresh verifier checks both lanes itself. For static assertions, it runs the checks and reads the artifact; parallel reviewers inside this lane are cheap and independent. For behavioral assertions, it **exercises the running system** — starts it, drives it, and observes the outcome. Passing tests written alongside the implementation are the weakest evidence in the graph, because they were shaped by the code rather than by the contract.
+
+For every assertion verified by running a command, record the exact command, its exit code, and the resulting verdict.
 
 Each verifier returns one verdict per assertion:
 
 | Verdict | Meaning | Next |
 |---|---|---|
 | `pass` | Evidence shows the assertion holds | Eligible for integration |
-| `fail` | Evidence shows it does not hold | Return the single largest gap to the worker |
+| `fail` | The evidence path was exercised and the evidence does not establish that it holds | Return the single largest gap to the worker |
 | `unjudgeable` | The evidence path did not permit a decision | Repair the evidence path, not the artifact |
 
 On `fail`, hand the gap back to the worker that holds the context, then judge the repair with a **new** verifier. Re-judging with the previous one re-runs a context that has already committed to a conclusion. Never integrate on `unjudgeable`; a claim that could not be checked is not a claim that held.

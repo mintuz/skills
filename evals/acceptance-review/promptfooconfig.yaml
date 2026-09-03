@@ -1,0 +1,220 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Acceptance-review skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only the acceptance analysis produced for this scenario. Give equal
+        weight to every criterion below. Credit explicit, scenario-specific
+        reasoning and the supplied evidence only. Do not reward verbosity,
+        matching this rubric's wording, or invented repository facts.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Keep live operational proof distinct from local evidence
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        Review release 2.7 against one acceptance criterion: "After deployment,
+        no production payment webhook is processed more than once, and the
+        production duplicate-processing count remains zero for 24 hours." The
+        branch contains idempotency-key handling and a focused unit test. A local
+        integration test with a fake queue passed. No release deployment record,
+        production webhook trace, or production metric is available. Give the
+        criterion status and overall verdict now; do not propose implementation
+        changes.
+      rubric: |-
+        - Distinguishes the production behavior demanded by the criterion from code inspection, a unit test, and a fake-queue integration run.
+        - Does not say that the release satisfies the criterion or that duplicate-free production behavior has been proved.
+        - Assigns an evidence-gap status rather than a code-absence or regression status, because the implementation exists but deployment and production observation are unavailable.
+        - Gives an indeterminate overall verdict because this sole criterion cannot yet be decided from production evidence.
+        - Names the reviewed release or deployment identity that production observations must be tied to.
+        - Names production duplicate-count observation over the full 24-hour window as closing evidence.
+
+  - description: Reject claim and test evidence when production wiring is absent
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        Issue AC-3 says that submitting the checkout form must enqueue a receipt
+        email. The PR description says "receipt emails complete" and commit
+        messages repeat that claim. A unit test calls ReceiptService directly and
+        passes. The supplied call trace shows CheckoutController -> OrderService,
+        with no call, event, or subscriber connecting that path to ReceiptService.
+        The comparison base also lacked receipt-email wiring. Decide AC-3 and the
+        overall verdict using only this evidence.
+      rubric: |-
+        - Treats the PR and commit wording as intent rather than behavioral proof.
+        - Recognises that the direct ReceiptService unit test does not exercise checkout submission through to email enqueueing.
+        - Marks AC-3 missing because the supplied production path is disconnected, rather than covered or regressed.
+        - Returns an overall does-not-satisfy verdict.
+        - Identifies the minimum closure as production wiring from checkout submission to receipt enqueueing plus a check through that real path.
+
+  - description: Resolve mixed failing and unknown criteria without verdict drift
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        Review two requirements. R1 requires an expired invitation to show a
+        dedicated expiry message; the current UI falls through to the generic
+        error and the comparison base showed the dedicated message. R2 requires
+        screen-reader announcement after resending an invitation; the relevant
+        accessibility runtime could not be launched, and the supplied static
+        evidence cannot establish whether an announcement occurs. Report one
+        status per requirement and the overall verdict.
+      rubric: |-
+        - Marks R1 regressed because comparison evidence shows previously supported behavior was lost.
+        - Marks R2 as undecidable from the supplied evidence rather than treating the unavailable runtime as a pass or as proof that implementation is missing.
+        - Returns does-not-satisfy overall because the proven regression is decisive even though another criterion remains unknown.
+        - Keeps each requirement in one status and does not collapse both into a single vague verdict.
+        - Names separate closure evidence for R1 and R2, preserving the difference between a behavior fix and an accessibility runtime check.
+
+  - description: Stop on conflicting authority before judging implementation
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        A PR asks whether its account-deletion grace period is acceptable. The
+        linked issue says deletion occurs immediately, while a later product
+        decision says deletion occurs after 30 days. Neither source is marked
+        superseded, and no decision-lineage handoff or other authority rule is
+        supplied. The code uses a 30-day grace period. A second requirement
+        conflicts in the same unresolved way: the linked issue says deleted
+        accounts keep 90 days of audit history, while the later product decision
+        says 180 days. The supplied trace shows the code writing no audit history
+        at all and contains no history-retention path. A third, settled
+        requirement says deletion must enqueue a confirmation email; the supplied
+        production trace reaches the email enqueue and its integration test
+        passed. Give the acceptance result without choosing a preferred
+        grace-period or retention policy, and without performing a general code
+        review.
+      rubric: |-
+        - Marks the grace-period requirement unverified, because the 30-day implementation meets one candidate policy and fails the other, and records the conflict as an authority ambiguity.
+        - Marks the audit-history requirement missing, because no retention path exists under either the 90-day or the 180-day policy, without selecting a policy.
+        - Marks the settled confirmation-email requirement covered from the supplied production trace and passing integration test.
+        - Returns a does-not-satisfy overall verdict, and still requests decision-lineage or supersession evidence for the grace period.
+        - Keeps unrelated code-quality commentary and implementation proposals outside the report.
+
+  - description: Judge a criterion across unchanged sibling surfaces
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        Specification SEC-4 says: "Every code path that returns or exports
+        customer records must redact the national_id field." The PR changes
+        CustomerController#show to delete national_id from the response body
+        after serialisation, and a new passing test asserts that #show omits the
+        field. The PR description says "national_id redaction added". The
+        supplied surface inventory lists two further code paths that return
+        customer records and are unchanged by this PR: CustomerController#index,
+        which renders records through the shared CustomerSerializer, and
+        LegacyCustomerExport#run, which writes a CSV from the same serializer.
+        The supplied trace shows CustomerSerializer emitting national_id
+        unmodified. Give the criterion status and overall verdict from this
+        evidence only; do not propose a code refactor.
+      rubric: |-
+        - Judges SEC-4 across all three supplied customer-record surfaces rather than only the changed show endpoint.
+        - Does not mark SEC-4 covered on the strength of the changed endpoint, its passing test, or the PR wording.
+        - Assigns SEC-4 the partial status, because the changed endpoint redacts the field while other in-scope paths still emit it.
+        - Returns a does-not-satisfy overall verdict.
+        - Names redaction on the two unchanged surfaces, plus a check that exercises them, as the closing evidence.
+
+  - description: Record an untouched criterion as unproven rather than assumed
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        A specification carries three criteria. C1 requires password reset links
+        to expire after one hour; the supplied trace shows the link timestamp
+        compared against a one-hour time-to-live constant, and the test
+        ResetLinkTest#rejects_link_after_one_hour advances the clock by 3,601
+        seconds and asserts that the link is rejected; that test run passed. C2 requires a reset
+        attempt on an unknown address to return the same generic response as a
+        known address; the supplied trace shows both addresses reaching one
+        shared response builder, and the test
+        ResetTest#unknown_address_returns_generic_response compares the complete
+        response body and status for a known and an unknown address and asserts
+        that they are identical; that test run passed. C3 requires every
+        session cookie to carry SameSite=Strict. The review materials contain the
+        diff, which touches no session or cookie code, and no cookie
+        configuration file, runtime response capture, or test output for cookie
+        attributes was supplied. Report one status per criterion and the overall
+        verdict.
+      rubric: |-
+        - Reports all three criteria, giving C3 its own status rather than dropping or merging it.
+        - Marks C1 and C2 covered, citing the supplied traces and the stated passing test assertions rather than the test names alone.
+        - Marks C3 undecidable from the supplied evidence, neither covered nor absent-implementation.
+        - Does not infer that C3 holds because the diff leaves session code untouched, and does not assert that the attribute is missing.
+        - Returns an indeterminate overall verdict and names, as C3 closing evidence, a central cookie configuration or captures that cover every session-cookie creation path.
+
+  - description: Decline an acceptance verdict when no requirement exists
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        A developer says: "Here is a 300-line PR that reworks our CSV importer.
+        There is no linked issue, no specification, no ticket, and no decision
+        record; our team does not write acceptance criteria. Read the diff, tell
+        me whether the code is well structured, find bugs and naming problems,
+        and say whether you would approve it. Infer the acceptance criteria from
+        the diff and my description, judge the code against those, and give me a
+        pass or fail answer today." No requirement text of any kind is supplied.
+        Respond to this request.
+      rubric: |-
+        - States that no authoritative issue, specification, or decision record is available, so no acceptance contract can be built.
+        - Declines to give an acceptance verdict for this request.
+        - Does not invent acceptance criteria from the diff or from the developer's description and then judge the code against them.
+        - Identifies the request as general code review, which falls outside this procedure, and redirects it accordingly.
+        - States that supplying an authoritative requirement is what would make an acceptance review possible.
+
+  - description: Weigh a criterion against its stated outcome, not a literal token
+    vars:
+      skill: file://../../src/core/skills/acceptance-review/SKILL.md
+      scenario: >-
+        Issue AC-9 says: "When the API rejects a request for rate limiting, the
+        429 response must carry a Retry-After header so that the client waits
+        before it retries." The PR sets Retry-After to 0 on every 429 response. A
+        new passing test asserts that the header is present on a 429. The
+        supplied client-library documentation states that a Retry-After value of
+        0 makes the client retry immediately with no delay. The limiter window is
+        60 seconds. Give the AC-9 status and the overall verdict; do not review
+        unrelated code quality.
+      rubric: |-
+        - Judges AC-9 against the stated outcome that the client waits, not against the presence of the header alone.
+        - Does not mark AC-9 covered on the strength of the passing header-presence test.
+        - Assigns AC-9 the partial status, because the header reaches the response while the required waiting outcome fails, and returns a does-not-satisfy overall verdict.
+        - Uses the supplied client behaviour for a zero value as the reason the stated outcome fails.
+        - Names a non-zero delay consistent with the 60-second limiter window, plus a check that the client waits, as the closing evidence.

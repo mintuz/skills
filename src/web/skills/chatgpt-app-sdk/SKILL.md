@@ -1,6 +1,6 @@
 ---
 name: chatgpt-app-sdk
-description: WHEN building ChatGPT apps using the OpenAI Apps SDK and MCP; create conversational, composable experiences with proper UX, UI, state management, and server patterns.
+description: WHEN building ChatGPT apps using the OpenAI Apps SDK and MCP; NOT for OpenAI API chat completions, agent frameworks, or MCP servers with no ChatGPT widget; create conversational, composable experiences with proper UX, UI, state management, and server patterns.
 ---
 
 # ChatGPT Apps SDK Best Practices
@@ -28,6 +28,24 @@ Build ChatGPT apps using the OpenAI Apps SDK, Model Context Protocol (MCP), and 
 | Missing widget data | Pass initial data via `_meta.initialData` field       |
 | CSP script blocking | Reference external scripts from allowed CDN origins   |
 
+## The Payload Boundary Rule
+
+This section owns the rule for what may leave the server. Every other page in
+this skill defers to it.
+
+`structuredContent`, `content`, `_meta`, and widget state all reach the user's
+browser. `_meta` is widget-visible transport, not a private channel: the model
+does not read it, but the user can. Authorise and project on the server first,
+then send only the projection the current view renders.
+
+Keep server-side: credentials, records the signed-in user may not see, internal
+fields the view does not render, raw diagnostics, stack traces, and technical
+logs. Return safe error content with an opaque correlation ID for support cases.
+
+Send the page or slice the view renders, not the whole result set. To show more,
+return an opaque cursor or page argument and fetch the next page with another
+tool call.
+
 ## Decision Trees
 
 ### What display mode should I use?
@@ -50,9 +68,21 @@ Is this data from your API/database?
 │   Return in structuredContent from tool calls
 └── No → Is it user preference/cross-session data?
     ├── Yes → Backend Storage (via OAuth)
-    └── No → Widget State (UI-scoped)
+    └── No → Widget State (UI-scoped, model-visible)
         Use window.openai.widgetState / useWidgetState
 ```
+
+Treat widget state as model-visible context, not private client storage: ChatGPT
+carries it into the conversation, so it costs tokens on later turns and the user
+can read it. Keep it to identifiers and view preferences, such as the selected
+ID, current page, current step, and sort order. Never keep answers, records, file
+contents, or credentials there; store those on the server and re-fetch them with
+a tool call.
+
+A widget runs only while ChatGPT renders it. It cannot run in the background,
+wake up later, or act after the user leaves the conversation. Put scheduled work,
+waiting, and outbound notifications on the MCP server or another system you
+control, and let the next tool call report the result.
 
 ### Should this be a separate tool?
 
@@ -75,8 +105,12 @@ Does the model need this data to:
 - Generate follow-ups?
 - Reason about next steps?
 ├── Yes → structuredContent (concise, model-readable)
-└── No → _meta (large datasets, widget-only data)
+└── No → _meta (the authorised projection the widget renders)
 ```
+
+Precomputed series, layout hints, and other display-only data belong in `_meta`,
+because the model does not reason about them. Apply the payload boundary rule
+above to both halves.
 
 ### Should I use custom UI or just text?
 

@@ -1,0 +1,17 @@
+This is a read-only scenario evaluation. Do not call tools, run commands, inspect
+files, or interact with external systems. Follow the skill below as the
+authoritative guidance. Respond with the retrieval plan, commands or pseudocode,
+validation, and output semantics requested by the scenario. Apply the skill's
+rules, but do not invent live results, result counts, or fields that neither
+the skill nor the scenario supplies.
+
+<skill>
+{{skill}}
+</skill>
+
+<selected-reference>
+{{reference}}
+</selected-reference>
+
+Scenario:
+{{scenario}}

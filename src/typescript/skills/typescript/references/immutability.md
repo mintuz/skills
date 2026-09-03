@@ -1,8 +1,8 @@
 # Immutability
 
-## No Data Mutation
+## No Data Mutation Across a Boundary
 
-Mutations cause bugs that are hard to track. Always create new values:
+Mutation of a value a caller owns causes bugs that are hard to track. Return a new value instead:
 
 ```typescript
 // Bad - mutates array
@@ -45,9 +45,9 @@ type DeepReadonly<T> = {
 };
 ```
 
-## Forbidden Array Methods
+## Mutating Array Methods
 
-Never use mutating array methods:
+Never call a mutating array method on an array a caller owns, or on an array you have already returned. Use the alternative instead:
 
 | Forbidden   | Alternative                                 |
 | ----------- | ------------------------------------------- |
@@ -58,6 +58,21 @@ Never use mutating array methods:
 | `splice()`  | `[...arr.slice(0, i), ...arr.slice(i + n)]` |
 | `sort()`    | `[...arr].sort()`                           |
 | `reverse()` | `[...arr].reverse()`                        |
+
+### Exception: a local accumulator
+
+The alternatives above copy the array. A function that builds a collection may create the array itself and `push` into it, then return it under a `readonly` type, because no caller can observe the mutation. Use this form for any loop over a large input: `[...accumulator, item]` inside a loop copies the accumulator on every step and makes the loop quadratic.
+
+```typescript
+// Good - local accumulator, O(n), no caller-visible mutation
+const activeIds = (rows: readonly Row[]): readonly string[] => {
+  const ids: string[] = [];
+  for (const row of rows) {
+    if (row.active) ids.push(row.id);
+  }
+  return ids;
+};
+```
 
 ## Function Parameters
 
@@ -118,7 +133,7 @@ fetchUsers({
 
 ### Result Types
 
-Use Result types for operations that can fail:
+Report a failure through the function's contract. A Result type suits an operation whose caller must handle several failure kinds:
 
 ```typescript
 type Result<T, E = Error> =
