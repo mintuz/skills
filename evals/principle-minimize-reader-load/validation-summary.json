@@ -1,0 +1,186 @@
+{
+  "skill": "principle-minimize-reader-load",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
+  "upstream_sha256": "1ea2b7fef2391cae5844c4efdbd59031f775e8a52d06b7495d707229a200dcca",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 269,
+    "port_body": 134,
+    "upstream_total": 306,
+    "port_total": 158
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-Je0-2026-10-13T20:30:17",
+      "source_sha256": "1ea2b7fef2391cae5844c4efdbd59031f775e8a52d06b7495d707229a200dcca",
+      "passed": 0,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.6,
+          "failure_reason_code": 1,
+          "reason": "Correctly preserves BillingFacade\u2019s idempotency, error mapping, and privacy boundary despite its caller count, and identifies the lookup forwarding hop as a candidate for removal. It also considers extra call tracing and payment rules readers must retain. However, it recommends inlining without checking the lookup contract and does not evaluate state ownership or the complete paths. Acknowledging missing evidence appropriately limits its claims but does not satisfy those requirements.",
+          "case": "One implementation can hide a real boundary"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.8,
+          "failure_reason_code": 1,
+          "reason": "The output makes request context explicit, localizes retry state, checks value origins and writes, and proposes interleaved requests with different tenants and users plus retry-isolation checks. It also correctly avoids treating flat code as proof of maintainability. However, it does not explicitly preserve intentionally shared resources or distinguish them from request-specific mutable state, leaving one substantive requirement unmet.",
+          "case": "Flat code still has hidden state"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-FMv-2026-10-13T20:42:32",
+      "source_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "One implementation can hide a real boundary"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Flat code still has hidden state"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-6bK-2026-10-13T20:44:57",
+      "source_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
+      "passed": 3,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": false,
+          "score": 0.7,
+          "failure_reason_code": 1,
+          "reason": "Preserves BillingFacade\u2019s idempotency, error mapping, and privacy boundary regardless of caller count, and identifies only the forwarding lookup method for removal after contract checks. However, it does not evaluate state and ownership across the complete paths or assess understanding through trace steps and state the reader must retain. Calling the improvement unmeasured appropriately avoids fabricated evidence but does not satisfy those requirements.",
+          "case": "One implementation can hide a real boundary"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "One implementation can hide a real boundary"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Flat code still has hidden state"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Flat code still has hidden state"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-Eas-2026-10-13T20:54:56",
+      "source_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [],
+  "unmet_gates": [],
+  "comparison": {
+    "improved_cases": [
+      0
+    ],
+    "regressed_cases": []
+  },
+  "earlier_treatment_attempt": {
+    "eval_id": "eval-O5b-2026-10-13T20:37:18",
+    "evidence_file": "green-first-evidence.json",
+    "change": "Shared-resource ownership rule added."
+  },
+  "native_replay": {
+    "durable_report": "../../reports/skill-audit-2026-10-13/native-principles-replay.json",
+    "source_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

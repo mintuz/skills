@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "skill": "blast-radius",
+  "source_sha256": "e6c0f60b27fc714dd07291707dee65762842d73706c6000aef64996b4afadbc3",
+  "scope": "Native project discovery and one representative read-only scenario per skill. This is not implementation, runtime, full regression or operational cold-replay evidence. No external action or file creation claimed by model. Manual review, not automated rubric score.",
+  "observed_contracts": "Independent persistence, snapshot and extension boundaries; conditional mapping risk and device proof limits. Initial Claude encoding assertion disputed; focused replay qualifies it.",
+  "runs": [
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "e6c0f60b27fc714dd07291707dee65762842d73706c6000aef64996b4afadbc3",
+      "fixture": "/tmp/workflow-native/claude/.claude/skills/blast-radius/SKILL.md",
+      "loader_call": {
+        "name": "Skill",
+        "args": {
+          "skill": "blast-radius"
+        },
+        "id": "toolu_01XHrX7QfWuhzy57pNTUWfGt"
+      },
+      "loader_result": {
+        "id": "toolu_01XHrX7QfWuhzy57pNTUWfGt",
+        "is_error": null,
+        "content": "Launching skill: blast-radius"
+      },
+      "loader_status": "loaded",
+      "behavior_status": "potential-overclaim-retained",
+      "response": "blast-radius\n**Loaded from:** `/private/tmp/workflow-native/claude/.claude/skills/blast-radius`\n\nThe rename of `nextFire` to `dueAt` in `SharedAlarm.swift:18` changes a persisted key, so the risks are in the three consumers, not in the diff.\n\n| Risk | Failure sequence | Decisive check |\n|---|---|---|\n| `Store.swift:44` reads old on-disk records | Existing records still have `nextFire`, so decoding fails or alarms silently drop. | Decode a real old-format fixture. Add a `CodingKeys` fallback or migration if it fails. |\n| `Widget.swift:31` decodes the App Group snapshot | The widget and app can be on different versions, and the snapshot may have been written before the update. The widget could blank out. | Decode an old snapshot with the new model, and a new snapshot with the old model if mixed versions can occur. |\n| `Intent.swift:23` writes in an extension process | The extension may write the old or new key, and it can run on a different lifecycle from the app. | Check which key it writes and whether the app reads it back. |\n\n**Evidence so far:** the simulator UI save passing is only simulator evidence of a new-format round trip. It doesn't show that old data migrates, that the widget decodes, or that the intent's write is readable. Physical-device extension and widget behavior is unverified.\n\n**Remaining proof:** the three checks above, plus the Swift/Codable version actually shipped. Each result should be labeled by environment.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/claude"
+    },
+    {
+      "host": "omp",
+      "model": [
+        "gpt-6-astra"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "e6c0f60b27fc714dd07291707dee65762842d73706c6000aef64996b4afadbc3",
+      "fixture": "/tmp/workflow-native/omp/.agents/skills/blast-radius/SKILL.md",
+      "loader_call": {
+        "name": "read",
+        "args": {
+          "path": "skill://blast-radius"
+        },
+        "id": "call_d45ad392a980493f84c05347d19dded7|fc_06a2b1e266e81043016acea058c5c48191ae59e49be5d3c8d8"
+      },
+      "loader_result": {
+        "id": "call_d45ad392a980493f84c05347d19dded7|fc_06a2b1e266e81043016acea058c5c48191ae59e49be5d3c8d8",
+        "is_error": false
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "blast-radius\n\n**Loaded:** `/tmp/workflow-native/omp/.agents/skills/blast-radius/SKILL.md`\n\nThe tiny diff changes a persisted contract. The supplied simulator UI save does not clear its independent consumer boundaries.\n\n| Boundary | Material risk | Decisive proof needed |\n|---|---|---|\n| `SharedAlarm.swift:18` \u2192 `Store.swift:44` | If the encoded key changes, old records containing `nextFire` may fail to decode or lose their scheduled value. | Load a genuine old-format fixture with the new implementation. Verify the original time survives load, save and reload. |\n| `Widget.swift:31` | The App Group snapshot decoder may not accept the producer\u2019s schema. | Exercise real snapshot encoding and widget decoding across relevant old/new snapshot versions. Verify the displayed alarm time. |\n| `Intent.swift:23` | An extension write may produce an incompatible record or overwrite migrated data. | Write through the intent extension, then read through the app and widget. Exercise the relevant process lifecycle. |\n\nFirst establish the actual coding keys, migration logic and producer/consumer versions; a property rename alone does not prove the encoded key changed.\n\n**Evidence limit:** Simulator UI save is the only supplied runtime proof. Persistence migration, snapshot compatibility and extension lifecycle remain unproven. Physical-device extension behaviour also remains unverified. Record revision and environment for each eventual check.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/omp"
+    },
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "e6c0f60b27fc714dd07291707dee65762842d73706c6000aef64996b4afadbc3",
+      "scenario": "Use the installed blast-radius skill through native discovery for this read-only scenario. Do not inspect unrelated files, run commands, or delegate. Assess this Swift model change: SharedAlarm.swift:18 renames only the Swift property nextFire to dueAt; no CodingKeys, schema, or migration mapping has been inspected yet. Store.swift:44 reads old on-disk records; Widget.swift:31 decodes an App Group snapshot; Intent.swift:23 writes alarms in an extension process. Simulator UI save passed. What risks and proof remain? Distinguish supplied facts from assumptions. No actual source contents beyond this description are available.",
+      "loader_status": "loaded",
+      "loader_call": [
+        {
+          "name": "Skill",
+          "args": {
+            "skill": "blast-radius"
+          },
+          "id": "toolu_01CfJVgGgGRSRuNTCy7pQQJq"
+        }
+      ],
+      "loader_result": [
+        {
+          "id": "toolu_01CfJVgGgGRSRuNTCy7pQQJq",
+          "is_error": null,
+          "content": "Launching skill: blast-radius"
+        }
+      ],
+      "behavior_status": "clarified-encoding-distinction-observed-with-residual-specificity-limit",
+      "response": "# Blast radius: `nextFire` \u2192 `dueAt` in `SharedAlarm.swift:18`\n\n## Supplied facts\n- `SharedAlarm.swift:18` renames only the Swift property `nextFire` to `dueAt`.\n- No `CodingKeys`, schema or migration mapping has been inspected.\n- `Store.swift:44` reads old on-disk records.\n- `Widget.swift:31` decodes an App Group snapshot.\n- `Intent.swift:23` writes alarms from an extension process.\n- A simulator UI save passed.\n\nI have no source beyond this description, so everything below about how the code behaves is an assumption.\n\n## Core risk\nIf `SharedAlarm` is `Codable` with synthesized coding, the JSON or plist key changes from `\"nextFire\"` to `\"dueAt\"`. This is an assumption, because `Codable` conformance hasn't been confirmed. If an explicit `CodingKeys` maps to the old string, the rename is safe on disk.\n\n## Risk-to-check map\n\n| # | Boundary | Failure sequence (assumed) | Consequence | Cheapest decisive check |\n|---|---|---|---|---|\n| 1 | **Store.swift:44, old records** | Old records contain `nextFire`. Synthesized decoding looks for `dueAt`, so it throws `keyNotFound`. If the error is swallowed (`try?`, or a fallback to empty), the alarms disappear silently. | Alarms are lost or reset after upgrade. This is the highest-impact path. | Decode a saved fixture of a pre-change record with the new type. Check `CodingKeys` and any migration code first. |\n| 2 | **Widget.swift:31, App Group snapshot** | The snapshot may have been written by the old app or extension build, and the widget may be the new build, or the reverse. Keys disagree in either direction. | The widget shows blank or placeholder data, or fails to decode. | Round-trip test: old-format snapshot decoded by the new type, and new-format snapshot decoded by the old type. Confirm whether the widget and app ship together. |\n| 3 | **Intent.swift:23, extension writer** | An extension process runs a different build than the app during an update, or is still running. It writes `nextFire` while the app expects `dueAt`, or the reverse. | Alarms written by the extension are dropped or fail to decode. | Same fixture pair as #2, plus check that the extension target compiles against the same `SharedAlarm` source. |\n| 4 | **Mixed readers and writers** | Old data is re-saved in the new format, and an older reader (a rollback, or a not-yet-updated extension) can no longer read it. | The change is hard to roll back. Data written under `dueAt` is unreadable by the old build. | Decide whether backward compatibility is required. A dual-key decoder or an explicit `CodingKeys` avoids the problem. |\n| 5 | **Non-Swift or untyped consumers** | Anything that reads the raw key (a string-keyed dictionary, `@AppStorage`, a predicate or `NSPredicate`, a Core Data or SwiftData attribute, or server JSON) is unaffected by the compiler. | Silent runtime misses. | Grep for the literal `\"nextFire\"` and for any key-path or `#Predicate` use. This is a bounded search, not proof of absence. |\n\n## What the simulator pass does and doesn't show\n- **It shows (simulator only):** with a fresh or current-format save, the UI path works.\n- **It does not show:**\n  - Decoding of old on-disk records, because a new save only exercises the new key.\n  - Cross-process behavior, because extension and widget lifecycles and the App Group container are not exercised by a UI save.\n  - Physical-device behavior for extensions and widgets, which is untested.\n  - Upgrade behavior from an installed older build.\n\n## Remaining proof, in priority order\n1. **Static:** Open `SharedAlarm.swift` and confirm whether it is `Codable` and whether it has `CodingKeys`. If `CodingKeys` maps `dueAt = \"nextFire\"`, #1 through #4 are largely cleared and only the raw-key search (#5) remains.\n2. **Unit:** Decode a frozen old-format fixture, captured from a pre-change build, through the real `Store.swift:44` path. Assert that the `dueAt` value is preserved and that failure is not silent.\n3. **Unit:** Do the same for the widget snapshot decode (`Widget.swift:31`) and the extension write (`Intent.swift:23`), in both directions.\n4. **Upgrade test:** Install the old build, create alarms, then install the new build over it. Verify the app, widget and intent all still see the alarms. A simulator is enough for the data path.\n5. **Device:** Run the extension and widget on a physical device if release depends on lifecycle or timing behavior.\n\n## Suggested fix if #1 is confirmed\nAdd `CodingKeys` with `case dueAt = \"nextFire\"`. If you want to move to the new key, add a custom `init(from:)` that tries `dueAt` and falls back to `nextFire`. Keep encoding as `nextFire` until every reader (app, widget, extension) has shipped the dual-key decoder.\n\n## Status\nNothing is confirmed as broken, and nothing is cleared beyond the simulator UI save. The persistence, widget and extension paths are unproven.",
+      "raw_evidence_directory": "/tmp/workflow-native/claude-blast"
+    }
+  ],
+  "limitations": [
+    "Initial scenario said renames persisted nextFire, which can imply a stored-key change; Claude asserted an encoded-key change without a supplied mapping. Retained as a potential behavioral overclaim, not a loader failure.",
+    "Fresh independent replay explicitly limited change to Swift property and said no CodingKeys/schema/migration inspected. Claude then made encoding risk conditional and prioritized actual mapping inspection; source unchanged.",
+    "Focused response still describes simulator save as fresh/current-format and says new save exercises new key; those details were not supplied. The final status correctly leaves persistence, widget and extension paths unproven.",
+    "OMP opening calls change a persisted contract, but its substantive risk map and explicit mapping-first sentence qualify whether encoded keys change. Do not construe native replay as proof against all overclaiming."
+  ]
+}

@@ -11,6 +11,9 @@ importers:
       promptfoo:
         specifier: 0.122.2
         version: 0.122.2(@aws-sdk/credential-provider-node@3.972.81)(@cfworker/json-schema@4.1.1)(@smithy/signature-v4@5.7.3)(@types/json-schema@7.0.15)(@types/node@26.4.0)(graphql@17.0.2)(pg@8.23.0)(playwright-core@1.62.1)(socks@2.8.9)
+      yaml:
+        specifier: 2.9.0
+        version: 2.9.0
 
 packages:
 
@@ -7013,7 +7016,7 @@ snapshots:
       jsonwebtoken: 9.0.3
       load-esm: 1.0.3
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.18.0)
+      retry-axios: 2.6.0(axios@1.18.0(debug@4.3.4))
       tough-cookie: 4.1.3
     transitivePeerDependencies:
       - supports-color
@@ -8079,7 +8082,7 @@ snapshots:
       onetime: 7.0.0
       signal-exit: 4.1.0
 
-  retry-axios@2.6.0(axios@1.18.0):
+  retry-axios@2.6.0(axios@1.18.0(debug@4.3.4)):
     dependencies:
       axios: 1.18.0(debug@4.3.4)
     optional: true
@@ -8655,8 +8658,7 @@ snapshots:
   xtend@4.0.2:
     optional: true
 
-  yaml@2.9.0:
-    optional: true
+  yaml@2.9.0: {}
 
   yauzl@2.10.0:
     dependencies:

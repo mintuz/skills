@@ -1,0 +1,75 @@
+description: "recall portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Bounded mixed history and stale PR"
+    vars:
+      skill: "file://../../src/core/skills/recall/SKILL.md"
+      scenario: "Recall where I left off on invoice export in this workspace over the past seven days. Available local histories contain one original discussion, its resumed copy and two eval children quoting it. Original says PR 12 was open. Live source host says PR 12 merged, but deployment API is unavailable. Other project chats also mention exports. Return brief and search scope."
+      rubric: "Bounds to named topic/workspace/seven days, de-duplicates resumed copies and excludes eval children/unrelated projects, reconciles open history with live merge, leaves deployment unknown, cites minimal locators and identifies one next action without dumping raw private transcripts."
+  -
+    description: "Use supplied capsule and verify freshness"
+    vars:
+      skill: "file://../../src/core/skills/recall/SKILL.md"
+      scenario: "Resume context: branch fix/export at commit e2; diff adds newline escaping; tests passed yesterday; PR 21 was open then. User gives this complete capsule and asks where things stand now. Current checkout is e3 with uncommitted unrelated UI work; source-host request times out."
+      rubric: "Uses supplied capsule instead of broad history mining, distinguishes current e3/unrelated dirty work from yesterday e2 results and stale PR status, marks live PR unknown/unverified after timeout, and preserves dirty work without reset/rebase or pretending tests current."
+  -
+    description: "All is not silently recent"
+    vars:
+      skill: "file://../../src/core/skills/recall/SKILL.md"
+      scenario: "Recall all prior work on the parser in this workspace. Accessible index covers only last month; older archives may exist but are not accessible. The user did not specify a time limit. What search and status are justified?"
+      rubric: "Does not silently restrict all to a seven-day/default recent window. States accessible coverage and missing archives, searches relevant accessible records with bounded reads, and gives partial context with explicit gap rather than claiming complete recall."
+  -
+    description: "Exact session and reverted fix"
+    vars:
+      skill: "file://../../src/core/skills/recall/SKILL.md"
+      scenario: "Pick up session s91 about sync recovery. Its summary says shipped fix; its tool trace shows tests failed before publish. Current remote change is reverted and branch still exists. User asks for context only. What should handover say?"
+      rubric: "Targets named session rather than broad corpus, reads action evidence when summary conflicts, reports failed validation and current reverted state separately, preserves history privately with minimal locators and recommends concrete next step without automatically resuming modifications."

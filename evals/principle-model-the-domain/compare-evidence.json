@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-VDe-2026-10-13T20:45:46",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-model-the-domain"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "79c545f601335e069485e883f5efbd45c4ce9afec61e4352935a4f2142e3d35d",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use one shared discriminated union so the four valid states are explicit:\n\n```ts\ntype UploadState =\n  | { status: \"pending\" }\n  | { status: \"uploading\" }\n  | { status: \"failed\"; error: UploadError }\n  | { status: \"complete\"; receipt: Receipt };\n```\n\nRemove the stored booleans; derive UI flags from `status`. Keep retry eligibility and its transition in one shared domain module:\n\n```ts\nfunction canRetry(state: UploadState): boolean {\n  return state.status === \"failed\";\n}\n\nfunction retry(state: UploadState): UploadState {\n  if (state.status !== \"failed\") {\n    throw new Error(\"Only failed uploads can retry\");\n  }\n  return { status: \"uploading\" };\n}\n```\n\nButton rendering uses `canRetry`; the worker uses `retry`. Persistence loading validates unknown data into `UploadState`, requiring an error for failure and a receipt for completion. Reject contradictory legacy records rather than guessing which boolean wins. A state-machine library is unnecessary for this scope.\n\nVerify:\n\n- All four valid states load; missing required payloads, unknown states, and contradictory legacy flags fail validation.\n- Retry changes failed to uploading and removes the previous error.\n- Retry rejects pending, uploading, and complete.\n- UI eligibility agrees with the transition guard for every state.\n- Valid states survive persistence round trips.\n\n**Evidence limits:** This is a proposed model, not a verified implementation. The supplied facts establish only the retry transition; other legal transitions, payload schemas, and legacy-data migration policy still need definition. Types alone do not validate persisted data or prevent concurrent worker updates.",
+        "tokenUsage": {
+          "prompt": 21715,
+          "completion": 339,
+          "cached": 19072,
+          "total": 22054,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Represent legal lifecycle states"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use a shared discriminated union with one owner for transition rules:\n\n```ts\ntype UploadState =\n  | { kind: \"pending\" }\n  | { kind: \"uploading\" }\n  | { kind: \"failed\"; error: UploadError }\n  | { kind: \"complete\"; receipt: Receipt };\n```\n\nThis makes mutually exclusive states explicit and carries required data with failed and complete states.\n\nPut transitions in a small shared function:\n\n| Action | Allowed source | Result |\n|---|---|---|\n| Start | pending | uploading |\n| Fail(error) | uploading | failed(error) |\n| Succeed(receipt) | uploading | complete(receipt) |\n| Retry | failed | uploading |\n\nReject every other combination, including retry from complete. Start, failure and success transitions are proposed lifecycle assumptions; the scenario explicitly specifies only retry.\n\nButton rendering and the worker should use this shared transition policy rather than recreate eligibility rules. Persistence loading should parse or migrate legacy flags into `UploadState`, validating error and receipt payloads. Reject contradictory flags, missing required payloads and incompatible leftover data rather than guessing. All flags false with neither payload maps to pending.\n\nVerify through public behavior:\n\n- Each allowed transition produces the expected state and payload.\n- Every forbidden state/action pair is rejected without changing state.\n- Retry works from failed and is unavailable and rejected from complete.\n- Every valid state survives persistence round-trip.\n- Loading rejects conflicting flags, malformed or missing payloads, and unknown states.\n- Worker failure produces failed(error); successful completion produces complete(receipt).\n\n**Evidence limits:** This is a proposed model, not an inspected or tested implementation. Restoration of an interrupted uploading state, error/receipt schemas, and handling of rejected stored records require explicit policies. No framework is needed.",
+        "tokenUsage": {
+          "prompt": 21908,
+          "completion": 363,
+          "cached": 19072,
+          "total": 22271,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Represent legal lifecycle states"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the suggestion. Change the initials separator directly and verify that compact output uses the new separator while full-name output remains unchanged.\n\nThe boolean selects between two legitimate formats. With no stored state or duplicated domain rules, a registry, event bus, and state machine add complexity without addressing a demonstrated problem. Domain modeling should clarify meaningful concepts and constraints; it does not require eliminating branches.\n\nEvidence limit: this judgment rests on the supplied facts. No code or tests were inspected, so implementation correctness and broader requirements remain unverified.",
+        "tokenUsage": {
+          "prompt": 21710,
+          "completion": 107,
+          "cached": 19072,
+          "total": 21817,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Do not manufacture an abstraction"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the registry, event bus, and state machine. Keep the two-branch formatter and change the initials separator.\n\nThe supplied skill explicitly excludes clear local transformations. Here, `compact` is already validated, nothing is persisted, and there are no duplicated domain rules or lifecycle transitions. The proposed abstractions remove no invalid state, repeated rule, or lifecycle risk; removing branches alone is not a reason to model the domain.\n\nVerify that initials use the requested separator and full-name output remains unchanged. This judgment relies solely on the supplied scenario; no implementation was inspected or tests run.",
+        "tokenUsage": {
+          "prompt": 21903,
+          "completion": 119,
+          "cached": 19072,
+          "total": 22022,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Do not manufacture an abstraction"
+    }
+  ]
+}

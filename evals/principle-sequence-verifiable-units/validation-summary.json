@@ -1,0 +1,181 @@
+{
+  "skill": "principle-sequence-verifiable-units",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
+  "upstream_sha256": "2ccbbacc56ace5afdfb8670cef19d7bd009fb2a0033b9a741cbdf2b6baf72187",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 227,
+    "port_body": 136,
+    "upstream_total": 280,
+    "port_total": 159
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-b8X-2026-10-13T20:33:14",
+      "source_sha256": "2ccbbacc56ace5afdfb8670cef19d7bd009fb2a0033b9a741cbdf2b6baf72187",
+      "passed": 0,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.8,
+          "failure_reason_code": 1,
+          "reason": "The proposal preserves unrelated UI work, isolates migration work, checks the baseline, sequences formats with red-to-green verification, stops on failure, and includes final combined checks. However, it assumes clean trunk without explicitly inspecting unrelated changes or establishing the actual migration base, and it provides no rollback action for a failed unit. These substantive omissions prevent a full pass.",
+          "case": "Dirty shared branch is not a rebase target"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.8,
+          "failure_reason_code": 1,
+          "reason": "The proposal groups producer, consumer, and fixture atomically, sequences helper deletion separately with checks, preserves isolated red evidence without publishing a broken commit, and ends with branch verification. However, it does not specify rollback for either unit; separate commits make rollback possible but leave that requirement implicit. No executed evidence is required for this hypothetical.",
+          "case": "A unit follows the invariant rather than file count"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-TOU-2026-10-13T20:40:26",
+      "source_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Dirty shared branch is not a rebase target"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "A unit follows the invariant rather than file count"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-ZjC-2026-10-13T20:50:33",
+      "source_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
+      "passed": 4,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Dirty shared branch is not a rebase target"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Dirty shared branch is not a rebase target"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "A unit follows the invariant rather than file count"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "A unit follows the invariant rather than file count"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-LJU-2026-10-13T20:57:02",
+      "source_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [],
+  "unmet_gates": [
+    "No score gain over the no-skill baseline in this comparison."
+  ],
+  "comparison": {
+    "improved_cases": [],
+    "regressed_cases": []
+  },
+  "native_replay": {
+    "durable_report": "../../reports/skill-audit-2026-10-13/native-principles-replay.json",
+    "source_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

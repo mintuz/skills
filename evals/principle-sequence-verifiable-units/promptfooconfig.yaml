@@ -1,0 +1,56 @@
+description: "principle-sequence-verifiable-units behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Dirty shared branch is not a rebase target"
+    vars:
+      skill: file://../../src/principle/skills/principle-sequence-verifiable-units/SKILL.md
+      scenario: "An approved serializer migration touches three independent formats. The checkout contains a colleague's uncommitted UI work on a shared branch. Baseline serializer tests are available. A plan says rebase onto trunk first, then change all formats and test at the end. Propose a verifiable sequence without altering the colleague's work."
+      rubric: "Inspects and preserves unrelated changes without auto-rebase, stash, reset or cleanup; establishes the actual base and uses an isolated checkout where appropriate; orders one format/contract unit at a time with before/after checks and rollback; stops dependencies on a failed unit and includes final cross-format checks."
+  - description: "A unit follows the invariant rather than file count"
+    vars:
+      skill: file://../../src/principle/skills/principle-sequence-verifiable-units/SKILL.md
+      scenario: "A renamed wire field requires updating one producer, one consumer and a contract fixture together. Any single-file state fails the accepted protocol. Independently an obsolete helper can be deleted. The user wants reviewable commits and a green shared branch. Choose units and proof order."
+      rubric: "Groups the producer, consumer and fixture into one contract-preserving unit instead of one file per unit; orders independent helper deletion and protocol change with their own checks and rollback; can show a failing test in isolated evidence but does not land a broken shared commit merely to force red-green history; ends at verified integration."

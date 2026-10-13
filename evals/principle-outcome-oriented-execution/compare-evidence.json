@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-AIw-2026-10-13T20:47:14",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-outcome-oriented-execution"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "f24e83b7090aa458b9441ef66c20a88da4b24ecb185c37d43a06f6567a0adcae",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Do not push the broken intermediate steps to the shared integration branch. The approved migration authorizes the target behavior; it does not justify disrupting another engineer or deployment automation.\n\n1. Use an isolated branch or worktree. Keep the target contract and existing tests as the acceptance criteria.\n2. Complete the rename and its dependent changes there. Temporary build failures can remain local while the migration is assembled.\n3. Update tests only where the approved contract changes expected behavior; preserve unrelated regression coverage.\n4. Validate the complete change with a build, contract tests, and relevant regression tests.\n5. Integrate a single coherent, passing change\u2014squash the intermediate steps if necessary\u2014and coordinate integration with the other engineer and deployment workflow.\n\nAn adapter is unnecessary if the migration can land atomically and all affected consumers move together. If deployment or consumer upgrades happen separately, use a temporary compatibility layer or staged migration to keep each deployed state valid.\n\nEvidence limits: the supplied facts establish that two intermediate steps break the build. They do not establish that the final migration passes, that all consumers can change atomically, or that deployment is safe. Verify those conditions before integration and release.",
+        "tokenUsage": {
+          "prompt": 21711,
+          "completion": 236,
+          "cached": 19072,
+          "total": 21947,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Temporary breakage needs an isolated boundary"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Do not push the two broken steps to the shared integration branch. The migration is approved, but that branch must remain usable by the other engineer and deploy automation.\n\n1. Confirm the accepted endpoint behavior and guarantees from the target contract and tests. Identify supported endpoint consumers, the other engineer\u2019s work, and deployment checks.\n2. Perform the rename in an isolated branch or worktree. Allow the two temporarily broken steps only there, with a declared boundary: restore the build and pass the relevant gates before integration. Recovery is to discard or revert the isolated changes.\n3. Close each migration phase with its contract checks. Resolve failures before starting dependent work; do not defer all test fixes until the end.\n4. Integrate a cohesive, passing change that contains the rename and consumer updates. Avoid adapters if consumers can move together. If supported consumers need a staggered rollout, retain temporary compatibility until they migrate.\n5. Remove obsolete paths once their consumers and guarantees are covered. Validate the final artifact with relevant static, integration, and runtime checks, including any ordering, cancellation, or persistence guarantees in the contract.\n6. Define deployment rollback before merging: retain a known-good revision and verify that rollback remains compatible with any endpoint or persisted-state changes.\n\nEvidence limit: the scenario establishes that a contract and tests exist, but provides neither their contents nor results. This is an execution plan, not evidence that the migration, consumer coverage, or rollback has been verified.",
+        "tokenUsage": {
+          "prompt": 21908,
+          "completion": 293,
+          "cached": 19072,
+          "total": 22201,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Temporary breakage needs an isolated boundary"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.6,
+      "response": {
+        "output": "Continue the migration; do not declare it complete. The failing cancellation test violates an accepted outcome, and deleting the old queue remains unfinished.\n\nCompletion requires:\n\n- Fixing cancellation while preserving ordering and retry limits.\n- Removing the old queue implementation and remaining references.\n- Running compilation and relevant behavioral tests against the final code, with all accepted outcomes passing.\n\nThe initial compile pass applies only to that earlier state and does not establish behavioral correctness. The cancellation failure is evidence of an unresolved defect; the unrun final code provides no evidence that it is fixed.",
+        "tokenUsage": {
+          "prompt": 21708,
+          "completion": 113,
+          "cached": 19072,
+          "total": 21821,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The output correctly continues the migration, requires cancellation, ordering, and retry guarantees, calls for removing the old queue, and requires final compilation and behavioral tests without claiming unrun results. However, it does not propose investigating the failed phase check before relying on it, condition queue removal on proven consumer migration and guarantees, distinguish permissible temporary isolated breakage from final behavior, or name a rollback approach. It therefore only partially satisfies the rubric.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.6,
+        "reason": "The output correctly continues the migration, requires cancellation, ordering, and retry guarantees, calls for removing the old queue, and requires final compilation and behavioral tests without claiming unrun results. However, it does not propose investigating the failed phase check before relying on it, condition queue removal on proven consumer migration and guarantees, distinguish permissible temporary isolated breakage from final behavior, or name a rollback approach. It therefore only partially satisfies the rubric."
+      },
+      "failure_reason": 1,
+      "case": "Finish the outcome with phase gates"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Continue the migration, but pause dependent work until the failing cancellation test is resolved. The passing compile test does not establish the accepted guarantees.\n\nCompletion requires:\n\n- Preserving ordering, cancellation and retry limits for all affected consumers.\n- Keeping temporary breakage within the authorized, isolated, reversible phase, with a declared recovery path; shared branches and supported consumers must remain usable.\n- Passing the cancellation gate before advancing, then removing the old queue once its consumers and guarantees are covered.\n- Running relevant static, integration and runtime checks against the final artifact, including ordering, cancellation and retry limits.\n\nEvidence currently supports only successful initial compilation. Cancellation has a known failing test, deletion is unfinished, and final runtime behavior is unverified. The migration is not complete.",
+        "tokenUsage": {
+          "prompt": 21905,
+          "completion": 153,
+          "cached": 19072,
+          "total": 22058,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Finish the outcome with phase gates"
+    }
+  ]
+}

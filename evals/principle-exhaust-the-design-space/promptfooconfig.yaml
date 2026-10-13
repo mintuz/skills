@@ -1,0 +1,57 @@
+description: "principle-exhaust-the-design-space behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Novel interaction requires real alternatives"
+    vars:
+      skill: file://../../src/principle/skills/principle-exhaust-the-design-space/SKILL.md
+      scenario: "A scheduling interface needs a new way to resolve overlapping events. Users must compare dates, keyboard use must work, and there is no existing interaction precedent. You have permission for prototypes only. Describe the decision process."
+      rubric: "Defines user task and constraints before choosing; develops two or three meaningfully different cheap prototypes; compares identical overlap/keyboard/error cases side by side; chooses using explicit tradeoffs and remaining uncertainty; does not present a prototype as shipped behavior."
+  - description: "Settled mechanical work does not need variants"
+    vars:
+      skill: file://../../src/principle/skills/principle-exhaust-the-design-space/SKILL.md
+      scenario: "The accepted design specifies changing one label from Save to Save draft, using the existing component and style. All states and translations are supplied. A teammate proposes three prototypes before making the edit. Decide the next action."
+      rubric: "Recognizes no material design uncertainty; proceeds with the scoped mechanical edit and proportional checks; does not mandate competing prototypes or reopen accepted design; preserves supplied states and translations."

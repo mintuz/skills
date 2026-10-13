@@ -1,0 +1,351 @@
+{
+  "skill": "benchmark-checklist",
+  "model": "gpt-6-astra",
+  "reasoning": "medium",
+  "upstreamCommit": "dbf49813a39c1a5389c5e28cb8e4c1c2379e2454",
+  "prechangeSha256": "ba109e96c8f6c1c391baccf19e5d11e14370df7b3f2605e1572cd565a6c0fca0",
+  "currentSha256": "0169e8efdef2971de48ef5abc3ad53fc577afb7f3117a9fe8da915ff21db6b96",
+  "limitations": [
+    "Scenario-only instruction-quality evaluation; no operational replay or cross-harness execution established here.",
+    "Upstream passed all five prechange scenarios. Port is a concise preservation rewrite; strict RED gate remains unmet, with no invented behavioral failure."
+  ],
+  "runs": [
+    {
+      "phase": "compare",
+      "evalId": "eval-QyR-2026-10-13T21:07:53",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Impossible gain and skipped work",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": true,
+          "score": 1.0,
+          "response": "No. The “8× faster” claim cannot guide adoption because the measurements are not comparable and do not establish that export completed.\n\n- **Wrong work measured:** creating an async generator without consuming it does not measure the completed export.\n- **Missing correctness checks:** absent row and error counts leave successful completion unverified.\n- **Confounded comparison:** different data sizes prevent a fair comparison; one run per side cannot establish repeatability.\n- **Implausible total speedup from the helper alone:** the helper accounted for 10 ms of the previous 100 ms. Even eliminating it entirely leaves 90 ms—a maximum **1.11× overall speedup**, assuming the remaining work is unchanged. An 8× speedup would require a 12.5 ms total.\n\nBefore using performance to guide adoption, rerun both versions on identical data and conditions, consume the generator fully, verify expected rows and errors, and repeat measurements to report typical time and variability. Until then, treat 8× as unsubstantiated.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Impossible gain and skipped work",
+          "caseIndex": 0,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive. The claimed 8× speedup cannot guide adoption.**\n\nThe new harness times async-generator creation without consuming it, so it does not measure completed export work. Missing row and error counts leave correctness unverified. Different data sizes make the comparison unfair, and one run per side provides no evidence of repeatability.\n\nThe claim also fails a plausibility check: the changed helper accounted for 10 ms of a 100 ms export. Eliminating its cost entirely would reduce total time to 90 ms—at most **1.11× faster**, assuming everything else stays equal. An 8× speedup would mean 12.5 ms total and requires evidence explaining savings beyond that helper.\n\nBefore deciding on adoption:\n\n1. Time full generator consumption and completed output; verify expected rows and substantive content, and count errors, timeouts and retries.\n2. Compare identical representative data under equivalent versions, concurrency, cache state and fairly tuned production settings.\n3. Profile separately to identify the actual limiter and confirm the helper’s share of total export time.\n4. Run at least five times per side in balanced interleaved order. Report end-to-end and helper timings in milliseconds, with medians, ranges, revisions and environment.\n\nThese are proposed checks; none were executed in this read-only evaluation.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Config fairness and load-generator saturation",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": false,
+          "score": 0.0,
+          "response": "B had a lower observed median: 30 ms versus A’s 40 ms—a 25% reduction in this setup. Matching outputs supports correctness for the tested cases.\n\nWe cannot conclude that storage B is faster:\n\n- Build mode and commit batching differ, so storage choice is confounded.\n- The load generator saturated one core while the database was idle, suggesting the benchmark was limited by load generation.\n- Running all A trials before B leaves time and order effects uncontrolled.\n- Medians alone do not show variability or uncertainty.\n\nBefore choosing, I would retest both with the same build mode and commit policy, address the load-generator bottleneck, interleave or randomize trials, and report variation alongside medians. These results alone do not justify choosing either storage.",
+          "reason": "The response avoids choosing a winner and identifies unequal configurations, generator saturation, order bias, and missing variability. However, its proposed retest does not explicitly require representative tuning, limiter diagnosis separate from measured runs, or a realistic end-to-end path before adoption. Because every criterion is required, it does not pass.",
+          "error": "The response avoids choosing a winner and identifies unequal configurations, generator saturation, order bias, and missing variability. However, its proposed retest does not explicitly require representative tuning, limiter diagnosis separate from measured runs, or a realistic end-to-end path before adoption. Because every criterion is required, it does not pass."
+        },
+        {
+          "case": "Config fairness and load-generator saturation",
+          "caseIndex": 1,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive. This benchmark cannot justify choosing A or B.** B’s reported median is 30 ms versus A’s 40 ms—25% lower elapsed time—but it compares unequal configurations with a saturated load generator.\n\n- Outputs match, but confirm timing includes completed, durable writes and counts failures, timeouts and retries.\n- A uses debug builds and per-row commits; B uses release builds and batches of 100. These differences confound the storage comparison.\n- The generator pegs one CPU core while the database is idle, suggesting the generator limits the test.\n- Five A runs followed by five B runs allow order effects. Run ranges are missing, so variability cannot be assessed.\n\nNext, use equivalent release builds, transaction/batch settings, data, concurrency and cache conditions; tune both fairly. Profile and remove the generator bottleneck, then run at least five trials per option in balanced interleaved order. Report medians and ranges, errors, revisions and environment, and measure the realistic end-to-end workload before selecting storage. These steps have not been run.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Explicit ballpark still checks work",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": true,
+          "score": 1.0,
+          "response": "A rough estimate is **240 ms (0.24 seconds) to import 100 sample rows**, based on one completed release run. All 100 rows matched the expected values, with zero failures; the exact revision and dataset were recorded. This is a single-run measurement, so timings may vary.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Explicit ballpark still checks work",
+          "caseIndex": 2,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The one-run ballpark is **240 ms to import 100 sample rows** in a release build. Completion was awaited, all 100 rows had the expected values, and there were zero failures. The exact revision and dataset were recorded.\n\nThis is a single-run duration, not evidence of a performance improvement or typical runtime. No further runs are needed for the requested ballpark.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Noise overwhelms small difference",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": true,
+          "score": 1.0,
+          "response": "A’s median was **100 ms**; B’s was **99 ms**. Means were 100.0 and 99.6 ms, with ranges of 98–102 and 97–103 ms respectively.\n\nThe runs were comparable: alternating order, equal production settings, identical correct outputs, zero errors, and all work awaited. However, five runs each with overlapping timings do **not establish a meaningful performance win** for B.\n\nEven if the 1 ms median difference translated directly to the request, it would reduce the 800 ms user-visible median by only **0.125%**.\n\nThe separate profile identifies JSON parsing CPU as an investigation target; it does not establish that parsing caused the A/B difference. Proposed next steps are more alternating measurements and a targeted parsing experiment, followed by end-to-end request measurement.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Noise overwhelms small difference",
+          "caseIndex": 3,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**No measurable difference.** Across five alternating runs per option:\n\n| Option | Median | Range |\n|---|---:|---:|\n| A | 100 ms | 98–102 ms |\n| B | 99 ms | 97–103 ms |\n\nB’s median is 1 ms lower (1%), smaller than the observed run variation. These results do not demonstrate an improvement.\n\nProduction settings were equal, outputs identical and correct, all work awaited, and errors zero. Separate profiling identifies JSON parsing CPU as the limiter.\n\nThe user-visible request median is 800 ms; no per-option end-to-end comparison was supplied. If this timed work occurs once per request, the observed 1 ms difference would represent only 0.125% of request time, even if confirmed.\n\nWorkload details, revisions and environment were not supplied, limiting reproducibility. If this small difference matters, record those details, collect more balanced runs with uncertainty analysis, and compare end-to-end requests for both options. Those follow-up checks have not run.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Portable method planning on a restricted host",
+          "caseIndex": 4,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": true,
+          "score": 1.0,
+          "response": "1. **Fix the workload and correctness criteria.** Use the same input files, import options, initial database state, and expected row hashes for both implementations. Require the expected completed row count, matching hashes, and zero failures before accepting timing results.\n\n2. **Build both in release mode.** Use the existing release benchmark harness with identical build settings. Keep builds and input preparation outside the timed interval.\n\n3. **Record the environment.** Record macOS version, laptop hardware, power state, and core count using `getconf`. Check Activity Monitor before and during each batch to record host load. Do not install tools or stop unrelated work; defer a batch if the laptop is busy.\n\n4. **Control concurrency and state.** Give both implementations the same worker limit, informed by the reported core count. Reset the destination before each run. Use one untimed warm-up per implementation and describe subsequent measurements as warm-cache runs; do not claim cold-cache measurements without a reproducible cache-control procedure.\n\n5. **Run paired measurements.** Collect ten measured runs per implementation, alternating order: A/B, then B/A. Use identical reset steps between runs. Record wall time, row hashes, failures, and completed row count for every run.\n\n6. **Handle interference consistently.** Define the exclusion rule before measuring: if Activity Monitor shows a substantial unrelated load spike during a pair, flag the entire pair and repeat it later. Retain flagged observations and their reasons. Never discard a run merely because it is slow.\n\n7. **Profile separately.** Run Instruments CPU/I/O captures for each implementation using the same workload and concurrency. Use those captures to investigate timing differences; exclude instrumented timings from the primary comparison.\n\n8. **Report the comparison.** Show all valid paired timings, median wall time, spread, and paired percentage differences, alongside correctness and failure counts. Report failed or incomplete runs separately rather than treating them as fast results. Limit conclusions to the tested workload, concurrency, and laptop conditions.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Portable method planning on a restricted host",
+          "caseIndex": 4,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive: no measurements have run.** The plan will test whether either implementation imports the same data correctly in less end-to-end wall time.\n\n1. **Inspect the existing release harness.** Confirm timing starts before import work and stops only after all rows are processed and required writes are committed. Verify it consumes asynchronous or lazy results. Use its row hashes, completed row count and failure reporting; also account for retries and timeouts.\n\n2. **Fix equivalent conditions.** Record the laptop model, macOS version, repository revisions, release build settings and core count from `getconf`. Give both implementations identical input and equivalent starting database state, indexes, concurrency, batching, transaction and connection-pool settings. Tune each fairly in preliminary runs, then freeze settings before the comparison.\n\n3. **Define realistic workloads and cache conditions.** Include representative import sizes and data distributions. Choose a production-relevant warm or cold state and apply it consistently. If a cold state cannot be established reliably without disrupting unrelated work, use a documented warm-state comparison and leave cold performance untested.\n\n4. **Check host conditions.** Observe Activity Monitor before and during measurements. Keep power and thermal conditions comparable and record competing load. Defer runs during heavy activity rather than stopping unrelated work. Use the available macOS tools; no installation is needed.\n\n5. **Run a balanced comparison.** After equivalent warm-up, collect six measured runs per implementation in paired order: `AB, BA, AB, BA, AB, BA`. Restore equivalent import state before every run. Preserve each run’s wall time, hashes, completed rows, failures, retries, timeouts and host-load notes. Retain failed runs in the record; fast failures do not establish an improvement.\n\n6. **Identify the limiter separately.** Capture representative Instruments CPU/I/O profiles for each implementation outside the primary timing runs. Check whether parsing, CPU, storage, synchronization or the harness limits throughput, and map hotspots to source where possible. Check any proposed speedup against the changed component’s share of total time.\n\n7. **Report scoped conclusions.** For each workload, report seconds per completed import, completed rows per second, run count, median and range, correctness results, environment and limiter. Measure the user-visible import path alongside any helper microbenchmark. If the gap overlaps ordinary variation, use additional balanced runs and appropriate uncertainty analysis. Unverified correctness, unequal tuning or an unknown limiter leaves the comparison inconclusive.\n\nSave the run records and profile references in a linked benchmark artifact when execution becomes available. No steps above have been executed.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "evalId": "eval-uc7-2026-10-13T20:59:13",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Impossible gain and skipped work",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive. The claimed 8× speedup cannot guide adoption.**\n\nThe new harness times async-generator creation, not completed export work. Missing row and error counts leave correctness unverified. Different data sizes make the comparison unfair, and one run per side cannot establish repeatability.\n\nThe claim also fails a plausibility check: the changed helper previously took 10 ms of a 100 ms export. Eliminating that cost entirely would reduce total time to 90 ms—at most **1.11× throughput**, assuming everything else stays unchanged. An 8× speedup implies 12.5 ms total and needs an explanation beyond that helper.\n\nBefore deciding:\n\n1. Consume the generator fully inside the timed region, including completion of export writes. Verify expected rows and substantive output; count errors, timeouts and retries.\n2. Compare identical realistic data with equivalent production settings, concurrency and cache state. Tune both options fairly.\n3. Profile separately to identify the limiter and confirm the helper’s share of total time.\n4. Run at least five times per side in balanced, interleaved order. Report median and range in milliseconds for both the helper and the complete export, with revisions and environment.\n\nThese are proposed checks; none were executed in this read-only review.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Config fairness and load-generator saturation",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive—we cannot choose storage A or B from this benchmark.** B’s observed median is 30 ms versus A’s 40 ms: 25% less time, or 1.33× implied throughput for equal work. That compares unequal configurations, not storage capability.\n\n- A uses debug builds and per-row commits; B uses release builds and batches of 100.\n- The load generator saturates one CPU core while the database is idle, so the measured limiter is the generator.\n- Five runs per side meets the minimum count, but running all A trials before B allows order effects. Ranges are missing, so variability is unknown.\n- Matching outputs supports correctness, but the packet does not establish that timing includes completed commits or counts failures, timeouts and retries.\n\nNext, verify the timing boundaries and error accounting; tune both options fairly using equivalent release settings, data, concurrency and durability requirements. Address generator saturation and profile again. Rerun at least five trials per side in balanced interleaved order, reporting medians and ranges. Include a realistic end-to-end workload before making an adoption decision. These steps have not run.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Explicit ballpark still checks work",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The import took **240 ms for 100 sample rows** in a single release-build run. Completion was awaited, all 100 rows had the expected values, and there were zero failures. The exact revision and dataset were recorded.\n\nThis is a rough one-run duration, not a comparative performance claim or a repeatability estimate. No further runs are needed for the requested ballpark.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Noise overwhelms small difference",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**No measurable difference.** B’s 1 ms lower median is smaller than the observed run variation.\n\n| Option | Runs | Median | Range |\n|---|---:|---:|---:|\n| A | 5 | 100 ms | 98–102 ms |\n| B | 5 | 99 ms | 97–103 ms |\n\nRuns alternated with equal production settings, identical correct outputs, zero errors, and all work awaited. Separate profiling identifies JSON parsing CPU as the limiter.\n\nThe user-visible request median is 800 ms; these results do not demonstrate an end-to-end improvement. Workload details, revisions, and environment were not supplied.\n\nIf a decision depends on this small gap, next collect more interleaved runs, apply uncertainty analysis, and compare end-to-end request timings for both options. These steps have not been run.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Portable method planning on a restricted host",
+          "caseIndex": 4,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive until measured.** Use the existing release harness and macOS tools; no installation or stopping unrelated work is needed.\n\n1. **Define the claim:** “Implementation B completes the same import correctly in less wall time than A.” Record both revisions, macOS version, laptop hardware, core count from `getconf`, dataset size and expected row hashes.\n\n2. **Inspect the harness:** Confirm timing starts before import work and ends after all rows and writes complete. Ensure it consumes the actual result and validates completed row count and hashes. Confirm failures, timeouts and retries are counted; reject fast errors and cached no-ops as successful imports.\n\n3. **Make settings equivalent:** Use release builds, identical input data and fresh equivalent destination state. Match concurrency, batching, transactions, pools and indexes where applicable. Tune both implementations fairly before choosing one. Define whether caches are warm or cold; measure those conditions separately if both matter.\n\n4. **Control the laptop environment:** Keep power mode and power connection consistent. Observe host load with Activity Monitor before and during runs. Record competing activity and thermal changes. If the machine is busy, defer measurement or retain and disclose comparable noisy conditions; do not stop unrelated work.\n\n5. **Collect repeated timings:** Run at least five measured imports per implementation in balanced order—for example, five pairs ordered `AB, BA, AB, BA, AB`. Apply identical warm-up and reset procedures outside timing. Save each run’s wall time, hashes, completed rows, failures, timeouts and retries.\n\n6. **Identify the limiter separately:** Capture representative A and B runs with Instruments to inspect CPU and I/O, mapping hot paths to source where possible. Check whether the harness or input producer is limiting throughput. Keep profiled timings separate from the primary comparison and check that any gain is plausible given the changed component’s share of runtime.\n\n7. **Check practical relevance:** Measure realistic small and large imports through the user-visible end-to-end path. If the harness measures only an import helper, also measure the full path and establish the helper’s contribution.\n\nReport **faster, slower, no measurable difference, or inconclusive**, with wall time in seconds, successful rows/second, workload, revisions, environment, run count, median and range per side, limiter and limitations. For close results, use the harness’s uncertainty analysis or appropriate statistics; a gap within ordinary variation is not demonstrated improvement. Unverified correctness, unequal tuning or an unknown limiter leaves the comparison inconclusive.\n\nThese are planned steps; no measurements have been run.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "red-original-cases",
+      "evalId": "eval-CCR-2026-10-13T20:35:36",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Impossible gain and skipped work",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive. The claimed 8× speedup cannot guide adoption.**\n\n- **It exceeds the possible gain:** eliminating a 10 ms helper from a 100 ms export leaves 90 ms—a maximum **1.11× speedup**, or 10% less time. An 8× speedup implies 12.5 ms total, which this helper change cannot explain.\n- **The harness does not measure completed export work:** it times async-generator creation without consuming it.\n- **Correctness is unverified:** error and row counts are absent.\n- **The comparison is uncontrolled:** different data sizes and one run per side establish neither comparability nor repeatability. The limiter and production tuning are also unverified.\n\nBefore making an adoption decision:\n\n1. Fix the timed region to consume the generator fully and await completion. Count errors and exported rows, and validate output contents.\n2. Use identical realistic datasets and production-tuned configurations. Check machine load.\n3. Profile a separate, unreported run to identify the limiter and confirm the helper’s share of total export time.\n4. Run at least five measurements per side, alternating A/B. Report the median and range for the complete export, with the helper measurement alongside it.\n\nThese are proposed checks; none were executed in this read-only review.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Config fairness and load-generator saturation",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive: this benchmark cannot justify choosing A or B.** The observed medians are A 40 ms and B 30 ms across five runs each, but the apparent 25% time reduction is not a reliable storage advantage.\n\n- A uses a debug build and commits each row; B uses a release build and batches 100. A is untuned, so this compares unequal configurations.\n- The load generator saturates one core while the database is idle. The observed limiter is the generator, not storage.\n- Running all A trials before all B trials allows warmup and drift to bias results. Run ranges are missing.\n- Matching outputs supports correctness, but failure/retry counts and proof that all intended writes completed inside the timed region are missing.\n\nBefore choosing, inspect the timing script; tune both for production with comparable transaction settings; resolve the generator bottleneck and profile separately from reported runs. Verify completed writes and count errors, then run at least five trials per side in alternating order. Report medians and ranges, check throughput against hardware limits, and measure the realistic end-to-end workload.\n\nThese are proposed next steps; none were executed here.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Explicit ballpark still checks work",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The 100-row sample import took **240 ms in one release run**. Completion was awaited, all 100 rows matched expected values, and there were zero failures. The exact revision and dataset were recorded.\n\nTreat this as a rough duration, not a repeatability or speedup claim.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Noise overwhelms small difference",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**No measurable difference.** Across five alternating runs per side, A’s median was **100 ms** (98–102 ms) and B’s was **99 ms** (97–103 ms). The 1 ms gap is smaller than the run-to-run variation. Separate profiling identified JSON parsing CPU as the limiter.\n\nBoth used equal production settings, produced identical correct outputs, had zero errors, and awaited all work.\n\nThe measured operation represents roughly 12.5% of the 800 ms user-visible request. The observed gap would amount to only 0.125% of that request; no end-to-end improvement is established.\n\nBefore choosing either on performance, check machine load and core count, inspect the timing boundaries, and collect more alternating runs with a statistical comparison and per-side end-to-end measurements. Those checks were not supplied here.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "red",
+      "evalId": "eval-E8S-2026-10-13T20:41:56",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Impossible gain and skipped work",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive. The claimed 8× speedup cannot guide adoption.**\n\n- **The arithmetic fails:** the helper occupied 10 ms of a 100 ms export. Eliminating it entirely leaves 90 ms—a maximum **1.11× speedup**. An 8× result implies 12.5 ms total, which this helper change cannot explain.\n- **The export was not measured:** the new harness times async-generator creation without consuming it. It does not establish that export work happened inside the timed region.\n- **Correctness is unverified:** error and row counts are absent.\n- **The comparison is uncontrolled:** different data sizes and one run per side establish neither comparability nor repeatability. Production tuning and the actual limiter are also unverified.\n\nBefore choosing an option, fix the harness to consume the generator fully inside the timer, count errors and exported rows, and validate output against expected content. Use identical representative data and production settings for both sides; check machine load. Profile separately to identify the limiter, then run at least five alternating measurements per side and report the median and range for the complete export, alongside the helper’s share.\n\nThese are required next steps; none were executed in this read-only review.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Config fairness and load-generator saturation",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**Inconclusive: this benchmark cannot justify choosing A or B.** B’s observed median was 30 ms versus A’s 40 ms, but:\n\n- A used a debug build and committed each row; B used a release build and batches of 100. The configurations were unequal, and A was untuned.\n- The load generator saturated one core while the database was idle. The apparent limiter was the generator, so this does not establish storage performance.\n- Five A runs followed by five B runs leave warmup and drift confounded with the option. Run ranges are missing.\n- Matching outputs support correctness, but failure/retry counts and evidence that all writes completed inside the timed region are missing.\n\nNext, run both with production builds and appropriately tuned transaction settings, equivalent data and durability guarantees. Remove the generator bottleneck and profile separately to identify the storage-path limiter. Verify completed writes inside timing and count errors and retries. Then alternate at least five runs per side, report medians and ranges, check throughput against hardware limits, and measure the realistic end-to-end workload before choosing. These steps have not run.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Explicit ballpark still checks work",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The 100-row sample import took **240 ms in one release run**. Completion was awaited, all 100 rows matched the expected values, and there were zero failures. The exact revision and dataset were recorded.\n\nThis is a rough one-run duration, not a repeatability or speedup claim.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Noise overwhelms small difference",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "**No measurable difference.** Across five alternating runs per side, A’s median was **100 ms** (range 98–102 ms); B’s was **99 ms** (97–103 ms). The 1 ms gap is smaller than the run-to-run variation.\n\nSeparate profiling identified JSON parsing CPU as the limiter. Both sides used equal production settings, produced identical correct outputs, had zero errors, and awaited all work.\n\nThe measured operation represents roughly 12.5% of the 800 ms user-visible request. The observed gap would amount to just 0.125% of that request; no end-to-end improvement is established. Keep the current choice on performance grounds. If a decision requires distinguishing them, collect more alternating runs and use a rank-sum test, alongside end-to-end measurements.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Portable method planning on a restricted host",
+          "caseIndex": 4,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The comparison is **inconclusive until measurements run**. Use the existing macOS tools; no installation or stopping unrelated work is needed.\n\n1. **Define the claim:** “Implementation B imports the representative dataset faster than A, measured by median end-to-end wall time with identical correct output.” Record dataset size, versions, commit IDs, and laptop power settings.\n\n2. **Inspect the release harness.** Verify that timing includes starting the import, awaiting all work, and completing writes or commits. Confirm it checks expected row hashes, failures, and completed row count within each run. Identify any excluded setup or cleanup.\n\n3. **Match production configuration.** Use release builds and equivalent production settings for batching, transactions, indexes, connection pools, and cache state. Tune both implementations appropriately before choosing a winner. Use identical input and reset the destination to the same starting state before each run.\n\n4. **Record host conditions.** Use `getconf` for core count and Activity Monitor for host load and competing processes. Keep unrelated work running as authorized. If load varies, record it alongside each run and interleave A and B to distribute noise.\n\n5. **Find the limiter separately.** Run each implementation under Instruments CPU/I/O profiling, excluding those timings from the reported sample. Map hotspots to source; inspect whether CPU, storage, transaction settings, or the harness itself limits throughput. Fix tunable bottlenecks before the comparison.\n\n6. **Measure at least five runs per side.** Run `A, B, A, B…` until each has five valid observations. Apply the same warmup and cache policy to both. For every run, retain wall time, hashes, failures, completed rows, and host-load notes. Investigate failures or missing work before interpreting speed.\n\n7. **Check plausibility and relevance.** Calculate rows/second and bytes/second against plausible storage throughput and observed CPU capacity. Check that any claimed saving fits the time spent in the changed code. Measure the complete import users wait for; if the harness times only part, add an end-to-end measurement.\n\n8. **Report the evidence.** Give median wall time and min–max range for each side, run count, correctness/work counts, and the supported limiter. Treat a gap smaller than run variation as no measurable difference; use harness statistics or a rank-sum test for a close call. Keep the verdict inconclusive if either side remains untuned, the limiter is unknown, or correctness/completed work cannot be verified.\n\nThese are planned steps; no measurements have run.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "trigger",
+      "evalId": "eval-cF4-2026-10-13T21:16:10",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Explicit invocation reaches skill",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "trigger",
+          "success": true,
+          "score": 1.0,
+          "response": "Plan: treat the 8× claim as **inconclusive for adoption** pending these checks:\n\n1. Time full generator consumption; verify exported rows and count errors, timeouts and retries.\n2. Compare identical data sizes and equivalent environments/settings.\n3. Check plausibility: the helper was 10 ms of 100 ms. Eliminating it entirely yields at most about **1.11× overall speedup**, assuming everything else stays unchanged.\n4. Run at least five trials per side in interleaved order; report median and range.\n5. Measure realistic end-to-end exports and identify the bottleneck before recommending adoption.\n\nSkill followed: **benchmark-checklist**.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Exclusion stays outside workflow",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "trigger",
+          "success": true,
+          "score": 1.0,
+          "response": "Start with functions that run frequently, process large collections, perform repeated I/O, or sit on latency-sensitive user paths. Rank candidates by likely cost and frequency, then profile representative workloads to see where time goes. Without measurements, these are hypotheses.\n\nSkill followed: none.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Natural task selects the narrow workflow",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "trigger",
+          "success": true,
+          "score": 1.0,
+          "response": "Plan to review the claimed 20% speedup:\n\n1. Inspect timing boundaries: ensure real work is awaited, results consumed, outputs correct, and errors/retries counted.\n2. Verify equivalent workloads, revisions, settings, concurrency, and cache states.\n3. Check host load, bottlenecks, and whether the changed component could plausibly explain the gain.\n4. Review at least five interleaved runs per side, comparing medians, ranges, and uncertainty.\n5. Confirm end-to-end relevance and clarify whether “20%” means reduced duration or increased throughput.\n\nTreat the claim as inconclusive until completed work and measurement validity are established. No checks executed or files modified.\n\nSkill followed: **benchmark-checklist**.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-b8X-2026-10-13T20:33:14",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-sequence-verifiable-units"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "2ccbbacc56ace5afdfb8670cef19d7bd009fb2a0033b9a741cbdf2b6baf72187",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.8,
+      "response": {
+        "output": "Reject the batch-and-test plan. Use this sequence:\n\n1. Leave the shared checkout and branch untouched. Create a separate worktree and migration branch from clean trunk; do not stash, commit, reset, or rebase the colleague\u2019s UI work.\n2. Run the baseline serializer tests there. Proceed only if they pass. If migration work depends on changes unique to the shared branch, resolve that dependency before editing.\n3. Migrate format A as one unit: capture its current behavior, add a migration test, confirm it fails for the expected reason, implement the change, then run the format checks and serializer regression suite. Stop on failure.\n4. Repeat for formats B and C, verifying each before starting the next.\n5. Run the complete serializer suite on the combined result. Deliver reviewable commits or PRs ordered by format, with test evidence preceding each fix.\n\nA deliberately failing test can demonstrate the red-to-green transition, but keep it paired with its fix in each independently landable unit. Each landed unit must be green.\n\n**Evidence limits:** This is a proposed sequence. No checkout, trunk state, dependencies, or test results have been inspected. Available tests can establish only the behavior they cover; passing them would not by itself prove compatibility with every existing serialized artifact.",
+        "tokenUsage": {
+          "prompt": 22095,
+          "completion": 261,
+          "cached": 9600,
+          "total": 22356,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The proposal preserves unrelated UI work, isolates migration work, checks the baseline, sequences formats with red-to-green verification, stops on failure, and includes final combined checks. However, it assumes clean trunk without explicitly inspecting unrelated changes or establishing the actual migration base, and it provides no rollback action for a failed unit. These substantive omissions prevent a full pass.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.8,
+        "reason": "The proposal preserves unrelated UI work, isolates migration work, checks the baseline, sequences formats with red-to-green verification, stops on failure, and includes final combined checks. However, it assumes clean trunk without explicitly inspecting unrelated changes or establishing the actual migration base, and it provides no rollback action for a failed unit. These substantive omissions prevent a full pass."
+      },
+      "failure_reason": 1,
+      "case": "Dirty shared branch is not a rebase target"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.8,
+      "response": {
+        "output": "Apply **principle-sequence-verifiable-units** using two units:\n\n1. **Delete the obsolete helper independently.** Start from verified clean trunk, delete the helper, and run the relevant checks. Commit only when green.\n2. **Rename the wire field atomically.** Update the producer, consumer, and contract fixture together. These three files form one verifiable unit because partial updates violate the accepted protocol. Run contract and relevant integration checks before committing.\n\nFor rename proof, demonstrate locally that the updated contract check fails against the old implementation, then passes with the coordinated change. Keep that red evidence available for review, but publish the rename as one green commit rather than putting a failing test-only commit on the shared branch. Verify the final branch before pushing.\n\n**Evidence limits:** This scenario establishes the required atomic boundary and the helper\u2019s independence. No checks were run; helper-removal safety, contract-test sensitivity, and branch health remain unverified.",
+        "tokenUsage": {
+          "prompt": 22084,
+          "completion": 195,
+          "cached": 0,
+          "total": 22279,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The proposal groups producer, consumer, and fixture atomically, sequences helper deletion separately with checks, preserves isolated red evidence without publishing a broken commit, and ends with branch verification. However, it does not specify rollback for either unit; separate commits make rollback possible but leave that requirement implicit. No executed evidence is required for this hypothetical.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.8,
+        "reason": "The proposal groups producer, consumer, and fixture atomically, sequences helper deletion separately with checks, preserves isolated red evidence without publishing a broken commit, and ends with branch verification. However, it does not specify rollback for either unit; separate commits make rollback possible but leave that requirement implicit. No executed evidence is required for this hypothetical."
+      },
+      "failure_reason": 1,
+      "case": "A unit follows the invariant rather than file count"
+    }
+  ]
+}

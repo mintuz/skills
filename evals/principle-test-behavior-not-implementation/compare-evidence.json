@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-pOg-2026-10-13T20:52:03",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-test-behavior-not-implementation"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "2b5238ca7442f0ccfaaa52ae5f90fc3ff9acdcd0ddabf16e19c19da282f33532",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the deletion: `undefined` and `[]` are meaningful observable results when they express the repository\u2019s contract. Whether a test is vacuous depends on what it exercises, not whether its result is empty.\n\nUse the actual repository and cover:\n\n| Scenario | Expected result |\n|---|---|\n| `find(missingKey)` with an empty repository | Exactly `undefined` |\n| `find(missingKey)` with unrelated records present | Exactly `undefined` |\n| `find(existingKey)` with a matching record present | The expected record |\n| `listVisible(user)` with no records | Exactly `[]` |\n| `listVisible(user)` with records present, all unauthorized | Exactly `[]` |\n| `listVisible(user)` with authorized and unauthorized records | Exactly the authorized records |\n\nKeep the existing empty-fixture tests as boundary coverage. Add populated fixtures to exercise lookup and authorization. The positive cases catch implementations that always return `undefined` or `[]`; mixed visibility catches both omitted authorized records and leaked unauthorized records.\n\nAssert public results, without coupling tests to internal calls or filtering strategy.\n\nEvidence limit: the existing tests exercise empty-repository behavior. They do **not** demonstrate that unauthorized records are filtered, because their fixtures contain none. The supplied facts support this coverage design, but do not establish whether the implementation currently passes it.",
+        "tokenUsage": {
+          "prompt": 21716,
+          "completion": 274,
+          "cached": 19072,
+          "total": 21990,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Empty and absent outcomes are real contracts"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "**Reject the cleanup\u2019s rationale.** `undefined` and `[]` are valid observable contracts; the existing tests verify empty-repository behavior. Their limitation is that implementations returning those values unconditionally would also pass.\n\nKeep those tests and add coverage through the actual repository\u2019s public interface:\n\n| Scenario | Expected result |\n|---|---|\n| `find(existingKey)` with a stored record | The concrete stored record, with literal expected fields |\n| `find(missingKey)` with another record stored | Exactly `undefined` |\n| `listVisible(user)` with stored unauthorized records | Exactly `[]` |\n| `listVisible(user)` with an authorized record | Exactly the expected record |\n| `listVisible(user)` with both authorized and unauthorized records | Exactly the authorized records, with no unauthorized records included |\n\nUse independently specified expectations rather than computing expected results with the repository\u2019s lookup or authorization logic. Assert ordering only if the public contract guarantees it.\n\nThese cases distinguish unconditional-empty behavior, returning an arbitrary record for a missing key, and failing to filter unauthorized records. Stored unauthorized records exercise filtering more meaningfully than an empty fixture.\n\n**Evidence limits:** The existing tests establish only empty-fixture outcomes. The proposed cases are a coverage design; without executing them, we cannot claim they pass or detect specific mutants. Authorization rules and ordering guarantees are unspecified, so concrete fixtures must follow the repository\u2019s documented contract.",
+        "tokenUsage": {
+          "prompt": 21927,
+          "completion": 285,
+          "cached": 19072,
+          "total": 22212,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Empty and absent outcomes are real contracts"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.85,
+      "response": {
+        "output": "Test the mail service through its public entry point and observe messages at the transport boundary with a recording fake.\n\n- **Successful order:** supply order 42 and a known buyer address; configure authorization to succeed. Assert exactly one message was sent, its recipient is the buyer, and its subject is the literal `\"Receipt 42\"`.\n- **Declined order:** configure authorization to decline. Assert no messages were sent.\n\nRemove the assertion that `format()` was called once. Do not call `format()` to calculate the expected subject: that lets a formatting defect produce both the actual and expected values.\n\nThese tests establish outgoing message behavior for the two supplied outcomes. They do not prove real delivery, retry safety, or authorization-before-send ordering; those require additional contracts and evidence.",
+        "tokenUsage": {
+          "prompt": 21719,
+          "completion": 158,
+          "cached": 19072,
+          "total": 21877,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The proposal uses the public entry point, checks a literal subject, intended recipient, and exactly one send on success, and checks no send on decline. It avoids helper-derived expectations and private call-order assertions. However, it does not explicitly explain that these checks detect wrong payloads, unauthorized sends, and no-op regressions.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.85,
+        "reason": "The proposal uses the public entry point, checks a literal subject, intended recipient, and exactly one send on success, and checks no send on decline. It avoids helper-derived expectations and private call-order assertions. However, it does not explicitly explain that these checks detect wrong payloads, unauthorized sends, and no-op regressions."
+      },
+      "failure_reason": 1,
+      "case": "Test an observable effect rather than helper choreography"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Test through the mail service\u2019s public interface, using a transport mock at the external boundary.\n\n- **Successful order:** Supply order 42 with a literal buyer address, such as `buyer@example.test`. Assert exactly one message is sent, its recipient is exactly that address, and its subject is the literal `\"Receipt 42\"`. Verify sending occurs after success if that ordering is observable.\n- **Declined order:** Supply a realistic declined order with the buyer present. Assert no message is sent.\n\nRemove the assertion that `format()` was called once, and do not call `format()` to calculate the expected subject. Internal calls to `format()` and `authorize()` are not the oracle.\n\nThese tests should fail for wrong subjects, wrong recipients, duplicate sends, sending declined orders, and unconditional no-send behavior.\n\nEvidence limits: A mocked transport verifies the service\u2019s send requests, not actual email delivery. Ordering requires an observable success event; authorization rules beyond these outcomes are unspecified.",
+        "tokenUsage": {
+          "prompt": 21930,
+          "completion": 199,
+          "cached": 21504,
+          "total": 22129,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Test an observable effect rather than helper choreography"
+    }
+  ]
+}

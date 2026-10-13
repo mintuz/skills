@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-Je0-2026-10-13T20:30:17",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-minimize-reader-load"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "1ea2b7fef2391cae5844c4efdbd59031f775e8a52d06b7495d707229a200dcca",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.6,
+      "response": {
+        "output": "Keep `BillingFacade`; inline `OrderService.getOrder(id)`\u2019s pass-through.\n\n- **BillingFacade compresses meaningful decisions:** idempotency, provider-error mapping, and keeping raw card data out of logs. One caller and one implementation don\u2019t make it redundant. Inlining could make the caller hold more payment rules in mind. Keep those invariants explicit at the boundary.\n- **OrderService adds a layer without changing the abstraction:** readers must follow another call to find the same repository operation. Let its caller use the repository directly; remove the service only if nothing else needs it.\n\nThe smallest change is removing that forwarding hop. The scenario supports this structural judgment, but provides no code showing mutable-state scope, other service responsibilities, or enforcement of the payment safeguards. It cannot establish the 30-second reader test or prove that the change preserves behavior.",
+        "tokenUsage": {
+          "prompt": 22402,
+          "completion": 176,
+          "cached": 0,
+          "total": 22578,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "Correctly preserves BillingFacade\u2019s idempotency, error mapping, and privacy boundary despite its caller count, and identifies the lookup forwarding hop as a candidate for removal. It also considers extra call tracing and payment rules readers must retain. However, it recommends inlining without checking the lookup contract and does not evaluate state ownership or the complete paths. Acknowledging missing evidence appropriately limits its claims but does not satisfy those requirements.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.6,
+        "reason": "Correctly preserves BillingFacade\u2019s idempotency, error mapping, and privacy boundary despite its caller count, and identifies the lookup forwarding hop as a candidate for removal. It also considers extra call tracing and payment rules readers must retain. However, it recommends inlining without checking the lookup contract and does not evaluate state ownership or the complete paths. Acknowledging missing evidence appropriately limits its claims but does not satisfy those requirements."
+      },
+      "failure_reason": 1,
+      "case": "One implementation can hide a real boundary"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.8,
+      "response": {
+        "output": "Reject the service-per-function proposal. The main problem is shared mutable request state; adding classes would add layers without necessarily fixing it.\n\nKeep the handler largely flat:\n\n- Resolve `selectedTenant` and `currentUser` into request-local constants, passing them explicitly to functions that need them.\n- Keep `retryCount` local to the operation being retried.\n- Prefer functions that return results over functions that mutate shared context.\n- Introduce a boundary only when it hides meaningful decisions. Define tenant/user validation there once, rather than repeating it in consumers.\n\nVerify both correctness and reader load:\n\n- Run two requests with different tenants and users, deliberately interleaving execution. Confirm each retains its own context and retries cannot affect the other.\n- Test retry limits and confirm each new operation starts with its own counter.\n- Trace remaining writes and check that no request-specific state lives at module scope.\n- Ask a new reader to locate where each value originates and what can change it within 30 seconds.\n\nThe scenario establishes a shared-state hazard, but supplies no code or test results. This is a design recommendation and verification plan, not evidence that isolation or maintainability has been achieved.",
+        "tokenUsage": {
+          "prompt": 22382,
+          "completion": 238,
+          "cached": 0,
+          "total": 22620,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The output makes request context explicit, localizes retry state, checks value origins and writes, and proposes interleaved requests with different tenants and users plus retry-isolation checks. It also correctly avoids treating flat code as proof of maintainability. However, it does not explicitly preserve intentionally shared resources or distinguish them from request-specific mutable state, leaving one substantive requirement unmet.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.8,
+        "reason": "The output makes request context explicit, localizes retry state, checks value origins and writes, and proposes interleaved requests with different tenants and users plus retry-isolation checks. It also correctly avoids treating flat code as proof of maintainability. However, it does not explicitly preserve intentionally shared resources or distinguish them from request-specific mutable state, leaving one substantive requirement unmet."
+      },
+      "failure_reason": 1,
+      "case": "Flat code still has hidden state"
+    }
+  ]
+}

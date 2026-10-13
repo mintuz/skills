@@ -1,0 +1,130 @@
+{
+  "skill": "principle-explain-the-number",
+  "source_sha256": "041ec1c2006e1992ad8ff8b13471396a7149a136401243ea0744d3d6a165792f",
+  "source_words": 233,
+  "red_fixture_sha256": "cd5a25f9e7cf023627ccb470dc5faa97542f29b4319496a32b839a8e1e988047",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Mixed original grade: missing uncertainty/freshness plus demand for unavailable exact revision.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-is6-2026-10-13T20:33:26",
+    "log": "/tmp/principles-a-evidence/principle-explain-the-number-red.log",
+    "cases": [
+      {
+        "case": "A deterministic count needs provenance not a profile",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The output identifies the unit and generated-fixture exclusion, distinguishes inventory from performance, and correctly avoids requiring runtime limits or statistical spread. However, it only recommends retaining the revision and counting rules rather than stating them, and it does not explain freshness or uncertainty about uncounted scope. Not every required outcome is satisfied.",
+        "error": null
+      },
+      {
+        "case": "A speedup may be skipped work",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-DFS-2026-10-13T20:40:06",
+    "log": "/tmp/principles-a-evidence/principle-explain-the-number-green.log",
+    "cases": [
+      {
+        "case": "A deterministic count needs provenance not a profile",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "A speedup may be skipped work",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-5Me-2026-10-13T21:00:49",
+    "log": "/tmp/principles-a-evidence/principle-explain-the-number-compare.log",
+    "cases": [
+      {
+        "case": "A deterministic count needs provenance not a profile",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The output identifies the unit and checkout scope, excludes generated fixtures, proposes reproducible verification, and correctly distinguishes deterministic inventory from performance claims without demanding timing spread or a runtime limiter. However, it does not explain freshness or uncounted-scope uncertainty, such as whether the pinned checkout reflects the current repository or whether excluded folders contain additional skills. Because every outcome is required, it fails.",
+        "error": null
+      },
+      {
+        "case": "A speedup may be skipped work",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The output declines the causal 2\u00d7 claim and proposes comparable inputs, environment, cache conditions, successful work, failure accounting, and repeated measurements with variability. However, it does not seek profiling or counter evidence to identify the limiting path, nor distinguish component throughput from end-to-end benefit. Because every outcome is required, it fails.",
+        "error": null
+      },
+      {
+        "case": "A deterministic count needs provenance not a profile",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "A speedup may be skipped work",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-buo-2026-10-13T21:26:51",
+    "log": "/tmp/principles-a-evidence/principle-explain-the-number-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 0,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {}
+}

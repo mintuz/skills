@@ -1,6 +1,8 @@
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, lstatSync } from "node:fs";
+import { dirname, join, resolve, relative, isAbsolute, sep } from "node:path";
+
+import { parse } from "yaml";
 
 const MAIN_CONFIG = "promptfooconfig.yaml";
 const TRIGGER_CONFIG = "trigger.promptfooconfig.yaml";
@@ -32,33 +34,46 @@ if (!skills.length) {
   process.exit(2);
 }
 
-// The trigger fixture is a disposable copy of the skill, git-ignored so it can
-// never drift from the source. Refresh it from src/ before every trigger run.
+// Rebuild the owned disposable fixture, including resources. Stale references
+// must not make a removed or broken source dependency appear to work.
 function refreshFixture(skill) {
-  const config = readFileSync(triggerPath(skill), "utf8");
-  const workingDir = config.match(/working_dir:\s*(\S+)/)?.[1];
-  if (!workingDir) {
-    throw new Error(`${triggerPath(skill)} declares no working_dir.`);
+  const config = parse(readFileSync(triggerPath(skill), "utf8"));
+  const providers = Array.isArray(config?.providers) ? config.providers : [config?.providers];
+  const directories = providers.map((provider) => provider?.config?.working_dir);
+  if (!directories.length || directories.some((value) => typeof value !== "string" || !value)) {
+    throw new Error(`${triggerPath(skill)} must declare provider working_dir values.`);
+  }
+  if (new Set(directories).size !== 1) {
+    throw new Error(`${triggerPath(skill)} must use one shared trigger working_dir.`);
+  }
+  const workingDir = directories[0];
+  const suite = resolve("evals", skill);
+  const workspace = resolve(suite, workingDir);
+  const withinSuite = relative(suite, workspace);
+  if (isAbsolute(workingDir) || !withinSuite || withinSuite === ".." || withinSuite.startsWith(`..${sep}`) || isAbsolute(withinSuite)) {
+    throw new Error(`Trigger working_dir must be a relative subdirectory of ${suite}.`);
   }
 
-  const source = readdirSync("src", { withFileTypes: true })
+  const sources = readdirSync("src", { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => join("src", entry.name, "skills", skill, "SKILL.md"))
-    .find(existsSync);
-  if (!source) {
-    throw new Error(`No SKILL.md under src/*/skills/${skill}/ to build a fixture from.`);
+    .filter(existsSync);
+  if (sources.length !== 1) {
+    throw new Error(`Expected one SKILL.md under src/*/skills/${skill}/; found ${sources.length}.`);
   }
-
-  const target = join(
-    "evals",
-    skill,
-    workingDir.replace(/^\.\//, ""),
-    ".agents",
-    "skills",
-    skill,
-  );
-  mkdirSync(target, { recursive: true });
-  copyFileSync(source, join(target, "SKILL.md"));
+  const source = sources[0];
+  const fixtureRoot = join(workspace, ".agents", "skills");
+  // Reject symlink ancestors before recursive cleanup, including dangling links.
+  for (let path = fixtureRoot; path !== dirname(suite); path = dirname(path)) {
+    try {
+      if (lstatSync(path).isSymbolicLink()) throw new Error(`Fixture path is a symlink: ${path}`);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
+  rmSync(fixtureRoot, { recursive: true, force: true });
+  mkdirSync(fixtureRoot, { recursive: true });
+  cpSync(dirname(source), join(fixtureRoot, skill), { recursive: true });
   return source;
 }
 

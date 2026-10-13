@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "skill": "create-verification-skill",
+  "source_sha256": "237a0bed69cbc2885950b97857d20ca3e5de655cd91c8732b657bb4b7dd45f71",
+  "scope": "Native project discovery and one representative read-only scenario per skill. This is not implementation, runtime, full regression or operational cold-replay evidence. No external action or file creation claimed by model. Manual review, not automated rubric score.",
+  "observed_contracts": "Shared canonical recipe; authoring pass separated from saved fresh-context cold replay; ownership-gated cleanup and durable evidence.",
+  "runs": [
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "237a0bed69cbc2885950b97857d20ca3e5de655cd91c8732b657bb4b7dd45f71",
+      "fixture": "/tmp/workflow-native/claude/.claude/skills/create-verification-skill/SKILL.md",
+      "loader_call": {
+        "name": "Skill",
+        "args": {
+          "skill": "create-verification-skill"
+        },
+        "id": "toolu_014nEPQm7pKfc2fowUYauGgH"
+      },
+      "loader_result": {
+        "id": "toolu_014nEPQm7pKfc2fowUYauGgH",
+        "is_error": null,
+        "content": "Launching skill: create-verification-skill"
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "create-verification-skill\n**Loaded from:** `/private/tmp/workflow-native/claude/.claude/skills/create-verification-skill`\n\n**Deliverable:** one shared recipe, `tools/skills/verify-ledger/SKILL.md`, registered in `tools/index.yml`. It reuses the existing harness and doesn't copy it. The recipe has five sections:\n- **Launch:** start an isolated ledger store and record the revision (c71) and fixture.\n- **Doctor:** read-only checks of build, store ownership and readiness.\n- **Drive:** add an invoice through the public CLI, then list it. The expected result is that the invoice appears.\n- **Evidence:** the add and list outputs and the resulting store state, saved with revision identity at a durable path outside scratch.\n- **Cleanup:** on success and failure, release only the resources this run created, and check ownership before terminating anything.\n\n**Authority limits:** don't drive or stop the app the user already has running in another terminal. It's a shared user instance, so the recipe uses its own store.\n\n**Remaining acceptance steps:**\n1. The c71 authoring pass is not enough. Reset only the owned fixtures.\n2. Replay the saved recipe from a fresh agent context, using only its documented prerequisites.\n3. Fix any missing setup in the recipe and replay again.\n4. Hand over links to the recipe and the evidence, with both outcomes reported.\n\nReproducibility is unproven until the cold replay passes.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/claude"
+    },
+    {
+      "host": "omp",
+      "model": [
+        "gpt-6-astra"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "237a0bed69cbc2885950b97857d20ca3e5de655cd91c8732b657bb4b7dd45f71",
+      "fixture": "/tmp/workflow-native/omp/.agents/skills/create-verification-skill/SKILL.md",
+      "loader_call": {
+        "name": "read",
+        "args": {
+          "path": "skill://create-verification-skill"
+        },
+        "id": "call_5697839809904c03b153971e17a4ad4d|fc_06a2b1e266e81043016acea05617f08191aabb9e9b64932582"
+      },
+      "loader_result": {
+        "id": "call_5697839809904c03b153971e17a4ad4d|fc_06a2b1e266e81043016acea05617f08191aabb9e9b64932582",
+        "is_error": false
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "create-verification-skill\n\n**Loaded:** `/tmp/workflow-native/omp/.agents/skills/create-verification-skill/SKILL.md`\n\n**Deliverable:** One shared `verify-ledger` recipe under `tools/skills`, registered in `tools/index.yml`. Reuse the existing harness. Document prerequisites, revision/build and fixture identity, isolated store setup, readiness checks, public CLI invoice creation, listing, expected invoice contents, durable evidence paths, and cleanup on success and failure.\n\nThe recipe must identify its owned resources. It must not drive or stop the app running in the user\u2019s terminal.\n\n**Proof and remaining acceptance:**\n- The supplied authoring run passed at `c71`. That establishes authoring success, not reproducibility.\n- Confirm retained evidence survives cleanup and records the action, resulting invoice and target identity.\n- Reset only owned fixtures. Cold-replay the saved recipe from a fresh agent context using only documented prerequisites.\n- Correct any missing instructions and replay again.\n- Hand over recipe and evidence links, separate authoring and cold-replay results, and name uncovered journeys. Claim portability only for harnesses independently replayed.\n\nNo recipe was written or replayed here.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/omp"
+    }
+  ]
+}

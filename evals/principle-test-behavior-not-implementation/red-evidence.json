@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-nsV-2026-10-13T20:34:05",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-test-behavior-not-implementation"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "b2b73ba42920f9c3174ecdf808ec6e4591b3a9266ada9a05814f386004266d3a",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the cleanup\u2019s blanket rule: `undefined` and `[]` are valid observable results. The existing tests exercise those results, but an empty fixture alone cannot distinguish correct behavior from a repository that always returns nothing.\n\nUse concrete fixtures and paired coverage:\n\n- **`find(key)`**: Seed `{ id: \"a\", name: \"Alpha\" }`. Assert `find(\"missing\")` is exactly `undefined`, and `find(\"a\")` equals `{ id: \"a\", name: \"Alpha\" }`.\n- **`listVisible(user)`**: Seed records with explicit authorization. Assert a user unauthorized for every seeded record receives exactly `[]`. For a user authorized for one record, assert the exact array containing that record, excluding unauthorized records.\n\nRetain empty-repository cases if that boundary matters; supplement them with these populated cases. An empty fixture does not test authorization filtering.\n\nThese paired assertions catch unconditional empty returns and demonstrate retrieval and filtering for the chosen inputs. They do not establish correctness for every authorization rule, ordering, or persistence behavior. No tests were run; this is a coverage design based solely on the supplied scenario.",
+        "tokenUsage": {
+          "prompt": 22041,
+          "completion": 234,
+          "cached": 19072,
+          "total": 22275,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Empty and absent outcomes are real contracts"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.85,
+      "response": {
+        "output": "Replace the call-count and self-computed expectation with two tests through the mail service\u2019s public entry point:\n\n- **Successful order:** Submit order 42 with a concrete buyer address and successful authorization. Assert `transport.send` was called exactly once with a payload containing literal `to: \"buyer@example.com\"` and `subject: \"Receipt 42\"`.\n- **Declined order:** Submit a concrete declined order. Assert `transport.send` was never called. Pair this absence check with the successful-send test above.\n\nUse the real formatter; do not assert how often it runs or call it to derive expected values. Control authorization and capture transport calls at those boundaries.\n\nEvidence limit: these tests establish the service\u2019s send requests and payload, not actual email delivery. The scenario does not specify the public API or remaining message fields, so executable syntax and a full payload assertion require those details.",
+        "tokenUsage": {
+          "prompt": 22044,
+          "completion": 181,
+          "cached": 19072,
+          "total": 22225,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The proposal covers public-entry-point tests, literal recipient and subject assertions, exactly one send on success, no send on decline, and an independent oracle using the real formatter without private call-order assertions. However, it does not explain how these checks detect wrong payloads, unauthorized sends, and no-op regressions, as the rubric requires.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.85,
+        "reason": "The proposal covers public-entry-point tests, literal recipient and subject assertions, exactly one send on success, no send on decline, and an independent oracle using the real formatter without private call-order assertions. However, it does not explain how these checks detect wrong payloads, unauthorized sends, and no-op regressions, as the rubric requires."
+      },
+      "failure_reason": 1,
+      "case": "Test an observable effect rather than helper choreography"
+    }
+  ]
+}

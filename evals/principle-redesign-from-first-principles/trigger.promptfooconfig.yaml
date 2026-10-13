@@ -1,0 +1,52 @@
+description: "principle-redesign-from-first-principles activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Applies to the principle decision
+    vars:
+      request: "A new offline-edit requirement challenges the existing design. Rethink the design around outcomes and constraints."
+    assert:
+      - type: skill-used
+        value: principle-redesign-from-first-principles
+  - description: Does not impose a workflow on a literal conversion
+    vars:
+      request: "Convert the literal text \"hello world\" to uppercase. Return only the converted text; no software design, implementation, or verification task is requested."
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: "The response supplies HELLO WORLD and adds no principle-driven software workflow. A trailing none marker is acceptable. Do not count a skill-file read alone as a failure."
+        provider:
+          id: openai:codex-sdk
+          config:
+            model: gpt-6-astra
+            codex_path_override: codex
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              model_reasoning_effort: medium
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

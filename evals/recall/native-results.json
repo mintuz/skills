@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "skill": "recall",
+  "source_sha256": "e83765cc5c04f70d3b2a0267510520705a5ce0e64c43e36f012a0a7d7a92abb2",
+  "scope": "Native project discovery and one representative read-only scenario per skill. This is not implementation, runtime, full regression or operational cold-replay evidence. No external action or file creation claimed by model. Manual review, not automated rubric score.",
+  "observed_contracts": "Requested workspace/time/topic scope, history deduplication, live merged status supersedes open history; deployment remains unknown.",
+  "runs": [
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "e83765cc5c04f70d3b2a0267510520705a5ce0e64c43e36f012a0a7d7a92abb2",
+      "fixture": "/tmp/workflow-native/claude/.claude/skills/recall/SKILL.md",
+      "loader_call": {
+        "name": "Skill",
+        "args": {
+          "skill": "recall"
+        },
+        "id": "toolu_01XWaefW84NivPXwAM2SHwni"
+      },
+      "loader_result": {
+        "id": "toolu_01XWaefW84NivPXwAM2SHwni",
+        "is_error": null,
+        "content": "Launching skill: recall"
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "recall\n**Loaded from:** `/private/tmp/workflow-native/claude/.claude/skills/recall`\n\n**Scope:** invoice export, this workspace, the last seven days. I'd read the original discussion and count its resumed copy as the same record. I'd skip the two eval children that quote it, and skip other projects' chats that only mention exports, unless they affect this work.\n\n**Brief:**\n- **State:** the original discussion says PR 12 was open. The live source host says it merged, so the PR is merged now.\n- **Deployment:** unknown. The deployment API is unavailable, and a merge doesn't prove deployment.\n- **Also to check:** the current checkout, branch and dirty work, using the available tools.\n- **Next move:** confirm deployment status once the API is reachable, and pick up whatever the original discussion left unfinished.\n- **Coverage gaps:** the deployment API, and any history outside this workspace or the seven-day window.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/claude"
+    },
+    {
+      "host": "omp",
+      "model": [
+        "gpt-6-astra"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "e83765cc5c04f70d3b2a0267510520705a5ce0e64c43e36f012a0a7d7a92abb2",
+      "fixture": "/tmp/workflow-native/omp/.agents/skills/recall/SKILL.md",
+      "loader_call": {
+        "name": "read",
+        "args": {
+          "path": "skill://recall"
+        },
+        "id": "call_45ba082865914af284654536e4e633e7|fc_06a2b1e266e81043016acea05bb3e48191bd32fae6be60aebe"
+      },
+      "loader_result": {
+        "id": "call_45ba082865914af284654536e4e633e7|fc_06a2b1e266e81043016acea05bb3e48191bd32fae6be60aebe",
+        "is_error": false
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "recall\n\n**Loaded:** `/tmp/workflow-native/omp/.agents/skills/recall/SKILL.md`\n\n**State capsule:** Invoice export reached PR `12`. The original discussion recorded it as open; the supplied live source-host status now records it as merged. Deployment remains unknown because the deployment API is unavailable. A merge is not deployment proof.\n\n**Thread:** Invoice export \u2014 **merged**, superseding the historical \u201copen\u201d status. **Next move:** establish the deployed revision through an authorised deployment record when available.\n\n**Search scope:** This workspace, invoice export, the requested past seven days. Use the original discussion once. Deduplicate its resumed copy; exclude both evaluation children, this conversation and unrelated project chats about exports. Expand only through links needed to resolve this work\u2019s status.\n\n**Coverage limit:** No history or source-host query was performed here. The scenario supplies no precise history locator, current checkout identity, dirty-work status or deployment identity. Those remain unknown; there is no basis to report unfinished local work or release completion.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/omp"
+    }
+  ]
+}

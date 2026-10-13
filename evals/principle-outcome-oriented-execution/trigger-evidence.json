@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-Ecy-2026-10-13T20:55:54",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-outcome-oriented-execution"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "f24e83b7090aa458b9441ef66c20a88da4b24ecb185c37d43a06f6567a0adcae",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "1. **Define the contract:** Record accepted API behavior, affected consumers, required guarantees, final checks, and rollback point.\n2. **Migrate in isolation:** Allow compilation failures only within a declared, reversible phase. Keep shared branches, deployments, and supported consumers usable.\n3. **Close the migration phase:** Update affected consumers and restore compilation. Pass relevant static and contract checks before starting dependent work; fix failures or roll back.\n4. **Remove transitions:** Delete obsolete APIs and temporary compatibility paths once consumer coverage proves they are unnecessary.\n5. **Verify the final artifact:** Run integration and runtime checks, including ordering, cancellation, and persistence where relevant. Report any unverified guarantees explicitly.\n\nSkill followed: principle-outcome-oriented-execution.",
+        "tokenUsage": {
+          "prompt": 43874,
+          "completion": 228,
+          "cached": 31104,
+          "total": 44102,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21707,
+          "completion": 39,
+          "cached": 9600,
+          "total": 21746,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 30,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

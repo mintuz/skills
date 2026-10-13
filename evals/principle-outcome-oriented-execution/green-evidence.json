@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-jjO-2026-10-13T20:38:36",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-outcome-oriented-execution"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "f24e83b7090aa458b9441ef66c20a88da4b24ecb185c37d43a06f6567a0adcae",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Do not push the broken intermediate steps. The shared integration branch serves another engineer and deploy automation, so it is outside the authorized boundary for temporary breakage.\n\n1. Confirm the approved endpoint contract, affected consumers, required guarantees, phase gates, and rollback procedure.\n2. Perform the rename and its dependent changes in an isolated branch or worktree. Allow the two broken steps only there, with a clear recovery path through reverting or discarding those changes.\n3. Close each phase with its relevant checks. Restore the build and resolve failed gates before starting work that depends on that phase; do not defer all test fixes until the end.\n4. Deliver a buildable, verified change to the shared branch. Use an adapter only if supported consumers or deployment sequencing require compatibility. Remove transitional paths once those obligations are covered.\n5. Run static checks, contract and integration tests, and relevant runtime checks against the final artifact. Coordinate integration with the other engineer and ensure deployment rollback restores a compatible state.\n\n**Evidence limits:** The scenario establishes that a target contract and tests exist, but provides no results or deployment details. Build success alone would not prove runtime guarantees such as ordering, cancellation, or persistence. Migration completion and rollback readiness remain unverified.",
+        "tokenUsage": {
+          "prompt": 21908,
+          "completion": 250,
+          "cached": 19072,
+          "total": 22158,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Temporary breakage needs an isolated boundary"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Continue the migration, but stop dependent work until the cancellation failure is resolved. The initial compile pass does not satisfy the accepted outcome.\n\nTemporary breakage is acceptable only within the authorized, isolated, reversible phase, with a declared recovery path. Keep shared branches, deployed systems, and supported consumers usable.\n\nCompletion requires:\n\n- Preserving ordering, cancellation, and retry limits for all affected consumers.\n- Passing the failed cancellation gate before proceeding with dependent phases.\n- Removing the old queue and transitional paths once their consumers and guarantees are covered.\n- Running relevant static, integration, and runtime checks against the final artifact, including ordering, cancellation, and retry limits.\n- Keeping a defined rollback path through the migration.\n\nCurrent evidence proves only that the initial compile passed. Cancellation has a known failing test, old queue deletion is unfinished, and the final code has not run. The migration is not complete.",
+        "tokenUsage": {
+          "prompt": 21905,
+          "completion": 180,
+          "cached": 19072,
+          "total": 22085,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Finish the outcome with phase gates"
+    }
+  ]
+}

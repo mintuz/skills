@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-6FT-2026-10-13T20:52:48",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-type-system-discipline"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.7,
+      "response": {
+        "output": "Use distinct ID types at the settlement boundary:\n\n```ts\ntype UserId = string & { readonly __brand: \"UserId\" };\ntype InvoiceId = string & { readonly __brand: \"InvoiceId\" };\n\nfunction settle(userId: UserId, invoiceId: InvoiceId): void;\n```\n\nThese types address the observed swaps by making the two IDs incompatible in checked TypeScript. Brand other primitives only when they represent meaningful distinctions or invariants; branding every string and number adds friction without demonstrated benefit.\n\nKeep `sum(values: number[]): number` and its empty-array result of `0`. Requiring `NonEmptyList` would exclude a valid input. Use that type for operations whose contract actually requires an element, such as a minimum without an optional result.\n\nTreat incoming JSON as `unknown`. Validate its structure and each field\u2019s actual domain constraints before constructing branded IDs through trusted parsers. A cast performs no runtime validation. Check existence, invoice ownership, and authorization separately where required.\n\nEvidence limits: the swap incidents justify distinct ID types, but no ID formats or numeric constraints were supplied. Brands can prevent checked caller mistakes; they cannot detect two structurally valid IDs assigned to the wrong fields in JSON, and assertions or `any` can bypass them. Runtime validation and relevant relationship checks remain necessary.",
+        "tokenUsage": {
+          "prompt": 21714,
+          "completion": 267,
+          "cached": 19072,
+          "total": 21981,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The proposal separates UserId and InvoiceId at settle, requires validated construction, preserves sum on ordinary arrays including empty, and treats external JSON as unknown rather than casting. However, it does not address authoritative schema-derived types or show the required compile-time swapped-ID check and runtime malformed-input check. These could be hypothetical examples; executed tests are unnecessary.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.7,
+        "reason": "The proposal separates UserId and InvoiceId at settle, requires validated construction, preserves sum on ordinary arrays including empty, and treats external JSON as unknown rather than casting. However, it does not address authoritative schema-derived types or show the required compile-time swapped-ID check and runtime malformed-input check. These could be hypothetical examples; executed tests are unnecessary."
+      },
+      "failure_reason": 1,
+      "case": "Semantic safety without universal branding"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use targeted types where they prevent demonstrated errors:\n\n- Give `settle` distinct `UserId` and `InvoiceId` types so swapped arguments fail compilation. Construct them only through validation using the actual ID rules. If both IDs have indistinguishable formats, format checks alone cannot establish their meaning; trusted provenance or a lookup must do that.\n- Keep `sum(values: number[]): number`. It is total for empty arrays, returning `0`; requiring `NonEmptyList` would exclude valid input without protecting an invariant.\n- Reject branding every string and number. Add distinctions only where they protect meaningful invariants or prevent semantic confusion.\n- Parse incoming JSON as `unknown`, validate its structure and domain constraints, then construct domain values. Derive types from an authoritative schema where available. Validate persisted data too, accounting for older schemas and mutations that could invalidate assumptions. Casts provide no runtime validation.\n\nVerify compile-time rejection of swapped IDs, runtime rejection of invalid boundary inputs, valid settlement behavior, and `sum([]) === 0`.\n\nEvidence limits: the scenario establishes repeated ID mixups and valid empty-array summation. It supplies no ID formats, schema, implementation, or test results, so exact validators and the effectiveness of an implementation remain unverified.",
+        "tokenUsage": {
+          "prompt": 21922,
+          "completion": 256,
+          "cached": 19072,
+          "total": 22178,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Semantic safety without universal branding"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use a discriminated union so application code can represent only legal states:\n\n```ts\ntype Job =\n  | { status: \"pending\" }\n  | { status: \"success\"; result: Result }\n  | { status: \"failure\"; error: Error };\n```\n\nAdd `{ status: \"cancelled\" }` when cancellation is supported. Avoid retaining the booleans alongside `status`; they would create conflicting sources of truth.\n\nTreat persisted records as untrusted input. A runtime parser should validate both field types and combinations, then construct `Job`:\n\n| Legacy fields | Interpretation |\n|---|---|\n| Neither flag set; no result or error | Pending |\n| Done only; valid result; no error | Success |\n| Failed only; valid error; no result | Failure |\n| Anything else | Explicit validation failure |\n\n**That mapping is provisional:** the supplied facts do not establish whether legacy failures used `done: true, failed: true`. Confirm the historical meaning before implementing migration. Do not silently repair ambiguous records or cast them to `Job`; report or quarantine them under an explicit migration policy.\n\nChecks should cover:\n\n- Runtime parsing of every flag combination, missing or conflicting payloads, malformed payloads, and unknown statuses.\n- Exhaustive application handling using a `never` check, so adding `cancelled` identifies callers needing changes.\n- Migration fixtures drawn from actual historical records, with rejected records accounted for.\n- Version compatibility: older readers must explicitly reject or handle `cancelled` as unsupported, never reinterpret it as pending.\n\nThe union protects checked application code; it does not validate stored data. `Result` and the persisted error format also need runtime schemas\u2014serialized errors should not be assumed to be JavaScript `Error` instances. No historical records, schemas, or tests were supplied, so migration correctness and release compatibility remain unverified.",
+        "tokenUsage": {
+          "prompt": 21708,
+          "completion": 379,
+          "cached": 19072,
+          "total": 22087,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Exhaustive variants and persistence boundaries"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Replace the flags and optional fields with a discriminated union:\n\n```ts\ntype Job =\n  | { status: \"pending\" }\n  | { status: \"success\"; result: Result }\n  | { status: \"failure\"; error: Error };\n```\n\nUse exhaustive matching in consumers, with a `never` check in the default branch. Next release, add `{ status: \"cancelled\" }`; exhaustive consumers must then handle cancellation to compile.\n\nParse persisted records from `unknown` before exposing them as `Job`. Use a versioned schema and explicit migration rules for older records. For the legacy shape, accept only:\n\n- Pending: both flags false, neither payload present.\n- Success: `done` true, `failed` false, valid result, no error.\n- Failure: `done` true, `failed` true, valid error, no result\u2014**if that matches the documented legacy meaning of `done`.**\n\nThe scenario does not establish whether failure historically sets `done`; confirm that mapping before implementing migration. Reject or quarantine contradictory records rather than guessing. Validate payload contents and decode persisted errors into the domain error representation. Derive `Job` from the authoritative schema if one exists.\n\nPrevent unchecked mutation from breaking validated states; use readonly values and validated whole-state replacements.\n\nChecks should cover:\n\n- **Compile time:** missing required payloads, wrong payload combinations, and nonexhaustive consumers after adding cancellation.\n- **Runtime boundary:** each supported legacy schema, invalid flags and payloads, unknown versions/statuses, and malformed result/error data.\n- **Behavior:** correct handling of each valid state and explicit handling of rejected records.\n\n**Evidence limits:** This is a proposed model and verification plan. No compiler or runtime checks were run. Legacy flag semantics, payload schemas, and allowed state transitions remain unspecified.",
+        "tokenUsage": {
+          "prompt": 21916,
+          "completion": 371,
+          "cached": 19072,
+          "total": 22287,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Exhaustive variants and persistence boundaries"
+    }
+  ]
+}

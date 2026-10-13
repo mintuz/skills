@@ -1,0 +1,75 @@
+description: "correct portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Two independent type mixups scoped guard"
+    vars:
+      skill: "file://../../src/core/skills/correct/SKILL.md"
+      scenario: "User asks to prevent repeated CustomerId/OrderId swaps in checkout only. Review R1 rejected swapped arguments last Monday; unrelated commit C2 made same error Friday. Both used string aliases. Existing lint cannot tell them apart. Describe one correction and its proof; user did not request a commit."
+      rubric: "Establishes two independent concrete occurrences, chooses scoped structural/type enforcement with checkout callers migrated, and reproduces real past invalid call failing new guard while valid calls pass plus regression checks. Shows why higher architectural elimination is or is not suitable. No automatic commits or standing rule table."
+  -
+    description: "Duplicate report is not recurrence"
+    vars:
+      skill: "file://../../src/core/skills/correct/SKILL.md"
+      scenario: "A crash ticket and an assistant recap both describe the same freeze. Root cause is guessed to be scanner interference. User says correct this recurring problem. No second independent occurrence or cause proof exists."
+      rubric: "Does not count ticket and recap as two independent mistakes or treat guessed cause as policy. Seeks corroborated recurrence/causality or bounded diagnosis and makes no structural guard/security change from speculation."
+  -
+    description: "Installed instruction drift"
+    vars:
+      skill: "file://../../src/core/skills/correct/SKILL.md"
+      scenario: "Two agents used outdated deployment flags. Canonical skill already documents the right flags; both loaded the same stale installed copy. Product deployment API is correct. User asks to correct this issue."
+      rubric: "Locates source/distribution activation/content drift, routes to skill-doctor and skill/eval/install owner rather than product architecture or blanket code lint. Requires validation against stale-copy failure; does not create an AGENTS enforcement table or commit automatically."
+  -
+    description: "Legitimate empty contract"
+    vars:
+      skill: "file://../../src/core/skills/correct/SKILL.md"
+      scenario: "Two bugs mistakenly returned empty results for nonempty searches. Existing test also correctly expects [] when no matches exist. User authorizes a search-result guard. How should proof treat these cases?"
+      rubric: "Preserves legitimate empty-result behavior and its test, guards the actual nonempty regression with real bad examples that fail and correct cases pass, and does not delete every test accepting absence or broadly ban empty values."

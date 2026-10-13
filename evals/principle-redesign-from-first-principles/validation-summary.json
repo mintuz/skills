@@ -1,0 +1,186 @@
+{
+  "skill": "principle-redesign-from-first-principles",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "f455e0290291c2af0b145a87d70ef2cc0c10a4b1085fc1f49de57580b506f86b",
+  "upstream_sha256": "170e0a658783e43fee8ec5a8c2422a4abb8f69cef621dd1819a95910b8207034",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 93,
+    "port_body": 123,
+    "upstream_total": 110,
+    "port_total": 149
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-zDD-2026-10-13T20:32:18",
+      "source_sha256": "170e0a658783e43fee8ec5a8c2422a4abb8f69cef621dd1819a95910b8207034",
+      "passed": 1,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.7,
+          "failure_reason_code": 1,
+          "reason": "The output starts with offline editing and reconciliation outcomes, preserves encryption and compatibility constraints, and clearly separates clean-slate reasoning from authorization to implement. However, it defers the requested incremental design to a future proposal: it does not allocate concrete responsibilities, compare specific incremental options with a larger redesign, or identify a small implementation slice. It therefore satisfies the boundaries but only partially satisfies the substantive design requirement.",
+          "case": "Design analysis does not authorize a rewrite"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Integrate a foundational requirement coherently"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-G0H-2026-10-13T20:43:02",
+      "source_sha256": "f455e0290291c2af0b145a87d70ef2cc0c10a4b1085fc1f49de57580b506f86b",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Design analysis does not authorize a rewrite"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Integrate a foundational requirement coherently"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-ygK-2026-10-13T20:48:51",
+      "source_sha256": "f455e0290291c2af0b145a87d70ef2cc0c10a4b1085fc1f49de57580b506f86b",
+      "passed": 4,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Design analysis does not authorize a rewrite"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Design analysis does not authorize a rewrite"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Integrate a foundational requirement coherently"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Integrate a foundational requirement coherently"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-zI5-2026-10-13T20:56:26",
+      "source_sha256": "f455e0290291c2af0b145a87d70ef2cc0c10a4b1085fc1f49de57580b506f86b",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [],
+  "unmet_gates": [
+    "No score gain over the no-skill baseline in this comparison."
+  ],
+  "comparison": {
+    "improved_cases": [],
+    "regressed_cases": []
+  },
+  "earlier_treatment_attempt": {
+    "eval_id": "eval-E6w-2026-10-13T20:39:26",
+    "evidence_file": "green-first-evidence.json",
+    "change": "Judge gave .9 while acknowledging named requirements; rubric clarified conceptual analysis, without requiring unavailable implementation details."
+  },
+  "native_replay": {
+    "durable_report": "../../reports/skill-audit-2026-10-13/native-principles-replay.json",
+    "source_sha256": "f455e0290291c2af0b145a87d70ef2cc0c10a4b1085fc1f49de57580b506f86b",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

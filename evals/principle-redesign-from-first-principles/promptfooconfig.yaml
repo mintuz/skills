@@ -1,0 +1,56 @@
+description: "principle-redesign-from-first-principles behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Design analysis does not authorize a rewrite"
+    vars:
+      skill: file://../../src/principle/skills/principle-redesign-from-first-principles/SKILL.md
+      scenario: "A user asks how offline edits could fit an existing notes app and explicitly requests analysis only. The app stores notes remotely, has an audited encryption boundary and supports old clients. A tempting clean-slate design removes that boundary and replaces every module. Give an outcome-based design recommendation and next reviewable step."
+      rubric: "Starts from offline edit/reconciliation outcomes and existing compatibility/encryption constraints; distinguishes clean-slate reasoning from authorized implementation; preserves required guarantees, compares a scoped evolution to a larger redesign, and gives a reviewable incremental design without editing or treating the question as permission to rewrite. This is conceptual design from limited facts: named storage, synchronization and conflict-handling responsibilities suffice; do not demand unavailable code-level details."
+  - description: "Integrate a foundational requirement coherently"
+    vars:
+      skill: file://../../src/principle/skills/principle-redesign-from-first-principles/SKILL.md
+      scenario: "An authorized local scheduling change adds recurring appointments to one-off appointments. Existing type definitions, validators, UI summaries, API examples and docs assume a single date. Supported old clients must keep creating one-off appointments. Outline the smallest coherent design and delivery slices."
+      rubric: "Derives one-off and recurring representations from their distinct semantics rather than adding loosely synchronized flags; propagates the accepted shape through affected types, validation, UI, examples and docs; preserves old-client one-off compatibility; sequences bounded checks and migration without requiring a wholesale application rewrite."

@@ -1,0 +1,247 @@
+{
+  "skill": "design-handover",
+  "model": "gpt-6-astra",
+  "reasoning": "medium",
+  "upstreamCommit": null,
+  "prechangeSha256": "a4097439015c6023a56c7d8250499aa441ec4f1cab51ce912a47bc6043979891",
+  "currentSha256": "b1c06b8f0e6add13227bd1c81539a86e469ceddb65241b37a36de02536e45955",
+  "limitations": [
+    "Scenario-only instruction-quality evaluation; no operational replay or cross-harness execution established here."
+  ],
+  "runs": [
+    {
+      "phase": "compare",
+      "evalId": "eval-heN-2026-10-13T21:12:37",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Accepted exception across states",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": false,
+          "score": 0.0,
+          "response": "Proposed package for `docs/handover.md`:\n\n1. **Scope:** Approved Work Object behavior across waiting, ready, and accepted states.\n2. **Authoritative ruling:** U9 explicitly requires an **orange dot in all states**. D7’s green dot conflicts with U9 and must be corrected in the handover examples.\n3. **State examples and evidence:** Document each state with its asset provenance and the required dot color.\n4. **Verification gaps:** Confirm orange in each implemented state. The supplied evidence does not establish other state behavior, transitions, or controls.\n\n| State | Required example | Supplied asset | Evidence status |\n|---|---|---|---|\n| Waiting | Work Object in waiting state with an orange dot | `waiting-exploration.png` | Exploratory mockup; does not prove implementation |\n| Ready | Work Object in ready state with an orange dot, correcting D7’s green dot | `ready-d7.png` | Design export; does not prove implementation |\n| Accepted | Work Object in accepted state with an orange dot | `accepted-build42.png` | Actual app capture from build42 using fixture `object7`; dot-color compliance is not established by the packet |\n\nRetain the source assets with these labels. Any proposed recolored examples should be labeled as annotated design illustrations, preserving the original build42 capture as implementation evidence.\n\nNo files were written, assets edited, or verification performed.",
+          "reason": "The proposal correctly prioritizes U9’s orange ruling over D7, distinguishes asset provenance, and avoids inventing execution or runtime proof. However, it omits the required Given/When/Then for all three state examples and provides filenames rather than durable document/asset links. Therefore, not every criterion is met.",
+          "error": "The proposal correctly prioritizes U9’s orange ruling over D7, distinguishes asset provenance, and avoids inventing execution or runtime proof. However, it omits the required Given/When/Then for all three state examples and provides filenames rather than durable document/asset links. Therefore, not every criterion is met."
+        },
+        {
+          "case": "Accepted exception across states",
+          "caseIndex": 0,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Package outline for `docs/handover.md` follows. This is a proposed document; no files were saved or links verified.\n\n# Work Object design handover\n\n## Scope and authority\n\nCovers **waiting**, **ready**, and **accepted** states.\n\n- **D7:** source design; specifies a green dot.\n- **U9:** recorded user ruling; explicitly chooses an orange dot in every state. Supersedes D7’s dot colour across all three states.\n- Other behavior and transition rules are not supplied and remain unspecified.\n\n## State examples and visual evidence\n\n### WO-001 — Waiting\n\n**Given** a Work Object is in the waiting state  \n**When** it is displayed  \n**Then** it displays an orange dot.\n\n- **Authority:** D7, with dot colour superseded by U9.\n- **Visual:** `waiting-exploration.png` — **exploratory mockup**.\n- **Departure:** Orange instead of D7’s green, authorized by U9.\n- **Gaps:** Image contents, revision and fixture are unverified. No running-app capture supplied.\n\n### WO-002 — Ready\n\n**Given** a Work Object is in the ready state  \n**When** it is displayed  \n**Then** it displays an orange dot.\n\n- **Authority:** D7, with dot colour superseded by U9.\n- **Visual:** `ready-d7.png` — **design export**, associated with D7.\n- **Departure:** Orange instead of D7’s green, authorized by U9.\n- **Gaps:** The export’s colour is unverified. If it retains D7’s green, label it superseded for colour; it does not illustrate U9 accurately. No running-app capture supplied.\n\n### WO-003 — Accepted\n\n**Given** a Work Object is in the accepted state  \n**When** it is displayed  \n**Then** it displays an orange dot.\n\n- **Authority:** D7, with dot colour superseded by U9.\n- **Visual:** `accepted-build42.png` — **running-app capture**, build42, fixture `object7`.\n- **Departure:** Orange instead of D7’s green, authorized by U9.\n- **Gaps:** Actual dot colour and other capture conditions are unverified. Build42’s relationship to the current app is unknown; this capture does not establish current runtime behavior.\n\n## Steps to complete the package\n\n1. Save this outline at `docs/handover.md`.\n2. Locate D7 and U9 and add durable source links or precise record locators.\n3. Preserve the three assets using the project’s existing asset convention; replace filenames above with working relative links.\n4. Inspect each image for the stated state and orange dot. Record mismatches explicitly, retaining original provenance.\n5. Obtain matching visual evidence where missing. Updated mockups or exports remain design evidence; runtime verification requires app captures with build, fixture and capture conditions.\n6. Check all links and confirm coverage of WO-001 through WO-003.\n\nU9 authorizes the colour departure in every state. Packaging alone does not implement or runtime-verify that decision.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Later ruling removes frame and capture unavailable",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": false,
+          "score": 0.0,
+          "response": "**Handover entry**\n\n- **Accepted behavior:** Return directly to the list, without a confirmation frame.\n- **Authority:** Final user ruling U3 supersedes the confirmation frame in design D2 and screenshot build8.\n- **Existing asset:** `old-build8.png` shows the superseded flow. Retain only as historical reference; it does not demonstrate the accepted behavior.\n- **Implementation status:** Unverified. The current app cannot start.\n\n**Gaps and proposed actions**\n\n- Restore app startup, then verify that the flow returns directly to the list without confirmation.\n- Capture a new screenshot from the verified flow to replace `old-build8.png` as current visual evidence.\n- Update D2 to reflect U3, or explicitly mark its confirmation frame as superseded.\n\nNo actions or runtime verification were performed.",
+          "reason": "The response correctly treats U3 as authoritative, records the removed confirmation frame and direct return, labels old-build8.png as superseded, and avoids invented runtime evidence. However, proposing “Restore app startup” includes unrelated launch repair in the handover scope, violating the requirement to leave it outside packaging scope.",
+          "error": "The response correctly treats U3 as authoritative, records the removed confirmation frame and direct return, labels old-build8.png as superseded, and avoids invented runtime evidence. However, proposing “Restore app startup” includes unrelated launch repair in the handover scope, violating the requirement to leave it outside packaging scope."
+        },
+        {
+          "case": "Later ruling removes frame and capture unavailable",
+          "caseIndex": 1,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "### Handover entry: DH-01 — Return directly to list\n\n**Accepted behavior**\n- **Given** the user is in the accepted flow,\n- **When** the flow completes,\n- **Then** return directly to the list without showing a confirmation frame.\n\n**Authority:** Final user ruling **U3** supersedes **D2** for the confirmation frame. Its removal is an explicitly accepted departure from D2.\n\n**Visual evidence:** [old-build8.png](old-build8.png) — historical running-app screenshot, build8. It includes the superseded confirmation frame and **does not match DH-01**. Retain it only as historical reference, not as evidence of accepted behavior.\n\n### Gaps and next steps\n\n- **Matching capture missing:** The current app cannot start. When available, exercise the accepted flow and capture the direct return to the list. Record build/revision, fixture and capture conditions.\n- **Source locators missing:** Add durable links or precise locators for D2 and U3; the packet supplies only their identifiers.\n- **Persistence pending:** Save this entry using the project’s existing handover destination and asset conventions, retain the historical asset with its label, and verify all links and visual pairings.\n\nNo unresolved product decision is identified in the packet. This entry has not been saved, and the accepted behavior has not been implemented or runtime-verified by this evaluation.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Spacing request is outside scope",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": false,
+          "score": 0.0,
+          "response": "Address only the spacing visible in the screenshot: identify uneven gaps, padding, or alignment and propose specific adjustments. No screenshot is included in this evidence packet, so exact changes cannot be identified.\n\nDo not invoke design-handover or create a handover document. Describe any adjustments as proposals, without claiming they were applied or verified.",
+          "reason": "The response correctly avoids a handover and does not claim edits were performed. However, it contradicts the supplied scenario by saying no screenshot was included, and it provides no concrete visual-spacing procedure or route to eyes. It therefore does not meet every criterion.",
+          "error": "The response correctly avoids a handover and does not claim edits were performed. However, it contradicts the supplied scenario by saying no screenshot was included, and it provides no concrete visual-spacing procedure or route to eyes. It therefore does not meet every criterion.",
+          "manualReview": {
+            "status": "disputed automatic failure; conservatively count baseline as pass",
+            "reason": "The baseline stays within spacing/padding/alignment, explicitly excludes handover and makes no edit claims. Its observation that the text-only packet contains no screenshot pixels should not manufacture a skill gain."
+          }
+        },
+        {
+          "case": "Spacing request is outside scope",
+          "caseIndex": 2,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Keep the response focused on the requested spacing correction; do not invoke design-handover or create a handover document.\n\nExplain that image editing is unavailable in this evaluation. The next step is to adjust only the requested spacing using the screenshot as the visual baseline, then compare the result with the original to verify alignment and consistent gaps. Preserve the existing content, styling and behavior.\n\nDo not invent pixel measurements or claim the screenshot was edited or verified.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Unresolved behavior remains a gap",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": false,
+          "score": 0.0,
+          "response": "The transfer artifact is a **checkout-state handover document** with source references, acceptance criteria, and an explicit unresolved decision.\n\n| State | Confirmed behavior | Handover status |\n|---|---|---|\n| Card declined | Show an error | Ready to transfer |\n| Payment succeeds | Show a receipt | Ready to transfer |\n| Retry after decline | Coupon preservation is undecided | Blocked pending a product decision |\n\nThe handover should flag the Figma retry frame as predating coupon support; it cannot establish coupon behavior. Ask the decision owner whether retry preserves the coupon, then update the retry specification and acceptance criteria after a ruling.\n\nKeep all supporting assets in the existing `docs/assets` directory and link them from the document. This is a proposed artifact; nothing has been created or run.",
+          "reason": "The proposal correctly leaves coupon retry unresolved, requests the product decision, identifies the outdated Figma frame, preserves docs/assets, and claims no execution. However, it does not propose stable source-linked identifiers for the accepted success/decline examples or record their known or missing visual provenance. Because every criterion is required, it fails.",
+          "error": "The proposal correctly leaves coupon retry unresolved, requests the product decision, identifies the outdated Figma frame, preserves docs/assets, and claims no execution. However, it does not propose stable source-linked identifiers for the accepted success/decline examples or record their known or missing visual provenance. Because every criterion is required, it fails."
+        },
+        {
+          "case": "Unresolved behavior remains a gap",
+          "caseIndex": 3,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The transfer artifact is one checkout handover Markdown document in the project’s existing docs location, linked to durable visuals in `docs/assets`.\n\n| Example ID | Accepted behavior | Visual evidence and authority |\n|---|---|---|\n| `checkout-declined` | **Given** checkout is ready for payment, **when** the card is declined, **then** an error is shown. | Confirmed by the scenario. Matching visual not supplied: capture/export gap. |\n| `checkout-success` | **Given** checkout is ready for payment, **when** payment succeeds, **then** a receipt is shown. | Confirmed by the scenario. Matching visual not supplied: capture/export gap. |\n| `checkout-retry-coupon` | **Unresolved:** whether retry preserves an applied coupon. | The Figma retry frame predates coupon support. Label it historical design evidence; it cannot resolve coupon behavior. |\n\nThe document should record source locators, visual type, revision/build, fixture and capture conditions when available. No departure from the designs has an authorizing ruling in the supplied evidence.\n\nNext steps: obtain the product ruling on coupon preservation, add its Given/When/Then example, collect matching visuals into `docs/assets`, and verify coverage, provenance and links.\n\nNothing was saved or verified in this read-only evaluation. The handover packages decisions and evidence; it does not establish implementation or runtime verification.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "evalId": "eval-Xru-2026-10-13T20:51:29",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Accepted exception across states",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Proposed contents for `docs/handover.md` follow. No files were saved or links verified in this read-only evaluation.\n\n# Work Object handover\n\n## Scope and authority\n\nIn scope: **waiting, ready, accepted**.\n\n- **D7:** source design; its green-dot choice is superseded by U9.\n- **U9:** recorded user ruling requiring an **orange dot in all states**.\n- Accepted departure: orange replaces D7’s green dot. No other departures or transition rules are established by this evidence packet.\n\n## State examples\n\n### WO-01 — Waiting\n\n**Given** a Work Object in the waiting state,  \n**When** it is displayed,  \n**Then** it shows an orange dot, as required by U9.\n\n- **Source:** D7, with dot color superseded by U9.\n- **Visual:** [Waiting exploration](waiting-exploration.png) — **exploratory mockup**.\n- **Provenance:** revision, fixture and creation conditions are unspecified.\n- **Gap:** the asset’s dot color has not been inspected. This mockup provides no runtime evidence.\n\n### WO-02 — Ready\n\n**Given** a Work Object in the ready state,  \n**When** it is displayed,  \n**Then** it shows an orange dot, as required by U9.\n\n- **Source:** D7, with dot color superseded by U9.\n- **Visual:** [Ready D7](ready-d7.png) — **design export**, revision D7.\n- **Departure:** D7 specifies green; U9 authorizes orange. Retain this export as superseded color evidence, not a fully matching visual of accepted behavior.\n- **Gap:** a visual reflecting U9 and a current runtime capture are missing. Fixture and export conditions are unspecified.\n\n### WO-03 — Accepted\n\n**Given** a Work Object in the accepted state,  \n**When** it is displayed,  \n**Then** it shows an orange dot, as required by U9.\n\n- **Source:** D7, with dot color superseded by U9.\n- **Visual:** [Accepted build42](accepted-build42.png) — **running-app capture**.\n- **Provenance:** build42; fixture `object7`. Other capture conditions are unspecified.\n- **Gap:** the capture’s dot color and its relevance to the current build have not been verified. It proves neither current behavior nor compliance with U9 without inspection.\n\n## Transfer checklist\n\nAll three accepted states are accounted for. To complete the durable package:\n\n1. Save this document to `docs/handover.md`.\n2. Locate D7 and U9 and add durable source links.\n3. Store or locate the three assets using project conventions; replace the provisional relative links above with verified paths.\n4. Inspect each visual against its example, recording color discrepancies and available capture conditions.\n5. Obtain missing visuals showing U9’s orange dot. Label any older captures historical; retain unavailable captures as explicit gaps.\n\nPackaging this handover does not implement or runtime-verify the approved behavior.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Later ruling removes frame and capture unavailable",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Using design-handover, the entry should read:\n\n### DH-01 — Return directly to list\n\n**Accepted behavior**\n- **Given** the user is in the flow,\n- **When** the flow completes,\n- **Then** return directly to the list without a confirmation frame.\n\n**Authority:** Final user ruling **U3** supersedes **D2** on the confirmation frame. Removing that frame is an accepted departure from D2.\n\n**Visual evidence:** [old-build8.png](old-build8.png) — historical running-app capture, **build8**. It includes the superseded confirmation frame and **does not match the accepted behavior**. Retain it as historical context only. Fixture and capture conditions are unavailable.\n\n**Matching current visual:** Missing. The current app cannot start, so U3’s accepted flow has no current runtime capture. Implementation status is unverified.\n\n### Gaps and next steps\n\n- Save this entry using the project’s handover destination and asset conventions; neither is supplied here. Preserve the historical asset and link it durably.\n- Add durable source locators for D2 and U3; only their identifiers are supplied.\n- Once the app is available, capture the flow’s direct return to the list, recording build/revision, fixture and capture conditions. Capture enough of the transition to demonstrate that no confirmation frame appears.\n- Verify the new evidence against DH-01 and check all saved links.\n\nNo product decision remains unresolved in the supplied packet. No files were saved, links checked or captures taken in this read-only evaluation.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Spacing request is outside scope",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Treat this as a focused spacing correction. Do not invoke design-handover or create a handover document.\n\nInspect the supplied screenshot, identify the specific spacing issue, and describe the smallest adjustment while preserving the existing design. Since this evidence packet contains no actual screenshot and no editing tools are available, do not invent measurements or claim a fix.\n\nNext step: obtain the screenshot, specify the affected gaps or padding, then apply the adjustment and compare the updated screenshot when editing tools are available.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Unresolved behavior remains a gap",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The transfer artifact is a linked Markdown handover in the existing docs location, with durable visuals in `docs/assets`.\n\n| Example ID | Accepted behavior | Evidence pairing |\n|---|---|---|\n| `checkout-declined` | **Given** checkout is ready, **when** card payment is declined, **then** an error appears. | Confirmed by the scenario; matching visual and its provenance remain missing. |\n| `checkout-success` | **Given** checkout is ready, **when** payment succeeds, **then** a receipt appears. | Confirmed by the scenario; matching visual and its provenance remain missing. |\n| `checkout-retry-coupon` | **Unresolved:** whether retry preserves the coupon. | The Figma retry frame predates coupon support and cannot resolve this decision. Label it historical if included. |\n\nThe document should record source locators, visual type, revision/build, fixture and capture conditions, and any authorized departures. No departures are established by this packet.\n\nNext steps:\n\n1. Obtain a product ruling: **Should retry preserve the coupon?**\n2. Save the handover using the existing docs naming convention and place matching captures or exports in `docs/assets`.\n3. Link each visual beside its example, verify links and provenance, and retain missing evidence as explicit gaps.\n\nNothing was saved or verified in this read-only evaluation. Packaging this artifact does not establish implementation or runtime verification.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "red",
+      "evalId": "eval-0A5-2026-10-13T20:37:57",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Accepted exception across states",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": "Proposed content for `docs/handover.md` follows. No file was written.\n\n# Work Object handover\n\n## Approved scope and ruling\n\nCover **waiting**, **ready**, and **accepted** states. Recorded user ruling **U9** chooses an **orange dot in all states**, overriding D7’s green dot.\n\nThe evidence packet does not specify transitions, actions, or other state behavior. Those details remain unresolved.\n\n## State examples and visual evidence\n\n| State | Required example | Supplied asset | Evidence status |\n|---|---|---|---|\n| Waiting | Work Object in waiting state with an orange dot | `waiting-exploration.png` | Exploratory mockup; does not prove implemented behavior or compliance with U9. |\n| Ready | Work Object in ready state with an orange dot | `ready-d7.png` | D7 design export; its green dot conflicts with U9 and must be corrected. |\n| Accepted | Fixture `object7` in accepted state with an orange dot | `accepted-build42.png` | Actual app capture from build42 using `object7`; dot-color compliance is unverified. |\n\n## Implementation and acceptance checks\n\n- Use orange for the dot in every scoped state.\n- Do not carry D7’s green dot into implementation.\n- Verify each state against U9 and record the build and fixture used.\n- Keep mockups, design exports, and app captures clearly labeled.\n\n## Next steps\n\n1. Save this handover to `docs/handover.md`, adding links to the assets at their confirmed locations.\n2. Correct the ready design export and inspect the waiting and accepted images for compliance with U9.\n3. Capture matching app evidence for all three states, recording build and fixture provenance.\n4. Obtain the missing transition and action decisions before implementing behavior beyond the stated scope.\n\nThese steps have not been executed.",
+          "reason": "The response preserves U9’s orange-dot ruling, correctly distinguishes asset provenance, identifies D7’s conflicting green dot, and makes no invented execution or runtime-proof claims. However, it does not provide the required Given/When/Then examples, and its document and asset references are code-formatted filenames rather than links. Because every criterion must be met, it fails.",
+          "error": "The response preserves U9’s orange-dot ruling, correctly distinguishes asset provenance, identifies D7’s conflicting green dot, and makes no invented execution or runtime-proof claims. However, it does not provide the required Given/When/Then examples, and its document and asset references are code-formatted filenames rather than links. Because every criterion must be met, it fails."
+        },
+        {
+          "case": "Later ruling removes frame and capture unavailable",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": "**Handover entry**\n\nThe accepted flow returns directly to the list. Implement this transition without a confirmation frame.\n\nFinal user ruling **U3** supersedes the confirmation frame in design **D2** and screenshot **build8**. The existing asset, `old-build8.png`, documents the superseded design; it is not matching visual evidence for the accepted flow.\n\n**Gaps and next steps**\n\n- No screenshot demonstrates the U3 flow.\n- The current app cannot start, so runtime behavior and updated visuals remain unverified.\n- Next implementer: restore app startup, inspect and update the transition to follow U3, then verify that completing the flow returns directly to the list without showing confirmation.\n- Capture a screenshot of the resulting list state and record its build identifier alongside U3. Verify the transition through a runtime check or recording, since a static screenshot alone cannot establish that no confirmation appeared.\n\nThis entry uses only the supplied evidence; no execution or verification was performed.",
+          "reason": "The entry correctly treats U3 as authoritative, removes confirmation, specifies direct return to the list, labels old-build8.png as superseded, and records missing visual and runtime evidence without inventing execution. However, it explicitly assigns restoring app startup to the next implementer, bringing unrelated launch repair into the handover’s proposed work rather than leaving it outside packaging scope.",
+          "error": "The entry correctly treats U3 as authoritative, removes confirmation, specifies direct return to the list, labels old-build8.png as superseded, and records missing visual and runtime evidence without inventing execution. However, it explicitly assigns restoring app startup to the next implementer, bringing unrelated launch repair into the handover’s proposed work rather than leaving it outside packaging scope."
+        },
+        {
+          "case": "Spacing request is outside scope",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Respond to the spacing request directly; do not invoke design-handover or create a handover.\n\nThe evidence packet contains no visible screenshot, so specific spacing defects cannot be identified. Ask the user to attach it. Once available, identify the affected gaps, alignment, and padding, then give concrete adjustment instructions scoped to those issues. State that no image or code changes were made because editing tools are unavailable.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Unresolved behavior remains a gap",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": "The transfer artifact is a checkout-state handover document linking visual evidence in the existing `docs/assets` directory.\n\nIt should record:\n\n- **Accepted behavior:** declined card → error; successful payment → receipt.\n- **Unresolved decision:** whether retry preserves the coupon. No source ruling resolves this; the Figma retry frame predates coupon support and cannot establish that behavior.\n- **Evidence:** link the matching error and receipt images, where supplied. Label the retry frame as outdated for coupon behavior.\n- **Implementation boundary:** implement the confirmed outcomes; leave coupon persistence on retry undecided until an explicit ruling.\n\nNext steps: obtain the coupon-retry decision, update its visual evidence within `docs/assets`, and add the ruling and matching asset link to the handover. No document or assets were created in this read-only evaluation.",
+          "reason": "The response correctly records confirmed outcomes, leaves coupon retry unresolved, identifies the outdated Figma evidence, and preserves docs/assets without claiming execution. However, it does not propose stable source-linked identifiers for the accepted examples or explicitly record their known versus missing visual provenance. Because every criterion is required, it does not pass.",
+          "error": "The response correctly records confirmed outcomes, leaves coupon retry unresolved, identifies the outdated Figma evidence, and preserves docs/assets without claiming execution. However, it does not propose stable source-linked identifiers for the accepted examples or explicitly record their known versus missing visual provenance. Because every criterion is required, it does not pass."
+        }
+      ]
+    },
+    {
+      "phase": "trigger",
+      "evalId": "eval-1yz-2026-10-13T21:17:39",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Explicit invocation reaches skill",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "trigger",
+          "success": true,
+          "score": 1.0,
+          "response": "Plan for `docs/handover.md`—no files changed:\n\n1. **Scope and authority:** cover Work Object’s waiting, ready and accepted states. Record U9 as authoritative: orange in every state, explicitly superseding D7’s green dot.\n2. **State examples and evidence:**\n\n   | ID | Given / When / Then | Visual and provenance |\n   |---|---|---|\n   | WO-01 | Given a waiting Work Object, when displayed, then its dot is orange. | `waiting-exploration.png` — exploratory mockup; runtime evidence missing. |\n   | WO-02 | Given a ready Work Object, when displayed, then its dot is orange. | `ready-d7.png` — D7 design export; green-dot specification superseded by U9. |\n   | WO-03 | Given an accepted Work Object, when displayed, then its dot is orange. | `accepted-build42.png` — actual app capture, build42, fixture `object7`; visual compliance with U9 still to be checked. |\n\n3. **Sources and durable assets:** link D7, U9 and each image using repository conventions. Record revision, state and capture conditions; mark unavailable details as gaps.\n4. **Transfer checks:** verify all three pairings, links and orange-dot compliance. Keep missing runtime captures explicit; packaging does not establish implementation or runtime verification.\n\nSkill followed: **design-handover**.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Exclusion stays outside workflow",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "trigger",
+          "success": true,
+          "score": 1.0,
+          "response": "Plan: inspect the screenshot, identify uneven gaps and padding, and suggest consistent spacing while preserving the layout. No handover or file changes.\n\nNo screenshot is attached, so specific adjustments would need the image.\n\nSkill followed: none.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    }
+  ]
+}

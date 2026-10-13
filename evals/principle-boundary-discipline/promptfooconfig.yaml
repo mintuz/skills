@@ -1,0 +1,57 @@
+description: "principle-boundary-discipline behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Persistence breaks unconditional trust"
+    vars:
+      skill: file://../../src/principle/skills/principle-boundary-discipline/SKILL.md
+      scenario: "A network handler validates Account once. A background task loads older Accounts directly from disk and awaits a plugin callback that can mutate the shared Account. The team wants all subsequent balance checks removed because Account is typed. Recommend validation ownership."
+      rubric: "Identifies persisted data and plugin mutation/reentrancy as trust or invariant transitions; validates loaded state and reestablishes needed invariants after mutation or suspension; only removes checks proved redundant across every path; keeps domain policy out of thin transport wiring."
+  - description: "One proven boundary is sufficient"
+    vars:
+      skill: file://../../src/principle/skills/principle-boundary-discipline/SKILL.md
+      scenario: "A CLI parses a string into an immutable PositiveCount with a private validated constructor. Pure internal helpers receive that value; no unsafe construction, mutation or persistence path exists. Every helper reparses the integer. Describe a focused cleanup."
+      rubric: "Keeps parsing and errors at CLI entry; uses the validated domain type internally and removes redundant reparsing; preserves domain behavior with focused accepted/rejected input checks; avoids exporting raw CLI representation as the domain API."

@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-166-2026-10-13T20:40:53",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-subtract-before-you-add"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "b53cd3c0fa267ff2d3262456c4efca53c2699546133e5fd3be4155bddeb30673",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reuse the existing retry queue for the new job, preserving bounded attempts and stable idempotency keys. Add only the job handling or configuration needed; a second queue is unnecessary unless a concrete requirement shows the existing one cannot serve both jobs.\n\nKeep the timeout guard. Nothing in the scenario proves it redundant: bounded retries limit attempts, while a timeout may bound how long an attempt runs. Delete it only after proving another mechanism preserves its boundary, failure behavior, and tests.\n\nVerify both jobs\u2019 retry limits, idempotency, and timeout behavior. The supplied facts support queue reuse, but do not establish integration compatibility or justify any deletion.",
+        "tokenUsage": {
+          "prompt": 21896,
+          "completion": 130,
+          "cached": 19072,
+          "total": 22026,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Existing mechanism can meet the new requirement"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Remove the content-free wrapper reference file and update the maintained index to link directly to the current parser doc. Check that the link resolves and no affected references remain broken.\n\nKeep both validators: they protect distinct boundaries\u2014untrusted imported JSON and internal state after a mutable plugin hook. The malformed-JSON and hook-corruption tests cover separate failure behavior; similarity does not prove redundancy.\n\nThe scenario justifies the wrapper removal, but no files, links, or tests were inspected or executed.",
+        "tokenUsage": {
+          "prompt": 21905,
+          "completion": 100,
+          "cached": 19072,
+          "total": 22005,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Removal requires behavior and reference evidence"
+    }
+  ]
+}

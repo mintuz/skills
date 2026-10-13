@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-mXw-2026-10-13T20:57:22",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-subtract-before-you-add"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "b53cd3c0fa267ff2d3262456c4efca53c2699546133e5fd3be4155bddeb30673",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reuse the existing retry mechanism if it meets the required failure handling, attempt limits, backoff, and cancellation behavior. Remove only proven duplication; similar retries may protect different boundaries.\n\nNo implementation files were available to verify reuse or redundancy. No changes or external calls made.\n\nSkill followed: principle-subtract-before-you-add.",
+        "tokenUsage": {
+          "prompt": 66196,
+          "completion": 206,
+          "cached": 53120,
+          "total": 66402,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21711,
+          "completion": 30,
+          "cached": 9600,
+          "total": 21741,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 21,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

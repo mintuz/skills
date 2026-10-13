@@ -1,0 +1,35 @@
+description: "principle-encode-lessons-in-structure activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "Two independently reproduced bugs used metres where milliseconds were expected. A unit-aware constructor can reject both and existing tests cover its callers. The team proposes adding the same warning to three documents as well. Give a focused recommendation."
+    assert:
+      - type: skill-used
+        value: principle-encode-lessons-in-structure
+  - description: Excludes a plain translation
+    vars:
+      request: "Translate only this sentence into French: The green notebook is on the table."
+    assert:
+      - type: not-skill-used
+        value: principle-encode-lessons-in-structure

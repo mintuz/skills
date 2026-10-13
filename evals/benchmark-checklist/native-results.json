@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "skill": "benchmark-checklist",
+  "source_sha256": "0169e8efdef2971de48ef5abc3ad53fc577afb7f3117a9fe8da915ff21db6b96",
+  "scope": "Native project discovery and one representative read-only scenario per skill. This is not implementation, runtime, full regression or operational cold-replay evidence. No external action or file creation claimed by model. Manual review, not automated rubric score.",
+  "observed_contracts": "Rejects unconsumed generator timing and mismatched work; correctness, balanced runs, median/range and end-to-end plausibility.",
+  "runs": [
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "0169e8efdef2971de48ef5abc3ad53fc577afb7f3117a9fe8da915ff21db6b96",
+      "fixture": "/tmp/workflow-native/claude/.claude/skills/benchmark-checklist/SKILL.md",
+      "loader_call": {
+        "name": "Skill",
+        "args": {
+          "skill": "benchmark-checklist"
+        },
+        "id": "toolu_01TtD6KAUW3jMDcWF1WDpLXT"
+      },
+      "loader_result": {
+        "id": "toolu_01TtD6KAUW3jMDcWF1WDpLXT",
+        "is_error": null,
+        "content": "Launching skill: benchmark-checklist"
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "benchmark-checklist\n**Loaded from:** `/private/tmp/workflow-native/claude/.claude/skills/benchmark-checklist`\n\n**Verdict: inconclusive.** The \"8x faster\" number can't guide adoption.\n- **Plausibility:** the changed helper was 10 ms of a 100 ms total. Even if it cost nothing, the best case is about 1.11\u00d7. An 8x gain isn't possible from that change.\n- **Completed work:** the harness only creates an async generator and never consumes it, so no export work is timed.\n- **Correctness:** error and row counts are absent.\n- **Fairness and repeatability:** the data sizes differ between sides, and there is one run per side. The checklist wants at least five balanced runs, with median and range.\n\n**To make it valid:**\n1. Consume the full export inside the timed region.\n2. Verify the row counts and count errors.\n3. Use the same data on both sides.\n4. Run at least five interleaved runs per side.\n5. Profile the limiter.\n6. Measure the end-to-end path.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/claude"
+    },
+    {
+      "host": "omp",
+      "model": [
+        "gpt-6-astra"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "0169e8efdef2971de48ef5abc3ad53fc577afb7f3117a9fe8da915ff21db6b96",
+      "fixture": "/tmp/workflow-native/omp/.agents/skills/benchmark-checklist/SKILL.md",
+      "loader_call": {
+        "name": "read",
+        "args": {
+          "path": "skill://benchmark-checklist"
+        },
+        "id": "call_3534f449147b4ea48c642b80b323be71|fc_06a2b1e266e81043016acea05bb3e4819193ef0eb342e430ab"
+      },
+      "loader_result": {
+        "id": "call_3534f449147b4ea48c642b80b323be71|fc_06a2b1e266e81043016acea05bb3e4819193ef0eb342e430ab",
+        "is_error": false
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "benchmark-checklist\n\n**Loaded:** `/tmp/workflow-native/omp/.agents/skills/benchmark-checklist/SKILL.md`\n\n**Verdict: inconclusive. The 8\u00d7 number must not guide adoption.**\n\n- The harness times async-generator creation, not completed export work.\n- Missing row and error counts leave correctness unproven.\n- Different data sizes invalidate the comparison.\n- One run per side gives no useful repeatability evidence.\n- The changed helper previously used 10 ms of a 100 ms total. If everything else stays unchanged, eliminating that helper entirely gives at most `100 / 90 \u2248 1.11\u00d7` end-to-end speed-up. An 8\u00d7 claim needs evidence of additional effects.\n\n**Required proof:** Consume the generator inside the timed region. Verify substantive output and count failures. Compare equal workloads under comparable, fairly tuned settings. Run at least five times per side in balanced alternating order; report median and range. Identify the bottleneck and measure the user-visible export path alongside any helper benchmark.\n\nNo replacement timing can be inferred from these defective measurements.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/omp"
+    }
+  ]
+}

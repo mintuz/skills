@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-wCl-2026-10-13T20:31:56",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-prove-it-works"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "ec79a15025bac8d33d62011c54f3b612733fd2a024e623b531b3637aa75070e2",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.9,
+      "response": {
+        "output": "Applying **principle-prove-it-works**: **the claim is unverified; do not declare done.**\n\nBuild and unit tests pass on commit A, but they do not prove saving and restoring after relaunch on a physical phone. The screenshot shows commit B. The simulator tap proves neither persistence nor restoration.\n\nNext evidence: on commit A, enter a uniquely identifiable note, tap Save, check the persisted value directly, terminate and relaunch the app, and verify the exact note is restored. Script repeatable checks where possible and retain the results with the tested commit and device.\n\nSimulator verification can provide partial evidence now. With no physical phone available, the physical-device claim remains unverified until that same flow is checked on one.",
+        "tokenUsage": {
+          "prompt": 22020,
+          "completion": 152,
+          "cached": 19072,
+          "total": 22172,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The output rejects the stale screenshot, passing build/unit tests, and tap telemetry as proof of persistence. It proposes checking saved content and exact restoration after relaunch on commit A, retaining commit/device evidence, and using the available simulator for partial verification while leaving physical-phone coverage explicitly unverified. However, it does not explicitly verify that the installed build corresponds to commit A.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.9,
+        "reason": "The output rejects the stale screenshot, passing build/unit tests, and tap telemetry as proof of persistence. It proposes checking saved content and exact restoration after relaunch on commit A, retaining commit/device evidence, and using the available simulator for partial verification while leaving physical-phone coverage explicitly unverified. However, it does not explicitly verify that the installed build corresponds to commit A."
+      },
+      "failure_reason": 1,
+      "case": "Match proof to artifact identity"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.65,
+      "response": {
+        "output": "The recent log mtime does **not** prove the service is alive. Connection refused does not establish whether the process exited, the check targets the wrong port, or startup is incomplete. Changing the health check is premature.\n\nUse the existing process/port/status command to directly inspect process liveness, the listening port, and startup status. Compare the actual listener with the health check\u2019s target. If startup is underway, repeat the check after readiness; if results conflict, verify the observation\u2019s target and context first.\n\nNo commands were run in this evaluation, so the cause remains undetermined. Make no edits until direct evidence identifies the mismatch or failure.",
+        "tokenUsage": {
+          "prompt": 22019,
+          "completion": 133,
+          "cached": 0,
+          "total": 22152,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The output correctly rejects mtime as proof of liveness, considers both check-target errors and service failures, avoids unsupported edits or a new script, and reports uncertainty. However, it only recommends inspecting process liveness, the listening port, and startup state; it explicitly states that no commands were run. It therefore does not satisfy the requirement to perform those checks, and it does not explicitly verify process identity.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.65,
+        "reason": "The output correctly rejects mtime as proof of liveness, considers both check-target errors and service failures, avoids unsupported edits or a new script, and reports uncertainty. However, it only recommends inspecting process liveness, the listening port, and startup state; it explicitly states that no commands were run. It therefore does not satisfy the requirement to perform those checks, and it does not explicitly verify process identity."
+      },
+      "failure_reason": 1,
+      "case": "Failed observation is one hypothesis"
+    }
+  ]
+}

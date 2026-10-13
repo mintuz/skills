@@ -1,0 +1,358 @@
+{
+  "skill": "create-verification-skill",
+  "model": "gpt-6-astra",
+  "reasoning": "medium",
+  "upstreamCommit": "dbf49813a39c1a5389c5e28cb8e4c1c2379e2454",
+  "prechangeSha256": "d353973547bf8ad8977eca645f4cd4feaed0d32f4b43d1448f906b0a76c4d694",
+  "currentSha256": "237a0bed69cbc2885950b97857d20ca3e5de655cd91c8732b657bb4b7dd45f71",
+  "limitations": [
+    "Scenario-only instruction-quality evaluation; no operational replay or cross-harness execution established here."
+  ],
+  "runs": [
+    {
+      "phase": "compare",
+      "evalId": "eval-8f3-2026-10-13T21:01:13",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Cold replay is separate proof",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": false,
+          "score": 0.0,
+          "response": "The deliverable is a Ledger CLI verification skill in `tools/skills`, registered in `tools/index.yml`. Its recipe would use the existing harness to start an isolated ledger store, add an invoice through the public CLI, and list it to verify the result. It would preserve evidence outside the scratch directory and leave the user’s running app undisturbed.\n\nThe authoring run passed on revision `c71`, with evidence saved outside scratch. That supports the tested revision; it does not establish that the packaged skill is discoverable or independently reproducible.\n\nRemaining acceptance steps would be to:\n\n- Verify the skill’s location and index registration.\n- Run the recipe independently from its packaged instructions against the intended revision.\n- Confirm the listed invoice matches the one added through the public CLI.\n- Check that cleanup affects only isolated resources and that saved evidence remains accessible.",
+          "reason": "The response correctly names the canonical skill location and registration, reuses the harness, describes the invoice journey, and limits what the c71 authoring pass proves. It also proposes preserving evidence and the user's running instance. However, it does not explicitly require saving and replaying the recipe in a fresh context using only documented prerequisites, or resetting only owned fixtures before replay. Cleanup refers generally to isolated resources without identifying ownership. Because every criterion is required, it fails.",
+          "error": "The response correctly names the canonical skill location and registration, reuses the harness, describes the invoice journey, and limits what the c71 authoring pass proves. It also proposes preserving evidence and the user's running instance. However, it does not explicitly require saving and replaying the recipe in a fresh context using only documented prerequisites, or resetting only owned fixtures before replay. Cleanup refers generally to isolated resources without identifying ownership. Because every criterion is required, it fails."
+        },
+        {
+          "case": "Cold replay is separate proof",
+          "caseIndex": 0,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The deliverable is one shared recipe at `tools/skills/verify-ledger/SKILL.md`, registered in `tools/index.yml`, using the existing harness and actual CLI commands.\n\nIt should document:\n\n- **Launch:** prerequisites, revision/build identity, and a dedicated isolated ledger store. Leave the user’s running instance untouched.\n- **Doctor:** read-only checks of target identity, store isolation, ownership, readiness, and authentication if applicable.\n- **Drive:** add an invoice through the public CLI, then list it and verify its expected fields.\n- **Evidence:** retain command results, resulting invoice state, and material side effects outside scratch storage, with revision and fixture identity.\n- **Cleanup:** on success or failure, remove only this run’s resources, checking current ownership before terminating anything. Confirm retained evidence survives cleanup.\n\nThe supplied evidence establishes that the **authoring run passed on revision `c71`** and evidence was saved outside scratch. It does not establish that the recipe is saved, registered, or reproducible.\n\nRemaining acceptance steps:\n\n1. Save and register the executable recipe with exact commands and durable evidence paths.\n2. Confirm owned-resource cleanup and evidence retention.\n3. Reset only owned fixtures and have a fresh agent cold-replay the saved recipe using only its documented prerequisites.\n4. If replay exposes missing instructions, correct the recipe and repeat the cold replay.\n5. Hand over links to the recipe and retained evidence, reporting authoring and cold-replay outcomes separately and identifying any uncovered boundaries.\n\nNo steps were executed in this read-only evaluation. **Cold-replay reproducibility remains unproven.**",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Stale simulator and unavailable real boundary",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": true,
+          "score": 1.0,
+          "response": "Keep both journeys in the recipe, with separate verification requirements:\n\n- **Save-alarm:** Install checkout revision r12 on the simulator, create an alarm through the user-facing save flow, and verify it persists. The r9 screenshot only shows an alarm created through an internal debug setter; it does not prove the save flow or r12 behavior.\n- **Launch-from-Siri:** Retain the journey and mark verification blocked until the physical phone is available. Verify Siri launch and entitlements on that device using the intended revision.\n\nRecord checkout revision, installed revision, creation method, and device alongside each result. Currently, the checkout is r12 and the simulator install is r9. Neither journey is proven for r12; Siri and entitlements remain unverified.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Stale simulator and unavailable real boundary",
+          "caseIndex": 1,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Refresh the existing shared `verify-wake` recipe, preserving **save-alarm and launch-from-Siri**.\n\nChanges to make:\n\n- Record checkout **r12** and simulator install **r9**. Add read-only doctor checks for installed build identity, target device, readiness, and run ownership; resolve the mismatch before claiming r12 verification.\n- Document the project’s actual scheme, bundle ID, simulator runtime, fixture setup, and build/install/launch commands. Use an owned simulator and isolated fixtures.\n- For **save-alarm**, replace the internal debug setter with the public UI journey: enter alarm details, save, and verify the resulting alarm and persistence. Retain action and resulting-state evidence with build identity.\n- Keep **launch-from-Siri** as a physical-device journey, documenting signing, relevant entitlements, Siri setup, invocation, and expected app behavior. Mark it blocked until the phone is available.\n- Save evidence outside disposable fixtures. Cleanup must check current ownership, release only run-created resources, and confirm retained artifacts remain available.\n- Once execution is available, run the saved recipe, save corrections, then cold-replay from a fresh agent context using only documented prerequisites. Report each journey separately.\n\n**What is proven:** the r9 screenshot shows an alarm state produced through an internal debug setter. It does not verify the public save-alarm journey, persistence, r12 behavior, Siri launch, or device entitlements.\n\n**Current outcome:** no edits, execution, or cold replay occurred in this read-only evaluation. Both journeys remain unverified by the supplied evidence; reproducibility is unproven.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Launch blocked without side quest",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": false,
+          "score": 0.0,
+          "response": "I can deliver a verification recipe grounded in the existing browser harness and documented readiness check:\n\n- Prerequisites: identify the missing paid-service credential as the startup blocker and reference the local scripts’ setup guidance.\n- Readiness gate: run the documented check before attempting browser verification; stop if startup remains blocked.\n- Verification steps: describe how to exercise checkout with the existing harness and what evidence to collect.\n- Status: mark browser execution as blocked and checkout behavior as unverified.\n\nThe recipe can be delivered now. No billing or machine setup changes are authorized, and no checks have run.",
+          "reason": "The response correctly identifies the missing paid-service credential, proposes the documented readiness check and existing harness, marks browser execution blocked and checkout unverified, and claims no execution or unauthorized setup changes. However, it only promises to describe checkout steps and evidence collection; it supplies neither concrete proposed steps nor the evidence needed to graduate the draft. Therefore, not every criterion is met.",
+          "error": "The response correctly identifies the missing paid-service credential, proposes the documented readiness check and existing harness, marks browser execution blocked and checkout unverified, and claims no execution or unauthorized setup changes. However, it only promises to describe checkout steps and evidence collection; it supplies neither concrete proposed steps nor the evidence needed to graduate the draft. Therefore, not every criterion is met."
+        },
+        {
+          "case": "Launch blocked without side quest",
+          "caseIndex": 2,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "I can deliver a **draft checkout verification recipe and a narrow startup diagnosis**. The existing browser harness works, but this branch cannot start without the documented paid-service credential. Recipe execution and cold replay remain unproven.\n\nThe draft should use the canonical skill location and existing harness, and include:\n\n- **Launch:** the documented credential prerequisite, startup command, readiness check, branch/build identity, and isolated checkout fixture.\n- **Doctor:** read-only checks for the missing credential, target identity, instance ownership, readiness, and authentication—without exposing credential values.\n- **Drive:** one critical checkout journey through the public browser UI, with verified selectors, preconditions, expected state, and payment side effects. Any isolated payment test boundary must be documented; a “test” label alone does not establish safety.\n- **Evidence and cleanup:** durable artifact paths, action/result evidence, and cleanup limited to resources the run owns, with ownership rechecked before termination.\n\nOnce the credential is supplied through the project’s authorized setup, the next steps are to run launch → doctor → checkout → evidence → cleanup, correct the saved recipe, then replay it from a fresh agent context using only its documented prerequisites.\n\nI would not change billing, configure the machine, or introduce a workaround for the unrelated service. In this no-tools evaluation, no recipe was saved, commands or selectors were inspected, or runs performed; those project-specific details must be filled from the local documentation before the draft is executable.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Shared instance ownership",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "baseline",
+          "success": false,
+          "score": 0.0,
+          "response": "Cleanup should verify the worker’s identity using the ownership token, PID, and start time. A matching PID alone is insufficient: once another process reuses it, cleanup must leave that process untouched.\n\nRemove only scratch rows belonging to the failed run ID. Preserve `evidence/trace.json` for diagnosis. Cleanup should be safe to repeat, including when the worker or scratch rows are already gone.\n\nReplay should create a fresh run ID and record a new ownership token, PID, and start time. Check whether port 4311 is available before starting; if another process holds it, report the conflict without terminating that process. Keep the failed run’s evidence separate from replay output.",
+          "reason": "The procedure correctly checks ownership beyond PID, preserves evidence, limits scratch cleanup to the failed run, and protects unrelated processes. However, it does not specify that cleanup also runs when replay fails or that a failed replay remains unverified. Therefore, not every criterion is met.",
+          "error": "The procedure correctly checks ownership beyond PID, preserves evidence, limits scratch cleanup to the failed run, and protects unrelated processes. However, it does not specify that cleanup also runs when replay fails or that a failed replay remains unverified. Therefore, not every criterion is met."
+        },
+        {
+          "case": "Shared instance ownership",
+          "caseIndex": 3,
+          "promptIndex": 1,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Cleanup must run on failure, but **must not terminate the process that reused the PID**.\n\n- Recheck live ownership against the recorded token, PID and start time. The original worker has exited; a matching PID or port alone does not establish ownership. Leave the other user’s process untouched.\n- Delete only scratch rows proven to belong to this run ID. If ownership is uncertain, retain them and report the cleanup limitation.\n- Preserve `evidence/trace.json` outside disposable scratch state, alongside the run ID, revision/build, target identity and failure details. After cleanup, confirm the retained artifacts still exist and are readable.\n\nCorrect the saved recipe to document these checks before replay. From a fresh agent context, using only its documented prerequisites:\n\n1. Create a new run ID, isolated fixtures and ownership token.\n2. Check port 4311. If another process owns it, stop with a narrow diagnosis; do not kill it to free the port.\n3. Run launch → doctor → public journey → evidence → cleanup, verifying ownership again before termination.\n4. Retain replay evidence separately and confirm it survives cleanup.\n\nThe failed run’s trace proves only what it actually captured. Reproducibility remains unproven until the corrected recipe completes a successful cold replay. No cleanup or replay was executed in this read-only evaluation.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "evalId": "eval-ApG-2026-10-13T20:45:29",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Cold replay is separate proof",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "The deliverable is one shared recipe at `tools/skills/verify-ledger/SKILL.md`, registered in `tools/index.yml`, using the existing isolated-store harness.\n\nIt should document:\n\n- **Launch:** actual prerequisites and commands, an owned scratch store, readiness checks, and revision/build identity.\n- **Doctor:** read-only checks of target identity, store isolation, readiness, and authentication if applicable.\n- **Drive:** add an invoice through the public CLI, then list invoices and verify the created invoice appears with the expected values.\n- **Evidence:** retain commands, results, and material store changes with revision and fixture identity at durable paths outside scratch.\n- **Cleanup:** remove only this run’s fixtures and resources, checking current ownership before terminating anything. Leave the user’s already-running instance untouched, and confirm evidence survives cleanup.\n\nThe supplied evidence establishes a **passing authoring run on revision `c71`**, with evidence saved outside scratch. It does not establish cold reproducibility.\n\nRemaining acceptance steps:\n\n1. Save and register the recipe with exact runnable commands and actual evidence links; those details are absent from this packet.\n2. Confirm the authoring run used the isolated store and completed ownership-safe cleanup while preserving evidence.\n3. From a fresh agent context, execute the saved recipe using only its documented prerequisites: launch → doctor → public CLI journey → evidence → cleanup.\n4. If setup or instructions are missing, correct the recipe, reset only owned fixtures, and repeat cold replay.\n5. Hand over recipe and evidence links, reporting authoring and cold-replay outcomes separately. Identify other journeys as uncovered; claim portability only for harnesses independently replayed.\n\nNo files were created or checks executed in this read-only evaluation.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Stale simulator and unavailable real boundary",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Refresh the shared `verify-wake` recipe while preserving both **save-alarm** and **launch-from-Siri** journeys.\n\nChanges to make:\n\n- **Identity and launch:** record checkout r12 and installed simulator r9 as a mismatch. Document the actual project commands to build, install and launch r12 on an owned simulator, then verify its revision and bundle identity.\n- **Doctor:** add read-only checks for installed revision, simulator ownership, readiness and fixture state before interacting.\n- **Save-alarm:** replace the internal debug setter with the public UI flow. Document preconditions, stable selectors, save actions and checks that the alarm appears and persists. Retain action and resulting-state evidence with build identity.\n- **Launch-from-Siri:** retain the journey and explicitly require a physical phone, signing and relevant entitlements. Document invoking Siri and checking the resulting app state. Mark execution blocked until the phone is available.\n- **Evidence and cleanup:** save proof outside scratch state; clean up only resources whose current ownership is confirmed, and verify artifacts remain.\n- **Replay:** after an authoring run, reset owned fixtures and have a fresh agent execute the saved recipe using only its documented prerequisites. Report replay separately for each journey.\n\nWhat is proven now: the supplied r9 screenshot shows an alarm state created through an internal debug setter. It does **not** prove public save-alarm behavior, r12 behavior, persistence, Siri launch or device entitlements.\n\nNo edits, execution or cold replay occurred in this read-only evaluation. Both r12 journey verification and reproducibility remain unproven; Siri verification additionally requires the unavailable phone.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Launch blocked without side quest",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "I can deliver a **draft browser-checkout verification recipe and a narrow startup diagnosis**. The missing paid-service credential blocks execution; the working browser harness does not establish that this branch is ready.\n\nThe recipe should document:\n\n- **Launch:** the project’s documented credential prerequisite, startup command and readiness check; branch/build identity and an isolated checkout fixture.\n- **Doctor:** read-only checks for the missing credential, readiness, authentication and instance ownership, without exposing secrets.\n- **Drive:** the public checkout journey through the existing browser harness, using verified selectors and explicit expected results. Identify payment-service boundaries and confirm what test mode actually skips before asserting purchase safety.\n- **Evidence:** capture actions, resulting checkout state and material side effects, with identity and durable artifact paths.\n- **Cleanup:** release only resources created by the run after confirming current ownership; preserve and confirm evidence afterward.\n\nThe packet does not supply exact commands, selectors or canonical recipe location, so those remain explicitly unresolved rather than invented.\n\nNext, an authorized operator supplies the documented prerequisite. Then an agent inspects the project instructions and scripts, saves the executable recipe, runs it end to end, records corrections, and has a fresh agent cold-replay it using only documented prerequisites.\n\n**Nothing was saved or executed in this read-only evaluation. Execution and cold-replay reproducibility remain unproven.** No billing, credential provisioning or machine-setup changes are authorized.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Shared instance ownership",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Cleanup must treat the recorded PID as stale until current ownership is verified.\n\n- Check the current process against the ownership token and start time. Because another process reused the PID, **do not terminate it**, even if its name or port matches.\n- Remove only scratch rows belonging to this run ID. Release other resources only after confirming they still belong to this run.\n- Preserve `evidence/trace.json` outside disposable scratch state. Confirm it remains readable after cleanup, retaining the failed-run outcome and revision, environment, fixture and run identity.\n\nBefore replay, correct the saved recipe so this ownership check runs on both success and failure. From a fresh agent context, follow only its documented prerequisites: create a new run ID and ownership token, reset only owned fixtures, and run launch → doctor → journey → evidence → cleanup. If port 4311 belongs to another process, stop with a narrow diagnosis; do not kill it to make room.\n\nRetain replay evidence separately from the failed trace. Report the original execution as failed and reproducibility as unproven until a successful cold replay. These are prescribed next steps; nothing was executed in this read-only evaluation.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "red-judge-ambiguity",
+      "evalId": "eval-KAK-2026-10-13T20:30:31",
+      "gateEvidence": false,
+      "note": "Superseded: grader incorrectly demanded execution in a scenario-only plan test.",
+      "cases": [
+        {
+          "case": "Cold replay is separate proof",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": "The deliverable is a Ledger CLI verification skill at `tools/skills/verify-ledger/SKILL.md`, registered in `tools/index.yml`, following repo policy. Include a feature-map index and grounded feature files under `features/`.\n\nThe recipe should use the existing harness to start an isolated ledger store, add an invoice through the public CLI, and list it. Document launch/readiness, a read-only doctor check, exact drive commands, evidence capture, and cleanup. Leave the user’s running instance untouched; clean up only stores and processes created by verification.\n\nThe supplied evidence establishes that an authoring run passed on revision `c71`, with evidence saved outside scratch. It does not establish all handover requirements. Remaining acceptance steps are:\n\n- Confirm the skill’s frontmatter, registration, commands, and feature map match the repo. Exact commands were not supplied here.\n- Confirm the `c71` run followed the generated instructions, including doctor, invoice creation and listing, and verification of the persisted invoice.\n- Confirm cleanup completed and the evidence still exists afterward.\n- If delivering another revision, rerun launch → doctor → one mapped feature → evidence → cleanup on that revision. Clean up failed attempts too.\n\nNo files were created or checks run in this read-only evaluation. Until those acceptance points are confirmed, treat the deliverable as a draft. Use `/maintain-verification-skill` to keep its feature map current.",
+          "reason": "The output proposes harness reuse and an invoice journey, and calls for preserving evidence and the user instance. However, it does not establish canonical-source compliance or require saving and replaying the recipe in a fresh context using only documented prerequisites after resetting owned fixtures. The c71 authoring pass and proposed acceptance checks do not demonstrate reproducibility or completed cleanup. Therefore, not every criterion is met.",
+          "error": "The output proposes harness reuse and an invoice journey, and calls for preserving evidence and the user instance. However, it does not establish canonical-source compliance or require saving and replaying the recipe in a fresh context using only documented prerequisites after resetting owned fixtures. The c71 authoring pass and proposed acceptance checks do not demonstrate reproducibility or completed cleanup. Therefore, not every criterion is met."
+        },
+        {
+          "case": "Stale simulator and unavailable real boundary",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Refresh the recipe while retaining both existing journeys: **save-alarm** and **launch-from-Siri**.\n\n- **Launch and Doctor:** build and install checkout revision **r12** on the simulator. Before driving it, confirm the installed build matches r12; the current **r9** install is stale.\n- **Save-alarm:** create and save an alarm through the real UI. Capture the action sequence, resulting screen, and persisted alarm state. An internal debug setter does not prove this journey.\n- **Launch-from-Siri:** preserve the full journey and mark it **blocked: physical phone unavailable**. Siri and entitlement verification require that device; simulator evidence cannot replace it.\n- **Evidence and cleanup:** label artifacts with revision, device, and journey. Retain evidence outside scratch state, clean up only resources created by the run, and confirm artifacts survive cleanup.\n\n**What is proven:** the supplied r9 screenshot shows an alarm created through an internal debug setter. It proves neither user-facing save-alarm behavior nor anything about r12. Launch-from-Siri and entitlements remain unverified.\n\nNo edits or checks ran in this read-only evaluation. The refresh remains a **draft** until its launch → doctor → real UI save-alarm → evidence → cleanup sequence succeeds. Even after that proof, Siri remains blocked until tested on the physical phone.\n\nUse `/maintain-verification-skill` to keep both journeys current.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Launch blocked without side quest",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": "I can deliver a **draft verification recipe and a precise startup-blocker report**, not a proven verification skill.\n\nThe existing browser harness is usable, but this branch cannot start without the paid-service credential documented by the local scripts. Readiness therefore remains unverified. I would not change billing, provision credentials, alter machine setup, or bypass the dependency.\n\nThe draft can describe launch, the documented readiness check, a read-only doctor check, browser interactions, evidence capture, and cleanup. This packet does not contain the actual commands, selectors, or feature names, so I cannot supply those details accurately or claim a complete, repo-grounded feature map.\n\nNext steps when execution is available:\n\n1. Read the local scripts and existing harness to extract exact commands, readiness criteria, selectors, and identifiable user journeys.\n2. Write `.cursor/skills/verify-<app>/SKILL.md` and its feature map, explicitly marked **draft—startup blocked**.\n3. Once an authorized operator resolves the credential prerequisite, run launch → doctor → one mapped feature → evidence capture → cleanup.\n4. Confirm evidence survives cleanup; clean up owned processes and scratch state after failed attempts too.\n\nNo tools ran and no files were created. Only after that end-to-end run passes can the skill be handed over as verified. Use `/maintain-verification-skill` for subsequent maintenance.",
+          "reason": "The output clearly reports a draft/blocked status, avoids execution claims and unrelated setup changes, and describes the evidence needed to graduate the draft. However, it identifies only a generic paid-service credential, not the precise missing prerequisite, and proposes inspecting startup scripts and the harness later rather than demonstrating reuse of documented startup and harness details. Since every criterion is required, it fails.",
+          "error": "The output clearly reports a draft/blocked status, avoids execution claims and unrelated setup changes, and describes the evidence needed to graduate the draft. However, it identifies only a generic paid-service credential, not the precise missing prerequisite, and proposes inspecting startup scripts and the harness later rather than demonstrating reuse of documented startup and harness details. Since every criterion is required, it fails."
+        },
+        {
+          "case": "Shared instance ownership",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": "Cleanup must treat the saved PID as a hint, not proof of ownership.\n\n- Before stopping anything, verify the live process matches the recorded ownership token **and** start time. The PID now belongs to another user process, so leave it untouched. Do not kill by process name or kill whatever owns port 4311.\n- Remove only scratch rows belonging to the failed run’s exact run ID. Preserve `evidence/trace.json`, and confirm it still exists after cleanup. Cleanup should be safe to repeat when the worker or scratch rows are already gone.\n- Record that the original worker exited and that termination was skipped because the PID was reused.\n\nReplay should create a fresh run ID and ownership token, then launch a new worker and record its actual PID and start time. First check port 4311: if another process owns it, refuse to drive that instance; use another port only if the app supports isolation. Keep replay evidence separate so the failed run’s trace survives.\n\nRun launch → usable readiness → read-only doctor → one mapped user journey → capture actions, resulting state, and side effects → ownership-checked cleanup. Apply cleanup after failed attempts too, and verify both runs’ evidence remains afterward.\n\nThese are proposed steps; nothing was executed in this read-only evaluation. The recipe remains unverified until that replay succeeds. Use `/maintain-verification-skill` to keep its feature map current.",
+          "reason": "The output proposes appropriate ownership checks, scoped scratch cleanup, evidence preservation, and cleanup on failure, and explicitly leaves replay unverified. However, it states that nothing was executed. The rubric requires observable behavior and excludes proposed checks as executed evidence, so ownership verification, cleanup, and evidence preservation are not demonstrated.",
+          "error": "The output proposes appropriate ownership checks, scoped scratch cleanup, evidence preservation, and cleanup on failure, and explicitly leaves replay unverified. However, it states that nothing was executed. The rubric requires observable behavior and excludes proposed checks as executed evidence, so ownership verification, cleanup, and evidence preservation are not demonstrated."
+        }
+      ]
+    },
+    {
+      "phase": "red-provider-error",
+      "evalId": "eval-x23-2026-10-13T20:28:56",
+      "gateEvidence": false,
+      "note": "Operational model/CLI incompatibility; not behavioral RED.",
+      "cases": [
+        {
+          "case": "Cold replay is separate proof",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": null,
+          "reason": null,
+          "error": "Error calling OpenAI Codex SDK: {\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'gpt-6-astra' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.\"}}"
+        },
+        {
+          "case": "Stale simulator and unavailable real boundary",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": null,
+          "reason": null,
+          "error": "Error calling OpenAI Codex SDK: {\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'gpt-6-astra' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.\"}}"
+        },
+        {
+          "case": "Launch blocked without side quest",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": null,
+          "reason": null,
+          "error": "Error calling OpenAI Codex SDK: {\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'gpt-6-astra' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.\"}}"
+        },
+        {
+          "case": "Shared instance ownership",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": null,
+          "reason": null,
+          "error": "Error calling OpenAI Codex SDK: {\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'gpt-6-astra' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.\"}}"
+        }
+      ]
+    },
+    {
+      "phase": "red",
+      "evalId": "eval-BTj-2026-10-13T20:32:03",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Cold replay is separate proof",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": false,
+          "score": 0.0,
+          "response": "The deliverable is a Ledger CLI verification skill at `tools/skills/verify-ledger/SKILL.md`, registered in `tools/index.yml`, following repo policy. Include a feature index and invoice creation/listing journeys under `features/`.\n\nThe recipe should reuse the existing harness to start an isolated ledger store, add an invoice through the public CLI, and list it. Document exact commands, a read-only doctor check, evidence capture, and cleanup scoped to the run’s own processes and store. Leave the user’s running instance untouched.\n\nThe supplied evidence establishes that an authoring run passed on revision `c71` and saved evidence outside scratch storage. Remaining acceptance steps are:\n\n- Confirm registration discovers the skill with valid frontmatter.\n- Run the generated instructions verbatim: launch, doctor, invoice journey, evidence capture, and cleanup. The authoring pass satisfies this only if it exercised those exact instructions on `c71`.\n- Check that evidence records both CLI actions and resulting invoice state, including persistence in the isolated store.\n- Confirm cleanup removes only run-owned resources and that evidence still exists afterward.\n- Complete the repository’s required scenario/rubric, configuration validation, treatment tests, and baseline comparison.\n\nExact commands and additional features are absent from this packet, so they must be grounded in the repo before the skill is complete. No files were written or checks run here; this remains a proposed deliverable.\n\nUse `/maintain-verification-skill` to keep the feature map current.",
+          "reason": "The response specifies the canonical skill path and registration, reuses the existing harness, proposes an invoice journey, and scopes cleanup to owned resources while preserving evidence and the user instance. However, it does not require saving and replaying the recipe in a fresh context using only documented prerequisites after resetting owned fixtures. It also allows the c71 authoring pass to satisfy replay if it used the exact instructions, although the rubric explicitly says an authoring pass alone does not establish reproducibility.",
+          "error": "The response specifies the canonical skill path and registration, reuses the existing harness, proposes an invoice journey, and scopes cleanup to owned resources while preserving evidence and the user instance. However, it does not require saving and replaying the recipe in a fresh context using only documented prerequisites after resetting owned fixtures. It also allows the c71 authoring pass to satisfy replay if it used the exact instructions, although the rubric explicitly says an authoring pass alone does not establish reproducibility."
+        },
+        {
+          "case": "Stale simulator and unavailable real boundary",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Refresh the recipe while retaining **both save-alarm and launch-from-Siri** journeys.\n\n- **Doctor:** compare checkout, built app, and installed app revisions before driving. The r9 simulator install cannot verify r12.\n- **Save-alarm:** build and install r12, launch with isolated verification data, and create an alarm through the real UI. Capture the save action, resulting alarm, and persistence after relaunch. Record the app revision alongside the evidence.\n- **Launch-from-Siri:** retain the physical-device journey and its entitlement checks. Mark it blocked until the phone is available; do not substitute simulator launch or an internal invocation for Siri.\n- **Feature map:** keep both journeys indexed, with their actual entry points and observable success criteria. Record the unavailable phone under the Siri feature’s `Gotchas`.\n- **Cleanup:** remove only instances and scratch state created by verification. Preserve evidence in a named location and confirm it survives cleanup.\n\n**What is proven:** the supplied r9 screenshot shows an alarm state produced through an internal debug setter. It proves neither the user-facing save flow nor r12 behavior. Siri launch and entitlements remain unverified.\n\nNo edits or verification ran in this read-only evaluation. The refreshed recipe remains a draft until its launch, doctor, one mapped feature, evidence capture, and cleanup instructions pass end to end. Proving save-alarm would satisfy that initial recipe check, but would not prove Siri.\n\nUse `/maintain-verification-skill` to keep the map current.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Launch blocked without side quest",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "I can deliver a **blocked draft recipe**, not a verified skill. The branch cannot start because a paid-service credential is missing; the working browser harness does not establish that checkout works.\n\nThe recipe can document the credential prerequisite and readiness check from the local scripts, reuse the browser harness, and specify isolated launch, checkout actions, evidence capture, and cleanup. The packet does not include the actual commands or selectors, so I cannot supply an executable, placeholder-free skill from this evidence alone.\n\nNext steps:\n\n1. Have the authorized environment owner supply the documented credential through the existing setup process. No billing or machine changes are authorized here.\n2. Confirm startup reaches the documented usable-ready state.\n3. Generate `.cursor/skills/verify-<app>/SKILL.md` and its feature map using the actual commands and checkout selectors.\n4. Run launch → read-only doctor → one mapped checkout journey → evidence capture → cleanup. Verify observable side effects and confirm evidence survives cleanup. Clean up failed attempts too.\n\nNothing was executed or written. The startup blocker must be resolved before generating and proving the deliverable. Once verified, use `/maintain-verification-skill` to keep it current.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Shared instance ownership",
+          "caseIndex": 3,
+          "promptIndex": 0,
+          "variant": "with-skill",
+          "success": true,
+          "score": 1.0,
+          "response": "Cleanup must treat the saved PID as a hint, not proof of ownership.\n\n- Before stopping anything, verify the live process matches the recorded ownership token **and** start time. Here, the worker exited and its PID was reused: leave the unrelated process untouched. Never kill by process name or kill whoever holds port 4311.\n- Remove only scratch rows belonging to the failed run’s exact run ID. Preserve `evidence/trace.json`; after cleanup, confirm it still exists and is readable. Record the ownership mismatch and cleanup outcome alongside the evidence.\n- Make cleanup repeatable: an absent worker or already-removed scratch rows is harmless. Run this cleanup after every failed replay too.\n\nReplay must start a fresh, isolated run with a new run ID, token, and evidence directory. Check port 4311 first; if another process owns it, refuse to drive it. Use a different port only if the app supports isolation. Record the new worker’s PID and start time, wait for a usable state, run the read-only doctor check, then exercise the real mapped user journey and capture both actions and resulting state, including side effects.\n\nFinally, clean up the replay’s owned resources and confirm both runs’ evidence survives. If missing seed data caused the failure, report that precondition in the feature’s `Gotchas`; do not weaken the journey.\n\nThese are proposed steps; nothing was executed. The recipe remains unverified until an end-to-end replay passes. Use `/maintain-verification-skill` to keep its cleanup rules and feature map current.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    {
+      "phase": "trigger",
+      "evalId": "eval-LaX-2026-10-13T21:14:10",
+      "gateEvidence": true,
+      "note": null,
+      "cases": [
+        {
+          "case": "Explicit invocation reaches skill",
+          "caseIndex": 0,
+          "promptIndex": 0,
+          "variant": "trigger",
+          "success": true,
+          "score": 1.0,
+          "response": "Plan:\n\n- Deliver one shared recipe at `tools/skills/verify-ledger-cli/SKILL.md`, registered in `tools/index.yml`, using the existing harness.\n- Document launch, read-only doctor checks, public CLI invoice creation and listing, expected results, durable evidence, and cleanup. Record revision, target identity, isolated store, and resource ownership. Leave the user’s running instance untouched.\n- Treat the reported revision `c71` authoring pass as execution evidence only. Confirm evidence survives cleanup and cleanup releases only resources owned by the run.\n- Complete acceptance with a cold replay from a fresh agent context using only documented prerequisites and reset owned fixtures. Correct any missing instructions and replay again.\n- Hand over recipe and evidence links, separate authoring and replay outcomes, and identify uncovered journeys. Test each claimed harness separately before claiming portability.\n\nNo workflow executed or files modified. Reproducibility remains unproven until cold replay passes.\n\nSkill followed: **create-verification-skill**.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Exclusion stays outside workflow",
+          "caseIndex": 1,
+          "promptIndex": 0,
+          "variant": "trigger",
+          "success": true,
+          "score": 1.0,
+          "response": "Plan: Find the documented unit-test command, run it once, and report the result without creating or refreshing a recipe.\n\nSkill followed: none.",
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Natural task selects the narrow workflow",
+          "caseIndex": 2,
+          "promptIndex": 0,
+          "variant": "trigger",
+          "success": true,
+          "score": 1.0,
+          "response": "1. Inspect project instructions and the existing harness; select one critical user journey.\n2. Draft one reusable `verify-<project>` recipe covering isolated setup, readiness and identity checks, user actions, expected results, retained evidence, and ownership-safe cleanup.\n3. Validate the recipe through the repository’s required skill tests, then execute the journey and retain proof.\n4. Have a fresh agent replay the saved recipe using only its documented prerequisites. Fix gaps and repeat until replay succeeds.\n5. Hand over the recipe and evidence, reporting authoring and replay outcomes separately.\n\nNo task execution or file changes performed.\n\nSkill followed: **create-verification-skill**.",
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    }
+  ]
+}

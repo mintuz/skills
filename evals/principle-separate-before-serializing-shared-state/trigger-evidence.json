@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-Ixw-2026-10-13T20:56:48",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-separate-before-serializing-shared-state"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "10b407fabddafad839adfc86774dcac7d5e70d96545fd3ec88610c49dd75e457",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Prefer **separating ownership** if the workers publish independent facts: give each its own file or key, then combine on read. Separate fields within the same rewritten file won\u2019t prevent lost updates.\n\nIf both maintain **one shared invariant**, serialize the entire read\u2013modify\u2013write operation using a lock, transaction, compare-and-swap with retries, or a single writer. Atomic file replacement alone won\u2019t prevent stale updates.\n\nVerify overlapping writes, crashes, and retries before calling it fixed.\n\nSkill followed: principle-separate-before-serializing-shared-state.",
+        "tokenUsage": {
+          "prompt": 43923,
+          "completion": 196,
+          "cached": 31104,
+          "total": 44119,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21719,
+          "completion": 23,
+          "cached": 9600,
+          "total": 21742,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 14,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

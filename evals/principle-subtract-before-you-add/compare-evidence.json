@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-Ljw-2026-10-13T20:51:24",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-subtract-before-you-add"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "b53cd3c0fa267ff2d3262456c4efca53c2699546133e5fd3be4155bddeb30673",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.9,
+      "response": {
+        "output": "Reuse the existing retry queue for the new job, preserving bounded attempts and stable idempotency keys. Add only the job-specific handler or routing needed.\n\nKeep the timeout guard unless evidence shows it is redundant. Bounded retries limit attempt count; a timeout limits how long an attempt can hang. Idempotency keys address duplicate effects. These safeguards serve different purposes.\n\nThe supplied facts do not establish that two queues need separate capacity, scheduling, or failure isolation, or that another enforced timeout replaces the guard. Verify queue compatibility and timeout coverage before changing either boundary. The smallest supported change is to extend the existing queue and retain the guard.",
+        "tokenUsage": {
+          "prompt": 21704,
+          "completion": 130,
+          "cached": 19072,
+          "total": 21834,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The proposal checks queue compatibility before adding another mechanism, preserves bounded retries and stable idempotency keys for the new job, and retains the timeout guard unless redundancy is proven. It distinguishes each safeguard\u2019s purpose and limits changes to job-specific handling or routing. Validation of the new job path is implicit in compatibility verification rather than explicitly described; no speculative removal or redesign is proposed.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.9,
+        "reason": "The proposal checks queue compatibility before adding another mechanism, preserves bounded retries and stable idempotency keys for the new job, and retains the timeout guard unless redundancy is proven. It distinguishes each safeguard\u2019s purpose and limits changes to job-specific handling or routing. Validation of the new job path is implicit in compatibility verification rather than explicitly described; no speculative removal or redesign is proposed."
+      },
+      "failure_reason": 1,
+      "case": "Existing mechanism can meet the new requirement"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reuse the existing retry queue for the new job, preserving bounded attempts and stable idempotency keys. Add only the job-specific handling or configuration required.\n\nKeep the timeout guard. Retry limits bound attempts; a timeout may bound how long an attempt runs. Calling it defensive boilerplate does not prove redundancy. Remove it only if another mechanism demonstrably preserves its boundary, failure behavior, and tests.\n\nVerify both jobs\u2019 retry limits, idempotency, and timeout behavior. The scenario supports queue reuse, but provides no implementation or test evidence proving compatibility or that the timeout guard is redundant. No independent safe deletion has been established.",
+        "tokenUsage": {
+          "prompt": 21896,
+          "completion": 128,
+          "cached": 19072,
+          "total": 22024,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Existing mechanism can meet the new requirement"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Remove the wrapper reference file and update the maintained index to link directly to the current parser doc. The wrapper adds no unique content.\n\nKeep both validators: they protect distinct trust boundaries\u2014untrusted imported JSON and internal state that a mutable plugin hook can corrupt. Their tests cover separate failure modes.\n\nEvidence limit: the supplied facts justify removing the wrapper, but do not establish that it has no other inbound links. Neither validator is shown to be redundant.",
+        "tokenUsage": {
+          "prompt": 21713,
+          "completion": 93,
+          "cached": 19072,
+          "total": 21806,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Removal requires behavior and reference evidence"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Remove the content-free wrapper reference file and update the maintained index to link directly to the current parser doc. Verify the updated link resolves.\n\nKeep both validators: they protect different boundaries\u2014untrusted imported JSON and internal state after a mutable plugin hook. Removing either could lose distinct failure behavior; preserve both sets of tests.\n\nThe scenario establishes wrapper redundancy, but not validator redundancy. This is a read-only decision; no files, links, or tests were independently verified.",
+        "tokenUsage": {
+          "prompt": 21905,
+          "completion": 96,
+          "cached": 19072,
+          "total": 22001,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Removal requires behavior and reference evidence"
+    }
+  ]
+}

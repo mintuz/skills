@@ -1,0 +1,193 @@
+{
+  "skill": "principle-build-the-lever",
+  "source_sha256": "3d3cec3c762c70ecdb9ffdd46a6cc1c7b0e6457de6b58f50004881bff7cd3fdc",
+  "source_words": 235,
+  "red_fixture_sha256": "3434b0ad0c640c6f1d7960be7a8986c3bcdc14e26060360dec29903df60074ff",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Original failed grades invalid: demanded executed evidence from a read-only plan.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-0ch-2026-10-13T20:31:47",
+    "log": "/tmp/principles-a-evidence/principle-build-the-lever-red.log",
+    "cases": [
+      {
+        "case": "Existing query already proves the job",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The output correctly reuses the existing query and rejects a redundant script, while clearly avoiding an execution claim. However, it only proposes providing the query path, rerun instructions, and validation; it does not record an actual command, input scope, result evidence, or validated inventory. Therefore, not all required outcomes are satisfied.",
+        "error": null
+      },
+      {
+        "case": "Earn a repeatable migration",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The plan correctly proposes structural parsing, exception checks, preservation of unrelated text, and retaining the script. However, it supplies no worked representative example, actual comparison with expected output, or rerun-safety evidence. It explicitly states that nothing was executed, so the required demonstrated outcomes are not established.",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-EZT-2026-10-13T20:49:36",
+    "log": "/tmp/principles-a-evidence/principle-build-the-lever-green-retry.log",
+    "cases": [
+      {
+        "case": "Existing query already proves the job",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Earn a repeatable migration",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-2qs-2026-10-13T20:57:54",
+    "log": "/tmp/principles-a-evidence/principle-build-the-lever-compare.log",
+    "cases": [
+      {
+        "case": "Existing query already proves the job",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Earn a repeatable migration",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The plan proposes a reusable structural migration tool, exception tests, preservation checks, and an idempotence check without claiming execution. However, it does not work through a representative input/output example or compare tool output against that example\u2019s expected result. Because every outcome is required, it does not fully satisfy the rubric.",
+        "error": null
+      },
+      {
+        "case": "Existing query already proves the job",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Earn a repeatable migration",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-nTL-2026-10-13T21:28:44",
+    "log": "/tmp/principles-a-evidence/principle-build-the-lever-trigger-final.log",
+    "cases": [
+      {
+        "case": "Excludes an already sufficient command",
+        "prompt": "trigger",
+        "passed": false,
+        "score": 0.75,
+        "reason": "The plan reuses the checked-in query, retains its path and rerun command, and avoids a redundant script. However, it does not include inventory validation; deterministic sorting establishes reproducibility, not correctness or completeness. Executed evidence is not required.",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Selects guidance for an uncovered repeated transformation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [
+    "Valid behavioral RED not demonstrated.",
+    "trigger contains failed or unavailable cases."
+  ],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 3
+  },
+  "comparison": {
+    "baseline_passes": 1,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {
+    "principle-build-the-lever-green.log": {
+      "id": "eval-U8e-2026-10-13T20:38:30",
+      "log": "/tmp/principles-a-evidence/principle-build-the-lever-green.log",
+      "cases": [
+        {
+          "case": "Existing query already proves the job",
+          "prompt": "with-skill",
+          "passed": false,
+          "score": 0.0,
+          "reason": "Correctly chooses the existing query and avoids a redundant script, but only proposes recording the invocation, inputs, scope, and results. It provides no concrete rerun instructions, resulting inventory, or completed scope and ordering validation, so not every required outcome is met.",
+          "error": null
+        },
+        {
+          "case": "Earn a repeatable migration",
+          "prompt": "with-skill",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    "principle-build-the-lever-trigger.log": {
+      "id": "eval-Wnk-2026-10-13T21:25:53",
+      "log": "/tmp/principles-a-evidence/principle-build-the-lever-trigger.log",
+      "cases": [
+        {
+          "case": "Selects relevant guidance",
+          "prompt": "trigger",
+          "passed": false,
+          "score": 0.0,
+          "reason": "Missing required skill(s): principle-build-the-lever. Actual skills: (none)",
+          "error": null
+        },
+        {
+          "case": "Excludes a plain translation",
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    }
+  },
+  "manual_review": {
+    "case": "Excludes an already sufficient command",
+    "automated_score": 0.75,
+    "classification": "Disputed grader failure; core exclusion contract met.",
+    "reason": "Scenario guarantees the checked-in query produces the exact required list. Response reuses it, records rerun invocation and adds no redundant script or fabricated validation. Extra validation is not required to choose the supplied sufficient command. Raw score retained."
+  },
+  "fixture_correction": "Original positive asked an already-sufficient query, explicitly excluded by description. Preserved as behavior-graded exclusion; added uncovered repeated migration positive."
+}

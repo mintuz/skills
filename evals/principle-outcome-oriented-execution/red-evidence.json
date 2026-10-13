@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-02F-2026-10-13T20:31:32",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-outcome-oriented-execution"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "10eb91633aa570355ba4bb37088fcade2b22e498df7a58edc749e65bc5a78e2d",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Do not push the two broken steps to the shared integration branch. The migration is approved, but breakage there would affect another engineer and deploy automation, so it is not adequately scoped.\n\nApply the skill by isolating the migration:\n\n1. Create a dedicated branch and worktree. Declare that build breakage is acceptable only there, across the two rename steps, with no deployment from that branch.\n2. Record the starting revision, target contract, phase boundaries, and rollback point. Coordinate the eventual integration with the other engineer.\n3. Complete the rename directly toward the target architecture without adding throwaway adapters solely to keep intermediate commits green.\n4. Keep high-signal checks running for touched areas throughout. Update affected tests alongside each phase, preserving the approved contract; record checks blocked by the temporary build failure.\n5. At completion, require the full static checks and runtime verification against the target contract, including previously blocked checks.\n6. Integrate the verified result as a buildable change, such as a squash commit, so the shared branch and deploy automation never consume the broken intermediate states. Reverify after integration.\n\nThe scenario establishes an approved contract and tests, but provides no check results, runtime evidence, or deployment configuration. This is an execution plan, not evidence that the migration is correct or ready to deploy.",
+        "tokenUsage": {
+          "prompt": 22054,
+          "completion": 266,
+          "cached": 19072,
+          "total": 22320,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Temporary breakage needs an isolated boundary"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.8,
+      "response": {
+        "output": "Continue the migration; do not declare it complete. The passing compile test does not establish the accepted behavior, and the cancellation failure needs investigation.\n\nTemporary breakage is acceptable only within a declared, scoped, reversible migration phase. Keep ordering, cancellation, and retry-limit checks active. Resolve the cancellation failure by the phase\u2019s verification boundary without adding throwaway compatibility code merely to keep intermediate states green.\n\nCompletion requires:\n\n- Finishing the replacement and deleting the old queue.\n- Passing full static checks.\n- Running the final code and verifying ordering, cancellation, and retry limits.\n\nThe available evidence proves only that the initial compile test passed. Cancellation currently fails, deletion remains unfinished, and final runtime correctness is unverified.",
+        "tokenUsage": {
+          "prompt": 22051,
+          "completion": 145,
+          "cached": 19072,
+          "total": 22196,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The output continues toward the accepted behavior, calls for investigating cancellation, distinguishes scoped temporary breakage from final acceptance, requires queue deletion and relevant static/runtime checks, and avoids claiming unrun results. However, it does not name a rollback action or explicitly condition obsolete queue removal on proven consumers and guarantees.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.8,
+        "reason": "The output continues toward the accepted behavior, calls for investigating cancellation, distinguishes scoped temporary breakage from final acceptance, requires queue deletion and relevant static/runtime checks, and avoids claiming unrun results. However, it does not name a rollback action or explicitly condition obsolete queue removal on proven consumers and guarantees."
+      },
+      "failure_reason": 1,
+      "case": "Finish the outcome with phase gates"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+description: "why activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use why for the following request. Why is retryCount 3? retry.ts:7 sets 3. Commit 9b changes 5 to 3; its reviewed message says the upstream lease lasts 12 seconds and each retry can take 4 seconds. Repository uses Forgejo, and its local commit is available; no gh tool. No contradictions or broader question are known. Describe answer and investigation scope."
+    assert:
+      -
+        type: "skill-used"
+        value: "why"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "How does the current save callback update loading state? Explain only runtime execution."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply why workflow or claim to have performed unavailable work; it stays within the requested task."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Natural task selects the narrow workflow"
+    vars:
+      request: "Why did this repository choose three retries? Find the historical rationale and distinguish evidence from guesses."
+    assert:
+      -
+        type: "skill-used"
+        value: "why"

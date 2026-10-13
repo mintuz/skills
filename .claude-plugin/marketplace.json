@@ -24,7 +24,14 @@
         "./skills/ship-pr",
         "./skills/writing",
         "./skills/wtf",
-        "./skills/github-monitor"
+        "./skills/github-monitor",
+        "./skills/create-verification-skill",
+        "./skills/blast-radius",
+        "./skills/how",
+        "./skills/why",
+        "./skills/benchmark-checklist",
+        "./skills/correct",
+        "./skills/recall"
       ]
     },
     {
@@ -47,7 +54,8 @@
         "./skills/status-updates",
         "./skills/decision-trace",
         "./skills/meeting-to-action-brief",
-        "./skills/story-pr-orchestrator"
+        "./skills/story-pr-orchestrator",
+        "./skills/design-handover"
       ]
     },
     {
@@ -88,6 +96,37 @@
       "source": "./src/life",
       "description": "Agents and skills for personal life management",
       "skills": ["./skills/gps-method"]
+    },
+    {
+      "name": "principle",
+      "source": "./src/principle",
+      "description": "Independent engineering principles for focused decisions and execution",
+      "skills": [
+        "./skills/principle-attack-the-premise",
+        "./skills/principle-boundary-discipline",
+        "./skills/principle-build-the-lever",
+        "./skills/principle-encode-lessons-in-structure",
+        "./skills/principle-exhaust-the-design-space",
+        "./skills/principle-experience-first",
+        "./skills/principle-explain-the-number",
+        "./skills/principle-fix-root-causes",
+        "./skills/principle-foundational-thinking",
+        "./skills/principle-guard-the-context-window",
+        "./skills/principle-laziness-protocol",
+        "./skills/principle-make-operations-idempotent",
+        "./skills/principle-migrate-callers-then-delete-legacy-apis",
+        "./skills/principle-minimize-reader-load",
+        "./skills/principle-model-the-domain",
+        "./skills/principle-never-block-on-the-human",
+        "./skills/principle-outcome-oriented-execution",
+        "./skills/principle-prove-it-works",
+        "./skills/principle-redesign-from-first-principles",
+        "./skills/principle-separate-before-serializing-shared-state",
+        "./skills/principle-sequence-verifiable-units",
+        "./skills/principle-subtract-before-you-add",
+        "./skills/principle-test-behavior-not-implementation",
+        "./skills/principle-type-system-discipline"
+      ]
     }
   ]
 }

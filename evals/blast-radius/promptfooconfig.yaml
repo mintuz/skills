@@ -1,0 +1,75 @@
+description: "blast-radius portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Independent cross-process assumptions"
+    vars:
+      skill: "file://../../src/core/skills/blast-radius/SKILL.md"
+      scenario: "Assess this tiny Swift model change before merge: SharedAlarm.swift:18 renames persisted nextFire to dueAt. Store.swift:44 reads old on-disk records; Widget.swift:31 decodes an App Group snapshot; Intent.swift:23 writes alarms in an extension process. Simulator UI save passed. What risks and proof remain?"
+      rubric: "Separately maps persisted migration, snapshot compatibility, and intent/extension lifecycle or ownership; no single UI pass clears all. Gives decisive check per material boundary, distinguishes code-derived and simulator evidence from physical-device proof, and avoids fabricated probability percentages."
+  -
+    description: "Wire consumer without direct caller"
+    vars:
+      skill: "file://../../src/core/skills/blast-radius/SKILL.md"
+      scenario: "Change api.ts:9 returns {displayName} instead of {name}; all TypeScript callers compile. AndroidDecoder.kt:17 still reads JSON name, and archived responses are replayed by replay.py:8. Assess blast radius using only these sources."
+      rubric: "Identifies both cross-language wire consumer and persisted replay compatibility even though TypeScript compiles. Names concrete failures and separate checks; treats compilation as limited evidence and avoids invented execution."
+  -
+    description: "Reuse decisive existing test"
+    vars:
+      skill: "file://../../src/core/skills/blast-radius/SKILL.md"
+      scenario: "A cache cleanup refactor changes only entry selection. Existing eviction.spec.ts exercises live entries, expired entries and teardown against the pinned shipped library version and fails if a live entry is removed. Run access is unavailable in this review packet. What next step is justified?"
+      rubric: "Selects the existing focused test as the cheapest decisive next check without requiring a new script/framework or model tournament. Keeps safety unproven until execution; cites the relevant suite coverage and pinned version, and adds a narrow case only for a material coverage gap rather than assuming one exists."
+  -
+    description: "Reachable timing risk without invented likelihood"
+    vars:
+      skill: "file://../../src/core/skills/blast-radius/SKILL.md"
+      scenario: "Changing unsubscribe to defer cleanup until a microtask leaves socket callbacks active after unmount. socket.ts:12 routes messages to actor.send; actor.ts:51 throws after stop. No runtime reproduction exists and the pinned socket package changed versions. Report status."
+      rubric: "Explains reachable unmount-stop-message ordering and consequence, inspects pinned-version semantics as relevant, proposes focused real-code timing reproduction, and labels static reachability distinct from executed proof without invented odds."

@@ -1,0 +1,3 @@
+*.log
+workspace/.agents/
+trigger-workspace/.agents/

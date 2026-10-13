@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "skill": "correct",
+  "source_sha256": "17e6d698f839c20a50e9d98efc08851d2a38d1c6eed94ecff4a08344198f74e7",
+  "scope": "Native project discovery and one representative read-only scenario per skill. This is not implementation, runtime, full regression or operational cold-replay evidence. No external action or file creation claimed by model. Manual review, not automated rubric score.",
+  "observed_contracts": "Two independent occurrences; narrow branded/opaque identity enforcement; old acceptance/new rejection and valid case proof; no commit.",
+  "runs": [
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "17e6d698f839c20a50e9d98efc08851d2a38d1c6eed94ecff4a08344198f74e7",
+      "fixture": "/tmp/workflow-native/claude/.claude/skills/correct/SKILL.md",
+      "loader_call": {
+        "name": "Skill",
+        "args": {
+          "skill": "correct"
+        },
+        "id": "toolu_01A4uaaXd3edcVaaLnhY6s8w"
+      },
+      "loader_result": {
+        "id": "toolu_01A4uaaXd3edcVaaLnhY6s8w",
+        "is_error": null,
+        "content": "Launching skill: correct"
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "correct\n**Loaded from:** `/private/tmp/workflow-native/claude/.claude/skills/correct`\n\n**Recurrence:** two independent occurrences of the same mistake. R1 (a review rejection last Monday) and C2 (an unrelated commit on Friday) both swapped `CustomerId` and `OrderId`. I still need the locators and the consequence of each, which you haven't given me.\n\n**Correction:** replace the string aliases with distinct domain types, such as branded or opaque types, for `CustomerId` and `OrderId`. Scope this to checkout only. Aliases are structurally identical, so the existing lint can't tell them apart. A type makes the swap fail at compile time, which is higher up than a lint rule or a test.\n\n**Proof:**\n1. Keep the real swapped-argument examples from R1 and C2.\n2. Show that the old alias code accepts them.\n3. Show that the new types reject them with a type error.\n4. Show that correct calls and neighboring valid checkout code still pass the same type-check or CI step.\n5. Update the checkout callers and run focused regressions.\n\n**Limits:** no commit, since you didn't ask for one. Code outside checkout that still uses the aliases is remaining migration scope.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/claude"
+    },
+    {
+      "host": "omp",
+      "model": [
+        "gpt-6-astra"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "17e6d698f839c20a50e9d98efc08851d2a38d1c6eed94ecff4a08344198f74e7",
+      "fixture": "/tmp/workflow-native/omp/.agents/skills/correct/SKILL.md",
+      "loader_call": {
+        "name": "read",
+        "args": {
+          "path": "skill://correct"
+        },
+        "id": "call_e6539f78e3cf4e0f822c35e86293bc6f|fc_06a2b1e266e81043016acea05bb3e481919f0a2f60494025c6"
+      },
+      "loader_result": {
+        "id": "call_e6539f78e3cf4e0f822c35e86293bc6f|fc_06a2b1e266e81043016acea05bb3e481919f0a2f60494025c6",
+        "is_error": false
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "correct\n\n**Loaded:** `/tmp/workflow-native/omp/.agents/skills/correct/SKILL.md`\n\n**Recurrence evidence:** Review `R1` rejected swapped arguments on Monday; independent commit `C2` repeated the swap on Friday. These establish recurrence. Both used string aliases, which the existing lint cannot distinguish. No downstream incident is specified.\n\n**One scoped correction:** Replace interchangeable string aliases at the checkout boundary with distinct opaque or branded `CustomerId` and `OrderId` types. Update affected checkout callers. Keep construction at the appropriate identity boundary rather than scattering unchecked casts.\n\nBoth identifiers remain necessary, so distinct domain types directly prevent their interchange without a wider redesign.\n\n**Proposed proof:**\n- Preserve a real swapped call from `R1` or `C2`.\n- Show that the old aliases accept it and the current lint misses it.\n- Show that the new types reject it through the same local and continuous integration type check.\n- Show that the corrected call and legitimate neighbouring checkout cases pass.\n- Run focused checkout regressions.\n\nThis is a proposed correction, not verified enforcement. Type assertions or incorrect identity construction can bypass the guard. Do not change unrelated domains or create a commit without authorisation.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/omp"
+    }
+  ]
+}

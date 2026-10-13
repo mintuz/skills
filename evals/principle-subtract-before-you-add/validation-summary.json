@@ -1,0 +1,181 @@
+{
+  "skill": "principle-subtract-before-you-add",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "b53cd3c0fa267ff2d3262456c4efca53c2699546133e5fd3be4155bddeb30673",
+  "upstream_sha256": "8c93bb9d1a7f38e2ef37655d93f0e790fa59903105af3d500cc8a663ebe45f3f",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 102,
+    "port_body": 128,
+    "upstream_total": 132,
+    "port_total": 152
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-ael-2026-10-13T20:33:41",
+      "source_sha256": "8c93bb9d1a7f38e2ef37655d93f0e790fa59903105af3d500cc8a663ebe45f3f",
+      "passed": 1,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Existing mechanism can meet the new requirement"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.8,
+          "failure_reason_code": 1,
+          "reason": "Keeps both validators for distinct trust and invalidation boundaries, removes only the content-free wrapper while repairing index links, and avoids speculative checks or unsupported redundancy claims. However, it does not explicitly retain the negative-path tests; citing their support does not establish that decision.",
+          "case": "Removal requires behavior and reference evidence"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-166-2026-10-13T20:40:53",
+      "source_sha256": "b53cd3c0fa267ff2d3262456c4efca53c2699546133e5fd3be4155bddeb30673",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Existing mechanism can meet the new requirement"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Removal requires behavior and reference evidence"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-Ljw-2026-10-13T20:51:24",
+      "source_sha256": "b53cd3c0fa267ff2d3262456c4efca53c2699546133e5fd3be4155bddeb30673",
+      "passed": 3,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": false,
+          "score": 0.9,
+          "failure_reason_code": 1,
+          "reason": "The proposal checks queue compatibility before adding another mechanism, preserves bounded retries and stable idempotency keys for the new job, and retains the timeout guard unless redundancy is proven. It distinguishes each safeguard\u2019s purpose and limits changes to job-specific handling or routing. Validation of the new job path is implicit in compatibility verification rather than explicitly described; no speculative removal or redesign is proposed.",
+          "case": "Existing mechanism can meet the new requirement"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Existing mechanism can meet the new requirement"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Removal requires behavior and reference evidence"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Removal requires behavior and reference evidence"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-mXw-2026-10-13T20:57:22",
+      "source_sha256": "b53cd3c0fa267ff2d3262456c4efca53c2699546133e5fd3be4155bddeb30673",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [],
+  "unmet_gates": [],
+  "comparison": {
+    "improved_cases": [
+      0
+    ],
+    "regressed_cases": []
+  },
+  "native_replay": {
+    "durable_report": "../../reports/skill-audit-2026-10-13/native-principles-replay.json",
+    "source_sha256": "b53cd3c0fa267ff2d3262456c4efca53c2699546133e5fd3be4155bddeb30673",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

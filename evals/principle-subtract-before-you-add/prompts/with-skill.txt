@@ -1,0 +1,7 @@
+Read-only scenario evaluation. Do not use tools or external facts. Apply the supplied skill to the complete scenario. Return the requested decision and evidence limits.
+
+<skill>
+{{skill}}
+</skill>
+
+{{scenario}}

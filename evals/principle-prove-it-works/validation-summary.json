@@ -1,0 +1,214 @@
+{
+  "skill": "principle-prove-it-works",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "ef091df07f2793a2ef5a24c4828ad0947f7e5ffee17e65785cd3b0130855583d",
+  "upstream_sha256": "ec79a15025bac8d33d62011c54f3b612733fd2a024e623b531b3637aa75070e2",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 172,
+    "port_body": 135,
+    "upstream_total": 209,
+    "port_total": 161
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-RSW-2026-10-13T20:35:45",
+      "source_sha256": "ec79a15025bac8d33d62011c54f3b612733fd2a024e623b531b3637aa75070e2",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Match proof to artifact identity"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Failed observation is one hypothesis"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-Gfa-2026-10-13T20:39:00",
+      "source_sha256": "ef091df07f2793a2ef5a24c4828ad0947f7e5ffee17e65785cd3b0130855583d",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Match proof to artifact identity"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Failed observation is one hypothesis"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-U2x-2026-10-13T20:48:04",
+      "source_sha256": "ef091df07f2793a2ef5a24c4828ad0947f7e5ffee17e65785cd3b0130855583d",
+      "passed": 4,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Match proof to artifact identity"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Match proof to artifact identity"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Failed observation is one hypothesis"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Failed observation is one hypothesis"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "prechange-trigger": {
+      "eval_id": "eval-Za8-2026-10-13T20:36:25",
+      "source_sha256": "ec79a15025bac8d33d62011c54f3b612733fd2a024e623b531b3637aa75070e2",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "prechange-trigger-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-2SH-2026-10-13T20:56:10",
+      "source_sha256": "ef091df07f2793a2ef5a24c4828ad0947f7e5ffee17e65785cd3b0130855583d",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [
+    {
+      "eval_id": "eval-wCl-2026-10-13T20:31:56",
+      "reason": "Judge incorrectly demanded actual execution from a read-only hypothetical; excluded from RED.",
+      "evidence_file": "invalid-grading-evidence.json"
+    }
+  ],
+  "unmet_gates": [
+    "No demonstrated behavioral RED; pre-change behavior already passes.",
+    "No score gain over the no-skill baseline in this comparison."
+  ],
+  "comparison": {
+    "improved_cases": [],
+    "regressed_cases": []
+  },
+  "native_replay": {
+    "durable_report": "../../reports/skill-audit-2026-10-13/native-principles-replay.json",
+    "source_sha256": "ef091df07f2793a2ef5a24c4828ad0947f7e5ffee17e65785cd3b0130855583d",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

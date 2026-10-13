@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-EhY-2026-10-13T20:40:00",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-separate-before-serializing-shared-state"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "10b407fabddafad839adfc86774dcac7d5e70d96545fd3ec88610c49dd75e457",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Give each worker its own state file, such as `indexer-state.json` and `metrics-state.json`. Both currently rewrite the same mutable target, so overlapping read-modify-write operations can lose an update despite changing different fields. These timestamps are independent facts; a shared mutex is unnecessary once ownership is separated.\n\nThe dashboard should combine the files when reading, treating missing timestamps as unknown and stale timestamps as stale. It need not obtain an atomic snapshot of both.\n\nEach worker should publish its file atomically so interruption leaves either the previous complete value or the new one. Define `lastRun` consistently\u2014for example, the last successfully completed run. If runs or retries within one worker can overlap, prevent an older completion from overwriting a newer timestamp.\n\nCheck:\n\n- Overlapping indexer and metrics writes preserve both updates.\n- A crash during publication leaves readable state and does not block the other worker.\n- Retries and out-of-order completions do not regress timestamps.\n- The dashboard handles missing, stale, or malformed state.\n\nThis is a design recommendation from the scenario; no implementation or failure tests were provided, so the race is not yet verified as fixed.",
+        "tokenUsage": {
+          "prompt": 21920,
+          "completion": 236,
+          "cached": 19072,
+          "total": 22156,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Partition genuinely independent facts"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject per-worker `availableSeats` files: both workers could see one remaining seat and confirm a booking. These values represent one canonical capacity constraint, not independent facts.\n\nUse a shared transactional database. Each worker performs one transaction that:\n\n- Atomically decrements `availableSeats` only if it is greater than zero.\n- Inserts the confirmed booking only if that decrement succeeds.\n- Commits both changes together or rolls both back.\n\nThe invariant is `availableSeats >= 0`, with every confirmed booking matched by exactly one seat decrement. Concurrent attempts contend on the same inventory record; only one can reserve the last seat.\n\nGive each booking request a unique idempotency key enforced by the database. Retry aborted transactions with that same key. After a crash or uncertain commit response, look up the key so a committed booking is returned without consuming another seat. Transaction recovery must preserve both changes or neither.\n\nVerify overlapping last-seat requests, interruption before and during commit, and retries after a lost response. Require exactly one confirmation, zero remaining seats, and no duplicate decrement.\n\n**Evidence limit:** This is a structural recommendation based on the scenario. No implementation, transaction guarantees, or recovery tests were supplied, so the race cannot yet be called fixed.",
+        "tokenUsage": {
+          "prompt": 21926,
+          "completion": 250,
+          "cached": 19072,
+          "total": 22176,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Atomic invariant prevents naive separation"
+    }
+  ]
+}

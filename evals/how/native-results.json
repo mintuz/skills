@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "skill": "how",
+  "source_sha256": "70ef0f2af53757624b78c5fbabcd9bbdac61d08835ac137de09e1a1935516938",
+  "scope": "Native project discovery and one representative read-only scenario per skill. This is not implementation, runtime, full regression or operational cold-replay evidence. No external action or file creation claimed by model. Manual review, not automated rubric score.",
+  "observed_contracts": "Source-grounded initialization/save/failure sequence and draft ownership; unknown cancellation/error clearing distinguished from facts.",
+  "runs": [
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "70ef0f2af53757624b78c5fbabcd9bbdac61d08835ac137de09e1a1935516938",
+      "fixture": "/tmp/workflow-native/claude/.claude/skills/how/SKILL.md",
+      "loader_call": {
+        "name": "Skill",
+        "args": {
+          "skill": "how"
+        },
+        "id": "toolu_019PXUkefFqkpYwqaNVh5e3N"
+      },
+      "loader_result": {
+        "id": "toolu_019PXUkefFqkpYwqaNVh5e3N",
+        "is_error": null,
+        "content": "Launching skill: how"
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "how\n**Loaded from:** `/private/tmp/workflow-native/claude/.claude/skills/how`\n\n**Result:** `useDraft` copies props into local state once, and the hook then owns that draft. Prop changes never reach it. The only evidence is the source you pasted, so there are no runtime or test claims.\n\n**Sequence:**\n- `useDraft.ts:3` initializes the draft from props on first render only.\n- `:6` `save` sets `pending=true`, awaits `api.save(draft)`, and clears `pending` in `finally`, so `pending` clears whether the save succeeds or fails.\n- `:11` catches a failure and sets `error`.\n\n**Gotchas:**\n- Because the draft is never resynced, a parent update after mount is ignored, and the draft can go stale.\n- Whether `error` is cleared on the next save isn't visible in what you gave me. Cancellation and unmount behavior is also unknown.\n\n**Approach:** read the hook, then its callers and tests, and trace save, failure and a prop change. I'd mark anything outside those lines as unknown.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/claude"
+    },
+    {
+      "host": "omp",
+      "model": [
+        "gpt-6-astra"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "70ef0f2af53757624b78c5fbabcd9bbdac61d08835ac137de09e1a1935516938",
+      "fixture": "/tmp/workflow-native/omp/.agents/skills/how/SKILL.md",
+      "loader_call": {
+        "name": "read",
+        "args": {
+          "path": "skill://how"
+        },
+        "id": "call_1baa1e3f1107417db26adfb443cd4c8e|fc_06a2b1e266e81043016acea05bb3e48191aecefb6dcf391e07"
+      },
+      "loader_result": {
+        "id": "call_1baa1e3f1107417db26adfb443cd4c8e|fc_06a2b1e266e81043016acea05bb3e48191aecefb6dcf391e07",
+        "is_error": false
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "how\n\n**Loaded:** `/tmp/workflow-native/omp/.agents/skills/how/SKILL.md`\n\nThe hook owns a local draft and save-status state:\n\n1. `useDraft.ts:3` initialises the draft from props once. Later parent updates do not resynchronise it.\n2. At `:6`, save sets `pending=true` and awaits `api.save(draft)`.\n3. The `finally` block clears pending whether the save succeeds or fails.\n4. At `:11`, the catch path sets error.\n\nA reader can therefore expect parent data changes to leave the local draft unchanged, and a failed save to leave pending cleared with an error recorded. The supplied description does not establish whether a later save clears an earlier error, prevents overlapping saves, or handles cancellation.\n\n**Investigation approach:** Trace initialisation \u2192 local state ownership \u2192 save trigger \u2192 API boundary \u2192 success/error cleanup. Anchor each statement to the supplied source locators. Inspect immediate callers or tests only if a material question remains and access is authorised.\n\nThis is a source-derived explanation, not runtime verification or a claim about historical intent.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/omp"
+    }
+  ]
+}

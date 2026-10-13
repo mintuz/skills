@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-U2x-2026-10-13T20:48:04",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-prove-it-works"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "ef091df07f2793a2ef5a24c4828ad0947f7e5ffee17e65785cd3b0130855583d",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "**Verdict: the claim is unproven.** Commit A passes build and unit tests, but there is no evidence that it saves and restores a note after relaunch on a physical phone.\n\n- The screenshot is from commit B and cannot verify commit A.\n- The simulator tap proves an interaction occurred, not that data persisted or was restored.\n- No physical-device verification is available.\n\n**Next evidence:** On commit A, enter a uniquely identifiable note, tap Save, verify persistence, terminate and relaunch the app, and assert the exact note is restored. Run this in the simulator now for partial evidence, then repeat on a physical phone when available, recording the commit, device, OS, and results. Until then, keep the physical-phone claim explicitly unverified.",
+        "tokenUsage": {
+          "prompt": 21722,
+          "completion": 159,
+          "cached": 19072,
+          "total": 21881,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Match proof to artifact identity"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "**Verdict: not proven.** Build and unit tests pass on commit A, but they do not establish saving and restoring a note after relaunch on a physical phone.\n\nThe screenshot shows commit B, and the simulator tap proves neither persistence nor restoration.\n\n**Next evidence:** On a physical phone with an installed build verified as commit A, enter a uniquely identifiable note, tap Save, terminate and relaunch the app, and confirm the exact note is restored. Record the build, device/OS, steps, input and observed result.\n\nWithout a phone, the physical-device claim remains unverified. Run the same persistence journey on a simulator tied to commit A for narrower evidence, clearly labelled simulator-only. If it fails, check both automation targeting/state and the app\u2019s persistence behavior.",
+        "tokenUsage": {
+          "prompt": 21942,
+          "completion": 160,
+          "cached": 19072,
+          "total": 22102,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Match proof to artifact identity"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Do not change the health check yet. A log mtime advancing two seconds ago proves only that the file was recently modified; it does not prove the service is currently alive or listening.\n\nConnection refused means the attempted connection was rejected. It does not distinguish among an exited process, an incorrect port, or startup still in progress.\n\nUse the existing read-only process/port/status command to check:\n\n- Whether the service process exists and its reported state.\n- Which port it is listening on, compared with the health-check target.\n- Whether startup is still underway; if so, recheck after the expected startup interval.\n\nAn absent process supports investigating an exit. A different listening port warrants checking the intended configuration before changing the check. A starting process warrants waiting within the startup budget.\n\n**Evidence limit:** No command results are supplied, so the cause remains undetermined. The recent log modification alone does not justify an edit.",
+        "tokenUsage": {
+          "prompt": 21721,
+          "completion": 186,
+          "cached": 19072,
+          "total": 21907,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Failed observation is one hypothesis"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "The advanced log mtime does **not** prove the service is alive. Connection refused establishes only that the check could not connect to its targeted address and port at that moment.\n\nDo not change the health check yet. Use the existing process/port/status command to bind the observation to the intended service process, build, environment and startup state:\n\n- **Process exited:** confirm its absence or exit status; inspect relevant startup/exit output.\n- **Wrong port:** compare the health check target with the intended process\u2019s actual listening address and port.\n- **Still starting:** confirm startup status, then repeat the same connection check after the expected readiness point.\n\nPreserve the command, target, process/build identity and relevant output. A live process alone does not establish readiness; a listening port alone does not establish application health.\n\n**Evidence limit:** No command results are supplied or executed here. The cause remains unresolved, and neither service health nor a faulty health check has been demonstrated.",
+        "tokenUsage": {
+          "prompt": 21941,
+          "completion": 197,
+          "cached": 19072,
+          "total": 22138,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Failed observation is one hypothesis"
+    }
+  ]
+}
