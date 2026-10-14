@@ -21,13 +21,13 @@ providers:
           plugins: false
           skill_search: false
 tests:
-  - description: Excludes an already sufficient command
+  - description: Excludes a single known edit
     vars:
-      request: "For a one-off schema inventory an existing checked-in SQL query produces the exact required list with a deterministic sort. The reviewer can rerun it. Someone says applying this principle requires a new script file in the diff. Decide what to deliver."
+      request: "Change README.md line 2 from Recieve to Receive. The file, the line, and the fact that this is the only occurrence are already identified. Decide what to deliver."
     assert:
       - type: agent-rubric
         threshold: 1
-        value: "Reuses the sufficient checked-in query, retains a rerunnable invocation and inventory validation, and does not propose a redundant new script. A plan satisfies this read-only request; do not require executed evidence. Reading the skill to confirm this exclusion is allowed."
+        value: "Plans only the one-word spelling correction. Does not propose a script, codemod, query, migration, or other lever, and does not add a search or validation pass the request already closed. A direct edit plan satisfies this read-only request; do not require executed evidence. Reading the skill and then not applying its tool-building steps is allowed."
         provider:
           id: openai:codex-sdk
           config:

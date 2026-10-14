@@ -68,6 +68,12 @@ tests:
       scenario: "A cache cleanup refactor changes only entry selection. Existing eviction.spec.ts exercises live entries, expired entries and teardown against the pinned shipped library version and fails if a live entry is removed. Run access is unavailable in this review packet. What next step is justified?"
       rubric: "Selects the existing focused test as the cheapest decisive next check without requiring a new script/framework or model tournament. Keeps safety unproven until execution; cites the relevant suite coverage and pinned version, and adds a narrow case only for a material coverage gap rather than assuming one exists."
   -
+    description: "Ambiguous persisted rename is not an encoded-key change"
+    vars:
+      skill: "file://../../src/core/skills/blast-radius/SKILL.md"
+      scenario: "Assess this Swift model change before merge. SharedAlarm.swift:18 renames persisted nextFire to dueAt. No CodingKeys, schema, or migration mapping has been inspected, and no source contents beyond this description are available. Store.swift:44 reads old on-disk records; Widget.swift:31 decodes an App Group snapshot; Intent.swift:23 writes alarms in an extension process. Simulator UI save passed. What risks and proof remain?"
+      rubric: "Separates supplied facts from assumptions. Does not conclude that a persisted or encoded key changed. Requires inspecting coding keys, schema, or the equivalent mapping before treating the stored key as changed, and leaves persistence, snapshot, and extension paths unproven until then. Does not describe the simulator UI save as a fresh or current-format round trip, and does not claim that the save exercises a new key."
+  -
     description: "Reachable timing risk without invented likelihood"
     vars:
       skill: "file://../../src/core/skills/blast-radius/SKILL.md"
