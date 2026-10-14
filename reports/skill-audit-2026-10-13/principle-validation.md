@@ -35,6 +35,6 @@ Automated triggers: **47/49**. `type-system-discipline` read the exact skill bod
 
 The user accepted preservation ports on 13 October 2026. Missing RED and baseline ties remain facts; they are accepted exceptions for this batch, not passing measurements or changes to the repository policy.
 
-[Native replay evidence](native-principles-replay.json) verifies all 24 names and final source bodies through Claude and OMP loaders, with representative hypothetical outputs. Skills were explicitly invoked and generally batched twelve per fresh process; final laziness replays were isolated. This is not exhaustive behavior or live installation proof.
+Native Claude and OMP replays verified all 24 names and final source bodies, with representative hypothetical outputs. The raw replay JSON is not committed. Skills were explicitly invoked and generally batched twelve per fresh process; final laziness replays were isolated. This is not exhaustive behavior or live installation proof.
 
 No target skill was injected into baseline prompts or present in their project workspaces. The new names were absent from inspected ancestor/global skill directories. Existing unrelated host metadata was not hidden. Earlier provider errors, invalid grading and the repaired laziness omission remain in per-skill records.

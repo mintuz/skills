@@ -1,6 +1,6 @@
 ---
 name: how
-description: WHEN explaining current code execution or state ownership; NOT for historical rationale or redesign; gives an evidence-grounded walkthrough
+description: "WHEN explaining code flow, current execution, or state ownership; NOT for historical rationale or redesign; gives an evidence-grounded walkthrough"
 ---
 
 # How

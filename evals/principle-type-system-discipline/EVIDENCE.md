@@ -15,6 +15,6 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 
 Context size: 565 upstream words → 162 port words (whitespace count, including frontmatter).
 
-Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [durable native evidence](../../reports/skill-audit-2026-10-13/native-principles-replay.json); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
 
 The positive trigger assertion is a false negative: the command output contains the complete current skill, but a later empty search made the chained command exit 1, so Promptfoo did not count its read. The assertion remains failed; [observed read evidence](trigger-observation.json) records the distinction.

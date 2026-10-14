@@ -1,6 +1,6 @@
 ---
 name: why
-description: WHEN investigating code rationale or design tradeoffs; NOT for runtime walkthroughs; separates historical facts, inference and unknowns
+description: "WHEN investigating why this code exists, its rationale, or design tradeoffs; NOT for runtime walkthroughs; separates historical facts, inference and unknowns"
 ---
 
 # Why

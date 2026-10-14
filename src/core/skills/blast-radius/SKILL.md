@@ -1,6 +1,6 @@
 ---
 name: blast-radius
-description: WHEN investigating what a change could break beyond its diff; NOT for a requirement verdict; maps material risks and decisive checks
+description: "WHEN investigating impact analysis or what a change could break beyond its diff; NOT for a requirement verdict; maps material risks and decisive checks"
 ---
 
 # Blast radius

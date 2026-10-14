@@ -34,8 +34,37 @@ if (!skills.length) {
   process.exit(2);
 }
 
-// Rebuild the owned disposable fixture, including resources. Stale references
-// must not make a removed or broken source dependency appear to work.
+const SIBLING_SKILL_NAME = /^(?!\.\.?$)[A-Za-z0-9._-]+$/;
+
+// Opt-in sibling names. Absent or empty means the fixture holds exactly one skill.
+function keepSkills(providers, skill) {
+  const lists = providers.map((provider) => {
+    const value = provider?.config?.keep_skills;
+    if (value == null) return [];
+    if (!Array.isArray(value)) {
+      throw new Error(`${triggerPath(skill)} keep_skills must be an array of sibling skill names.`);
+    }
+    return value;
+  });
+  if (new Set(lists.map((list) => JSON.stringify(list))).size !== 1) {
+    throw new Error(`${triggerPath(skill)} must use one shared keep_skills list.`);
+  }
+  for (const name of lists[0]) {
+    if (typeof name !== "string" || !SIBLING_SKILL_NAME.test(name)) {
+      throw new Error(`${triggerPath(skill)} keep_skills entries must be single skill directory names.`);
+    }
+    if (name === skill) {
+      throw new Error(`${triggerPath(skill)} keep_skills cannot include the skill under test; that copy is always refreshed.`);
+    }
+  }
+  return lists[0];
+}
+
+// Rebuild the owned disposable fixture, including resources. By default the
+// fixture holds exactly one skill: everything under `.agents/skills` is
+// replaced by the skill under test. Set `keep_skills` on the trigger provider
+// to preserve named sibling directories. Stale files inside the refreshed
+// skill are still replaced. Path checks run before any deletion.
 function refreshFixture(skill) {
   const config = parse(readFileSync(triggerPath(skill), "utf8"));
   const providers = Array.isArray(config?.providers) ? config.providers : [config?.providers];
@@ -46,6 +75,7 @@ function refreshFixture(skill) {
   if (new Set(directories).size !== 1) {
     throw new Error(`${triggerPath(skill)} must use one shared trigger working_dir.`);
   }
+  const kept = keepSkills(providers, skill);
   const workingDir = directories[0];
   const suite = resolve("evals", skill);
   const workspace = resolve(suite, workingDir);
@@ -71,8 +101,24 @@ function refreshFixture(skill) {
       if (error.code !== "ENOENT") throw error;
     }
   }
-  rmSync(fixtureRoot, { recursive: true, force: true });
-  mkdirSync(fixtureRoot, { recursive: true });
+  for (const name of kept) {
+    const keptPath = join(fixtureRoot, name);
+    try {
+      if (lstatSync(keptPath).isSymbolicLink()) throw new Error(`Refusing to keep a symlinked skill: ${keptPath}`);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
+  if (kept.length === 0) {
+    rmSync(fixtureRoot, { recursive: true, force: true });
+    mkdirSync(fixtureRoot, { recursive: true });
+  } else {
+    mkdirSync(fixtureRoot, { recursive: true });
+    const preserve = new Set(kept);
+    for (const entry of readdirSync(fixtureRoot)) {
+      if (!preserve.has(entry)) rmSync(join(fixtureRoot, entry), { recursive: true, force: true });
+    }
+  }
   cpSync(dirname(source), join(fixtureRoot, skill), { recursive: true });
   return source;
 }

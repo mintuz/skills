@@ -81,7 +81,7 @@ Never bury bad news. Acknowledge it, then provide context:
 
 Weave links naturally into claims:
 
-> "shipped to production, to the X page ([our fastest growing page](link))"
+> "shipped to production, to the X page ([our fastest growing page](https://example.com/x))"
 
 Use footnotes only for non-material qualifications. Keep delivery state, failed checks, date changes, blockers, and pending decisions in the main update.
 

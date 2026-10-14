@@ -1,5 +1,5 @@
 {
-  "durable_report": "../../reports/skill-audit-2026-10-13/native-principles-replay.json",
+  "durable_report": "../../reports/skill-audit-2026-10-13/principle-validation.md",
   "source_sha256": "9ef97758204fc0cad95dacafeb9e2fa0519f86e86898faef6dabf74a1c113739",
   "hosts": {
     "claude": {

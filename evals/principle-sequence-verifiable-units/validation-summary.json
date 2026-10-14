@@ -147,7 +147,7 @@
     "regressed_cases": []
   },
   "native_replay": {
-    "durable_report": "../../reports/skill-audit-2026-10-13/native-principles-replay.json",
+    "durable_report": "../../reports/skill-audit-2026-10-13/principle-validation.md",
     "source_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
     "hosts": {
       "claude": {

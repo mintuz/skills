@@ -64,7 +64,7 @@ one relative provider `working_dir` below the eval directory, separate from the 
 
 `pnpm test:skills:triggers` copies the complete current skill directory into
 `<working_dir>/.agents/skills/<skill>/` before each run, then evaluates the
-trigger config. The entire `<working_dir>/.agents/skills/` directory is owned disposable test data and is rebuilt with only the skill under test, including relative resources. Keep no user skills there. Quoted YAML paths are supported; paths outside the suite, symlink ancestors and duplicate source names are rejected before cleanup. It is git-ignored
+trigger config. That `.agents/skills/` directory is owned disposable test data. By default the fixture holds exactly one skill: the runner deletes every sibling and replaces the skill under test, including its relative resources. A trigger provider may set `keep_skills` to an array of sibling directory names to preserve; the skill under test is still refreshed, and a kept symlink is rejected before cleanup. Keep no user skills there unless that opt-in names them. Quoted YAML paths are supported; paths outside the suite, symlink ancestors and duplicate source names are rejected before cleanup. It is git-ignored
 rather than committed: a committed copy would drift from the source and the suite
 would test a stale description. Never edit the fixture; edit the skill.
 
@@ -152,7 +152,7 @@ go run scripts/package-skills.go --dry-run --verbose
 1. **Reads marketplace.json** - Discovers all plugins and their skills
 2. **Validates skills** - Ensures each skill has required SKILL.md file
 3. **Creates individual zips** - Each skill packaged in its own zip file with optional plugin prefix
-4. **Packages files** - Recursively adds all skill files to each zip
+4. **Packages files** - Recursively adds all skill files to each zip. Skills listed under Derived skills in `THIRD_PARTY_NOTICES.md` also receive that file, so the upstream MIT notice travels with the bundle
 5. **Reports statistics** - Shows skills packaged, files added, and zip files created
 
 ### Using Packaged Skills
@@ -266,7 +266,7 @@ go run scripts/codex-sync.go --marketplace /path/to/marketplace.json
 1. **Reads marketplace.json** - Discovers all plugins and their skills
 2. **Finds skill directories** - Locates each skill's SKILL.md and supporting files
 3. **Creates flat structure** - Skills use their original names (e.g., `commit-messages`, `react`) or prefixed names with `--prefix` flag
-4. **Copies files** - Recursively copies all skill files to the target directory
+4. **Copies files** - Recursively copies all skill files to the target directory. Skills listed under Derived skills in `THIRD_PARTY_NOTICES.md` also receive that file
 5. **Maintains structure** - Preserves directory structure within each skill folder
 
 **Note:** Changes to source skills require re-running the sync to update the copied files in Codex.
@@ -314,7 +314,7 @@ The sync tool preserves all skill features:
 
 ## Skill inventory
 
-Both scripts read `.claude-plugin/marketplace.json`; [the repository README](../README.md) describes the inventory. The `principle` plugin groups 24 independent `principle-*` skills. Leave `--prefix` off to retain those names. The copier and zip packager preserve reference files and licenses.
+Both scripts read `.claude-plugin/marketplace.json`; [the repository README](../README.md) describes the inventory. The `principle` plugin groups 24 independent `principle-*` skills. Leave `--prefix` off to retain those names. The copier and zip packager preserve reference files. They also copy [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) into each bundle whose name is listed in that file, which is how the 31 pstack adaptations keep the upstream MIT notice. Other skills are copied as they are. The repository root `LICENSE` stays at the root.
 
 The same flat bundles can be used by other compatible loaders, including OMP. Install into a directory the target harness actually discovers and verify activation there. Do not install competing copies of the same skill name.
 

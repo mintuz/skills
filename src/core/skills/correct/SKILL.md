@@ -1,6 +1,6 @@
 ---
 name: correct
-description: WHEN preventing a repeated codebase mistake; NOT for one-off hypotheses or writing preferences; proves scoped mechanical enforcement
+description: "WHEN preventing a repeated codebase mistake; NOT for one-off hypotheses or writing preferences; proves scoped mechanical enforcement"
 ---
 
 # Correct

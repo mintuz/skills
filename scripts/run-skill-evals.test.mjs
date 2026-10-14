@@ -40,6 +40,46 @@ test("trigger replaces stale files and sibling skills with the complete bundle",
   assert.match(readFileSync(join(root, "calls"), "utf8"), /-c\nevals\/principle-fixture\/trigger.promptfooconfig.yaml/);
 }));
 
+test("keep_skills preserves named siblings and still refreshes the skill under test", () => fixture(({source, target, config, invoke}) => {
+  const kept = join(target, "../helper");
+  const dropped = join(target, "../old-name");
+  mkdirSync(kept); writeFileSync(join(kept, "SKILL.md"), "Keep me");
+  mkdirSync(dropped); writeFileSync(join(dropped, "SKILL.md"), "Drop me");
+  writeFileSync(join(target, "SKILL.md"), "stale skill");
+  writeFileSync(config, "providers:\n  - config:\n      working_dir: ./workspace\n      keep_skills:\n        - helper\n");
+  const result = invoke(); assert.equal(result.status, 0, result.stderr);
+  assert.equal(readFileSync(join(kept, "SKILL.md"), "utf8"), "Keep me");
+  assert.equal(existsSync(dropped), false);
+  assert.equal(readFileSync(join(target, "SKILL.md"), "utf8"), readFileSync(join(source, "SKILL.md"), "utf8"));
+  assert.equal(existsSync(join(target, "stale.md")), false);
+  assert.equal(existsSync(join(target, "references/contract.md")), true);
+}));
+
+for (const name of ["../outside", "nested/skill", "", "."]) {
+  test(`reject unsafe keep_skills name ${JSON.stringify(name)} before cleanup`, () => fixture(({config, target, invoke, root}) => {
+    writeFileSync(config, `providers:\n  - config:\n      working_dir: ./workspace\n      keep_skills:\n        - ${JSON.stringify(name)}\n`);
+    const result = invoke(); assert.equal(result.status, 1);
+    assert.equal(existsSync(join(target, "stale.md")), true, "validation precedes mutation");
+    assert.equal(existsSync(join(root, "calls")), false);
+  }));
+}
+
+test("reject a symlinked kept skill before cleanup", () => fixture(({suite, config, target, root, invoke}) => {
+  const outside = join(root, "outside"); mkdirSync(outside); writeFileSync(join(outside, "keep"), "untouched");
+  symlinkSync(outside, join(suite, "workspace/.agents/skills/helper"));
+  writeFileSync(config, "providers:\n  - config:\n      working_dir: ./workspace\n      keep_skills:\n        - helper\n");
+  const result = invoke(); assert.equal(result.status, 1);
+  assert.equal(readFileSync(join(outside, "keep"), "utf8"), "untouched");
+  assert.equal(existsSync(join(target, "stale.md")), true, "validation precedes mutation");
+}));
+
+test("keep_skills cannot name the skill under test", () => fixture(({config, target, invoke, root}) => {
+  writeFileSync(config, "providers:\n  - config:\n      working_dir: ./workspace\n      keep_skills:\n        - principle-fixture\n");
+  const result = invoke(); assert.equal(result.status, 1);
+  assert.equal(existsSync(join(target, "stale.md")), true, "validation precedes mutation");
+  assert.equal(existsSync(join(root, "calls")), false);
+}));
+
 test("quoted working_dir and misleading comments follow YAML semantics", () => fixture(({config, target, invoke}) => {
   writeFileSync(config, '# working_dir: ../../outside\nproviders:\n  - config:\n      working_dir: "./workspace" # owned fixture\n');
   const result = invoke(); assert.equal(result.status, 0, result.stderr);

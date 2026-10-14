@@ -1,6 +1,6 @@
 ---
 name: benchmark-checklist
-description: WHEN validating a benchmark or measured performance claim; NOT for an unmeasured optimization guess; checks completed work, fairness and repeatability
+description: "WHEN validating a benchmark or measured performance claim; NOT for an unmeasured optimization guess; checks completed work, fairness and repeatability"
 ---
 
 # Benchmark checklist

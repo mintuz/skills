@@ -1,6 +1,6 @@
 ---
 name: create-verification-skill
-description: WHEN creating or refreshing a project verification recipe; NOT for a one-off test run; saves and cold-replays a real user journey
+description: "WHEN creating or refreshing a project verification recipe; NOT for a one-off test run; saves and cold-replays a real user journey"
 ---
 
 # Create a verification skill

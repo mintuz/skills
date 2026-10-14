@@ -6,16 +6,16 @@ Native checks used one hypothetical, explicitly invoked scenario per skill: Clau
 
 | Skill | RED validity (passes/total) | Final GREEN | Conservative baseline → treatment | Triggers | Native Claude / OMP | Source SHA-256 prefix and evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `create-verification-skill` | Valid, 3/4 | 4/4 | 1/4 → 4/4 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `237a0bed69cb` · [evals](../../evals/create-verification-skill/results.json) · [native](../../evals/create-verification-skill/native-results.json) |
-| `blast-radius` | Valid calibrated replay, 3/4 | 4/4 | 1/4 → 4/4 | 3/3 | Skill loaded; residual overclaim / `skill://` loaded; qualified risks | `e6c0f60b27fc` · [evals](../../evals/blast-radius/results.json) · [native](../../evals/blast-radius/native-results.json) |
-| `how` | Valid, 4/5 | 5/5 | 4/5 → 5/5 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `70ef0f2af537` · [evals](../../evals/how/results.json) · [native](../../evals/how/native-results.json) |
-| `why` | Valid, 4/5 | 5/5 | 5/5 → 5/5 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `024dc38a3f3d` · [evals](../../evals/why/results.json) · [native](../../evals/why/native-results.json) |
-| `benchmark-checklist` | Unmet: upstream 5/5 | 5/5 | 4/5 → 5/5 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `0169e8efdef2` · [evals](../../evals/benchmark-checklist/results.json) · [native](../../evals/benchmark-checklist/native-results.json) |
-| `correct` | Valid, 3/4 | 4/4 | 2/4 → 4/4 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `17e6d698f839` · [evals](../../evals/correct/results.json) · [native](../../evals/correct/native-results.json) |
-| `recall` | Valid, 3/4 | 4/4 | 2/4 → 4/4 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `e83765cc5c04` · [evals](../../evals/recall/results.json) · [native](../../evals/recall/native-results.json) |
-| `design-handover` | Valid minimal fixture, 1/4 | 4/4 | 1/4 → 4/4 | 2/2 | Manual slash expanded; observed / `skill://` loaded; observed | `b1c06b8f0e6a` · [evals](../../evals/design-handover/results.json) · [native](../../evals/design-handover/native-results.json) |
+| `create-verification-skill` | Valid, 3/4 | 4/4 | 1/4 → 4/4 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `237a0bed69cb` · [native](../../evals/create-verification-skill/native-results.json) |
+| `blast-radius` | Valid calibrated replay, 3/4 | 4/4 | 1/4 → 4/4 | 3/3 | Skill loaded; residual overclaim / `skill://` loaded; qualified risks | `e6c0f60b27fc` · [native](../../evals/blast-radius/native-results.json) |
+| `how` | Valid, 4/5 | 5/5 | 4/5 → 5/5 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `70ef0f2af537` · [native](../../evals/how/native-results.json) |
+| `why` | Valid, 4/5 | 5/5 | 5/5 → 5/5 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `024dc38a3f3d` · [native](../../evals/why/native-results.json) |
+| `benchmark-checklist` | Unmet: upstream 5/5 | 5/5 | 4/5 → 5/5 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `0169e8efdef2` · [native](../../evals/benchmark-checklist/native-results.json) |
+| `correct` | Valid, 3/4 | 4/4 | 2/4 → 4/4 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `17e6d698f839` · [native](../../evals/correct/native-results.json) |
+| `recall` | Valid, 3/4 | 4/4 | 2/4 → 4/4 | 3/3 | Skill loaded; observed / `skill://` loaded; observed | `e83765cc5c04` · [native](../../evals/recall/native-results.json) |
+| `design-handover` | Valid minimal fixture, 1/4 | 4/4 | 1/4 → 4/4 | 2/2 | Manual slash expanded; observed / `skill://` loaded; observed | `b1c06b8f0e6a` · [native](../../evals/design-handover/native-results.json) |
 
-The evidence links contain full source hashes, run IDs, per-case responses, grades and retained rejected results. Native copies and source directories matched their recorded file hashes. Seven prechange fixtures come from upstream commit `dbf49813a39c1a5389c5e28cb8e4c1c2379e2454`; design-handover used a minimal new-skill fixture.
+Native evidence links remain. Per-case Promptfoo `results.json` files are gitignored local output and are not committed. Native copies and source directories matched their recorded file hashes. Seven prechange fixtures come from upstream commit `dbf49813a39c1a5389c5e28cb8e4c1c2379e2454`; design-handover used a minimal new-skill fixture.
 
 - **Why:** the no-skill comparison tied at 5/5. Its upstream portability failure supplied RED, but this comparison demonstrates no gain over the no-skill baseline.
 - **Benchmark:** upstream already passed all five cases. This is a concise preservation rewrite; the strict RED gate remains unmet. Its comparison gain is against no skill, not against upstream.

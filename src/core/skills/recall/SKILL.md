@@ -1,6 +1,6 @@
 ---
 name: recall
-description: WHEN recovering prior working context or a named session; NOT for habit mining; reconciles bounded history with live state
+description: "WHEN recovering prior working context, an earlier decision, or a named session; NOT for habit mining; reconciles bounded history with live state"
 ---
 
 # Recall
