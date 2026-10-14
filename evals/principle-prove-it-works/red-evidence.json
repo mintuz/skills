@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-RSW-2026-10-13T20:35:45",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-prove-it-works"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "ec79a15025bac8d33d62011c54f3b612733fd2a024e623b531b3637aa75070e2",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "**Verdict: unverified.** The evidence does not establish that commit A saves a note and restores it after relaunch on a physical phone.\n\n- Passing build and unit tests establish only what those checks cover.\n- Yesterday\u2019s screenshot of commit B does not verify commit A.\n- A simulator tap proves neither persistence nor restoration.\n\n**Next evidence:** On commit A, enter a uniquely identifiable note, tap Save, read the actual persisted record, terminate and relaunch the app, and verify the restored note matches. Script the checks where possible and retain the commit identifier, steps, and results for review.\n\nRun this in the simulator for interim evidence, explicitly limited to the simulator. The physical-phone claim remains unverified until that sequence succeeds on a physical phone running commit A.",
+        "tokenUsage": {
+          "prompt": 22020,
+          "completion": 159,
+          "cached": 9600,
+          "total": 22179,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Match proof to artifact identity"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Do not change the health check yet. A recent log mtime proves only that the file was modified; it does not establish that the service is alive.\n\nUse the existing process/port/status command to check directly:\n\n- Whether the service process is running.\n- Which port it is listening on and whether that matches the health check.\n- Whether startup is still underway.\n\nIf the process exited, investigate its exit evidence. If it listens on another port, verify the intended configuration before proposing a correction. If startup is underway, repeat the direct check once readiness is reported, then rerun the health check.\n\nConnection refused establishes that the attempted connection was rejected, not which explanation caused it. No command results are supplied, so the cause remains undetermined and no edit is justified.",
+        "tokenUsage": {
+          "prompt": 22019,
+          "completion": 158,
+          "cached": 19072,
+          "total": 22177,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Failed observation is one hypothesis"
+    }
+  ]
+}

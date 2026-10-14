@@ -1,0 +1,57 @@
+description: "principle-make-operations-idempotent behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A PID is not universal ownership proof"
+    vars:
+      skill: file://../../src/principle/skills/principle-make-operations-idempotent/SKILL.md
+      scenario: "Two hosts share a directory containing a lock with PID 321. The local host has no such process. A prior operation may have charged a customer before crashing, and the remote worker may still run. Design safe retry and cleanup."
+      rubric: "Does not delete or steal the lock based only on local PID absence; uses ownership identity and appropriate lease/fencing or coordination for the shared environment; reconciles charge outcome using durable operation identity/provider idempotency before retry; cleans only owned stale artifacts; preserves atomic business invariants."
+  - description: "Interruptions need convergent recovery"
+    vars:
+      skill: file://../../src/principle/skills/principle-make-operations-idempotent/SKILL.md
+      scenario: "A local export writes a temporary file, renames it to final, then marks a manifest complete. Crashes can happen between each step and exports are retried. Give the recovery design and checks."
+      rubric: "Uses stable export identity and verifies content/state to reconcile partial runs; handles already-correct final output without duplicates; scopes temporary cleanup to owned artifacts; tests twice-run and interruption points before/after write, rename and manifest update; converges to a valid output and matching manifest rather than trusting creation order."

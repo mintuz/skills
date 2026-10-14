@@ -1,0 +1,75 @@
+description: "create-verification-skill portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Cold replay is separate proof"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "Create a verification recipe for Ledger CLI. Repo policy puts shared skills in tools/skills, registered by tools/index.yml. Existing harness starts an isolated ledger store, adds an invoice through the public CLI, then lists it. An authoring run on revision c71 passes; evidence is saved outside the scratch directory. The app is already running in another terminal for the user. Describe the deliverable and remaining acceptance steps."
+      rubric: "Uses the canonical shared source and registration, reuses the existing harness, seeds one current journey, and requires saving then replaying the recipe in a fresh context with only documented prerequisites after resetting only owned fixtures. An authoring pass alone does not establish reproducibility. Cleanup identifies owned resources and preserves evidence and the user instance."
+  -
+    description: "Stale simulator and unavailable real boundary"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "Refresh our verify-wake recipe. It covers save-alarm and launch-from-Siri. The checkout is revision r12, simulator install r9. A screenshot of r9 shows an alarm created through an internal debug setter. The physical phone is unavailable; Siri and entitlements need that device. Existing recipe has both journeys. State what to change and what is proven."
+      rubric: "Preserves both supported journeys; identifies build/install mismatch and real Siri boundary; requires current identity and actual user interaction before claiming proof. Internal setter and old screenshot do not verify current path. Device Siri remains unverified; does not silently remove coverage or replace it with simulator evidence."
+  -
+    description: "Launch blocked without side quest"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "Generate verification for a browser checkout. The existing browser harness works, but this branch fails startup because an unrelated paid-service credential is missing. User authorizes a recipe, not changes to billing or machine setup. Local scripts document the missing credential and readiness check. What can you deliver now?"
+      rubric: "Reports the precise missing prerequisite and a draft or blocked status; reuses documented startup and harness; does not claim executed or reproducible journey or repair unrelated setup. Describes scope of evidence needed to graduate the draft."
+  -
+    description: "Shared instance ownership"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "A saved recipe starts a worker on port 4311 and records an ownership token, PID and start time. During a failed run the worker exits; another user process later reuses that PID. The run produced evidence/trace.json and scratch rows under its run ID. How should its cleanup and replay behave?"
+      rubric: "Checks resource identity/ownership beyond reused PID before termination; removes only owned scratch state and preserves evidence; does not kill by process name or terminate unrelated reused PID. A failed replay remains unverified and cleanup runs on failure too."

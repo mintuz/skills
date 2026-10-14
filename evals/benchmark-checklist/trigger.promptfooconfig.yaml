@@ -1,0 +1,66 @@
+description: "benchmark-checklist activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use benchmark-checklist for the following request. Review the claim export is 8x faster. Previous total was 100 ms, changed helper was 10 ms. New harness times creation of an async generator without consuming it; error and row counts are absent. Single run per side, different data sizes. Can this number guide adoption?"
+    assert:
+      -
+        type: "skill-used"
+        value: "benchmark-checklist"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Suggest which functions might be worth profiling; I have no measurements to validate."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply benchmark-checklist workflow or claim to have performed unavailable work; it stays within the requested task."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Natural task selects the narrow workflow"
+    vars:
+      request: "Review this measured 20% speedup before we report it. Check measurement validity and whether the timed work completed."
+    assert:
+      -
+        type: "skill-used"
+        value: "benchmark-checklist"

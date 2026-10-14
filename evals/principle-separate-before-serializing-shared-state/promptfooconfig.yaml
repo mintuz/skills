@@ -1,0 +1,56 @@
+description: "principle-separate-before-serializing-shared-state behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Partition genuinely independent facts"
+    vars:
+      skill: file://../../src/principle/skills/principle-separate-before-serializing-shared-state/SKILL.md
+      scenario: "An indexer and metrics worker each read state.json and rewrite it, changing only their own lastRun field. These timestamps have no cross-worker atomic invariant; the dashboard merely shows both. A mutex is proposed. Recommend state ownership and failure checks."
+      rubric: "Assigns each worker an independently owned file or key and combines at read/report time; recognizes separate fields in one rewritten JSON file still race; defines behavior for missing, stale or interrupted updates at the dashboard; does not add a global mutex when no shared invariant requires it."
+  - description: "Atomic invariant prevents naive separation"
+    vars:
+      skill: file://../../src/principle/skills/principle-separate-before-serializing-shared-state/SKILL.md
+      scenario: "Two booking workers concurrently reserve the last seat. Both must update availableSeats and confirmedBookings atomically so a seat is never sold twice; crash recovery must retain the invariant. A proposal gives each worker its own availableSeats file to eliminate sharing. Review and choose a structural mechanism."
+      rubric: "Rejects independent copies of canonical capacity because they break the booking invariant; identifies atomic shared ownership and uses a transaction, compare-and-swap, or single writer with enforced exclusivity and crash recovery; considers contention and failed/retried operations; does not rely on instructions, PID-only ownership or unrelated lockfile assumptions."

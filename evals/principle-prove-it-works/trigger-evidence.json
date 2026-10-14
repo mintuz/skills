@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-2SH-2026-10-13T20:56:10",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-prove-it-works"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "ef091df07f2793a2ef5a24c4828ad0947f7e5ffee17e65785cd3b0130855583d",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "The passing build proves compilation, not persistence. The changed Save action is **not yet verified**.\n\nMinimum direct proof: on the changed build in a named environment, enter a distinctive value, press Save, then reload or restart and read it back from durable storage. Confirm the value survives independently of in-memory state, and record the revision, steps, and observed result.\n\nNo persistence check was performed here.\n\nSkill followed: principle-prove-it-works.",
+        "tokenUsage": {
+          "prompt": 43940,
+          "completion": 174,
+          "cached": 31104,
+          "total": 44114,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21720,
+          "completion": 30,
+          "cached": 0,
+          "total": 21750,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 21,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

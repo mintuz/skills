@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-VUH-2026-10-13T20:55:36",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-never-block-on-the-human"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "cb2821de069bb533d4bafb4130ecd817c004b6b485fab2b853edfe06c84b05cd",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Continue the authorized local fix: investigate, implement, run relevant tests, review the diff, and prepare a concrete handoff. Resolve routine implementation choices within scope and state material assumptions.\n\nHold only work requiring missing facts or additional authority\u2014such as deployment, publishing, external messages, destructive actions, or scope expansion unless already authorized. Being offline does not imply consent; existing approval does not need repeating.\n\nFor this request, I only read local guidance; no changes or external calls were made.\n\nSkill followed: principle-never-block-on-the-human.",
+        "tokenUsage": {
+          "prompt": 43911,
+          "completion": 196,
+          "cached": 31104,
+          "total": 44107,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21715,
+          "completion": 34,
+          "cached": 9600,
+          "total": 21749,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 25,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "eval_id": "eval-jfk-2026-10-13T20:57:59",
+  "reported_skill_used": false,
+  "observed_exact_skill_body_read": true,
+  "source_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+  "command_exit_code": 1,
+  "reason": "The command read the complete current SKILL.md, then an empty rg --files result made the chained command exit 1. Promptfoo skill-used ignored that failed command. The response correctly applies the skill. No source change or rerun performed to hide the assertion failure."
+}

@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-RPF-2026-10-13T20:55:19",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-model-the-domain"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "79c545f601335e069485e883f5efbd45c4ce9afec61e4352935a4f2142e3d35d",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Replace lifecycle booleans with one explicit order state, carrying the data each state requires.\n\nAn illustrative model, pending your business rules:\n\n| State | Required data | Allowed next states |\n|---|---|---|\n| Pending payment | Order details | Paid, Cancelled |\n| Paid | Payment reference | Shipped, Refunded |\n| Shipped | Tracking reference | Delivered |\n| Delivered | Delivery timestamp | None |\n| Cancelled | Cancellation reason | None |\n| Refunded | Refund reference | None |\n\nPut transition rules under one owner, such as `Order.transition(command)`. Callers request actions; that owner validates and returns the next state or a rejection. This removes duplicated checks and prevents combinations such as \u201ccancelled and shipped.\u201d\n\nKeep independent concerns separate: if payment and fulfillment can vary independently, model each explicitly and centralize their shared constraints.\n\nValidate existing stored booleans when restoring orders; reject or explicitly reconcile contradictions. Test allowed transitions, rejected transitions, and restoration through the public interface.\n\nSkill followed: principle-model-the-domain.",
+        "tokenUsage": {
+          "prompt": 43874,
+          "completion": 294,
+          "cached": 31104,
+          "total": 44168,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21704,
+          "completion": 34,
+          "cached": 9600,
+          "total": 21738,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 25,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

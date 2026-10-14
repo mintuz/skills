@@ -1,0 +1,218 @@
+{
+  "skill": "principle-migrate-callers-then-delete-legacy-apis",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "9ef97758204fc0cad95dacafeb9e2fa0519f86e86898faef6dabf74a1c113739",
+  "upstream_sha256": "09978915a4a11990cf0a9a02d9c08cc59e0b7a04c5c24b83aa560fbe4146f75b",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 135,
+    "port_body": 121,
+    "upstream_total": 170,
+    "port_total": 144
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-zt6-2026-10-13T20:29:35",
+      "source_sha256": "09978915a4a11990cf0a9a02d9c08cc59e0b7a04c5c24b83aa560fbe4146f75b",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Consumer coverage before deletion"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Coordinated migration removes redundant paths"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-wxm-2026-10-13T20:36:55",
+      "source_sha256": "9ef97758204fc0cad95dacafeb9e2fa0519f86e86898faef6dabf74a1c113739",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Consumer coverage before deletion"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Coordinated migration removes redundant paths"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-QoK-2026-10-13T20:54:01",
+      "source_sha256": "9ef97758204fc0cad95dacafeb9e2fa0519f86e86898faef6dabf74a1c113739",
+      "passed": 4,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Consumer coverage before deletion"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Consumer coverage before deletion"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Coordinated migration removes redundant paths"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Coordinated migration removes redundant paths"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "prechange-trigger": {
+      "eval_id": "eval-mdN-2026-10-13T20:36:08",
+      "source_sha256": "09978915a4a11990cf0a9a02d9c08cc59e0b7a04c5c24b83aa560fbe4146f75b",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "prechange-trigger-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-nsV-2026-10-13T20:54:39",
+      "source_sha256": "9ef97758204fc0cad95dacafeb9e2fa0519f86e86898faef6dabf74a1c113739",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [
+    {
+      "eval_id": "eval-zu7-2026-10-13T20:44:13",
+      "reason": "Trigger fixture metadata remained discoverable in the behavioral workspace; excluded from no-skill comparison.",
+      "evidence_file": "pre-isolation-compare-evidence.json"
+    },
+    {
+      "eval_id": "eval-eim-2026-10-13T20:29:07",
+      "reason": "Two provider errors: bundled CLI was too old for Astra. Not behavioral RED; retried using installed codex."
+    }
+  ],
+  "unmet_gates": [
+    "No demonstrated behavioral RED; pre-change behavior already passes.",
+    "No score gain over the no-skill baseline in this comparison."
+  ],
+  "comparison": {
+    "improved_cases": [],
+    "regressed_cases": []
+  },
+  "native_replay": {
+    "durable_report": "../../reports/skill-audit-2026-10-13/principle-validation.md",
+    "source_sha256": "9ef97758204fc0cad95dacafeb9e2fa0519f86e86898faef6dabf74a1c113739",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

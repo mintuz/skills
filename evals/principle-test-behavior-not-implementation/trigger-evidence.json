@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-uP3-2026-10-13T20:57:37",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-test-behavior-not-implementation"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "2b5238ca7442f0ccfaaa52ae5f90fc3ff9acdcd0ddabf16e19c19da282f33532",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "No test files were available to rewrite. Replace assertions like these:\n\n```ts\n// Before\nexpect(privateHelper).toHaveBeenCalled();\nexpect(result).toBeTruthy();\n\n// After: call the public interface and assert the contract\nexpect(await cart.total()).toEqual({\n  amount: 2500,\n  currency: \"GBP\",\n});\n```\n\nCover contrasting outcomes: found/missing, authorized/unauthorized, accepted/declined. Assert exact returned values, persisted changes, or external effects. For denied actions, use an existing record and verify it remains unchanged.\n\nEach test should fail for a plausible bug, such as returning a constant or ignoring authorization. No files changed.\n\nSkill followed: principle-test-behavior-not-implementation.",
+        "tokenUsage": {
+          "prompt": 66264,
+          "completion": 310,
+          "cached": 53120,
+          "total": 66574,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 11,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21714,
+          "completion": 24,
+          "cached": 9600,
+          "total": 21738,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 15,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

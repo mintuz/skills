@@ -1,0 +1,56 @@
+description: "principle-minimize-reader-load behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "One implementation can hide a real boundary"
+    vars:
+      skill: file://../../src/principle/skills/principle-minimize-reader-load/SKILL.md
+      scenario: "A payment call passes through BillingFacade with one caller and one gateway implementation. The facade owns idempotency keys, maps provider errors, and prevents raw card data reaching logs. Separately OrderService forwards getOrder(id) to a repository without transforming anything. A reviewer proposes inlining both because each has one caller. Evaluate reader load and the smallest change."
+      rubric: "Evaluates the complete payment and lookup paths, including state and ownership; preserves or equivalently relocates the idempotency, error, and privacy boundary rather than deleting it on caller count; identifies the pass-through as the candidate to inline only after checking its contract; measures understanding by trace steps and state to retain, not lines or a time limit."
+  - description: "Flat code still has hidden state"
+    vars:
+      skill: file://../../src/principle/skills/principle-minimize-reader-load/SKILL.md
+      scenario: "A request handler is one flat file with mutable module-level selectedTenant, currentUser and retryCount. Concurrent requests can overwrite them. A proposal moves every function into its own service class to improve maintainability. Explain a smaller design and how to verify it."
+      rubric: "Shrinks request-specific mutable values to request-owned state or explicit inputs rather than merely adding classes; traces where values originate and can change; preserves shared resources deliberately; checks overlapping requests with different tenants and retry paths, and does not treat a flat file or shorter code as sufficient proof."

@@ -1,0 +1,3 @@
+Skills under .agents/skills/ are available. Read SKILL.md only when its description applies. Read a skill in its own command, for example `cat .agents/skills/<name>/SKILL.md`, and do not chain that read with `&&`, `;`, or a pipe. Run any search as a separate command and tolerate an empty result with `|| true`, so a no-match exit cannot fail the skill read. Make no changes or external calls. Answer the request briefly and end by naming the skill followed, or none.
+
+{{request}}

@@ -1,0 +1,66 @@
+description: "how activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use how for the following request. Explain how this one hook works. useDraft.ts:3 initializes local draft from props once; :6 save sets pending=true, awaits api.save(draft), then clears pending in finally; :11 catches and sets error. Parent updates do not resync the draft. This source is the only evidence. Give the explanation and your investigation approach."
+    assert:
+      -
+        type: "skill-used"
+        value: "how"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Why did the team choose three retries in 2023? Investigate historical motivation."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply how workflow or claim to have performed unavailable work; it stays within the requested task."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Natural task selects the narrow workflow"
+    vars:
+      request: "How does the current save hook own state, call the API and recover from failure? Explain its execution path."
+    assert:
+      -
+        type: "skill-used"
+        value: "how"

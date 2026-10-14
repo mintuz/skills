@@ -1,0 +1,35 @@
+description: "principle-experience-first activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "Improve the checkout error experience. The app is runnable, but nobody has inspected it. You are offered a pretty mockup of the happy path and asked to implement immediately. Authorization covers an additive proposal including loading, retry and failure."
+    assert:
+      - type: skill-used
+        value: principle-experience-first
+  - description: Excludes a plain translation
+    vars:
+      request: "Translate only this sentence into French: The green notebook is on the table."
+    assert:
+      - type: not-skill-used
+        value: principle-experience-first

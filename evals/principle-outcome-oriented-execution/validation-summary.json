@@ -1,0 +1,181 @@
+{
+  "skill": "principle-outcome-oriented-execution",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "f24e83b7090aa458b9441ef66c20a88da4b24ecb185c37d43a06f6567a0adcae",
+  "upstream_sha256": "10eb91633aa570355ba4bb37088fcade2b22e498df7a58edc749e65bc5a78e2d",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 105,
+    "port_body": 129,
+    "upstream_total": 136,
+    "port_total": 151
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-02F-2026-10-13T20:31:32",
+      "source_sha256": "10eb91633aa570355ba4bb37088fcade2b22e498df7a58edc749e65bc5a78e2d",
+      "passed": 1,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Temporary breakage needs an isolated boundary"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.8,
+          "failure_reason_code": 1,
+          "reason": "The output continues toward the accepted behavior, calls for investigating cancellation, distinguishes scoped temporary breakage from final acceptance, requires queue deletion and relevant static/runtime checks, and avoids claiming unrun results. However, it does not name a rollback action or explicitly condition obsolete queue removal on proven consumers and guarantees.",
+          "case": "Finish the outcome with phase gates"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-jjO-2026-10-13T20:38:36",
+      "source_sha256": "f24e83b7090aa458b9441ef66c20a88da4b24ecb185c37d43a06f6567a0adcae",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Temporary breakage needs an isolated boundary"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Finish the outcome with phase gates"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-AIw-2026-10-13T20:47:14",
+      "source_sha256": "f24e83b7090aa458b9441ef66c20a88da4b24ecb185c37d43a06f6567a0adcae",
+      "passed": 3,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Temporary breakage needs an isolated boundary"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Temporary breakage needs an isolated boundary"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": false,
+          "score": 0.6,
+          "failure_reason_code": 1,
+          "reason": "The output correctly continues the migration, requires cancellation, ordering, and retry guarantees, calls for removing the old queue, and requires final compilation and behavioral tests without claiming unrun results. However, it does not propose investigating the failed phase check before relying on it, condition queue removal on proven consumer migration and guarantees, distinguish permissible temporary isolated breakage from final behavior, or name a rollback approach. It therefore only partially satisfies the rubric.",
+          "case": "Finish the outcome with phase gates"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Finish the outcome with phase gates"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-Ecy-2026-10-13T20:55:54",
+      "source_sha256": "f24e83b7090aa458b9441ef66c20a88da4b24ecb185c37d43a06f6567a0adcae",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [],
+  "unmet_gates": [],
+  "comparison": {
+    "improved_cases": [
+      1
+    ],
+    "regressed_cases": []
+  },
+  "native_replay": {
+    "durable_report": "../../reports/skill-audit-2026-10-13/principle-validation.md",
+    "source_sha256": "f24e83b7090aa458b9441ef66c20a88da4b24ecb185c37d43a06f6567a0adcae",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

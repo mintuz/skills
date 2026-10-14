@@ -1,0 +1,57 @@
+description: "principle-build-the-lever behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Existing query already proves the job"
+    vars:
+      skill: file://../../src/principle/skills/principle-build-the-lever/SKILL.md
+      scenario: "For a one-off schema inventory an existing checked-in SQL query produces the exact required list with a deterministic sort. The reviewer can rerun it. Someone says applying this principle requires a new script file in the diff. Decide what to deliver."
+      rubric: "Reuses the existing query and records command/input scope/result evidence; does not create a redundant script merely to have a new artifact; retains rerun instructions and validation of the inventory."
+  - description: "Earn a repeatable migration"
+    vars:
+      skill: file://../../src/principle/skills/principle-build-the-lever/SKILL.md
+      scenario: "Rename a serialized field across 250 owned fixture files with nested objects and strings that contain the old word. No existing tool handles the structure. Outline implementation and proof, including a second run."
+      rubric: "Works one representative example to establish expected behavior; uses a structural parser/codemod rather than blind string replacement; compares tool output to expected example and covers exceptions; proves rerun safety and preserves unrelated text; retains the small tool when ongoing review or reuse warrants it."

@@ -53,7 +53,7 @@ Technical progress explained through memorable comparisons.
 
 Links to production, Storybook, docs woven naturally into claims—showing, not just telling.
 
-> "shipped to production, to the X page ([our fastest growing page](link))"
+> "shipped to production, to the X page, our fastest growing page"
 
 ### Honest Caveats
 

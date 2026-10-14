@@ -1,0 +1,153 @@
+{
+  "skill": "principle-experience-first",
+  "source_sha256": "e2d5a696cde6559e0a1c7fd9f72cdf990213dee8295ae65cfe621221908afab3",
+  "source_words": 204,
+  "red_fixture_sha256": "58903529d733b1c1a7c9ccf127d45ef3c7d0d9f0b81164a4dc6b80efe6f2912b",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Mixed original grade: missing accessibility plus invalid demand for performed inspection.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-Pj8-2026-10-13T20:33:06",
+    "log": "/tmp/principles-a-evidence/principle-experience-first-red.log",
+    "cases": [
+      {
+        "case": "Observe actual states before polishing",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The output stays within additive proposal scope, distinguishes proposals from implementation evidence, and plans baseline inspection, loading/failure/retry states, recovery and feedback. However, it explicitly says no inspection occurred, so it neither first observes the real journey nor anchors the proposal in an observed baseline. It also does not evaluate accessibility. Not all required outcomes are met.",
+        "error": null
+      },
+      {
+        "case": "A library consumer is a user",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-IT1-2026-10-13T20:50:41",
+    "log": "/tmp/principles-a-evidence/principle-experience-first-green-retry.log",
+    "cases": [
+      {
+        "case": "Observe actual states before polishing",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "A library consumer is a user",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-bfw-2026-10-13T21:00:04",
+    "log": "/tmp/principles-a-evidence/principle-experience-first-compare.log",
+    "cases": [
+      {
+        "case": "Observe actual states before polishing",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.8,
+        "reason": "The plan proposes inspecting the real checkout, grounds an additive proposal in loading, failure, and retry states, covers feedback and recovery, and distinguishes the mockup from runtime evidence. It stays within proposal scope, but does not include accessibility evaluation, which is required.",
+        "error": null
+      },
+      {
+        "case": "A library consumer is a user",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Observe actual states before polishing",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "A library consumer is a user",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-KrC-2026-10-13T21:26:37",
+    "log": "/tmp/principles-a-evidence/principle-experience-first-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 1,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {
+    "principle-experience-first-green.log": {
+      "id": "eval-j0l-2026-10-13T20:39:39",
+      "log": "/tmp/principles-a-evidence/principle-experience-first-green.log",
+      "cases": [
+        {
+          "case": "Observe actual states before polishing",
+          "prompt": "with-skill",
+          "passed": false,
+          "score": 0.6,
+          "reason": "The output respects additive proposal scope and clearly distinguishes proposed behavior from runtime evidence. It addresses loading, failure, retry, success, recovery, feedback, and accessibility. However, it explicitly states that no inspection occurred, so it neither first observes the real checkout journey nor anchors the proposal in an actual baseline. Those required outcomes remain future steps.",
+          "error": null
+        },
+        {
+          "case": "A library consumer is a user",
+          "prompt": "with-skill",
+          "passed": false,
+          "score": 0.0,
+          "reason": "The output favors a focused operation, preserves cancellation and meaningful errors, ties options to consumer needs, and proposes representative caller and contract verification without inventing evidence. However, it does not evaluate maintainers as users or address their experience; mentioning internal simplification does not satisfy that required perspective.",
+          "error": null
+        }
+      ]
+    }
+  }
+}

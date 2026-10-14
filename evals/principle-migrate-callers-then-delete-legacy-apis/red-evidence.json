@@ -1,0 +1,97 @@
+{
+  "stage": "red-attempt",
+  "eval_id": "eval-zt6-2026-10-13T20:29:35",
+  "exit_code": 0,
+  "status": "Already passes; no demonstrated behavioral RED",
+  "skill_sha256": "09978915a4a11990cf0a9a02d9c08cc59e0b7a04c5c24b83aa560fbe4146f75b",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Do not delete the old API yet. \u201cInternal\u201d does not remove the supported nightly client\u2019s compatibility requirement.\n\n**Next change:** Inventory the deployment-generated client, identify its repository revision and schema dependency, and migrate its generator to the new contract. Keep the old API only as an exceptional, time-boxed compatibility path through the one remaining supported release. Update tests to verify the new contract and the supported client\u2019s compatibility.\n\n**Deletion gate:** The remaining support window has ended, the maintained generator and its supported client outputs are verified migrated, and the caller inventory shows no remaining supported dependencies on the old API. Then delete the old API, any adapter, and tests that only protect the obsolete implementation.\n\n**Evidence limits:** Repository search establishes two migrated application callers, not a complete cross-repository inventory. Two green unit tests do not establish generated-client compatibility or release readiness. The unknown deployment revision leaves migration status unverified.",
+        "tokenUsage": {
+          "prompt": 22243,
+          "completion": 187,
+          "cached": 0,
+          "total": 22430,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Migrate all three callers to the accepted API and delete the old parser API in the same refactor. No compatibility adapter is needed: the complete build graph contains every caller, and they can migrate together.\n\n- Inventory the three call sites, update them to the new contract, then remove the old API and unused helpers.\n- Preserve malformed-input rejection coverage by rewriting those tests against the new API.\n- Delete the test that only asserts the removed helper\u2019s name.\n- Check that no old API references remain, build all three callers, and run the new contract tests and relevant caller tests.\n\nEvidence limits: this decision relies on the supplied scenario\u2019s complete caller inventory and absence of external or saved-data dependencies. No code was inspected or checks executed; migration correctness remains unverified.",
+        "tokenUsage": {
+          "prompt": 22234,
+          "completion": 158,
+          "cached": 9600,
+          "total": 22392,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0
+    }
+  ]
+}

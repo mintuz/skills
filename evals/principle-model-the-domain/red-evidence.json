@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-qF0-2026-10-13T20:30:44",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-model-the-domain"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "52c0d85e0c3827c41c18299b642657d7b47eaf77b7b31609e42e0df42b84c75f",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use one shared discriminated union with four states:\n\n```ts\ntype UploadState =\n  | { status: \"pending\" }\n  | { status: \"uploading\" }\n  | { status: \"failed\"; error: UploadError }\n  | { status: \"complete\"; receipt: Receipt };\n```\n\nThis replaces the three booleans and optional payloads. Failed always carries an error; complete always carries a receipt.\n\nPut the type, transition rules, and persistence decoder in one small upload-domain module. Button rendering and the worker use its shared retry rule: retry is allowed only from `failed`, producing `uploading`. Reject retry from every other state, including `complete`. Keep other transitions explicit once their permitted sources are established.\n\nDecode persisted data into this union at the boundary. Reject contradictory legacy flags or missing required payloads rather than guessing a state. No state-machine library is needed.\n\nVerify:\n\n- Type checks reject failed without error and complete without receipt.\n- Table-driven tests cover retry from all four states; only failed succeeds.\n- Decoder tests cover valid states, conflicting flags, and missing payloads.\n- Integration checks confirm rendering, worker execution, and persistence loading use the shared rules.\n\nEvidence limit: this is a proposed model based on the supplied invariant. No code or tests were inspected or executed. Payload schemas, other permitted transitions, and recovery policy for invalid persisted records remain unspecified.",
+        "tokenUsage": {
+          "prompt": 22356,
+          "completion": 287,
+          "cached": 0,
+          "total": 22643,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Represent legal lifecycle states"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.75,
+      "response": {
+        "output": "Reject the proposed abstraction. Keep the two-branch formatter and change the initials separator.\n\nThe supplied skill explicitly prefers simple, local code when abstraction adds indirection without removing meaningful complexity. Here, the validated boolean selects two valid outputs; there is no stored state, duplicated rule, or lifecycle to model. A registry, event bus, and state machine add machinery without addressing a domain problem. Removing a branch alone is not sufficient justification.\n\nEvidence limit: this conclusion relies solely on the supplied scenario. No implementation or tests were inspected, so the separator change\u2019s correctness is unverified.",
+        "tokenUsage": {
+          "prompt": 22351,
+          "completion": 119,
+          "cached": 9600,
+          "total": 22470,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "Keeps the local two-branch formatter, directs the separator change, and explains that the proposed machinery addresses neither invalid state nor a repeated domain invariant. It avoids forced abstraction and unrelated changes. However, it selects no representative output checks; noting that correctness is unverified does not satisfy that requirement.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.75,
+        "reason": "Keeps the local two-branch formatter, directs the separator change, and explains that the proposed machinery addresses neither invalid state nor a repeated domain invariant. It avoids forced abstraction and unrelated changes. However, it selects no representative output checks; noting that correctness is unverified does not satisfy that requirement."
+      },
+      "failure_reason": 1,
+      "case": "Do not manufacture an abstraction"
+    }
+  ]
+}

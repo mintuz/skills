@@ -1,0 +1,133 @@
+{
+  "skill": "principle-fix-root-causes",
+  "source_sha256": "f39ed7134aa712e25a5fa309298b99759cb3aefdd06ef231bbf3d31af8bf5e68",
+  "source_words": 244,
+  "red_fixture_sha256": "2131069d285d82fb799458494f2e4ac8759c9c6a60f9e300828c17874f514c6e",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Pre-change treatment already passed; no behavioral RED.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-xj2-2026-10-13T20:33:49",
+    "log": "/tmp/principles-a-evidence/principle-fix-root-causes-red.log",
+    "cases": [
+      {
+        "case": "A restart symptom does not authorize deleting data",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Repair the shared owner and prove it",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-QZI-2026-10-13T20:40:31",
+    "log": "/tmp/principles-a-evidence/principle-fix-root-causes-green.log",
+    "cases": [
+      {
+        "case": "A restart symptom does not authorize deleting data",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Repair the shared owner and prove it",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-nuT-2026-10-13T21:01:34",
+    "log": "/tmp/principles-a-evidence/principle-fix-root-causes-compare.log",
+    "cases": [
+      {
+        "case": "A restart symptom does not authorize deleting data",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Repair the shared owner and prove it",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "A restart symptom does not authorize deleting data",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Repair the shared owner and prove it",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-8iD-2026-10-13T21:27:06",
+    "log": "/tmp/principles-a-evidence/principle-fix-root-causes-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [
+    "Valid behavioral RED not demonstrated.",
+    "Comparison does not demonstrate higher treatment pass count than no-skill baseline."
+  ],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 2,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {}
+}

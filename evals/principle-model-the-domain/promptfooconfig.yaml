@@ -1,0 +1,56 @@
+description: "principle-model-the-domain behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Represent legal lifecycle states"
+    vars:
+      skill: file://../../src/principle/skills/principle-model-the-domain/SKILL.md
+      scenario: "An upload stores booleans isUploading, hasFailed, isComplete and optional receipt and error. The invariant is exactly one of pending, uploading, failed with error, complete with receipt. Retry moves failed to uploading; complete cannot retry. Rules are repeated in button rendering, the worker and persistence loading. Propose the smallest shared domain model and verification."
+      rubric: "Uses an explicit variant/lifecycle model carrying error or receipt only in the relevant state; centralizes legal transitions including failed-to-uploading and rejecting complete retry; accounts for parsing persisted old or invalid combinations; checks user-visible transitions and consistency without demanding a framework."
+  - description: "Do not manufacture an abstraction"
+    vars:
+      skill: file://../../src/principle/skills/principle-model-the-domain/SKILL.md
+      scenario: "A two-branch local formatter receives an already-validated boolean compact and returns either a supplied full name or initials. No state is stored, no domain rules are duplicated, and the feature request changes the separator between initials. A suggestion replaces it with a registry, event bus and state machine because modeling the domain removes branches. Evaluate."
+      rubric: "Keeps the clear local formatter and changes the requested separator; explains that the proposed machinery removes no invalid state or repeated domain invariant; chooses representative output checks and avoids a forced abstraction or unrelated rewrite."

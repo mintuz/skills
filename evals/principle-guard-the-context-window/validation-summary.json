@@ -1,0 +1,133 @@
+{
+  "skill": "principle-guard-the-context-window",
+  "source_sha256": "87b54ec0f5cdccfeeff96fb9a336bbc382eda2e1a892689115af92e94d60a00d",
+  "source_words": 207,
+  "red_fixture_sha256": "af0b9dd70b43628ce4a59a4d332e9d9ad055084e460f430e7a757495c627e81a",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Original failed grade invalid: demanded unspecified hypotheses and device steps absent from scenario.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-uaa-2026-10-13T20:34:40",
+    "log": "/tmp/principles-a-evidence/principle-guard-the-context-window-red.log",
+    "cases": [
+      {
+        "case": "No delegation capability is available",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Handover must preserve the decision boundary",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The output correctly separates static checks from unavailable device validation, avoids false completion, and discourages redundant checks. However, it only instructs a future handover to record evidence: it does not actually identify the rejected hypotheses and why they were rejected, state the remaining hypothesis, specify a precise discriminating device check, or preserve concrete authorization and relevant paths or commands. Because every rubric outcome is required, it fails.",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-J3w-2026-10-13T20:41:22",
+    "log": "/tmp/principles-a-evidence/principle-guard-the-context-window-green.log",
+    "cases": [
+      {
+        "case": "No delegation capability is available",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Handover must preserve the decision boundary",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-YuM-2026-10-13T21:03:02",
+    "log": "/tmp/principles-a-evidence/principle-guard-the-context-window-compare.log",
+    "cases": [
+      {
+        "case": "No delegation capability is available",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Handover must preserve the decision boundary",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "No delegation capability is available",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Handover must preserve the decision boundary",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-pgy-2026-10-13T21:27:38",
+    "log": "/tmp/principles-a-evidence/principle-guard-the-context-window-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [
+    "Valid behavioral RED not demonstrated.",
+    "Comparison does not demonstrate higher treatment pass count than no-skill baseline."
+  ],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 2,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {}
+}

@@ -1,0 +1,153 @@
+{
+  "skill": "principle-foundational-thinking",
+  "source_sha256": "67b8e1837abbfc594bcdb675e2f528493238f3d912f5f0250b3d6cb621f3cbc4",
+  "source_words": 210,
+  "red_fixture_sha256": "864b827e8199d946ce58beca0f89c4ed4099ed6e426fb698a3aaa45de2a9eea2",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Valid behavioral RED: begins dead-code cleanup before essential state/ownership.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-GCk-2026-10-13T20:34:14",
+    "log": "/tmp/principles-a-evidence/principle-foundational-thinking-red.log",
+    "cases": [
+      {
+        "case": "Foundation is earned by the current capability",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.75,
+        "reason": "The output preserves atomic version checks and eviction, reuses existing infrastructure, rejects speculative scaffolding, and sequences tests with a cache abstraction that owns coordination. However, it starts with dead-code cleanup rather than essential draft identity/state, access paths, lifetime, and ownership. Lifetime is only partially addressed through eviction survival, and ownership appears later. Because every outcome is required, it does not fully pass.",
+        "error": null
+      },
+      {
+        "case": "Similar lines need not share an abstraction",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-oVx-2026-10-13T20:51:06",
+    "log": "/tmp/principles-a-evidence/principle-foundational-thinking-green-retry.log",
+    "cases": [
+      {
+        "case": "Foundation is earned by the current capability",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Similar lines need not share an abstraction",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-o2p-2026-10-13T21:02:13",
+    "log": "/tmp/principles-a-evidence/principle-foundational-thinking-compare.log",
+    "cases": [
+      {
+        "case": "Foundation is earned by the current capability",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.75,
+        "reason": "The plan preserves atomic version checks and conflict handling, reuses existing tests and CI, rejects speculative infrastructure, and sequences a coherent increment. However, its opening contract does not establish essential draft state or access paths; draft identity, per-user isolation, expiry, and cache-miss behavior only partially satisfy that required outcome.",
+        "error": null
+      },
+      {
+        "case": "Similar lines need not share an abstraction",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.8,
+        "reason": "The plan consolidates shared Account identity, preserves legitimate domain differences, permits duplicated logging, and proposes behavioral and edge-case tests. It does not propose out-of-scope or unproven dead-code removal. However, it does not trace actual access patterns or caller needs, which is a required outcome.",
+        "error": null
+      },
+      {
+        "case": "Foundation is earned by the current capability",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Similar lines need not share an abstraction",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-Tl9-2026-10-13T21:27:23",
+    "log": "/tmp/principles-a-evidence/principle-foundational-thinking-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 0,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {
+    "principle-foundational-thinking-green.log": {
+      "id": "eval-if3-2026-10-13T20:40:55",
+      "log": "/tmp/principles-a-evidence/principle-foundational-thinking-green.log",
+      "cases": [
+        {
+          "case": "Foundation is earned by the current capability",
+          "prompt": "with-skill",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "Similar lines need not share an abstraction",
+          "prompt": "with-skill",
+          "passed": false,
+          "score": 0.8,
+          "reason": "The output converges the shared Account identity contract, permits duplicated logging, traces handler access and update needs, and proposes behavior and invariant edge-case checks without claiming execution. However, it does not address removing only proven dead code within scope. Because every outcome is required, the rubric is not fully satisfied.",
+          "error": null
+        }
+      ]
+    }
+  }
+}

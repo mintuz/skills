@@ -1,0 +1,81 @@
+description: "benchmark-checklist portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Impossible gain and skipped work"
+    vars:
+      skill: "file://../../src/core/skills/benchmark-checklist/SKILL.md"
+      scenario: "Review the claim export is 8x faster. Previous total was 100 ms, changed helper was 10 ms. New harness times creation of an async generator without consuming it; error and row counts are absent. Single run per side, different data sizes. Can this number guide adoption?"
+      rubric: "Rejects adoption/speedup conclusion as inconclusive; identifies unconsumed work, missing correctness/error counts, unmatched workloads, inadequate repeats and physical end-to-end limit (removing 10% at most 10% lower time or about 1.11x). Requires completed work within timed region."
+  -
+    description: "Config fairness and load-generator saturation"
+    vars:
+      skill: "file://../../src/core/skills/benchmark-checklist/SKILL.md"
+      scenario: "Choose storage A or B from this benchmark: A debug build commits each row; B release batches 100. CPU profile shows load generator pegged at one core, database idle. Five A runs followed by five B runs; medians 40 and 30 ms. Outputs match. What can we conclude?"
+      rubric: "Does not choose a winner; identifies untuned unequal configs and saturated generator plus order bias. Requires representative tuning, limiter diagnosis separate from measured runs, balanced/interleaved repeats and realistic end-to-end path before adoption."
+  -
+    description: "Explicit ballpark still checks work"
+    vars:
+      skill: "file://../../src/core/skills/benchmark-checklist/SKILL.md"
+      scenario: "User asks only a rough one-run duration for importing 100 sample rows. Release run awaited completion in 240 ms, 100 rows verified with expected values, zero failures, exact revision and dataset recorded. No option comparison is requested. Report appropriately."
+      rubric: "Accepts a clearly labelled single-run ballpark with units and limited scope because correctness, errors and completed work were checked; does not require five runs or make comparative/adoption/production generalization."
+  -
+    description: "Noise overwhelms small difference"
+    vars:
+      skill: "file://../../src/core/skills/benchmark-checklist/SKILL.md"
+      scenario: "A and B ran five times each in alternating order with equal production settings and identical correct outputs, zero errors, all work awaited. A: 98,102,100,101,99 ms. B: 97,101,99,103,98 ms. Profile separately identifies JSON parse CPU; user-visible request median is 800 ms. Report."
+      rubric: "Reports medians 100 vs 99 ms and ranges 98-102 vs 97-103, five runs per side, no measurable improvement because noise exceeds gap, named limiter and limited end-to-end relevance; does not market 1% gain as proven."
+  -
+    description: "Portable method planning on a restricted host"
+    vars:
+      skill: "file://../../src/core/skills/benchmark-checklist/SKILL.md"
+      scenario: "Plan a fair benchmark of two import implementations on a macOS laptop. The repo already has a release benchmark harness that reports wall time, correct row hashes, failures and completed row count; Instruments captures CPU/I/O in a separate run. getconf reports core count and Activity Monitor exposes host load; nproc, pidstat and perf are unavailable. The user authorizes measurement, not installing tools or stopping unrelated work. Give concrete measurement steps, not actual results."
+      rubric: "Reuses the existing release harness and available platform load/core/profiling capabilities without requiring unavailable Linux commands, installation or stopping unrelated work. Plans balanced repeated equivalent runs, correctness/errors/completed work checks, separated profiling and end-to-end relevance with no fabricated outcome."

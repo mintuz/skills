@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-AoY-2026-10-13T20:49:46",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-separate-before-serializing-shared-state"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "10b407fabddafad839adfc86774dcac7d5e70d96545fd3ec88610c49dd75e457",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Give each worker its own state file: `indexer-state.json` and `metrics-state.json`, each owning its `lastRun`. The dashboard reads both independently. No cross-worker atomic invariant requires a shared file or mutex.\n\nThe current read\u2013modify\u2013write approach can lose updates: both workers read the same snapshot, then the later write overwrites the other worker\u2019s new timestamp.\n\nCheck these failure cases:\n\n- **Overlapping workers:** simultaneous writes preserve both timestamps.\n- **Interrupted writes:** use a temporary file and atomic replacement within the same filesystem; verify readers see complete old or new content.\n- **Duplicate instances:** if one worker can overlap with itself, serialize that worker\u2019s updates or enforce a single writer.\n- **Missing, corrupt, or stale state:** the dashboard reports each worker\u2019s status independently and tolerates one being unavailable.\n- **Run failure:** define whether `lastRun` means attempted or successfully completed; use separate fields if both matter.\n\nEvidence limit: these recommendations follow from the supplied ownership and invariant facts. Filesystem atomicity, durability requirements, duplicate-instance behavior, and dashboard error handling remain unverified.",
+        "tokenUsage": {
+          "prompt": 21711,
+          "completion": 231,
+          "cached": 19072,
+          "total": 21942,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Partition genuinely independent facts"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Give each worker its own state file or key\u2014for example, `indexer-state.json` and `metrics-state.json`. Each owns its `lastRun`; the dashboard combines them when reading. Different fields in `state.json` still share a read-modify-write target, so overlapping writes can lose an update. A mutex would serialize writes unnecessarily because the timestamps have no shared atomic invariant.\n\nPublish each worker\u2019s state atomically so readers see a complete old or new value. Define `lastRun` consistently, such as the last successfully completed run. The dashboard should show missing values as unknown and stale values with their age; one unavailable worker should not hide the other.\n\nCheck:\n\n- Overlapping worker writes preserve both timestamps and allow independent progress.\n- Interruption during publication leaves a valid previous value or a clearly missing value, never a partial document.\n- Retries are safe; if runs of the same worker can overlap, prevent an older completion or retry from overwriting newer state through exclusive ownership or an atomic conditional update.\n\nThis is a design recommendation based on the scenario. Without exercising overlap, interruption, and retries, the race is not verified fixed.",
+        "tokenUsage": {
+          "prompt": 21920,
+          "completion": 234,
+          "cached": 19072,
+          "total": 22154,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Partition genuinely independent facts"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the per-worker `availableSeats` files. They duplicate the same scarce inventory: both workers could read \u201c1\u201d and sell the last seat. Separating files removes contention without preserving correctness.\n\nUse a single authoritative transactional database. In one durable transaction:\n\n1. Conditionally decrement `availableSeats` only when it is greater than zero.\n2. If that update succeeds, insert the confirmed booking.\n3. Commit both changes together; otherwise reject the reservation.\n\nUse database-enforced concurrency control, such as a row lock or an atomic conditional update, so only one worker can claim the last seat. Transaction recovery must retain both changes or neither after a crash. A unique reservation request ID should prevent retries from creating duplicate bookings.\n\n**Evidence limits:** This mechanism meets the stated requirements in principle. No implementation, database isolation settings, durability configuration, or concurrent/crash test results were supplied, so actual correctness remains unverified.",
+        "tokenUsage": {
+          "prompt": 21717,
+          "completion": 188,
+          "cached": 19072,
+          "total": 21905,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Atomic invariant prevents naive separation"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the per-worker `availableSeats` files: both workers could observe one remaining seat and sell it. Capacity and confirmed bookings represent one shared invariant, not independent facts.\n\nUse one authoritative transactional store. Each reservation transaction must:\n\n- Conditionally decrement `availableSeats` only when it is greater than zero.\n- Insert the confirmed booking in the same transaction.\n- Enforce a unique request ID so retries cannot create another booking or decrement capacity twice.\n\nConcurrent transactions must serialize or conflict on the shared capacity record. The loser receives \u201csold out\u201d after rechecking capacity; transient transaction conflicts can retry with the same request ID. Crash recovery must commit both updates or roll back both. If a commit succeeds but its response is lost, retrying returns the existing booking.\n\nThe invariant is: capacity never becomes negative, and every confirmed reservation consumes exactly one seat.\n\nThis is a design recommendation, not a verified fix. Verification requires overlapping last-seat reservations, crashes between updates and around commit, and duplicate retries\u2014showing at most one confirmation, consistent capacity, and eventual completion without duplicates.",
+        "tokenUsage": {
+          "prompt": 21926,
+          "completion": 219,
+          "cached": 19072,
+          "total": 22145,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Atomic invariant prevents naive separation"
+    }
+  ]
+}

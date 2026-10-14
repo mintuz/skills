@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-nsV-2026-10-13T20:54:39",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-migrate-callers-then-delete-legacy-apis"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "9ef97758204fc0cad95dacafeb9e2fa0519f86e86898faef6dabf74a1c113739",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "1. Inventory supported consumers: direct callers, generated clients, other repositories, persisted formats, and release compatibility. Record unknown coverage as a gap.\n2. Map each caller to the replacement, preserving supported behavior and failure handling.\n3. For a coordinated internal change, migrate callers and delete the legacy entry point in one verifiable unit. Any temporary adapter needs a named consumer, removal condition, and bounded lifetime.\n4. Test the replacement through its consumers. Verify consumer builds, generated artifacts, and remaining references; retain supported-behavior tests.\n5. Remove the legacy path once all supported consumers and guarantees are accounted for. A text search alone is insufficient; externally supported contracts require migration or explicit owner authorization to break compatibility.\n\nSkill followed: principle-migrate-callers-then-delete-legacy-apis.",
+        "tokenUsage": {
+          "prompt": 43938,
+          "completion": 249,
+          "cached": 31104,
+          "total": 44187,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21733,
+          "completion": 35,
+          "cached": 9600,
+          "total": 21768,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 26,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

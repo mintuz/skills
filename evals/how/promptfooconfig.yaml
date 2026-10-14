@@ -1,0 +1,81 @@
+description: "how portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Small hook needs direct walkthrough"
+    vars:
+      skill: "file://../../src/core/skills/how/SKILL.md"
+      scenario: "Explain how this one hook works. useDraft.ts:3 initializes local draft from props once; :6 save sets pending=true, awaits api.save(draft), then clears pending in finally; :11 catches and sets error. Parent updates do not resync the draft. This source is the only evidence. Give the explanation and your investigation approach."
+      rubric: "Explains initialization, local ownership, save boundary, error/finally path and absent resync from supplied code, labels code-derived behavior, and handles narrow module directly without mandatory delegation, specific models or architecture rewrite."
+  -
+    description: "App Intent process ownership"
+    vars:
+      skill: "file://../../src/core/skills/how/SKILL.md"
+      scenario: "How does AddAlarmIntent reach the app state? Intent.swift:8 runs in an extension and awaits AlarmStore(groupContainer).insert. AlarmStore.swift:22 commits a file transaction; AppView.swift:17 reloads on foreground. The extension does not hold the foreground view model. No device execution was observed."
+      rubric: "Traces intent trigger through extension process, shared storage commit and foreground reload; differentiates process/state ownership and boundary failures; does not claim instant in-memory updates or runtime/device proof and does not redesign it."
+  -
+    description: "Runtime and source disagree"
+    vars:
+      skill: "file://../../src/core/skills/how/SKILL.md"
+      scenario: "Explain why the currently shown Save button stays disabled. Source revision a2 re-enables on failure in finally. Screenshot comes from simulator build a1; build provenance is recorded. No current-build run exists. How does save work and what does the screenshot establish?"
+      rubric: "Explains a2 code path while recognizing a1 screenshot cannot establish a2 runtime; resolves or requests build/install identity before current-runtime conclusion and preserves uncertainty. Does not infer current bug from stale capture."
+  -
+    description: "Actor resource lifecycle"
+    vars:
+      skill: "file://../../src/core/skills/how/SKILL.md"
+      scenario: "Explain this path: route.ts:10 creates a search actor on entry; search.ts:20 invokes fetch with AbortController; :35 exits loading by aborting; route.ts:19 stops actor on route exit. A rejected fetch enters failure unless abort was caused by exit. Only static source supplied."
+      rubric: "Connects route entry, actor ownership, request/abort resource, loading exit and failure exception; labels static evidence and communicates sequence without imposing a new state architecture or motivation claims."
+  -
+    description: "Plan a narrow investigation with available capabilities"
+    vars:
+      skill: "file://../../src/core/skills/how/SKILL.md"
+      scenario: "I want to understand how the existing useDraft hook saves data. Its file has not been read yet. The host provides read/search, shell and optional subagents; there is no provider-specific model-routing file. Give your concrete investigation plan, including whether you would dispatch anyone and why. This is a planning exercise; do not actually call tools."
+      rubric: "Plans to inspect the hook and relevant immediate caller/API directly, trace trigger/state owner/transformation/failure and cite source. Handles this narrow module without requiring an explainer subprocess, model slug, routing file or redesign. Does not invent implementation details before reading."

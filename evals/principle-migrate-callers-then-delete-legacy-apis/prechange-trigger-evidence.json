@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-mdN-2026-10-13T20:36:08",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-migrate-callers-then-delete-legacy-apis"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "09978915a4a11990cf0a9a02d9c08cc59e0b7a04c5c24b83aa560fbe4146f75b",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "1. Inventory all callers, wrappers, mocks, and tests of the legacy entry point. Confirm no external consumers require compatibility.\n2. Migrate every caller to the accepted API in one coordinated refactor wave.\n3. Update tests to verify the new contract and required behavior; delete tests that only preserve obsolete implementation details.\n4. Delete the legacy entry point and redundant compatibility code in that same wave. Use a temporary adapter only exceptionally, with a removal deadline.\n5. Search for remaining legacy references, then run type checks and relevant tests before merging.\n\nDone means all callers use the replacement, the legacy entry point is gone, and validation passes.\n\nSkill followed: `principle-migrate-callers-then-delete-legacy-apis`.",
+        "tokenUsage": {
+          "prompt": 43970,
+          "completion": 231,
+          "cached": 31104,
+          "total": 44201,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21729,
+          "completion": 30,
+          "cached": 9600,
+          "total": 21759,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 21,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

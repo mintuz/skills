@@ -1,0 +1,153 @@
+{
+  "skill": "principle-exhaust-the-design-space",
+  "source_sha256": "19dadaabf87a35d4b9f5787841b7175b1e3c0c93465ac2a79419a660625d4cda",
+  "source_words": 180,
+  "red_fixture_sha256": "2de83d99f93f60ec6313455b0bc9aa9f0bfb93dd59f414f403691322db00d4db",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Mixed original grade: actual missing shared error cases plus invalid demand for executed comparison/selection.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-75p-2026-10-13T20:32:41",
+    "log": "/tmp/principles-a-evidence/principle-exhaust-the-design-space-red.log",
+    "cases": [
+      {
+        "case": "Novel interaction requires real alternatives",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.5,
+        "reason": "The output proposes three meaningfully different prototypes, shared scheduling examples, and explicit date-comparison and keyboard constraints. It clearly states that nothing has been executed or shipped. However, it only plans prototype development and comparison, does not specify identical overlap, keyboard, and error cases, and makes no choice supported by explicit tradeoffs and remaining uncertainty. Not every required outcome is met.",
+        "error": null
+      },
+      {
+        "case": "Settled mechanical work does not need variants",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-toS-2026-10-13T20:50:18",
+    "log": "/tmp/principles-a-evidence/principle-exhaust-the-design-space-green-retry.log",
+    "cases": [
+      {
+        "case": "Novel interaction requires real alternatives",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Settled mechanical work does not need variants",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-07J-2026-10-13T20:59:23",
+    "log": "/tmp/principles-a-evidence/principle-exhaust-the-design-space-compare.log",
+    "cases": [
+      {
+        "case": "Novel interaction requires real alternatives",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The plan defines the user task and constraints, proposes three distinct lightweight prototypes using shared overlap examples, includes keyboard and outcome criteria, and preserves the production boundary. However, it does not specify shared error cases or require the final recommendation to state remaining uncertainty. Because every outcome is required, it does not fully pass.",
+        "error": null
+      },
+      {
+        "case": "Settled mechanical work does not need variants",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Novel interaction requires real alternatives",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Settled mechanical work does not need variants",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-8GM-2026-10-13T21:26:20",
+    "log": "/tmp/principles-a-evidence/principle-exhaust-the-design-space-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 1,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {
+    "principle-exhaust-the-design-space-green.log": {
+      "id": "eval-fs0-2026-10-13T20:39:13",
+      "log": "/tmp/principles-a-evidence/principle-exhaust-the-design-space-green.log",
+      "cases": [
+        {
+          "case": "Novel interaction requires real alternatives",
+          "prompt": "with-skill",
+          "passed": false,
+          "score": 0.0,
+          "reason": "Defines the task and constraints, proposes three distinct inexpensive prototypes, and specifies shared overlap, keyboard, and error cases while preserving prototype-versus-production boundaries. However, it provides no side-by-side prototype results or actual choice based on tradeoffs and remaining uncertainty; it defers both comparison and selection. Because every outcome is required, it does not pass.",
+          "error": null
+        },
+        {
+          "case": "Settled mechanical work does not need variants",
+          "prompt": "with-skill",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    }
+  }
+}

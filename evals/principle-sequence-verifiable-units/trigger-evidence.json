@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-LJU-2026-10-13T20:57:02",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-sequence-verifiable-units"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use this sequence, ordering serializers from least coupled to most dependent:\n\n| Unit | Change | Check before advancing | Rollback |\n|---|---|---|---|\n| 0. Baseline | Record current state, dependencies, and representative fixtures for all four serializers; preserve unrelated work. | Existing contract tests pass. | No migration changes yet. |\n| 1. Compatibility | Introduce the new contract alongside the old path, if required. | Old fixtures remain readable; new-format round trips pass. | Restore the old path. |\n| 2\u20135. One serializer per unit | Migrate each serializer with its affected consumers and fixtures. Combine serializers only when their contract requires atomic movement. | Verify round trips, malformed inputs, backward compatibility, and dependent consumers. | Switch that unit back to the retained implementation. |\n| 6. Integration | Exercise all four together. | Cross-serializer exchanges and end-to-end flows pass against the final state. | Reverse affected units in dependency order. |\n| 7. Cleanup | Remove compatibility code after the rollback window closes. | Full contract and integration checks pass. | Restore compatibility code. |\n\nStop at any failed check before advancing dependent work. If migration writes persistent data, retain compatible readers or a verified restoration path before enabling those writes.\n\nSkill followed: principle-sequence-verifiable-units.",
+        "tokenUsage": {
+          "prompt": 43945,
+          "completion": 374,
+          "cached": 31104,
+          "total": 44319,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21712,
+          "completion": 35,
+          "cached": 9600,
+          "total": 21747,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 26,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

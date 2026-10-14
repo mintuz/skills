@@ -1,0 +1,56 @@
+description: "principle-type-system-discipline behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Semantic safety without universal branding"
+    vars:
+      skill: file://../../src/principle/skills/principle-type-system-discipline/SKILL.md
+      scenario: "A typed service has settle(userId: string, invoiceId: string) and repeated swapped-ID incidents. Separately sum(values: number[]) correctly returns 0 for an empty array. A proposal brands every string and number, requires NonEmptyList for sum, and casts incoming JSON into the new types. Recommend precise types and validation."
+      rubric: "Separates UserId and InvoiceId at the risky API with validated construction; keeps sum total on ordinary arrays including empty rather than adding unnecessary nonempty/wrapper types; parses external JSON instead of casting; uses schema-derived types where authoritative and shows a compile-time swapped-ID check plus runtime malformed-input check."
+  - description: "Exhaustive variants and persistence boundaries"
+    vars:
+      skill: file://../../src/principle/skills/principle-type-system-discipline/SKILL.md
+      scenario: "A job shape has done:boolean, failed:boolean, result?:Result, error?:Error. Legal states are pending, success with result, failure with error. Persisted records come from earlier software and may violate those combinations. A new cancelled state will be added next release. Propose the model and checks."
+      rubric: "Uses explicit variants carrying required payloads and exhaustive handling so a new variant produces a compiler obligation; validates/migrates persisted legacy combinations rather than trusting a static annotation; avoids unsafe casts or parallel manual schemas when a schema owns the shape; includes invalid-input and variant behavior checks while keeping the model proportional."

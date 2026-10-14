@@ -1,0 +1,181 @@
+{
+  "skill": "principle-test-behavior-not-implementation",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "2b5238ca7442f0ccfaaa52ae5f90fc3ff9acdcd0ddabf16e19c19da282f33532",
+  "upstream_sha256": "b2b73ba42920f9c3174ecdf808ec6e4591b3a9266ada9a05814f386004266d3a",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 169,
+    "port_body": 136,
+    "upstream_total": 213,
+    "port_total": 159
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-nsV-2026-10-13T20:34:05",
+      "source_sha256": "b2b73ba42920f9c3174ecdf808ec6e4591b3a9266ada9a05814f386004266d3a",
+      "passed": 1,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Empty and absent outcomes are real contracts"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.85,
+          "failure_reason_code": 1,
+          "reason": "The proposal covers public-entry-point tests, literal recipient and subject assertions, exactly one send on success, no send on decline, and an independent oracle using the real formatter without private call-order assertions. However, it does not explain how these checks detect wrong payloads, unauthorized sends, and no-op regressions, as the rubric requires.",
+          "case": "Test an observable effect rather than helper choreography"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-dUt-2026-10-13T20:41:14",
+      "source_sha256": "2b5238ca7442f0ccfaaa52ae5f90fc3ff9acdcd0ddabf16e19c19da282f33532",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Empty and absent outcomes are real contracts"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Test an observable effect rather than helper choreography"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-pOg-2026-10-13T20:52:03",
+      "source_sha256": "2b5238ca7442f0ccfaaa52ae5f90fc3ff9acdcd0ddabf16e19c19da282f33532",
+      "passed": 3,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Empty and absent outcomes are real contracts"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Empty and absent outcomes are real contracts"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": false,
+          "score": 0.85,
+          "failure_reason_code": 1,
+          "reason": "The proposal uses the public entry point, checks a literal subject, intended recipient, and exactly one send on success, and checks no send on decline. It avoids helper-derived expectations and private call-order assertions. However, it does not explicitly explain that these checks detect wrong payloads, unauthorized sends, and no-op regressions.",
+          "case": "Test an observable effect rather than helper choreography"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Test an observable effect rather than helper choreography"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-uP3-2026-10-13T20:57:37",
+      "source_sha256": "2b5238ca7442f0ccfaaa52ae5f90fc3ff9acdcd0ddabf16e19c19da282f33532",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [],
+  "unmet_gates": [],
+  "comparison": {
+    "improved_cases": [
+      1
+    ],
+    "regressed_cases": []
+  },
+  "native_replay": {
+    "durable_report": "../../reports/skill-audit-2026-10-13/principle-validation.md",
+    "source_sha256": "2b5238ca7442f0ccfaaa52ae5f90fc3ff9acdcd0ddabf16e19c19da282f33532",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

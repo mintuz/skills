@@ -1,0 +1,57 @@
+description: "principle-attack-the-premise behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Even census does not exonerate a premise"
+    vars:
+      skill: file://../../src/principle/skills/principle-attack-the-premise/SKILL.md
+      scenario: "Two retry-delay changes failed to fix duplicate jobs. Both assumed each acknowledgement means the job committed. Duplicates are distributed evenly across workers. A colleague concludes the even census proves that premise correct and wants a third delay. Give your next investigation and its stopping condition."
+      rubric: "States the shared acknowledgement/commit premise; does not treat even distribution as proof; proposes a discriminating check of commit and acknowledgement timing with duplicate identity; withholds another compensating delay until evidence distinguishes causes."
+  - description: "Question common ground before another patch"
+    vars:
+      skill: file://../../src/principle/skills/principle-attack-the-premise/SKILL.md
+      scenario: "Increasing pool size and batching both failed the same throughput target. Both assumed the database connection pool is saturated. No profile exists. Propose the smallest next step; this is diagnosis only."
+      rubric: "Makes saturation an explicit hypothesis; compares pool waiting against an alternative such as server or client bottleneck using bounded measurements; does not prescribe actor rotation or code edits without evidence; names the result that would reject the premise."

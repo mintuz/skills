@@ -1,0 +1,57 @@
+description: "principle-guard-the-context-window behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "No delegation capability is available"
+    vars:
+      skill: file://../../src/principle/skills/principle-guard-the-context-window/SKILL.md
+      scenario: "A session must investigate 6000 lines of logs before its context fills. The host has bounded file search and file writes but no subagents. Work may resume in a fresh session. Outline how to proceed."
+      rubric: "Uses scoped queries and bounded excerpts rather than loading all logs; keeps durable concise evidence locators, decisions, unresolved questions and next actions; discovers/respects available capabilities and does not require fan-out; preserves uncertainty and source references so resumption can verify claims."
+  - description: "Handover must preserve the decision boundary"
+    vars:
+      skill: file://../../src/principle/skills/principle-guard-the-context-window/SKILL.md
+      scenario: "An investigation is at the context limit after ruling out two hypotheses. A third needs a device run unavailable now. A summary draft says Fixed; all checks passed, while only static checks ran. Repair the handover strategy."
+      rubric: "Separates observed static evidence from unavailable device proof; records rejected hypotheses and why, remaining hypothesis and precise next discriminating check; preserves authorization/scope and relevant paths or commands; avoids false completion and repeated full-file reads."

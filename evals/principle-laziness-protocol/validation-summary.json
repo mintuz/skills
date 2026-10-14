@@ -1,0 +1,213 @@
+{
+  "skill": "principle-laziness-protocol",
+  "source_sha256": "c0133ee05d38e858307ecacc699114cb94045ab3a0ed498cb835c4d11c24148a",
+  "source_words": 208,
+  "red_fixture_sha256": "1be6e7a435f26a75a76eb848b9c3d611b9977d0f5822361753244da25ca3ca45",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Eligibility case valid behavioral RED: missing intentional caller behavior and allow/deny checks. Cancellation case invalid execution-demand grade.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-WkR-2026-10-13T20:35:06",
+    "log": "/tmp/principles-a-evidence/principle-laziness-protocol-red.log",
+    "cases": [
+      {
+        "case": "Smallest diff still honors the outcome",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.75,
+        "reason": "Chooses the smallest correct cancellation-preserving fix and requires a regression test, without proposing unrelated cleanup or abstractions. However, it only proposes running checks and explicitly reports no actions executed, so it does not verify the accepted outcome or existing guarantees. All rubric outcomes are required.",
+        "error": null
+      },
+      {
+        "case": "One decision owner beats plumbing",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.6,
+        "reason": "Reuses the existing eligibility owner, passes its result only where needed, and rejects extra abstractions and flag plumbing. However, it does not explicitly preserve intentional caller-specific behavior or require representative allowed and denied test cases. Focused eligibility tests alone do not establish those required outcomes.",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-uOz-2026-10-13T21:24:19",
+    "log": "/tmp/principles-a-evidence/principle-laziness-protocol-green-final.log",
+    "cases": [
+      {
+        "case": "Smallest diff still honors the outcome",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "One decision owner beats plumbing",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-OLM-2026-10-13T21:24:41",
+    "log": "/tmp/principles-a-evidence/principle-laziness-protocol-compare-retry.log",
+    "cases": [
+      {
+        "case": "Smallest diff still honors the outcome",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "One decision owner beats plumbing",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The plan reuses the existing eligibility function, removes duplication, avoids five-flag plumbing and new layers, and stays focused on the defect. However, it does not preserve intentional caller-specific behavior or explicitly plan representative allowed and denied checks. Checking consistency where callers disagree does not establish whether those differences are intentional. Not all required outcomes are satisfied.",
+        "error": null
+      },
+      {
+        "case": "Smallest diff still honors the outcome",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "One decision owner beats plumbing",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-2nS-2026-10-13T21:27:55",
+    "log": "/tmp/principles-a-evidence/principle-laziness-protocol-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 1,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {
+    "principle-laziness-protocol-compare.log": {
+      "id": "eval-JpC-2026-10-13T21:03:48",
+      "log": "/tmp/principles-a-evidence/principle-laziness-protocol-compare.log",
+      "cases": [
+        {
+          "case": "Smallest diff still honors the outcome",
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "One decision owner beats plumbing",
+          "prompt": "baseline",
+          "passed": false,
+          "score": 0.0,
+          "reason": "The plan reuses the existing eligibility function, rejects unnecessary flags and abstractions, proposes eligible/ineligible/boundary checks, and stays focused on the defect. However, it does not establish that intentional caller-specific behavior will be preserved or that the shared result is passed only where needed. Because every outcome is required, it does not fully pass.",
+          "error": null
+        },
+        {
+          "case": "Smallest diff still honors the outcome",
+          "prompt": "with-skill",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "One decision owner beats plumbing",
+          "prompt": "with-skill",
+          "passed": false,
+          "score": 0.0,
+          "reason": "The plan reuses the existing eligibility owner, passes its result only where needed, preserves caller-specific behavior, and avoids extra flags and unrelated refactoring. However, \u201ctargeted eligibility tests\u201d does not specify representative allowed and denied cases, so that required verification outcome is missing. Executed checks are not required.",
+          "error": null
+        }
+      ]
+    },
+    "principle-laziness-protocol-green-retry.log": {
+      "id": "eval-sGt-2026-10-13T20:51:29",
+      "log": "/tmp/principles-a-evidence/principle-laziness-protocol-green-retry.log",
+      "cases": [
+        {
+          "case": "Smallest diff still honors the outcome",
+          "prompt": "with-skill",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "One decision owner beats plumbing",
+          "prompt": "with-skill",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    },
+    "principle-laziness-protocol-green.log": {
+      "id": "eval-3f9-2026-10-13T20:41:49",
+      "log": "/tmp/principles-a-evidence/principle-laziness-protocol-green.log",
+      "cases": [
+        {
+          "case": "Smallest diff still honors the outcome",
+          "prompt": "with-skill",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        },
+        {
+          "case": "One decision owner beats plumbing",
+          "prompt": "with-skill",
+          "passed": false,
+          "score": 0.75,
+          "reason": "The plan reuses the existing eligibility owner, passes its result only where needed, preserves intentional caller behavior, and rejects unnecessary flags and unrelated changes. However, its generic verification proposal does not specify representative allowed and denied cases. Executed checks are not required, but this required planning outcome is missing.",
+          "error": null
+        }
+      ]
+    }
+  }
+}

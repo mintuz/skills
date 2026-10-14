@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-O5b-2026-10-13T20:37:18",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-minimize-reader-load"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "1710ba8b0ee094b2f86a96cc0434d5acd31c38d6ab150888b83d7a185ae469e9",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Inline `OrderService.getOrder(id)` if it is purely a pass-through. Preserve `BillingFacade`: having one caller does not make its responsibilities redundant.\n\n- **Payment trace:** caller \u2192 facade \u2192 gateway. The facade owns idempotency, provider-error mapping, and log privacy. Inlining would require relocating all three explicitly and could increase the context the caller\u2019s reader must retain.\n- **Order trace:** caller \u2192 service \u2192 repository becomes caller \u2192 repository. Removing the forwarding method eliminates one indirection without moving any stated decision or invariant. Remove the service itself only if nothing else needs it.\n\nThe smallest change is to remove the order forwarding hop and leave the payment boundary intact.\n\nThis is a scenario-based judgment, not a verified refactor. No code or tests were inspected. Confirm the order hop has no hidden behavior and preserves return values and failures. Any later payment restructuring needs checks for idempotency under overlapping requests, error mapping, and card-data exclusion from logs.",
+        "tokenUsage": {
+          "prompt": 21920,
+          "completion": 199,
+          "cached": 19072,
+          "total": 22119,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "One implementation can hide a real boundary"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.85,
+      "response": {
+        "output": "Keep the handler largely flat. Moving every function into a service class adds indirection without fixing the shared mutable state.\n\nUse a smaller design:\n\n- Authenticate each request into a request-local `currentUser`.\n- Resolve and authorize its tenant into a request-local `selectedTenant`, then pass those values explicitly to the operation that needs them.\n- Keep `retryCount` inside the operation\u2019s retry loop so overlapping operations cannot change one another\u2019s retry budget.\n- Extract a boundary only when it owns a meaningful decision, such as tenant authorization or retry policy. Keep that ownership explicit.\n\nThe before trace is: \u201cWhere was this global last assigned, and could another request have changed it?\u201d The after trace is: \u201cThis request authenticated this user, authorized this tenant, and passed them to this operation.\u201d A reader follows the value\u2019s origin and use without retaining other requests\u2019 mutable context.\n\nVerify with deliberately interleaved requests for different users and tenants. Pause one request while another authenticates and selects its tenant; assert that each operation retains the correct identity and tenant. Also test independent retry budgets, exhausted retries, authentication failures, and denied tenant access. Check that failure paths cannot reuse another request\u2019s context or execute unauthorized work.\n\nThe scenario establishes a shared-state hazard. This design removes that hazard if all affected reads and writes become request-local. Without code inspection and executed tests, preservation of existing behavior and reduced overall reader load remain unverified; neither shorter files nor more classes proves improvement.",
+        "tokenUsage": {
+          "prompt": 21900,
+          "completion": 299,
+          "cached": 19072,
+          "total": 22199,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The proposal localizes request identity, tenant, and retry state; traces value origins and uses; checks interleaved requests, tenant isolation, and retry failures; and rejects file flatness or brevity as proof of improvement. However, it does not explicitly identify and deliberately preserve shared resources, leaving that substantive requirement unmet. Executed work is not required for this hypothetical.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.85,
+        "reason": "The proposal localizes request identity, tenant, and retry state; traces value origins and uses; checks interleaved requests, tenant isolation, and retry failures; and rejects file flatness or brevity as proof of improvement. However, it does not explicitly identify and deliberately preserve shared resources, leaving that substantive requirement unmet. Executed work is not required for this hypothetical."
+      },
+      "failure_reason": 1,
+      "case": "Flat code still has hidden state"
+    }
+  ]
+}

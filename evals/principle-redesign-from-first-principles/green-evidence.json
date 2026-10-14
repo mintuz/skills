@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-G0H-2026-10-13T20:43:02",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-redesign-from-first-principles"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "f455e0290291c2af0b145a87d70ef2cc0c10a4b1085fc1f49de57580b506f86b",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Recommend an incremental offline-editing design: users can edit without connectivity, retain their work, and reconcile it when they reconnect, while preserving the audited encryption boundary and compatibility with old clients.\n\nIf offline editing had always been required, the design would explicitly separate local edits, pending synchronization, and remotely acknowledged state. Evolve the existing app toward those responsibilities using local persistence and a durable pending-edit mechanism within the existing security constraints. Define retry, conflict, and acknowledgment behavior so concurrent edits cannot silently overwrite work. Keep protocol changes compatible with old clients; review any new versioning or conflict metadata against their behavior.\n\nReject the proposed wholesale replacement: removing the audited boundary violates a constraint, and replacing every module is not justified by the outcome. The incremental approach adds synchronization complexity but bounds migration and review.\n\nThe next reviewable step is an analysis-only design proposal tracing one edit from offline creation through reconnection, including concurrent edits from an old client. It should map affected storage, encryption, protocol, validation, and consumer assumptions; compare conflict policies; and propose a bounded implementation slice with migration, rollback, and verification criteria.\n\nEvidence limits: no code, encryption audit, or client contracts were supplied or inspected. This is a design direction, not proof of security, compatibility, feasibility, or delivery. No changes are authorized or claimed.",
+        "tokenUsage": {
+          "prompt": 21916,
+          "completion": 267,
+          "cached": 19072,
+          "total": 22183,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Design analysis does not authorize a rewrite"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use a shared appointment model with an explicit schedule variant: **one-off** or **recurring**. If recurrence had always existed, a single date would describe a one-off schedule or a recurring series\u2019 start\u2014not the entire appointment model.\n\nThe smallest coherent evolution is:\n\n- **Types and validation:** Keep shared appointment fields. Model one-off schedules with their date; recurring schedules with a start, time zone, recurrence rule and explicit end condition or open-ended policy. Validate each variant consistently.\n- **Compatibility:** Continue accepting supported old clients\u2019 single-date payloads and normalize them to one-off schedules. Preserve their existing response contract. Decide how recurring appointments appear to old readers before exposing them; do not silently represent a series as a single appointment.\n- **Consumers:** Make scheduling logic and UI summaries consume the same schedule model. Summaries distinguish a date from a recurrence pattern. Update API examples and docs to explain both forms and legacy compatibility.\n\nDeliver in bounded slices:\n\n1. **Define the contract.** Agree on supported recurrence patterns, time-zone/daylight-saving behavior, end conditions and old-client read behavior. Limit scope explicitly; occurrence exceptions and series editing need separate decisions.\n2. **Introduce the compatible model.** Add schedule types, validation and legacy normalization while preserving existing one-off behavior. Verify old requests and responses. If persistence changes are needed, use an additive migration that leaves existing records readable.\n3. **Deliver recurrence end to end.** Connect creation, storage, occurrence calculation and UI summaries for the agreed patterns. Include API examples and documentation in this slice. Verify valid and invalid rules, time boundaries and unchanged one-off behavior.\n4. **Enable with rollback.** Enable recurring creation only after affected consumers are ready. Rollback should disable new recurring creation while retaining safe access to already-created series; avoid reverting to code that cannot read them.\n\nThis is a design outline based solely on the scenario. No paths, storage model, API contracts or runtime behavior were inspected, so the exact migration, compatibility mechanism and implementation effort remain unverified. No changes or tests were performed.",
+        "tokenUsage": {
+          "prompt": 21906,
+          "completion": 422,
+          "cached": 19072,
+          "total": 22328,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Integrate a foundational requirement coherently"
+    }
+  ]
+}
