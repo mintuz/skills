@@ -1,23 +1,15 @@
 # Best Practices
 
-Production-ready practices for on-device AI models (Foundation Models & MLX Swift).
+Applies to both Foundation Models and MLX Swift.
 
 ## Session Management
 
 ### DO:
 
-- ✅ Reuse sessions for multi-turn conversations (Foundation Models)
-- ✅ Check availability before creating sessions
-- ✅ Handle all availability states in UI
-- ✅ Use supportsLocale(_:) and locale instructions for internationalization
-- ✅ Create session once per conversation
-
-### DON'T:
-
-- ❌ Create new session for each message (breaks context)
-- ❌ Assume model is always available
-- ❌ Ignore downloading state
-- ❌ Mix languages without new session
+- ✅ Reuse one session per conversation across turns (Foundation Models); a new session per message breaks context
+- ✅ Check availability before creating sessions; never assume the model is available
+- ✅ Handle all availability states in UI, including the downloading state
+- ✅ Use supportsLocale(_:) and locale instructions for internationalisation
 
 ```swift
 // ❌ DON'T: Creates new session each time
@@ -44,17 +36,15 @@ func send(_ text: String) async {
 ### DO:
 
 - ✅ Request "Increased Memory Limit" entitlement for large models
-- ✅ Test with Release builds (Debug uses more memory)
+- ✅ Test with Release builds, not only Debug (Debug uses more memory)
 - ✅ Monitor memory usage during generation
-- ✅ Use quantized models (4-bit recommended)
+- ✅ Use quantised models (4-bit recommended), never full precision on device
 - ✅ Unload models when not in use
 
 ### DON'T:
 
 - ❌ Load multiple large models simultaneously
 - ❌ Ignore memory warnings
-- ❌ Test only in Debug mode
-- ❌ Use full precision models on device
 
 ```swift
 // ✅ Good: Load one model at a time
@@ -82,15 +72,13 @@ class ModelManager {
 
 ### DO:
 
-- ✅ Load models asynchronously on background thread
+- ✅ Load models asynchronously on a background thread; never on the main thread or blocking the UI
 - ✅ Show loading UI during model initialization
 - ✅ Handle loading errors gracefully
 - ✅ Cache loaded models when appropriate
 
 ### DON'T:
 
-- ❌ Load models on main thread
-- ❌ Block UI during model loading
 - ❌ Retry infinitely on load failure
 - ❌ Load models before checking device capabilities
 

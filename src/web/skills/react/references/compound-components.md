@@ -1,14 +1,6 @@
 # Compound Components
 
-Multiple related components that work together to form a cohesive UI pattern.
-
-## Pattern Overview
-
-Compound components provide:
-- Flexible composition
-- Shared context
-- Consistent styling
-- Semantic HTML structure
+Related components that compose one UI pattern, giving flexible composition, shared context, consistent styling, and semantic HTML structure.
 
 ## Card Component Example
 

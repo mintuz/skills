@@ -2,19 +2,17 @@
 
 ## Let the route own the actor
 
-Create one journey actor with `useActorRef` at the route or feature boundary. Build its machine from stable ports and pass a typed actor ref to descendants.
+Build the boundary's machine from stable ports.
 
-If the journey identity changes without an unmount, key an inner boundary by that identity or model the change as an event. Actor `input` is creation-time data. Do not let several widgets create peer journey actors.
+If the journey identity changes without an unmount, key an inner boundary by that identity or model the change as an event; actor `input` is creation-time data. Do not let several widgets create peer journey actors.
 
 Export typed actor refs, selectors, and child accessors as the feature surface. Copy child state into parent context only when the parent needs it to decide a transition.
 
 ## Select only what a component uses
 
-Derive status and permissions from snapshots with pure selectors. Select a primitive or stable value. Split object selectors or give them a comparator.
+Derive status and permissions from snapshots with pure selectors. Select a primitive or stable value; split object selectors or give them a comparator.
 
 Keep in React the values one event sets completely: drafts, focus, element measurements, and plain open or closed toggles. Send a typed event when local interaction becomes a temporal feature fact. Do not mirror actor state into React state.
-
-A flag that a network response, a timer, or another actor sets belongs to the machine, even when the component renders it as a disabled control or a spinner. Select it; it is not presentation state.
 
 ```tsx
 import { useMemo, useState } from "react";

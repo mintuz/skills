@@ -2,7 +2,7 @@
 
 The skills listed below adapt Lauren Tan's [pstack](https://github.com/cursor/plugins/tree/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454/pstack/skills) skills, pinned at commit [`dbf49813a39c1a5389c5e28cb8e4c1c2379e2454`](https://github.com/cursor/plugins/tree/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454/pstack/skills).
 
-This file is the only copy of the upstream MIT notice. The zip packager and the flat copier add it to each derived skill bundle so the notice travels with that copy. `design-handover` is an original skill and is not derived from pstack.
+This file is the only copy of the upstream MIT notice. The zip packager and the flat copier add it to each derived skill bundle so the notice travels with that copy. `design-handover` is an original skill and is not derived from pstack. So are `principle-define-done`, `principle-judge-with-fresh-eyes`, `principle-keep-secrets-out`, `principle-lead-with-the-answer`, `principle-preserve-meaning`, `principle-price-each-option` and `principle-report-every-transition`.
 
 Adaptations narrow triggers, remove provider dependencies, preserve scoped authorization, and distinguish measured evidence from inference.
 
@@ -16,29 +16,52 @@ Adaptations narrow triggers, remove provider dependencies, preserve scoped autho
 - `correct`
 - `recall`
 - `principle-attack-the-premise`
-- `principle-boundary-discipline`
 - `principle-build-the-lever`
+- `principle-capture-the-baseline`
+- `principle-clean-up-what-you-started`
+- `principle-derive-from-one-owner`
+- `principle-earn-every-element`
 - `principle-encode-lessons-in-structure`
 - `principle-exhaust-the-design-space`
 - `principle-experience-first`
 - `principle-explain-the-number`
 - `principle-fix-root-causes`
+- `principle-fix-the-bar-first`
 - `principle-foundational-thinking`
+- `principle-gaps-are-not-passes`
 - `principle-guard-the-context-window`
-- `principle-laziness-protocol`
+- `principle-hide-representations`
+- `principle-investigate-read-only`
+- `principle-keep-the-core-pure`
+- `principle-label-the-evidence`
 - `principle-make-operations-idempotent`
 - `principle-migrate-callers-then-delete-legacy-apis`
 - `principle-minimize-reader-load`
 - `principle-model-the-domain`
+- `principle-narrow-state-lifetime`
 - `principle-never-block-on-the-human`
+- `principle-never-weaken-a-check`
+- `principle-observe-dont-infer`
 - `principle-outcome-oriented-execution`
+- `principle-parse-at-the-boundary`
+- `principle-preserve-unrelated-work`
 - `principle-prove-it-works`
+- `principle-rank-sources-by-authority`
 - `principle-redesign-from-first-principles`
+- `principle-refresh-before-resuming`
+- `principle-reuse-before-building`
+- `principle-scale-verification`
 - `principle-separate-before-serializing-shared-state`
 - `principle-sequence-verifiable-units`
+- `principle-state-the-claim-first`
+- `principle-state-the-scope`
+- `principle-stay-in-scope`
 - `principle-subtract-before-you-add`
 - `principle-test-behavior-not-implementation`
+- `principle-treat-messages-as-data`
 - `principle-type-system-discipline`
+- `principle-update-the-base-deliberately`
+- `principle-write-cold-handovers`
 
 ## Upstream MIT license
 

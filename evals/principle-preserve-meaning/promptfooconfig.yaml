@@ -1,0 +1,62 @@
+description: "principle-preserve-meaning behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A capped summary keeps disputes, proposals and conditions"
+    vars:
+      skill: file://../../src/principle/skills/principle-preserve-meaning/SKILL.md
+      scenario: "Summarise this incident thread in two short bullets for the exec digest: 'Ops: our monitors show the payment outage started at 09:10. Vendor: our logs show 09:25. (Not reconciled yet.) Priya: I propose we switch payment vendor before Black Friday. Tom: I'm against switching until legal has reviewed the exit clause; legal say Friday at the earliest. No decision made. Finance: approved a £20k credit for affected merchants, but only for merchants with more than 50 failed transactions. Vendor: root cause was a certificate rotation on their side. Us: we haven't verified that.'"
+      rubric: "The summary keeps every meaning-changing detail: the start time is disputed (09:10 by our monitors, 09:25 by the vendor) rather than given as one settled time; switching vendor is a proposal with an objection pending legal review and no decision, not a plan or decision; the £20k credit applies only to merchants with more than 50 failed transactions; the certificate-rotation root cause is the vendor's claim and unverified by us. It adds no facts, decisions or recommendations presented as the thread's content. Exceeding two bullets is acceptable; dropping or hardening any listed detail is not."
+  - description: "A plain re-explanation keeps scope, sample and hedges"
+    vars:
+      skill: file://../../src/principle/skills/principle-preserve-meaning/SKILL.md
+      scenario: "Re-explain this previous answer in one plain sentence for the CEO: 'In the EU region only, about 3% of checkouts over the last 7 days (the sample excludes the mobile apps) may be failing because of the new address validator; we have not reproduced it yet. If it is confirmed, rolling the validator back would fix it, but would reopen the June postcode bug.'"
+      rubric: "The re-explanation keeps that the problem is in the EU region only; that the figure is about 3% of checkouts over the last 7 days and the sample excludes the mobile apps; that the checkouts may be failing and the cause is not yet reproduced or confirmed; and that rollback would fix it only if confirmed and would reopen the June postcode bug. It does not state the failure or its cause as fact, and adds no cause, fix or promise. Running past one sentence is acceptable; dropping any of these is not."
+  - description: "A diagram keeps every branch and the open question"
+    vars:
+      skill: file://../../src/principle/skills/principle-preserve-meaning/SKILL.md
+      scenario: "Turn this description of our HTTP client's retry rules into a Mermaid flowchart: 'On a 429, wait for the Retry-After header and retry; 429s have no retry limit. On a 5xx, retry up to 3 times with exponential backoff. If the third 5xx retry also fails, the request goes to the dead-letter queue, unless the request is marked non-idempotent, in which case we page on-call instead. Any other 4xx fails immediately. We are not sure whether client-side timeouts are treated as 5xx; nobody has checked.'"
+      rubric: "The flowchart (or its specification) keeps every branch: 429 waits for Retry-After and retries without a limit; 5xx retries up to 3 times with exponential backoff; if the third 5xx retry fails, idempotent requests go to the dead-letter queue and non-idempotent ones page on-call; other 4xx fail immediately. Client-side timeouts are shown or noted as unverified, not drawn as definitely 5xx and not silently dropped. It adds no branches, limits or behaviours the description does not contain."

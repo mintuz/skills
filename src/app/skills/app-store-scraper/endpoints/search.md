@@ -1,6 +1,6 @@
 # App Search
 
-Search for apps using keywords and filters.
+Search apps by keyword and filters.
 
 ## Endpoint
 
@@ -62,7 +62,7 @@ curl -s "https://itunes.apple.com/search?term=productivity&country=us&media=soft
 
 ## Response Structure
 
-Same as App Lookup endpoint, but returns array in `results` field.
+Same as App Lookup; `results` holds an array.
 
 ```json
 {
@@ -84,7 +84,6 @@ Same as App Lookup endpoint, but returns array in `results` field.
 ## Limitations
 
 - No server-side pagination (no offset parameter)
-- Maximum 200 results per request
 - Results must be filtered and sorted client-side
 - Search algorithm is controlled by Apple
 

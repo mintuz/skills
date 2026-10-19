@@ -1,0 +1,35 @@
+description: "principle-observe-dont-infer activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "Our deploy script has a --dry-run mode and the user wants me to run it against production because dry-run means nothing gets changed. Before I do, decide whether the flag's name is enough to trust it."
+    assert:
+      - type: skill-used
+        value: principle-observe-dont-infer
+  - description: "Excludes a plain translation"
+    vars:
+      request: "Translate only this sentence into French: The green notebook is on the table."
+    assert:
+      - type: not-skill-used
+        value: principle-observe-dont-infer

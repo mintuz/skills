@@ -91,7 +91,6 @@ curl -s -G "https://itunes.apple.com/search" --data-urlencode "term=$SUGGESTION"
 - Results are language and region-specific
 - Minimum 2-3 characters recommended for meaningful suggestions
 - Suggestions update based on trending searches
-- Pass the `term` value with `curl -G --data-urlencode` so that spaces and `&` are encoded
 
 ## Example: Build Autocomplete UI
 

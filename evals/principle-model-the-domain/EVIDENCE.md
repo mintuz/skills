@@ -16,3 +16,9 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 Context size: 296 upstream words → 146 port words (whitespace count, including frontmatter).
 
 Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+
+## 19 October 2026: narrowed
+
+Added a thesis, `Distinct from` and `Done` lines; UK spelling. No rule moved out (its parse-persisted rule is also stated in `principle-parse-at-the-boundary`). Description unchanged. Earlier JSON evidence predates this change.
+
+- `pnpm test:skills` `eval-6LK-2026-10-19T11:06:39`: treatment 2/2 (Astra Medium, one trial). No provider errors.

@@ -10,8 +10,6 @@ https://itunes.apple.com/{country}/rss/{collection}/[genre={category}]/limit={li
 
 ## Collections
 
-Common collection values:
-
 - `topfreeapplications` - Top Free Apps
 - `toppaidapplications` - Top Paid Apps
 - `topgrossingapplications` - Top Grossing Apps
@@ -20,7 +18,7 @@ Common collection values:
 
 ## Categories
 
-Common genre IDs (use as `genre={id}`):
+Genre IDs (use as `genre={id}`):
 
 | ID | Category | ID | Category |
 |----|----------|----|----------|
@@ -108,7 +106,7 @@ curl -s "https://itunes.apple.com/us/rss/topgrossingapplications/limit=20/json" 
 
 ## Combining with Lookup
 
-RSS feeds provide limited metadata. Get full details by extracting IDs and using lookup:
+RSS feeds carry limited metadata. Extract the IDs and look up full details:
 
 ```bash
 # Get top free app IDs

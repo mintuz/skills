@@ -54,3 +54,8 @@ tests:
       skill: file://../../src/principle/skills/principle-test-behavior-not-implementation/SKILL.md
       scenario: "A mail service calls format(), authorize() and transport.send(). The user-visible contract sends exactly one message with subject \"Receipt 42\" to the buyer after success, and no message for a declined order. A test only checks format called once and computes its expected subject by calling format again. Rewrite the test design."
       rubric: "Tests successful and declined orders via the public entry point; asserts literal subject, intended recipient and exactly-once external send effect for success plus no send on decline; avoids using the subject helper to compute its own oracle or asserting private call order; explains which wrong payload/unauthorized-send/no-op regressions the checks detect."
+  - description: "A shared decision covers allowed, denied and caller differences"
+    vars:
+      skill: file://../../src/principle/skills/principle-test-behavior-not-implementation/SKILL.md
+      scenario: "Three callers recompute the same feature eligibility differently. A shared existing domain function already returns the correct decision, but a proposal threads five new flags through all layers. Recommend the focused change and how to test it."
+      rubric: "Tests representative allowed and denied eligibility outcomes and each intentional caller difference through public behaviour, so a wrong shared decision or a caller that silently loses its intended difference fails a test; does not test the change by asserting flag plumbing or private calls."

@@ -13,4 +13,6 @@ Fix the mechanism that produces the failure, not just the surface that exposes i
 4. Search for the same mechanism and affected callers. Fix owned instances when authorized; report broader findings separately. Preserve data and unrelated work.
 5. Leave a regression check that exposes the cause, then repeat the original failing sequence and relevant caller/lifecycle cases. If diagnosis required a deep search, propose a cheap signal that would reveal this failure earlier.
 
+Distinct from: `principle-attack-the-premise` (two or more fixes sharing an assumption have failed), `principle-capture-the-baseline` (recording the pre-change state before a change), `principle-prove-it-works` (claiming a result is fixed or working).
+
 Done: evidence explains the failure and the repair survives the original check, or the unresolved cause and next discriminating observation are explicit. Never label a workaround or static check as runtime proof.

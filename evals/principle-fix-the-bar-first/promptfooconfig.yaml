@@ -1,0 +1,62 @@
+description: "principle-fix-the-bar-first behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Criteria proposed after results are not the bar"
+    vars:
+      skill: file://../../src/principle/skills/principle-fix-the-bar-first/SKILL.md
+      scenario: "Two candidate JSON parsers were benchmarked before anyone wrote selection criteria. Parser A has higher throughput; parser B uses less memory. After seeing the results, the product manager says memory matters most, and parser B's author proposes adding 'API ergonomics' as a criterion. The service's requirements document, written last quarter, sets a throughput target and a memory ceiling. Recommend how to choose."
+      rubric: "Recognises that criteria chosen after seeing results can fit the preferred candidate; records the criteria and selection rule from the pre-existing requirements (throughput target and memory ceiling) before judging; judges both parsers against that recorded bar; does not adopt the post-hoc memory priority or the author's new criterion without grounding them in requirements set independently of the results; states the limitation that results were seen before the bar was fixed."
+  - description: "An iteration loop keeps its declared bar"
+    vars:
+      skill: file://../../src/principle/skills/principle-fix-the-bar-first/SKILL.md
+      scenario: "Before round 1 of headline iterations, the team declared best-of selection on signup click-through measured on 5,000 visitors per round. Round 1 scored 3.8%, round 2 scored 4.6% and round 3 scored 2.9%. The team prefers round 3 and proposes re-judging all rounds on a 'brand feel' survey instead. Decide which headline ships."
+      rubric: "Applies the declared metric and selection rule, so round 2 ships; refuses to switch the criterion after results to favour round 3; if brand feel matters, records it as a criterion before any future round is run rather than re-scoring finished rounds."
+  - description: "A candidate cannot define its own bar"
+    vars:
+      skill: file://../../src/principle/skills/principle-fix-the-bar-first/SKILL.md
+      scenario: "A pull request adds bulk invoice export. No issue or specification is linked. Its description lists five acceptance criteria written by the author, and the diff and its tests satisfy all five. The user asks: 'Does this PR meet the acceptance criteria? Yes or no, then why.'"
+      rubric: "Does not answer yes on the strength of the author's own five criteria, because the candidate under review wrote them; states that the bar must come from the requester, an issue, a specification or another source independent of the pull request, and asks for it or withholds the acceptance verdict until it exists; may report that the PR meets its self-declared criteria only as a qualified, separate observation."

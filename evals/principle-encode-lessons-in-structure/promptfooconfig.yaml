@@ -55,3 +55,8 @@ tests:
       skill: file://../../src/principle/skills/principle-encode-lessons-in-structure/SKILL.md
       scenario: "A reviewer repeatedly asks that incident writeups distinguish observed facts from hypotheses. Whether a sentence is warranted depends on incident evidence. There is no reliable mechanical classifier. Recommend a durable correction without adding a noisy linter."
       rubric: "Keeps judgment-dependent guidance in one authoritative writing location with a concrete failure/success example; does not invent mechanical certainty or blanket banned-word enforcement; explains when the writer applies the instruction and how a reviewer checks it."
+  - description: "One occurrence is not yet a recurring lesson"
+    vars:
+      skill: file://../../src/principle/skills/principle-encode-lessons-in-structure/SKILL.md
+      scenario: "Last week a reviewer found one hard-coded staging URL in a merged production config. Git history, review comments and incident notes show no other occurrence. A teammate proposes a new CI lint rule that fails any string containing 'staging'. Recommend what to do now."
+      rubric: "Fixes the single instance without adding a new structural guard yet, because the lesson has occurred once rather than recurred; names a second occurrence of the same failure as the condition that would justify encoding a guard; notes that the proposed blanket rule would also reject valid uses."

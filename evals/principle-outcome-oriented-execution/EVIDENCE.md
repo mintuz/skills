@@ -16,3 +16,13 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 Context size: 136 upstream words → 151 port words (whitespace count, including frontmatter).
 
 Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+
+## Narrowing, 19 October 2026
+
+"Remove transitional and obsolete paths once their consumers and guarantees are covered" moved to `principle-migrate-callers-then-delete-legacy-apis`. The "Finish the outcome with phase gates" case drops its queue-deletion fact and rubric clause. The skill gains `Distinct from:` and `Done:` lines; the description is unchanged, so the trigger suite was not rerun.
+
+| Stage | Result | Eval ID |
+| --- | --- | --- |
+| treatment | 2/2; 0 errors | eval-2Ys-2026-10-19T10:59:25 |
+
+Context size: 151 → 175 words (whitespace count, including frontmatter).

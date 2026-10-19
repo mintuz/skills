@@ -1,0 +1,57 @@
+description: "principle-capture-the-baseline behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Measure the unchanged system before applying a known fix"
+    vars:
+      skill: file://../../src/principle/skills/principle-capture-the-baseline/SKILL.md
+      scenario: "The search endpoint is slow. Reading the code, you are confident an N+1 query is the cause and the fix is a single join. Edits are authorised and the team wants the PR today. Give the plan."
+      rubric: "Before editing, runs the same latency and query-count measurement it will use afterwards against the unchanged code, recording revision, inputs and conditions; applies the fix and reruns the identical measurement so the result reads old value versus new value; does not rely on code reading or an after-only measurement as proof of improvement."
+  - description: "Recover a baseline when the change already happened"
+    vars:
+      skill: file://../../src/principle/skills/principle-capture-the-baseline/SKILL.md
+      scenario: "You already changed the shared date-formatting helper; the change is uncommitted and the unit tests pass. A reviewer asks whether output changed for existing locales. No pre-change output was recorded. Give the next steps."
+      rubric: "Does not treat passing tests or the diff as evidence that output is unchanged; obtains pre-change output by running the unmodified base revision (for example a separate worktree or build of HEAD) on the same locale inputs and compares it with the modified output; preserves the uncommitted change; if a baseline cannot be produced, reports the comparison as missing a baseline."

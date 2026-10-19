@@ -1,7 +1,5 @@
 # MLX Swift Chat Patterns
 
-Chat implementation patterns using MLX Swift for custom models.
-
 ## Pattern 1: Basic Chat with Custom Model
 
 ```swift
@@ -110,8 +108,6 @@ struct StreamingChatView: View {
 
 ## Pattern 3: Custom Generation Parameters
 
-Fine-tune generation behavior:
-
 ```swift
 func generate(prompt: String, style: GenerationStyle) async throws -> String {
     guard let model else { return "" }
@@ -163,7 +159,7 @@ enum GenerationStyle {
 
 ## Pattern 4: Model Caching
 
-Improve performance by keeping models loaded:
+Keep models loaded to avoid reload cost:
 
 ```swift
 actor ModelCache {

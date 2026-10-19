@@ -1,24 +1,11 @@
 # Testing AI Models
 
-Testing strategies for on-device AI models using Swift Testing.
+Swift Testing strategies, by level:
 
-## Testing Levels
-
-### 1. Unit Tests
-
-Test individual components in isolation
-
-### 2. Integration Tests
-
-Test model integration and responses
-
-### 3. Performance Tests
-
-Test memory usage and response times
-
-### 4. Device Tests
-
-Test on actual hardware
+1. **Unit tests**: individual components in isolation
+2. **Integration tests**: model integration and responses
+3. **Performance tests**: memory usage and response times
+4. **Device tests**: actual hardware
 
 ## Unit Testing
 
@@ -386,21 +373,17 @@ Before deploying:
 
 ### DO:
 
-- ✅ Test on physical devices (not just simulator)
-- ✅ Test with Release builds
+- ✅ Test on physical devices, not only the simulator
+- ✅ Test with Release builds, not only Debug
 - ✅ Test memory usage
-- ✅ Test error scenarios
+- ✅ Test error scenarios and edge cases
 - ✅ Use async/await properly in tests
 - ✅ Mock models for fast unit tests
 
 ### DON'T:
 
-- ❌ Test only in simulator
-- ❌ Test only in Debug configuration
 - ❌ Skip performance tests
 - ❌ Ignore flaky tests
-- ❌ Skip device testing
-- ❌ Forget to test edge cases
 
 ## Continuous Integration
 

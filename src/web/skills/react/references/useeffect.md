@@ -4,7 +4,7 @@
 
 **useEffect is for synchronizing with external systems, not for reacting to state changes.**
 
-Think of effects as describing what should stay synchronized between React and external systems (DOM APIs, network, browser APIs, third-party widgets). You're not triggering side effects on lifecycle events—you're declaring relationships that React maintains.
+An effect declares what React keeps synchronized with an external system (DOM APIs, network, browser APIs, third-party widgets); it is not a trigger for lifecycle events.
 
 ## When NOT to Use useEffect
 
@@ -66,7 +66,7 @@ const ProductPage = ({ product, addToCart }: Props) => {
 };
 ```
 
-**Problem:** By the time the effect runs, you don't know _what_ the user did. The notification would fire on page refresh if item is already in cart.
+**Problem:** When the effect runs, it cannot know _what_ the user did. The notification would fire on page refresh if the item is already in the cart.
 
 ### 3. Caching Expensive Calculations
 
@@ -118,7 +118,7 @@ const Profile = ({ userId }: Props) => {
 };
 ```
 
-**The `key` attribute tells React to treat it as a different component, resetting all state.**
+**A changed `key` makes React treat it as a different component and reset all its state.**
 
 ### 5. Chaining Effects (State Cascades)
 
@@ -261,7 +261,7 @@ useEffect(() => {
 
 ### Async Work in an Effect
 
-Prefer a data-fetching library (TanStack Query) when the project has one. When it does not, each effect run owns its request:
+Prefer the project's data-fetching library (TanStack Query) when it has one. Otherwise, each effect run owns its request. The Effects rule in SKILL.md applies; these details add to it:
 
 ```typescript
 // ✅ Appropriate - each run owns one request and its cleanup
@@ -287,16 +287,14 @@ useEffect(() => {
 }, [userId, loadUser]);
 ```
 
-Rules:
-
-- Create the `AbortController` inside the effect so each run has its own. Use it when the operation accepts an `AbortSignal`; the stale flag alone protects operations that cannot be cancelled.
-- Cleanup marks the run stale and aborts it. A stale run writes no state on success or on failure, so a late response for the previous `userId` cannot overwrite the current one.
-- Identify cancellation by the operation's own contract: a DOM `AbortError` by `error?.name`, an axios request by `axios.isCancel(error)`. Treat cancellation as no error. Every rejection that is not cancellation is a failure of the current run; write it to state, whatever its class. A class check such as `instanceof DOMException` must not decide which failures reach state. A stale run ignores every settlement, including a non-abort failure.
-- React Strict Mode runs setup, cleanup, setup in development. The first run is aborted and ignored, and the second run completes normally. No error state appears.
+- Create the `AbortController` inside the effect so each run has its own. When the operation cannot be cancelled, the stale flag alone protects it.
+- A late response for the previous `userId` cannot overwrite the current one, because its run is stale. A stale run ignores every settlement, including a non-abort failure.
+- Detect a DOM `AbortError` with `error?.name`.
+- React Strict Mode runs setup, cleanup, setup in development. The first run is aborted and ignored; the second completes normally. No error state appears.
 
 ## Dependency Array Rules
 
-**Never lie about dependencies.** The dependency array tells React which values from your component scope the effect uses.
+**Never lie about dependencies.** The array lists the component-scope values the effect uses.
 
 ```typescript
 // ❌ Bad - lying about dependencies (stale closure)
@@ -329,7 +327,7 @@ useEffect(() => {
 
 ## Complex State: Consider XState
 
-For complex state with multiple synchronized transitions, consider state machines over multiple useEffects:
+For complex state with multiple synchronized transitions, consider a state machine over multiple effects:
 
 ```typescript
 // ❌ Bad - multiple effects managing related state

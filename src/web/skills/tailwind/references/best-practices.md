@@ -1,11 +1,9 @@
 # Best Practices
 
-Guidelines for building maintainable Tailwind CSS design systems.
-
 ## Do's ✓
 
 ### Use CSS Variables for Theming
-Enable runtime theme changes without rebuilding.
+Runtime theme changes without rebuilding.
 
 Tailwind 3, in `tailwind.config.*`:
 ```typescript
@@ -22,10 +20,7 @@ Tailwind 4, in CSS:
 ```
 
 ### Compose Variants with a Literal Map or CVA
-Give each variant a complete literal class string, never an interpolated one.
-Use CVA when the project already installs `class-variance-authority`, or when
-the requester asks for CVA and accepts the dependency. Otherwise use an
-exhaustive `Record<Variant, string>` map.
+Choose per [Component Variants](../SKILL.md#component-variants):
 ```typescript
 const buttonVariants = cva("base-styles", {
   variants: { size: { sm: "...", lg: "..." } }
@@ -45,7 +40,7 @@ Name by purpose, not appearance:
 ```
 
 ### Forward Refs
-Enable component composition:
+For component composition:
 ```typescript
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (props, ref) => <button ref={ref} {...props} />
@@ -53,12 +48,18 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 ```
 
 ### Include Accessibility
-Always add ARIA attributes and focus states:
+Use the native element first: a `<button>`, an `<a href>`, or an `<input>` with a `<label>` already carries its role, keyboard behaviour and accessible name. Add ARIA only when native semantics cannot express the need, such as an icon-only button with no visible text. Always give interactive elements a visible focus state:
 ```typescript
+// Visible text names the button: no ARIA needed
+<button className="focus-visible:ring-2 focus-visible:ring-ring">Save</button>
+
+// Icon-only button: no visible text, so name it with aria-label
 <button
   aria-label="Close dialog"
-  className="focus-visible:ring-2"
+  className="focus-visible:ring-2 focus-visible:ring-ring"
 >
+  <XIcon aria-hidden="true" />
+</button>
 ```
 
 ## Don'ts ✗
@@ -99,7 +100,7 @@ Hurts readability and defeats Tailwind's purpose:
 ```
 
 ### Don't Build Class Names Dynamically
-Tailwind scans source as plain text and never generates an interpolated name:
+See [Literal Class Names](../SKILL.md#literal-class-names):
 ```typescript
 // Bad - `bg-emerald-600` is never generated
 <button className={`bg-${color}-600`}>

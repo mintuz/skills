@@ -16,3 +16,9 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 Context size: 219 upstream words → 150 port words (whitespace count, including frontmatter).
 
 Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+
+## 19 October 2026: kept, received a rule
+
+Received "for each concurrent actor, ask what another actor can invalidate" from `principle-foundational-thinking` step 2, plus a thesis, `Distinct from` and `Done` lines (the final paragraph became the `Done` line). New case "Shared draft keeps atomic conflict semantics" recreates the clause dropped from the foundational-thinking suite. Description unchanged. Earlier JSON evidence predates this change.
+
+- `pnpm test:skills` `eval-xUz-2026-10-19T11:07:16`: treatment 3/3 (Astra Medium, one trial). No provider errors.

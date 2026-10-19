@@ -21,15 +21,15 @@ providers:
           plugins: false
           skill_search: false
 tests:
-  - description: Selects relevant guidance
+  - description: "Selects relevant guidance"
     vars:
-      request: "A session must investigate 6000 lines of logs before its context fills. The host has bounded file search and file writes but no subagents. Work may resume in a fresh session. Outline how to proceed."
+      request: "A 40,000-line CI log was already printed in full once and the first error is at line 31,240. I now need to know whether checkout.spec also timed out and which NODE_OPTIONS the job used. How should I read the log?"
     assert:
       - type: skill-used
         value: principle-guard-the-context-window
-  - description: Excludes a plain translation
+  - description: "Excludes writing a pause handover"
     vars:
-      request: "Translate only this sentence into French: The green notebook is on the table."
+      request: "I need to stop for today. Help me write a handover note for whoever continues this migration tomorrow; they won't see this chat."
     assert:
       - type: not-skill-used
         value: principle-guard-the-context-window

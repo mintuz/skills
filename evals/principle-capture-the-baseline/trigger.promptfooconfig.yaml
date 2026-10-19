@@ -1,0 +1,35 @@
+description: "principle-capture-the-baseline activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "I'm about to switch our image thumbnails from PNG to WebP to cut page weight. How should I go about it so I can show it helped?"
+    assert:
+      - type: skill-used
+        value: principle-capture-the-baseline
+  - description: Excludes a read-only explanation
+    vars:
+      request: "Explain in two sentences why `Array.prototype.sort` without a comparator sorts the numbers [10, 9, 1] as [1, 10, 9]."
+    assert:
+      - type: not-skill-used
+        value: principle-capture-the-baseline

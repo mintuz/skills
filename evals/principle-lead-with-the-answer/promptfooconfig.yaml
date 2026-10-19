@@ -1,0 +1,62 @@
+description: "principle-lead-with-the-answer behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A customer reply answers before thanks or investigation"
+    vars:
+      skill: file://../../src/principle/skills/principle-lead-with-the-answer/SKILL.md
+      scenario: "A customer, Sam, emailed support: 'I think I was charged twice for my March subscription. Can you check?' Our findings: the billing log shows two £49 charges on 3 March, 40 seconds apart, caused by an automatic retry after a payment-gateway timeout; the second charge was refunded automatically today and will take 5–10 working days to appear on Sam's statement; no other months are affected. Write the reply email to Sam."
+      rubric: "The email's first sentence after any greeting line (such as 'Hi Sam,') carries the answer: yes, Sam was charged twice for March, and the duplicate £49 charge has been refunded (the 5–10 working day timing may follow in the next sentence). The email does not open with thanks, a general apology, a restatement of Sam's question or the investigation; the cause and other details follow the answer."
+  - description: "An estimate comes before its working"
+    vars:
+      skill: file://../../src/principle/skills/principle-lead-with-the-answer/SKILL.md
+      scenario: "A teammate asked in chat: 'How long until the logs volume fills up?' Facts: the volume holds 2 TB; 1.62 TB is used; usage grew from 1.41 TB to 1.62 TB over the last 7 days; log rotation has been off since Monday's config change. Write my reply."
+      rubric: "The reply's first sentence states the estimate: about 12–13 days at the current growth rate (roughly 380 GB free at about 30 GB a day), or an equivalent figure. The arithmetic, the growth rate and the note that log rotation has been off since Monday's config change follow the estimate rather than preceding it."
+  - description: "An unsettled question still gets its answer first"
+    vars:
+      skill: file://../../src/principle/skills/principle-lead-with-the-answer/SKILL.md
+      scenario: "The CTO asked me: 'Did yesterday's database migration cause the 14:05 latency spike?' My notes, in the order I found things: the migration ran 13:50–14:20 and locked the orders table for about 6 minutes from 14:02; a marketing email went out at 14:00 and traffic doubled by 14:05; p99 latency rose from 200 ms to 1.8 s at 14:05 and recovered at 14:40, twenty minutes after the migration finished; we have not yet compared the slow-query log with the lock window. Write my reply to the CTO."
+      rubric: "The reply's first sentence gives the answer as it currently stands: it is not yet known or not established whether the migration caused the spike (naming the traffic surge as a competing cause there is optional). The reply does not open with the timeline, the notes or other background, and it does not claim that the migration did or did not cause the spike. The supporting facts and the next step (comparing the slow-query log with the lock window) follow the answer."

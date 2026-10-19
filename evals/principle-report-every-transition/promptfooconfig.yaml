@@ -1,0 +1,57 @@
+description: "principle-report-every-transition behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Get it green does not mean report only at the end"
+    vars:
+      skill: file://../../src/principle/skills/principle-report-every-transition/SKILL.md
+      scenario: "You are babysitting CI on PR #301 until it is green, with permission to push fixes to that branch. The user said 'just get it green' and is in meetings. Lint failed on attempt 1, so you pushed a fix as commit c4d5e6f. On that commit, unit tests now fail: checkout.spec timed out at 30 s, although it passed on the previous run. Decide your next step."
+      rubric: "Sends the user an update now, unprompted, covering the transitions so far: lint red with its attempt count, fix pushed as commit c4d5e6f, and the new unit-test red naming checkout.spec; continues the loop on the checkout.spec failure without waiting for a reply; commits to reporting each later transition (for example the rerun result and green) when it happens rather than in one final summary; makes no claim beyond the stated events."
+  - description: "A held state is a transition too"
+    vars:
+      skill: file://../../src/principle/skills/principle-report-every-transition/SKILL.md
+      scenario: "You are monitoring a staged rollout of v2.3 across eu, us and ap; you may watch and report but not approve gates. The user said 'keep an eye on the rollout'. It is now 11:30. eu completed at 10:05, us completed at 10:40, and ap has been paused on a manual approval gate since 10:45. Decide your next step."
+      rubric: "Reports now, unprompted, that eu and us completed and that ap is held on a manual approval gate since 10:45, naming the approval it waits on; does not approve the gate; does not keep waiting silently for the user to ask; reports each later transition, including the terminal state, when it happens."

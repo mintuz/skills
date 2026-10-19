@@ -2,9 +2,9 @@
 
 ## Keep live handles private
 
-Keep WebSocket, EventSource, media, CRDT, DOM, SDK, credential, subscription, and similar handles inside an invoked actor. Put serialisable facts in context. Send typed control events to the actor when the handle must do work.
+Keep WebSocket, EventSource, media, CRDT, DOM, SDK, credential, subscription, and similar handles inside an invoked actor. Put serialisable facts in context. Send the actor typed control events when the handle must do work.
 
-Use `fromCallback` for subscription-shaped resources. Acquire, use, and release the handle in one closure, so one owner controls its whole lifetime. When another layer must acquire it — a DOM event handler that must call `setPointerCapture` synchronously, for example — pass the handle into the actor and let the actor own the release. Return one disposer. XState runs that disposer once when the actor stops, so add a run-once flag only when another path can release the same resource; the example below has no second path, so it returns a plain disposer.
+Use `fromCallback` for subscription-shaped resources: acquire, use, and release the handle in one closure, so one owner controls its whole lifetime. When another layer must acquire it (for example, a DOM event handler that must call `setPointerCapture` synchronously), pass the handle into the actor and let the actor own the release. Return one disposer. XState runs it once when the actor stops, so add a run-once flag only when another path can release the same resource; the example below has no second path, so it returns a plain disposer.
 
 ```ts
 import { fromCallback, setup } from "xstate";
@@ -61,13 +61,19 @@ export const makeResourceOwner = (open: () => Handle) => {
 };
 ```
 
-State entry starts the resource. State exit or parent stop runs the disposer. If safe release needs an acknowledgement, add a `leaving` state that sends a close command and waits for the acknowledgement before exiting. Keep the disposer as the stop-path backstop.
+State entry starts the resource; state exit or parent stop runs the disposer. If safe release needs an acknowledgement, add a `leaving` state that sends a close command and waits for the acknowledgement before exiting, and keep the disposer as the stop-path backstop.
 
 ## Fence attempts and own retry policy
 
-Give each asynchronous unit an attempt, generation, command, or version identity. Choose an identity that no replaced attempt can share, such as a monotonic generation counter. Add the values that scope the work, such as a subscribed symbol, when the identity alone cannot tell two attempts apart. Pass every part of the identity into the invoked actor and echo every part in its results. Accept a result only when every part still matches current context. Reset attempt-scoped evidence when a replacement attempt starts.
+Give each asynchronous unit an attempt, generation, command, or version identity that no replaced attempt can share, such as a monotonic generation counter. When the identity alone cannot tell two attempts apart, add the values that scope the work, such as a subscribed symbol. Pass every part of the identity into the invoked actor, echo every part in its results, and accept a result only when every part still matches current context. Reset attempt-scoped evidence when a replacement attempt starts.
 
-Use actor cancellation and identity fencing together, and know what each one does. Stopping an actor makes XState ignore that actor's own outcome, so a replaced `fromPromise` invocation cannot update the machine. Stopping does not retract an event the actor already handed to the parent: a `sendBack` that runs while the parent is mid-transition, or that runs from the actor's own cleanup, is already enqueued and reaches the parent after the replacement. Stopping does not stop the work either: a port that takes no abort signal runs to completion, and its side effects still land. Fence by identity wherever a result can still reach the machine — through the mailbox, a long-lived callback actor, a shared subscription, a cache, or a replayed stream. Say which mechanism makes each late result harmless.
+Use actor cancellation and identity fencing together, knowing what each does:
+
+- Stopping an actor makes XState ignore that actor's own outcome, so a replaced `fromPromise` invocation cannot update the machine.
+- Stopping does not retract an event the actor already handed to the parent: a `sendBack` that runs while the parent is mid-transition, or from the actor's own cleanup, is already enqueued and reaches the parent after the replacement.
+- Stopping does not stop the work: a port that takes no abort signal runs to completion, and its side effects still land.
+
+Fence by identity wherever a result can still reach the machine: the mailbox, a long-lived callback actor, a shared subscription, a cache, or a replayed stream. Say which mechanism makes each late result harmless.
 
 Keep retry count, backoff, delayed transition, and cancellation in the lifecycle that decides whether to retry. Inject the delay policy. Leaving a state cancels its `after` transition; stopping a promise actor aborts its signal.
 
@@ -137,9 +143,9 @@ export const makeAttemptMachine = (ports: Ports) => {
 
 ## Confirm authoritative convergence
 
-Keep transport acceptance, optimistic or replicated state, and authoritative truth separate. Acceptance means the command entered processing. Only a matching authoritative observation at or beyond the accepted version confirms completion.
+Keep transport acceptance, optimistic or replicated state, and authoritative truth separate. Acceptance means the command entered processing; only a matching authoritative observation at or beyond the accepted version confirms completion.
 
-Store both facts because either can arrive first. Recheck convergence after each event. Derive presentation status from the lifecycle instead of copying it into context.
+Store both facts, because either can arrive first, and recheck convergence after each event. Derive presentation status from the lifecycle instead of copying it into context.
 
 ```ts
 type Convergence = {
@@ -161,6 +167,6 @@ export const acceptsObservation = (
   (value.observedVersion === null || event.version > value.observedVersion);
 ```
 
-Use these conditions in guarded transitions after either acceptance or observation updates context. Fence attempt evidence by identity and by version: only the current attempt's acceptance and its matching observation may complete or clear that attempt, and that observation counts only when its version advances the version already recorded for that attempt, as `acceptsObservation` shows.
+Use these conditions in guarded transitions after acceptance or observation updates context. Fence attempt evidence by identity and version: only the current attempt's acceptance and matching observation may complete or clear that attempt, and that observation counts only when its version advances the version already recorded for that attempt, as `acceptsObservation` shows.
 
 Keep authoritative truth outside that fence. Apply to the document any observation that advances the newest document version already applied, whatever command produced it, and never let such an observation complete or discard the current attempt. A replayed observation that does not advance the recorded version changes nothing.

@@ -5,76 +5,24 @@ description: WHEN authoring CSS/styles/layout for web UI, including plain-CSS cu
 
 # CSS Best Practices
 
-Production-grade CSS development with architectural principles, proper specificity management, and maintainable patterns.
-
 ## Core Principles
 
-1. **Single Responsibility** - Each class handles one concern only
-2. **Open/Closed** - Open for extension, closed for modification
-3. **Immutable CSS** - Utilities and objects never change after creation
-4. **Behavior over implementation** - Focus on what the code does, not how
-5. **Accessibility first** - Semantic HTML before ARIA, proper contrast and sizing
+1. **Single responsibility**: each class handles one concern.
+2. **Open/closed**: extend with new classes; never modify a base class.
+3. **Immutable CSS**: utilities and objects never change after creation.
+4. **Behaviour over implementation**: focus on what the code does, not how.
+5. **Accessibility first**: semantic HTML before ARIA; sufficient contrast and sizing.
 
-## Quick Reference
+## Guides
 
-| Topic                                                    | Guide                                                                   |
-| -------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Specificity hierarchy, safe techniques, !important rules | [specificity.md](references/specificity.md)                             |
-| rem vs px, margins, layout algorithms                    | [units-margins.md](references/units-margins.md)                         |
-| @extend vs mixins, refactoring workflow, code smells     | [preprocessors-refactoring.md](references/preprocessors-refactoring.md) |
-| Architectural principles and common code patterns        | [patterns.md](references/patterns.md)                                   |
+| Read                                                                    | When you need                                                                                                                                                                                                                      |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [specificity.md](references/specificity.md)                             | Specificity hierarchy and calculations; safe techniques (self-chaining, attribute selectors); cascade layers (`@layer`) and how unlayered styles win; anti-patterns (IDs, deep nesting, qualified selectors); proactive vs reactive !important and alternatives to reactive !important; shorthand gotchas |
+| [units-margins.md](references/units-margins.md)                         | rem vs px; line-height; margin encapsulation; single-direction margins; margin collapse; layout algorithms (Flow, Flexbox, Grid); gotchas (z-index, magic space under images)                                                     |
+| [preprocessors-refactoring.md](references/preprocessors-refactoring.md) | @extend vs mixins; avoiding & concatenation; CSS @import performance; finding dead CSS with beacons; the Three I's refactoring workflow; code smell tables                                                                        |
+| [patterns.md](references/patterns.md)                                   | Examples of single responsibility, open/closed, and immutable CSS (with prefixes); components without margin; utility classes; visually hidden text and focusable (stateful) hidden controls; self-chaining; custom properties for design scales |
 
-## When to Use Each Guide
-
-### Specificity
-
-Use [specificity.md](references/specificity.md) when you need:
-
-- Specificity hierarchy and calculations
-- Safe techniques (self-chaining, attribute selectors)
-- Cascade layers (`@layer`) and how unlayered styles win
-- Anti-patterns (IDs, deep nesting, qualified selectors)
-- !important rules (proactive vs reactive)
-- Shorthand property gotchas
-- Alternatives to reactive !important
-
-### Units and Margins
-
-Use [units-margins.md](references/units-margins.md) when you need:
-
-- rem vs px decision framework
-- Line-height best practices
-- Margin encapsulation rules
-- Single-direction margin patterns
-- Margin collapse behavior
-- Layout algorithm awareness (Flow, Flexbox, Grid)
-- Common gotchas (z-index, magic space under images)
-
-### Preprocessors and Refactoring
-
-Use [preprocessors-refactoring.md](references/preprocessors-refactoring.md) when you need:
-
-- @extend vs mixins guidance
-- Avoiding & concatenation
-- CSS @import performance issues
-- Finding dead CSS with beacons
-- The Three I's refactoring workflow
-- Code smell reference tables
-
-### Patterns
-
-Use [patterns.md](references/patterns.md) when you need:
-
-- Single Responsibility Principle examples
-- Open/Closed Principle patterns
-- Immutable CSS patterns and prefixes
-- Component without margin examples
-- Utility class patterns
-- Visually hidden text and focusable (stateful) hidden controls
-- Self-chaining for specificity
-- CSS custom properties for design scales
-
-## Quick Reference: Decision Trees
+## Decision Trees
 
 ### Should I use !important?
 
@@ -173,22 +121,20 @@ not proof: caches, CSP, and service workers can hide requests. Coverage tools
 miss logged-in pages and interaction-only states.
 ```
 
-## Summary Checklist
+## Pre-commit Checklist
 
-Before committing CSS, verify:
-
-- [ ] Classes follow single responsibility (structure separate from cosmetics)
+- [ ] Each class has one responsibility (structure separate from cosmetics)
 - [ ] No ID selectors for styling
 - [ ] Reactive !important appears only as a documented, property-scoped last resort at an immutable external boundary
-- [ ] Components have no margin (spacing controlled by parent)
-- [ ] Using rem for font-size and scalable spacing
-- [ ] Using px for borders, shadows, and fixed visual elements
-- [ ] Longhand properties when only setting one value
-- [ ] No deep nesting (4+ levels)
-- [ ] No qualified selectors (e.g., `ul.nav`)
-- [ ] Layout algorithm appropriate for context (Flow, Flex, Grid)
-- [ ] Accessible color contrast ratios
+- [ ] Components have no margin; the parent controls spacing
+- [ ] rem for font-size and scalable spacing
+- [ ] px for borders, shadows, and fixed visual elements
+- [ ] Longhand when setting one value
+- [ ] No nesting of 4+ levels
+- [ ] No qualified selectors (e.g. `ul.nav`)
+- [ ] Layout algorithm fits the context (Flow, Flex, Grid)
+- [ ] Accessible colour contrast ratios
 - [ ] Hidden content that receives focus uses the stateful pattern (see "Should I hide this visually?"), never `display: none`
-- [ ] Focus indicators do not rely on `box-shadow` alone (forced-colors mode removes it); `outline` is the recommended indicator
+- [ ] Focus indicators do not rely on `box-shadow` alone (forced-colors mode removes it); prefer `outline`
 - [ ] Fixed or absolutely positioned controls fit a 320 CSS px viewport (400% zoom) without horizontal scroll
-- [ ] Semantic HTML before adding ARIA
+- [ ] Semantic HTML before ARIA

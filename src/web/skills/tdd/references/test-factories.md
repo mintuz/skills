@@ -2,7 +2,7 @@
 
 ## Factory Functions Over let/beforeEach
 
-Use factory functions with optional overrides for test data. Never use `let` declarations or `beforeEach` to build that data. Lifecycle hooks such as `beforeEach` and `afterEach` remain correct for resources that need setup and teardown, such as a server, a database transaction, or a fake timer.
+Build test data with factory functions that take optional overrides. Never build that data with `let` declarations or `beforeEach`. Lifecycle hooks such as `beforeEach` and `afterEach` remain correct for resources that need setup and teardown: a server, a database transaction, or a fake timer.
 
 ```typescript
 // ✅ GOOD - Factory with overrides
@@ -71,8 +71,6 @@ it("should process payment", () => {
 
 ## Composing Factories
 
-Build complex test data by composing simpler factories:
-
 ```typescript
 const getMockAddress = (overrides?: Partial<Address>): Address => ({
   line1: "123 Test Street",
@@ -136,7 +134,7 @@ describe("OrderProcessor", () => {
 
 ### No 1:1 Test File to Implementation File Mapping
 
-Tests should be organized by feature/behavior, not mirroring implementation structure:
+Organise tests by feature or behaviour, not by mirroring implementation structure:
 
 ```
 // ❌ BAD - 1:1 mapping
@@ -154,11 +152,11 @@ src/
     payment-processor.test.ts # Tests ALL payment behavior
 ```
 
-The validator is an implementation detail. Its logic is fully covered by testing the processor's behavior.
+The validator is an implementation detail; testing the processor's behaviour covers its logic fully.
 
 ## 100% Coverage Through Behavior
 
-Achieve complete coverage by testing all business behaviors, not by targeting implementation:
+Reach complete coverage by testing every business behaviour, not by targeting implementation:
 
 ```typescript
 // payment-validator.ts (implementation detail - no direct tests)

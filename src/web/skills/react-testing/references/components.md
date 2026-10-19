@@ -1,7 +1,5 @@
 # Testing React Components
 
-**React components are just functions that return JSX.** Test them like functions: inputs (props) → output (rendered DOM).
-
 ## Basic Component Testing
 
 ```tsx

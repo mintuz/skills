@@ -1,0 +1,35 @@
+description: "principle-narrow-state-lifetime activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Selects relevant guidance"
+    vars:
+      request: "Our Express middleware stores the current user and tenant in module-level variables, and the route handlers read them. Under load some requests see another user's tenant. How should I restructure this state?"
+    assert:
+      - type: skill-used
+        value: principle-narrow-state-lifetime
+  - description: "Leaves layer tracing to its owner"
+    vars:
+      request: "This read-only lookup path crosses five forwarding wrappers that each pass the same id through unchanged. They hold no state; they just make the call hard to trace. Review the call path for readability."
+    assert:
+      - type: not-skill-used
+        value: principle-narrow-state-lifetime

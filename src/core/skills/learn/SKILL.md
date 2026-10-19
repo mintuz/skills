@@ -11,9 +11,9 @@ Capture the reusable rule, not the incident that revealed it.
 
 Read the repository's instruction hierarchy and the relevant nearby section.
 Follow pointers and generated-file notices to their owning source; the target may
-be `AGENTS.md`, `CLAUDE.md`, or another local instruction file. Treat a file as
-authoritative only when the instruction hierarchy gives it that role; a file that
-the hierarchy presents as reference material takes no rule.
+be `AGENTS.md`, `CLAUDE.md`, or another local instruction file. A file is
+authoritative only when the hierarchy gives it that role; a file the hierarchy
+presents as reference material takes no rule.
 
 Identify every existing rule that overlaps the learning. Amend an existing rule
 when it already owns the meaning. State whether you amend that rule or add a new
@@ -25,11 +25,17 @@ rule are identified by name.
 ## 2. Decide whether to record it
 
 When the source is raw notes rather than a finished rule, derive the learning
-first. From an incident, name what behaviour was unexpected, which assumption was
-wrong, and what the verified cause was. From a decision, name the chosen option,
-the rejected alternative, and the verified reason. From any other source, name
-the verified pattern or constraint and the conditions in which it applies. From
-every source, name what a future reader must do differently. Discard the rest.
+first:
+
+- From an incident: the unexpected behaviour, the wrong assumption, and the
+  verified cause.
+- From a decision: the chosen option, the rejected alternative, and the verified
+  reason.
+- From any other source: the verified pattern or constraint and the conditions
+  in which it applies.
+- From every source: what a future reader must do differently.
+
+Discard the rest.
 
 Keep a learning only when it is verified and at least one is true:
 
@@ -42,15 +48,14 @@ Record nothing when no criterion above is true, or when an existing rule already
 covers the learning. A verified, project-specific rule stays even when it
 restates a general good practice. When you record nothing, propose no change and
 name the reason. When an existing rule already covers the learning, name that
-file, that section, and that rule.
+file, section, and rule.
 
 Record only the verified part of a learning. When a cause or a repair is a
-hypothesis, propose no rule that depends on it. Say which fact is unverified.
-Name the specific artefact that would confirm or refute it, such as a log, a
-metric, a configuration value, or a controlled experiment. Ask the user to
-supply that artefact. Record no rule that depends on the hypothesis until they
-supply it. A separate observation that is already verified may still be recorded
-when it meets the criteria above.
+hypothesis, say which fact is unverified and name the specific artefact that
+would confirm or refute it, such as a log, a metric, a configuration value, or a
+controlled experiment. Ask the user to supply that artefact. Until they do,
+propose or record no rule that depends on the hypothesis. A separate, already verified
+observation may still be recorded when it meets the criteria above.
 
 Complete when each learning is either rejected with a named reason or reduced to
 a verified, reusable claim.
@@ -63,14 +68,18 @@ paths, module names, symbol names, commands, values, owners, or examples.
 
 Never write credentials, personal or customer data, or internal hostnames and
 addresses, even when the user asks for them. Name the owning secret manager or
-environment manager instead of a live value.
+environment manager instead of a live value (`principle-keep-secrets-out`).
 
-Name every security bypass the source supplies. Give the exact setting, flag,
-or tool name, and state the effect the source records for it, so that the
-prohibition is unambiguous. Do not give the value, argument, or command line that
-makes the bypass work. State the status the source records, such as a temporary,
-unsafe diagnostic used during investigation. State in every case that the bypass
-must not become repository guidance or a recommended fix. Keep the proposed rule on the approved path.
+For every security bypass the source supplies, make the prohibition unambiguous:
+
+- Give the exact setting, flag, or tool name and the effect the source records
+  for it.
+- State the status the source records, such as a temporary, unsafe diagnostic
+  used during investigation.
+- State that the bypass must not become repository guidance or a recommended fix.
+- Do not give the value, argument, or command line that makes the bypass work.
+
+Keep the proposed rule on the approved path.
 
 Complete when the proposed text holds no secret, no personal data, no invented
 fact, and no usable bypass instruction.
@@ -79,10 +88,10 @@ fact, and no usable bypass instruction.
 
 Match the target file's voice and structure. Prefer one imperative sentence or
 bullet in an existing section. Give the action and the verified mechanism that
-makes it necessary, so that a reader knows what to do and why it applies. When
-the source gives both a fault and its verified repair, write the rule so that a
-reader can detect the fault and then follow the approved repair. Add a heading or
-an example only when a reader cannot apply the rule correctly without it. Do not
+makes it necessary, so a reader knows what to do and why it applies. When the
+source gives both a fault and its verified repair, write the rule so a reader
+can detect the fault and then follow the approved repair. Add a heading or an
+example only when a reader cannot apply the rule correctly without it. Do not
 restate nearby guidance.
 
 Return the authoritative file, the target section, and the exact text to add.
@@ -91,9 +100,9 @@ retrospective, or verification checklist to it, even when a documentation
 template asks for one. Explain your reasoning in your reply instead.
 
 If the user requested a proposal, state that files remain unchanged. If the user
-authorized an edit, apply only that patch and report the file changed.
+authorised an edit, apply only that patch and report the file changed.
 
 Complete when the outcome is exactly one of these: no change, with a named
 reason; an exact proposed patch, with files unchanged; or one applied patch,
-with the changed file reported. In each case the rule you propose or apply is
+with the changed file reported. In each case the proposed or applied rule is
 safe, discoverable, and not duplicated, and no unrelated documentation changed.

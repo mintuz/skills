@@ -1,0 +1,62 @@
+description: "principle-price-each-option behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Each option carries a cost the agent must derive"
+    vars:
+      skill: file://../../src/principle/skills/principle-price-each-option/SKILL.md
+      scenario: "The user must choose how to cut the CI bill of £3,000 a month. Options I found: (A) move the runners to spot instances, saving about £900 a month; (B) cache dependencies between jobs, saving about £400 a month; (C) run the full test suite only on main and a smoke suite on branches, saving about £1,200 a month. Other facts from my investigation, in no particular order: the cache needs about 2 days to set up and no ongoing work; spot instances can be reclaimed with 2 minutes' notice, and our 25-minute release pipeline cannot resume after an interruption; the smoke suite leaves out the payment integration tests, which caught 3 bugs on branches last quarter. Write the message asking the user to choose."
+      rubric: "The message gives each of A, B and C a reply label and one plain sentence with both what it does (including its saving) and what it costs: A means a release run can be killed by a spot reclaim and must restart from the beginning; B costs about 2 days of setup; C means payment bugs that the integration tests used to catch on branches are found only after merging to main. No option is described by its saving alone. No findings summary or background comes before the options."
+  - description: "An approval request prices the option the agent prefers"
+    vars:
+      skill: file://../../src/principle/skills/principle-price-each-option/SKILL.md
+      scenario: "I fixed the flaky payment-webhook test by wrapping its assertion in a 10-second retry loop; CI is now green. The flakiness comes from a race in the webhook handler: two deliveries of the same event can both update the order. Fixing the race in the handler would take about a day. The user must approve before I push. Write the message to the user."
+      rubric: "The message puts the decision to the user as a choice between at least two options: push the retry change, or fix the race in the handler (a combined option is acceptable). Each option states in plain words both what it does and a real cost: the retry change turns CI green but leaves the production race in place; the handler fix removes the race but costs about a day. No option is described only by its benefit."
+  - description: "Every option, including the recommendation, has its cost"
+    vars:
+      skill: file://../../src/principle/skills/principle-price-each-option/SKILL.md
+      scenario: "Our Postgres disk is 92% full and grows about 1% a day. I'm blocked until the user chooses. Options: (A) upgrade the disk from 500 GB to 1 TB; (B) drop the 140 GB events_archive table; (C) enable table compression. Facts: A has no downtime, adds about £180 a month, and the disk cannot be shrunk later. B frees space today, but analytics loses its 2019–2021 history unless we export it first, which takes about 4 hours. C frees about 30% but needs a 2-hour write lock on the main tables. I would recommend A. Write the message asking the user to choose; they will read it on their phone."
+      rubric: "The message states the decision in a sentence, then gives each of A, B and C a reply label and one plain sentence with both its effect and its cost: A adds about £180 a month and cannot be shrunk later; B loses the 2019–2021 analytics history unless a roughly 4-hour export runs first; C needs a 2-hour write lock on the main tables. The recommended option A carries its cost like the others and is labelled as a recommendation. No background or findings summary precedes the options."

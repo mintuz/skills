@@ -1,10 +1,6 @@
 # Foundation Models Chat Patterns
 
-Production-ready patterns for building chat interfaces with Foundation Models.
-
 ## Pattern 1: Simple Chat Interface
-
-Basic chat with streaming responses.
 
 ```swift
 import SwiftUI
@@ -142,7 +138,7 @@ struct MessageBubble: View {
 
 ## Pattern 2: Multi-Turn Conversations
 
-CRITICAL: Reuse LanguageModelSession to maintain conversation context.
+CRITICAL: Reuse `LanguageModelSession` to keep conversation context.
 
 ```swift
 @Observable
@@ -211,8 +207,6 @@ func send(_ text: String) async throws {
 ```
 
 ## Pattern 3: Streaming with Progressive UI
-
-Show responses as they generate for better UX.
 
 ```swift
 @Observable
@@ -353,7 +347,7 @@ struct LanguageSelectorView: View {
 
 ## Pattern 5: Cancellable Requests
 
-Allow users to stop generation. This pattern is the production owner for a session: Patterns 1 to 4 show one concern each and omit the single-flight guard and owned task for brevity. Combine them with this pattern before you ship.
+Lets users stop generation. This pattern is the production session owner: Patterns 1 to 4 each show one concern and omit the single-flight guard and owned task. Combine them with this pattern before you ship.
 
 ```swift
 @Observable
@@ -423,8 +417,6 @@ struct CancellableChatView: View {
 ```
 
 ## Pattern 6: Conversation History Persistence
-
-Save and restore conversations.
 
 ```swift
 @Observable
@@ -496,7 +488,7 @@ extension Message: Codable {
 ### DO:
 
 - ✅ Reuse LanguageModelSession for multi-turn conversations
-- ✅ Stream responses for better UX using `streamResponse(to:)`; each snapshot's `content` is the cumulative partial response, so assign it and do not append it
+- ✅ Stream with `streamResponse(to:)`; assign each snapshot's cumulative `content`, never append it
 - ✅ Check availability before initialization with `SystemLanguageModel.default.isAvailable`
 - ✅ Handle all availability states in UI (`.available`, `.unavailable(.modelNotReady)`, etc.)
 - ✅ Use string prompts (or PromptBuilder for advanced prompt composition)

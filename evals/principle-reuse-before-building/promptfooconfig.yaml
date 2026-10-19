@@ -1,0 +1,62 @@
+description: "principle-reuse-before-building behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A new screen action reuses the shared action path"
+    vars:
+      skill: file://../../src/principle/skills/principle-reuse-before-building/SKILL.md
+      scenario: "A SwiftUI task app exposes CompleteTaskIntent to Shortcuts and widgets. The intent calls TaskStore.complete(id:), records the completion analytics event and reloads widget timelines. You are adding a Complete button to the task detail screen. A teammate's draft has the button call TaskStore.complete(id:) directly and copies the analytics call into the view. Decide what to build."
+      rubric: "Routes the button through the same action path the intent uses (the intent's perform or a shared action it calls) instead of calling the store and duplicating analytics in the view; notes that the direct draft would skip the widget timeline reload; names CompleteTaskIntent as the existing option found; limits new code to the button wiring."
+  - description: "An almost-sufficient command is extended, not replaced"
+    vars:
+      skill: file://../../src/principle/skills/principle-reuse-before-building/SKILL.md
+      scenario: "You need a list of unused feature flags. CONTRIBUTING documents `pnpm flags:audit`, which lists flags with zero references in TypeScript sources and is used by a weekly CI job. It misses flags referenced only from YAML config files. A colleague proposes a new standalone Python script that scans everything. Decide what to deliver."
+      rubric: "Records `pnpm flags:audit` as the existing option and what it already covers; uses it for the covered part and closes only the YAML gap within or alongside that command rather than a parallel scanner, keeping the weekly CI job's behaviour; justifies any new code by naming that specific gap; does not build a second general-purpose scanner."
+  - description: "Working test infrastructure is reused"
+    vars:
+      skill: file://../../src/principle/skills/principle-reuse-before-building/SKILL.md
+      scenario: "A new payments module needs unit tests. The repository's Vitest setup and its CI job already run every *.test.ts file and work. The payments team proposes adding Jest with its own configuration and a second CI job because they prefer its API. Nothing in the module needs a feature Vitest lacks. Decide the plan."
+      rubric: "Reuses the existing Vitest setup and CI job for the payments tests; records that the existing runner covers the need; rejects the second runner and CI job because no gap justifies new infrastructure; any new configuration is limited to what the module demonstrably needs."

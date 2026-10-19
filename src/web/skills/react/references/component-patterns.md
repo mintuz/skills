@@ -2,7 +2,7 @@
 
 ## Colocation Principle
 
-Keep components, functions, styles, and state as close as possible to where they're used:
+Keep components, functions, styles, and state as close as possible to where they are used:
 
 ```
 // ✅ Good - colocated
@@ -99,7 +99,7 @@ const CardBody = ({ children }: { children: ReactNode }) => (
 
 ## Wrap Third-Party Components
 
-Insulate your application from dependency changes:
+Insulate the app from dependency changes:
 
 ```typescript
 // ✅ Good - wrapped third-party component

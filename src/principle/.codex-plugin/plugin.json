@@ -1,6 +1,6 @@
 {
   "name": "principle",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Independent engineering principles for focused decisions and execution.",
   "author": {
     "name": "Adam Bulmer",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Principles",
     "shortDescription": "Focused engineering judgement",
-    "longDescription": "24 independently invocable engineering principles for design, verification, ownership and scope.",
+    "longDescription": "54 independently invocable engineering principles for design, verification, ownership and scope.",
     "developerName": "Adam Bulmer",
     "category": "Developer Tools",
     "capabilities": [

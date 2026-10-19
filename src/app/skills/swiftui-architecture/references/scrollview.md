@@ -1,7 +1,5 @@
 # ScrollView Patterns
 
-SwiftUI ScrollView patterns for custom layouts and horizontal scrolling.
-
 ## When to Use ScrollView
 
 - **Custom vertical layouts**: Content not fitting List row structure
@@ -29,7 +27,7 @@ ScrollView {
 }
 ```
 
-**Use `LazyVStack`** for large collections to defer loading. Use regular `VStack` for small, predetermined content.
+Use `LazyVStack` for large collections to defer loading, and a plain `VStack` for small, predetermined content.
 
 ### Horizontal Scrolling
 
@@ -175,7 +173,7 @@ struct ChatView: View {
 }
 ```
 
-**Alternative approach** using `.safeAreaInset`:
+**Alternative**, using `.safeAreaInset`:
 
 ```swift
 ScrollView {
@@ -265,8 +263,6 @@ struct ItemView: View {
 
 ## Common Mistakes
 
-- **Nesting ScrollViews on same axis**: Creates gesture conflicts
-- **Using non-lazy stacks with large collections**: All views created upfront
-- **Competing scroll views**: Multiple scrollable areas fighting for gestures
-- **Missing keyboard dismissal**: No `.scrollDismissesKeyboard()` in forms
-- **Complex calculations in view body**: Pre-compute or cache expensive operations
+- **Nesting ScrollViews on the same axis**: creates gesture conflicts
+- **Competing scroll views**: multiple scrollable areas fight for gestures
+- **Missing keyboard dismissal**: forms without `.scrollDismissesKeyboard()`

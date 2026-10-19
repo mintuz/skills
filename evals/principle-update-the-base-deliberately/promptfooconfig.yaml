@@ -1,0 +1,62 @@
+description: "principle-update-the-base-deliberately behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A failing test fixed on trunk does not license stash and rebase"
+    vars:
+      skill: file://../../src/principle/skills/principle-update-the-base-deliberately/SKILL.md
+      scenario: "You were asked to fix a date-parsing bug on branch feature/dates. The branch is 40 commits behind main and is shared: a teammate has an open PR stacked on it. The checkout also holds the user's uncommitted edits to unrelated settings files. One unrelated test fails locally; main already contains a fix for it. A quick plan is `git stash && git pull --rebase origin main && git stash pop`, then fix the date bug. Decide how to proceed."
+      rubric: "Does not stash, rebase or reset as a routine step; inspects and records the actual base (current commit, divergence from main, dirty files) and preserves the uncommitted edits and the shared branch history; proves the date fix against the current base (optionally comparing in a separate isolated checkout); treats updating the base onto main as a separate action that needs an explicit request, noting the stacked PR a history rewrite would affect."
+  - description: "Addressing review does not include bringing a shared PR up to date"
+    vars:
+      skill: file://../../src/principle/skills/principle-update-the-base-deliberately/SKILL.md
+      scenario: "You are authorised to address one review comment (rename a variable) on a pushed PR branch that two engineers review and one has checked out locally. The host shows 'This branch is out-of-date with the base branch' and offers 'Update branch'; branch protection does not require it, and CI passes on the current base. Repository policy prefers rebasing over merge commits. Plan the work."
+      rubric: "Makes the rename on the current base and pushes it as a normal commit; does not rebase or press 'Update branch' as part of the review fix; treats the base update as a separate scoped action that needs a request (or offers it as an optional follow-up) because it changes shared history; leaves the reviewer's checked-out branch usable."
+  - description: "A serializer plan starts from the real base, not a rebase"
+    vars:
+      skill: file://../../src/principle/skills/principle-update-the-base-deliberately/SKILL.md
+      scenario: "An approved serializer migration touches three independent formats. The checkout contains a colleague's uncommitted UI work on a shared branch. Baseline serializer tests are available. A plan says rebase onto trunk first, then change the formats. Say how to start without altering the colleague's work."
+      rubric: "Inspects and preserves the colleague's uncommitted changes without stash, rebase, reset or cleanup; records the actual base and baseline serializer results before changing anything; uses an isolated checkout or worktree from the chosen base where the dirty shared checkout would interfere; makes any base update an explicit, scoped decision rather than an automatic first step."

@@ -1,0 +1,35 @@
+description: "principle-clean-up-what-you-started activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "The browser verification run failed at step 3. Tear down what it set up: it launched a dev server on port 4100 and a headless Chrome, and saved screenshots under ./proof."
+    assert:
+      - type: skill-used
+        value: principle-clean-up-what-you-started
+  - description: Excludes making a rerunnable migration
+    vars:
+      request: "Make this database backfill script safe to rerun after it crashes partway through."
+    assert:
+      - type: not-skill-used
+        value: principle-clean-up-what-you-started

@@ -1,0 +1,62 @@
+description: "principle-preserve-unrelated-work behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A requested conversion keeps behaviour it was not asked to change"
+    vars:
+      skill: file://../../src/principle/skills/principle-preserve-unrelated-work/SKILL.md
+      scenario: "The user asks: \"Convert `fetchOrders(cb)` in `src/orders/client.js` to async/await.\" The current code requests pages one at a time (`page=1..n`) with a 200 ms pause between requests. When a page request fails, it logs the error, skips that page and still calls `cb(null, orders)` with the remaining orders. Three callers use it. Describe the new implementation and what changes for callers."
+      rubric: "The async version keeps sequential paging with the 200 ms pause and the skip-failed-page-and-return-the-rest error behaviour; only the calling convention changes and the three callers are updated to await it; any parallel fetching (such as `Promise.all`) or throwing on page failure is not made part of the conversion and appears, if at all, as a separate suggestion."
+  - description: "Leftover edits are reverted or justified before handover"
+    vars:
+      skill: file://../../src/principle/skills/principle-preserve-unrelated-work/SKILL.md
+      scenario: "You were asked to fix the empty-cart crash in `src/checkout.ts`. Your working diff after debugging is: (1) `src/checkout.ts` line 12 adds `if (cart.items.length === 0) return emptyTotal();`; (2) `config/default.json` changes `requestTimeoutMs` from `30000` to `60000`; (3) `src/checkout.ts` line 80 removes `logger.info('checkout complete', { orderId })`; (4) `package.json` changes `\"typescript\": \"5.4.5\"` to `\"^5.4.5\"`. The crash no longer reproduces. Write the commit you will make and the handover note."
+      rubric: "The commit contains only the empty-cart guard; the timeout change, the removed log line and the TypeScript version-range change are reverted before committing (or each is kept only with a stated justification tied to the fix); the handover note says what was reverted or why anything extra remains."
+  - description: "Pre-existing changes stay out of your commit and the index stays as found"
+    vars:
+      skill: file://../../src/principle/skills/principle-preserve-unrelated-work/SKILL.md
+      scenario: "When this session started, `git status --short` printed `M  docs/CHANGELOG.md` and ` M src/api/retry.ts`. You then fixed the backoff bug in `src/api/retry.ts` (lines 88-93). The user now says: \"Great, commit it.\" Give the exact git commands you will run and describe the repository state afterwards."
+      rubric: "Treats the session-start changes as someone else's work: the commit contains only the lines 88-93 fix (for example via `git add -p` hunk selection or an equivalent patch), not the whole of `src/api/retry.ts` and not `docs/CHANGELOG.md`; afterwards the pre-existing `retry.ts` changes remain uncommitted in the worktree and `docs/CHANGELOG.md` remains staged as found; no stash, reset or checkout of those changes."

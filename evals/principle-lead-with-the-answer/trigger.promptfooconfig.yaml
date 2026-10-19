@@ -1,0 +1,35 @@
+description: "principle-lead-with-the-answer activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "A customer, Sam, emailed support: 'I think I was charged twice for my March subscription. Can you check?' Our findings: the billing log shows two £49 charges on 3 March, 40 seconds apart, caused by an automatic retry after a payment-gateway timeout; the second charge was refunded automatically today and will take 5–10 working days to appear on Sam's statement; no other months are affected. Write the reply email to Sam."
+    assert:
+      - type: skill-used
+        value: principle-lead-with-the-answer
+  - description: "Excludes a plain code edit"
+    vars:
+      request: "Rename the function `getUsr` to `getUser` in src/auth.ts and update its two callers."
+    assert:
+      - type: not-skill-used
+        value: principle-lead-with-the-answer

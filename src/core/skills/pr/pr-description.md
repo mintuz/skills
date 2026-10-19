@@ -1,7 +1,5 @@
 # PR Description Writing
 
-Guidelines for creating comprehensive pull request descriptions that help reviewers understand and evaluate changes efficiently.
-
 ## Analyzing Commits
 
 Look for:
@@ -177,52 +175,46 @@ Relates to #123
 
 ### Changes
 
-- List only changes the diff or the supplied evidence shows
-- Do not add a bullet for a test, doc, or file change that the evidence does not name
+- List only changes the diff or the supplied evidence shows; add no bullet for a test, doc, or file change the evidence does not name
 - Do not pad the list to fill the template
 - Highlight what changed, not how (reviewers read the diff)
-- Group by component/area if many changes
+- Group by component/area when there are many changes
 - Use verb phrases: "Adds...", "Fixes...", "Updates..."
-- Don't list every file; summarize meaningfully
+- Summarise meaningfully rather than listing every file
 
 ### Context
 
-- Explain the "why" - motivation for this change
-- Link to relevant issues, tickets, or discussions
-- Mention alternatives considered (briefly)
-- Include any relevant constraints or decisions
+- Explain the why: the motivation for the change
+- Link relevant issues, tickets, or discussions
+- Mention alternatives considered, briefly
+- Include relevant constraints or decisions
 
 ### Testing
 
 - Record each check with its real status: passed, failed, or `Not performed`
-- Do not use an unchecked box to record a test outcome; keep checkboxes for actions the author still has to take
-- Name each check by the command that ran; do not label it as a unit, integration, or E2E run unless the evidence says which it is
-- Include manual testing steps if not obvious
+- Never record a test outcome as an unchecked box; reserve checkboxes for actions the author still has to take
+- Name each check by the command that ran; label it unit, integration, or E2E only when the evidence says which
+- Include manual testing steps when not obvious
 - Note areas that need extra review attention
-- For UI: always include screenshots/GIFs
 
 ### Screenshots
 
-- Required for any UI changes
+- Always required for UI changes (screenshots or GIFs)
 - Show before/after for modifications
 - Annotate if helpful
 - Use GIFs for interaction changes
 
 ### Migration
 
-- Only include if there are breaking changes
+- Include only for breaking changes
 - Be explicit about steps
-- Include rollback procedure
+- Include the rollback procedure
 - Note any downtime or data impact
 
 ## Unknown Facts
 
-When a section needs a fact the evidence does not give (risk level, rollback plan, deployment notes, external usage), write a marked placeholder such as `[Author: add rollback plan]`. Do not invent a value. Do not remove the section, because reviewers use the placeholder to see what is still missing.
+When a section needs a fact the evidence does not give (risk level, rollback plan, deployment notes, external usage), write a marked placeholder such as `[Author: add rollback plan]`. Do not invent a value. Keep the section: reviewers use the placeholder to see what is still missing.
 
 ## Tone
 
-- Professional but not formal
-- Assume reviewers are busy
-- Make it easy to understand quickly
-- Acknowledge complexity when it exists
-- Be honest about risks and limitations
+Professional, not formal. State risks and limitations honestly.

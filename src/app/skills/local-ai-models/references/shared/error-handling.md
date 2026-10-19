@@ -1,7 +1,5 @@
 # Error Handling
 
-Comprehensive error handling for on-device AI models (Foundation Models + MLX Swift).
-
 ## Foundation Models Error Sources
 
 - Availability: `SystemLanguageModel.default.availability`

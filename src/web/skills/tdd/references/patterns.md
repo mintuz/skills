@@ -4,7 +4,7 @@
 
 ### Test Behavior, Not Implementation
 
-Tests should verify WHAT the code does, not HOW it does it.
+Test WHAT the code does, not HOW it does it.
 
 ```typescript
 // ✅ GOOD - Tests business behavior

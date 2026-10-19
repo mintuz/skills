@@ -44,11 +44,11 @@ defaultTest:
               plugins: false
               skill_search: false
 tests:
-  - description: "Dirty shared branch is not a rebase target"
+  - description: "A failed unit blocks the work that depends on it"
     vars:
       skill: file://../../src/principle/skills/principle-sequence-verifiable-units/SKILL.md
-      scenario: "An approved serializer migration touches three independent formats. The checkout contains a colleague's uncommitted UI work on a shared branch. Baseline serializer tests are available. A plan says rebase onto trunk first, then change all formats and test at the end. Propose a verifiable sequence without altering the colleague's work."
-      rubric: "Inspects and preserves unrelated changes without auto-rebase, stash, reset or cleanup; establishes the actual base and uses an isolated checkout where appropriate; orders one format/contract unit at a time with before/after checks and rollback; stops dependencies on a failed unit and includes final cross-format checks."
+      scenario: "An approved serializer migration first changes a shared encoder, then the JSON and CBOR formats that depend on it. After the encoder change, its round-trip check fails on one edge case (negative zero). A teammate suggests moving on to the JSON and CBOR units now and fixing every failure together at the end, because the format tests will exercise the encoder anyway. Propose the sequence."
+      rubric: "Does not start the dependent JSON or CBOR units while the encoder check fails; diagnoses the failure at the encoder boundary and either fixes it until the check passes or rolls the encoder unit back; then gives each format unit its own before/after check and rollback; ends with cross-format integration checks rather than deferring all failures to the end."
   - description: "A unit follows the invariant rather than file count"
     vars:
       skill: file://../../src/principle/skills/principle-sequence-verifiable-units/SKILL.md

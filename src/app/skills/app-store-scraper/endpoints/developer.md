@@ -77,7 +77,7 @@ curl -s "https://itunes.apple.com/lookup?id=284882215&entity=software" | \
 
 ## Response Structure
 
-Returns the same structure as App Lookup, with multiple app results:
+Same structure as App Lookup, with multiple results:
 
 ```json
 {

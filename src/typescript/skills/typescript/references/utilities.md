@@ -4,7 +4,7 @@
 
 ### Prevent Primitive Obsession
 
-Create distinct types for domain concepts:
+Give each domain concept a distinct type:
 
 ```typescript
 // Bad - easy to mix up

@@ -1,21 +1,19 @@
 # Tone of Voice Profile
 
-Detailed reference for replicating the warm, organized update style.
-
 ## Voice Characteristics
 
 | Dimension | Style |
 |-----------|-------|
-| Formality | Professional-casual blend; technical when needed, approachable always |
+| Formality | Professional-casual; technical when needed, always approachable |
 | Warmth | Generous with credit, inclusive language ("we", team mentions) |
 | Pace | Brisk; punchy sentences, scannable structure, no filler |
-| Energy | High but controlled; enthusiasm channeled through structure |
+| Energy | High but controlled; enthusiasm channelled through structure |
 
 ## Signature Patterns
 
 ### Emoji as Section Anchors
 
-Each topic gets a themed emoji prefix. Never decorative—always organizational.
+Give each topic a themed emoji prefix that organises, never decorates.
 
 ```
 :art: Design System & Templates
@@ -27,37 +25,33 @@ Each topic gets a themed emoji prefix. Never decorative—always organizational.
 
 ### Good First, Challenges Second
 
-Bad news is sandwiched and contextualized, never buried.
-
-> "Great progress and some less-than-ideal timeline changes. We'll cover the good first, as it's very easy to lose sight of just how much work is being shipped every day"
+Sandwich and contextualise bad news; never bury it.
 
 ### Named Gratitude
 
-Team members are called out by name at section ends, making appreciation specific rather than generic.
+Call out team members by name at section ends, for specific contributions.
 
 > "Big shout out for working through some tough challenges: @person1 for the rollback rehearsal, @person2 for diagnosing the timeout, @person3 for the reviews"
 
 ### Seasonal/Cultural Hooks
 
-Updates often open with a themed invitation that humanizes the content.
+Often open with a themed invitation that humanises the update.
 
 > "Is it appropriate to drink mulled wine whilst at work and this close to Christmas?? If so, grab yourself a little Glühwein and settle in for a TEAM_NAME update"
 
 ### Sticky Analogies
 
-Technical progress explained through memorable comparisons.
+Explain technical progress through memorable comparisons.
 
 > "Remember that shopping cart analogy I've been whipping out at every opportunity? Well we're looking more 'race car' every day."
 
 ### Inline Evidence
 
-Links to production, Storybook, docs woven naturally into claims—showing, not just telling.
-
-> "shipped to production, to the X page, our fastest growing page"
+Weave links to production, Storybook, and docs into claims.
 
 ### Honest Caveats
 
-Footnotes or asterisks carry non-material qualifications without cluttering the main flow. Delivery state, failed checks, date changes, blockers, and pending decisions stay in the main text.
+Mark non-material qualifications with footnotes or asterisks.
 
 > "* The Storybook link needs the office VPN"
 
@@ -65,7 +59,7 @@ Footnotes or asterisks carry non-material qualifications without cluttering the 
 
 ### Delivering Unwelcome News
 
-Acknowledge the feeling directly, then pivot to context with bullet points that reframe.
+Acknowledge the feeling directly, then pivot to reframing context bullets.
 
 **Pattern:** "[Bad news], which obviously [acknowledge feeling]. There is [nuance/context] though:"
 
@@ -73,7 +67,7 @@ Acknowledge the feeling directly, then pivot to context with bullet points that 
 
 ### Connecting Tactical to Strategic
 
-Connect work to benefit in a single sentence.
+Connect work to benefit in one sentence.
 
 **Pattern:** [What we did] + [immediate impact] + [future payoff framed as simplification]
 
@@ -81,43 +75,26 @@ Connect work to benefit in a single sentence.
 
 ### Crediting Innovation
 
-Use a light touch of playfulness paired with a named individual.
+Pair light playfulness with a named individual.
 
 **Example:** "Using some cutting edge AI wizardry from @person1 we've fast tracked the X page"
 
 ### Building Momentum
 
-End sections with forward-looking statements that create anticipation.
-
-**Examples:**
-
-- "will kick off in January"
-- "this month"
-- "in the new year once we've validated the design"
+End sections with forward-looking statements: "will kick off in January", "this month", "in the new year once we've validated the design".
 
 ## Extended Do's and Don'ts
 
+Beyond the SKILL.md list:
+
 ### Do
 
-- Open with a friendly hook or greeting before diving in
-- Use emoji to create visual hierarchy, one per section header
-- Credit individuals by name—specificity shows genuine appreciation
-- Link to evidence (production, docs, Storybook) to back up claims
-- Acknowledge challenges directly, then reframe with context
-- Use bullet points and numbered lists liberally—optimize for scanning
-- Use backticks for component/technical names (`Button`, `Dialog`)
-- End sections with momentum ("will kick off in January", "this month")
+- Use bullets and numbered lists liberally
+- Use backticks for component names (`Button`, `Dialog`)
 - Use italics for soft emphasis or asides
-- Include action items with owners when relevant
+- Trust the audience's competence
 
 ### Don't
 
-- Bury bad news or avoid it—address it head-on with balance
-- Use emoji as decoration; every emoji should serve a structural purpose
-- Give vague team thanks ("thanks everyone")—name people
-- Over-explain technical concepts; trust the audience's competence
-- Use excessive exclamation marks; let structure convey enthusiasm
-- Write dense paragraphs—break into scannable chunks
-- Make claims without evidence or links when available
+- Use excessive exclamation marks; let structure carry enthusiasm
 - Use overly formal or stiff language
-- Forget to close the loop on previous updates

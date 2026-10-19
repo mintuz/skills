@@ -11,8 +11,6 @@
 
 ### Production Code Without Failing Test
 
-**The core TDD principle:** Every line of new or changed behavior must be written in response to a failing test. Refactoring is the one exception: it changes structure while every test stays green.
-
 ```typescript
 // ❌ WRONG - Writing production code first
 const calculateDiscount = (order: Order): number => {
@@ -50,6 +48,8 @@ const calculateDiscount = (order: Order): number => {
 
 ### Testing Implementation Details
 
+Test WHAT the code does, not HOW it does it.
+
 ```typescript
 // ❌ WRONG - Tests implementation details
 it("should call validatePaymentAmount", () => {
@@ -83,7 +83,7 @@ it("should apply free shipping for orders over £50", () => {
 
 ### Testing Through Public APIs Only
 
-Tests should only interact with the public interface. Internal methods and state are invisible to tests.
+Internal methods and state are invisible to tests.
 
 ```typescript
 // ✅ GOOD - Uses public API
@@ -105,7 +105,7 @@ expect(orderProcessor.privateValidate).toHaveBeenCalled();
 
 ### Descriptive Test Names
 
-Test names should document business behavior, not implementation steps.
+Name tests for business behaviour, not implementation steps.
 
 ```typescript
 // ✅ GOOD - Documents behavior
@@ -125,7 +125,7 @@ Test names should document business behavior, not implementation steps.
 
 ### Test Behavior, Not Implementation
 
-Tests should verify WHAT the code does, not HOW it does it.
+Verify what the code does, not how it does it.
 
 ```typescript
 // ✅ GOOD - Tests business behavior
@@ -157,16 +157,3 @@ it("should use the PaymentGateway class", () => {
   // Testing internal wiring, not behavior
 });
 ```
-
-## Quality Gates
-
-Before committing, verify:
-
-- ✅ All new or changed behavior has a test that demanded it
-- ✅ Tests verify behavior, not implementation
-- ✅ Implementation is minimal (only what's needed)
-- ✅ Refactoring assessment completed
-- ✅ All tests pass
-- ✅ Factory functions used for test data (no `let`, no `beforeEach` data setup)
-- ✅ Test names describe business behavior
-- ✅ Edge cases covered

@@ -1,7 +1,5 @@
 # PR Sizing Guidelines
 
-How to assess pull request size and decide whether to split into smaller PRs.
-
 ## Size Categories
 
 | Size   | Files Changed | Lines Changed | Approach                                             |
@@ -10,7 +8,7 @@ How to assess pull request size and decide whether to split into smaller PRs.
 | Medium | 4-15 files    | 101-500 lines | Full template with context and manual testing steps  |
 | Large  | 16+ files     | 501+ lines    | Consider splitting; if unavoidable, add risk section |
 
-Use the largest category that either the file count or the line count reaches. A 2-file, 600-line change is large.
+Use the largest category that either the file count or the line count reaches: a 2-file, 600-line change is large.
 
 ## Signs a PR Should Be Split
 
@@ -23,11 +21,11 @@ Use the largest category that either the file count or the line count reaches. A
 
 ## Benefits of Smaller PRs
 
-- **Faster reviews** - Reviewers can focus and complete in one session
-- **Better feedback** - Easier to spot issues in focused changes
-- **Lower risk** - Smaller blast radius if something goes wrong
-- **Cleaner history** - Each PR tells a clear story
-- **Easier rollback** - Can revert specific changes independently
+- **Faster reviews**: reviewers can focus and finish in one session
+- **Better feedback**: issues are easier to spot in focused changes
+- **Lower risk**: smaller blast radius if something goes wrong
+- **Cleaner history**: each PR tells a clear story
+- **Easier rollback**: specific changes revert independently
 
 ## How to Split a Large PR
 
@@ -65,7 +63,7 @@ Split into:
 
 ## Recommending a Split
 
-When a PR should be split, provide this guidance:
+When a PR should be split, use this format:
 
 ```markdown
 **Recommendation: Consider splitting this PR**
@@ -96,14 +94,14 @@ If you prefer to proceed as a single PR, here's the description:
 
 ## When Large PRs Are Acceptable
 
-Sometimes splitting isn't practical:
+Splitting is impractical for:
 
-- **Generated code** - Auto-generated files that must stay in sync
-- **Atomic migrations** - Database changes that must deploy together
-- **Tightly coupled changes** - Where splitting would break the build
-- **Initial project setup** - Bootstrapping a new service/module
+- **Generated code**: auto-generated files that must stay in sync
+- **Atomic migrations**: database changes that must deploy together
+- **Tightly coupled changes**: splitting would break the build
+- **Initial project setup**: bootstrapping a new service/module
 
-In these cases, use the large PR template with extra attention to:
+For these, use the large PR template and give extra attention to:
 
 - Risk level assessment
 - Detailed testing steps

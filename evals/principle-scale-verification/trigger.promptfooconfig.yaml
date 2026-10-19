@@ -1,0 +1,35 @@
+description: "principle-scale-verification activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Chooses checks for a ready change"
+    vars:
+      request: "My one-line fix to the shared date parser used by billing and reporting is ready. Repository rules require lint and unit tests. Which checks should I run before calling it done, and which can I skip?"
+    assert:
+      - type: skill-used
+        value: principle-scale-verification
+  - description: "Leaves test-assertion design to its owner"
+    vars:
+      request: "Rewrite this unit test so it asserts the email payload sent to the buyer instead of how many times format() was called."
+    assert:
+      - type: not-skill-used
+        value: principle-scale-verification

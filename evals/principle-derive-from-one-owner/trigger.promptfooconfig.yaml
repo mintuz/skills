@@ -1,0 +1,35 @@
+description: "principle-derive-from-one-owner activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Selects guidance for a duplicated decision"
+    vars:
+      request: "Our API handler and our nightly job each compute whether a subscription is overdue, with slightly different logic, and the overdue flag is also stored on the subscription row. They disagree for some customers. How should I fix this?"
+    assert:
+      - type: skill-used
+        value: principle-derive-from-one-owner
+  - description: "Leaves an untraceable layered path to its owner"
+    vars:
+      request: "A request value in our service passes through five wrapper functions and a mutable context object before it reaches the handler. Nothing is duplicated and nothing new is being added; I just want the path easier to trace. What should I do?"
+    assert:
+      - type: not-skill-used
+        value: principle-derive-from-one-owner

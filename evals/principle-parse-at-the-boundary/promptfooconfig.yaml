@@ -1,0 +1,62 @@
+description: "principle-parse-at-the-boundary behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Persistence breaks unconditional trust"
+    vars:
+      skill: file://../../src/principle/skills/principle-parse-at-the-boundary/SKILL.md
+      scenario: "A network handler validates Account once. A background task loads older Accounts directly from disk and awaits a plugin callback that can mutate the shared Account. The team wants all subsequent balance checks removed because Account is typed. Recommend validation ownership."
+      rubric: "Identifies persisted data and plugin mutation/reentrancy as trust or invariant transitions; validates loaded state and reestablishes needed invariants after mutation or suspension; only removes checks proved redundant across every path."
+  - description: "One proven boundary is sufficient"
+    vars:
+      skill: file://../../src/principle/skills/principle-parse-at-the-boundary/SKILL.md
+      scenario: "A CLI parses a string into an immutable PositiveCount with a private validated constructor. Pure internal helpers receive that value; no unsafe construction, mutation or persistence path exists. Every helper reparses the integer. Describe a focused cleanup."
+      rubric: "Keeps parsing and errors at CLI entry; uses the validated domain type internally and removes redundant reparsing; preserves domain behavior with focused accepted/rejected input checks."
+  - description: "Harden entry paths, not the interior"
+    vars:
+      skill: file://../../src/principle/skills/principle-parse-at-the-boundary/SKILL.md
+      scenario: "A security review of the billing module says: 'Add input validation to every public function.' The module exports 14 functions. handleStripeWebhook(rawBody) and importInvoicesCsv(text) receive external data. replayFailedJobs() reads job payloads that an older release serialised to a queue. The other 11 are helpers that take Money and InvoiceId, immutable types whose private constructors validate, and they never mutate shared state. Plan the hardening work."
+      rubric: "Parses and validates at the three entry paths, treating replayFailedJobs as a persisted-data boundary whose older payloads are parsed, migrated or rejected; does not add re-validation inside the 11 helpers that receive validated immutable Money and InvoiceId values, and explains this to the reviewer; returns useful errors at those boundaries; names accepted, rejected and legacy-payload checks."

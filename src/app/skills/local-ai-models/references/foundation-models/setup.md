@@ -1,12 +1,8 @@
 # Foundation Models Setup
 
-Setup guide for Apple's Foundation Models framework.
-
 ## Requirements
 
-### Platform Requirements
-
-Foundation Models requires iOS 26, iPadOS 26, or macOS 26 or later, and an Apple Intelligence-capable device with Apple Intelligence enabled. If the deployment target is lower than iOS 26, guard the feature with `#available(iOS 26, *)`. Always check availability at runtime and provide a fallback UI when unavailable.
+See the compatibility gate in SKILL.md for the OS and device floor. If the deployment target is below iOS 26, guard the feature with `#available(iOS 26, *)`.
 
 ## Framework Import
 
@@ -14,11 +10,11 @@ Foundation Models requires iOS 26, iPadOS 26, or macOS 26 or later, and an Apple
 import FoundationModels
 ```
 
-No package dependencies needed - Foundation Models is built into supported iOS versions.
+No package dependencies: Foundation Models is built into supported OS versions.
 
 ## Checking Availability
 
-ALWAYS check model availability before use. Each element of `streamResponse(to:)` is a snapshot whose `content` holds the cumulative partial response: assign it, do not append it.
+Check availability before every use. Each element of `streamResponse(to:)` is a snapshot whose `content` holds the cumulative partial response: assign it; never append it.
 
 ```swift
 let systemModel = SystemLanguageModel.default
@@ -106,17 +102,23 @@ let session = LanguageModelSession()
 
 ## Complete Setup Example
 
+`ChatService` is the session's single-flight owner: every session call runs inside its one owned task, so `send` is a client of `sendStreaming` rather than a second path to the session. Add transcript commit from [chat-patterns.md](chat-patterns.md) Pattern 5.
+
 ```swift
 import SwiftUI
 import FoundationModels
 
 @Observable
-class ChatService {
+@MainActor
+final class ChatService {
     private var session: LanguageModelSession?
+    /// The owned generation task; non-nil while the session is in use.
+    private var currentTask: Task<Void, Never>?
     var isAvailable = false
     var isReady: Bool {
         isAvailable && session != nil
     }
+    var isResponding: Bool { currentTask != nil }
 
     func initialize() async {
         // Check availability
@@ -131,26 +133,32 @@ class ChatService {
         session = LanguageModelSession()
     }
 
+    /// Waits for the whole reply through the same single-flight path.
     func send(_ message: String) async throws -> String {
-        guard let session else {
-            throw ChatError.sessionNotInitialized
+        var reply = ""
+        for try await content in sendStreaming(message) {
+            reply = content
         }
-
-        let response = try await session.respond(to: message)
-        return response.content
+        return reply
     }
 
+    /// The only path to the session. Single-flight: a send while one runs is rejected.
     func sendStreaming(_ message: String) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
-            // Single-flight: no session, or the session is already responding.
-            guard let session, !session.isResponding else {
+            guard let session else {
                 continuation.finish(throwing: ChatError.sessionNotInitialized)
+                return
+            }
+            guard currentTask == nil, !session.isResponding else {
+                continuation.finish(throwing: ChatError.requestInProgress)
                 return
             }
 
             let task = Task {
+                defer { currentTask = nil }
                 do {
                     for try await snapshot in session.streamResponse(to: message) {
+                        try Task.checkCancellation()
                         continuation.yield(snapshot.content)
                     }
                     continuation.finish()
@@ -158,9 +166,16 @@ class ChatService {
                     continuation.finish(throwing: error)
                 }
             }
-            // Consumer teardown cancels the producer task.
+            currentTask = task
+            // Consumer teardown cancels the owned task.
             continuation.onTermination = { _ in task.cancel() }
         }
+    }
+
+    /// Stop and teardown: cancel the owned task and await it before the next send.
+    func stop() async {
+        currentTask?.cancel()
+        await currentTask?.value
     }
 }
 
@@ -178,28 +193,22 @@ struct ChatApp: View {
         .task {
             await chatService.initialize()
         }
+        .onDisappear {
+            Task { await chatService.stop() }
+        }
     }
 }
 ```
 
 ## Privacy Considerations
 
-Foundation Models runs entirely on-device:
+Foundation Models runs entirely on-device: no data leaves the device, and no internet is required after the initial model download.
 
-- No data sent to servers
-- No internet required (after initial model download)
-- Full privacy and offline capability
-
-No special privacy keys needed in Info.plist for basic chat.
+Basic chat needs no Info.plist privacy keys.
 
 ## Device Testing
 
-CRITICAL: Always test on physical devices.
-
-**Recommended devices:**
-
-- Test on Apple Intelligence supported devices
-- Verify availability states on devices with Apple Intelligence disabled
+Always test on physical devices. Recommended devices: Apple Intelligence-supported devices, plus devices with Apple Intelligence disabled to verify availability states.
 
 ## Common Issues
 
@@ -262,7 +271,7 @@ if case .unavailable(.modelNotReady) = systemModel.availability {
 
 ## Internationalization
 
-Foundation Models has built-in language/locale support:
+Built-in language/locale support:
 
 ```swift
 let model = SystemLanguageModel.default
@@ -278,11 +287,10 @@ let instructions = "The person's locale is \(locale.identifier)."
 let session = LanguageModelSession(instructions: instructions)
 ```
 
-Check Apple's documentation for current language support and handle unsupported locales by catching `LanguageModelSession.GenerationError.unsupportedLanguageOrLocale(_:)`.
+Check Apple's documentation for current language support. Handle unsupported locales by catching `LanguageModelSession.GenerationError.unsupportedLanguageOrLocale(_:)`.
 
 ## Next Steps
 
-Once setup is complete, proceed to:
 
 - [chat-patterns.md](chat-patterns.md) - Implement chat interfaces
 - [../shared/best-practices.md](../shared/best-practices.md) - Optimization tips

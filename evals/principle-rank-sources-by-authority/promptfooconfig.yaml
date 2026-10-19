@@ -1,0 +1,62 @@
+description: "principle-rank-sources-by-authority behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Recency does not outrank an approved spec"
+    vars:
+      skill: file://../../src/principle/skills/principle-rank-sources-by-authority/SKILL.md
+      scenario: "Repository rules say product specifications change only through a revision approved by the product owner. Spec v2 (approved by the product owner on 1 March) sets the session timeout to 30 minutes. On 20 May a developer commented on the implementation ticket: 'we're doing 15 minutes now'. No spec revision or approval record follows. You are asked to implement the session timeout. Decide what to implement."
+      rubric: "Treats approved spec v2 as governing because of its documented change authority and cites it; implements 30 minutes or holds the value pending the owner's decision, but does not adopt 15 minutes because the comment is newer; reports the comment as an unapproved divergence for the product owner to resolve."
+  - description: "Equal authority with no precedence is unresolved"
+    vars:
+      skill: file://../../src/principle/skills/principle-rank-sources-by-authority/SKILL.md
+      scenario: "The product requirements document, owned by the product team, says to retain user activity logs for 24 months. The data-handling policy, owned by the security team, says to delete activity logs after 12 months. Both documents are approved and current, and neither the repository nor either document says which team decides retention or which document takes precedence. The policy was updated more recently. You are implementing the log retention job. Decide the retention period."
+      rubric: "Reports the retention conflict as unresolved, citing both documents and their owners; does not pick 12 months because the policy is newer, nor either value on its own judgement of which team usually wins; asks for the decision owner to settle it before the retention period is fixed; does not invent a precedence rule."
+  - description: "A later change without recorded authority is not a supersession"
+    vars:
+      skill: file://../../src/principle/skills/principle-rank-sources-by-authority/SKILL.md
+      scenario: "Decision record D-7, approved by the architecture board, says the public API returns dates as ISO-8601 strings. A later merged PR changed responses to epoch milliseconds; its description says 'switching to epoch for perf' and links no decision or approval. The team status page, updated last week, says 'API dates are epoch'. You are writing the client SDK's date handling and must state the API's date contract. Decide."
+      rubric: "Identifies D-7 as the governing contract and cites it; treats the merged PR as a divergence lacking recorded authority, not as a supersession, and does not treat the status page's recency as authority; distinguishes current server behaviour (epoch) from the contract; reports the drift to the decision owner, the architecture board."

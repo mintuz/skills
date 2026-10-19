@@ -1,0 +1,57 @@
+description: "principle-label-the-evidence behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Lower-level passes do not establish a device claim"
+    vars:
+      skill: file://../../src/principle/skills/principle-label-the-evidence/SKILL.md
+      scenario: "Write the verification section of a PR that claims 'notes persist across app relaunch on device'. Evidence on commit 4e1c2: the app builds; `NoteStoreTests` unit tests pass (12/12); an iPhone 16 simulator run (log sim-0412.txt) shows a saved note restored after relaunch. No physical device was available. A reviewer wants one short section they can trust."
+      rubric: "Labels each piece of evidence by its level (build, unit, simulator) with a locator such as the commit, test target or log name; does not let the build, unit or simulator results establish the physical-device claim and states that claim as unverified or an open question; does not invent a device result."
+  - description: "Mark an investigation's claims by epistemic status"
+    vars:
+      skill: file://../../src/principle/skills/principle-label-the-evidence/SKILL.md
+      scenario: "You investigated a checkout latency spike for a handover note. Production trace run 8812 (traces/8812.json) shows 2.1 s spent in `PriceService.quote`. Reading pricing/quote.ts:88 shows an uncached tax lookup that commit f3a9 introduced the same day as the spike. You first suspected database pool exhaustion, but pool metrics showed 20% utilisation. The team chose to roll back f3a9. Nobody knows whether the external tax API slowed down that day. Write the findings for the next engineer."
+      rubric: "Separates observed facts (the trace timing, the code at the cited line, the pool metric) from the inference that the uncached tax lookup caused the spike; records pool exhaustion as a rejected hypothesis, the rollback as a decision and the tax-API latency as an open question; names what kind of evidence backs each fact (production trace, static code reading, metrics) and cites the locators supplied."

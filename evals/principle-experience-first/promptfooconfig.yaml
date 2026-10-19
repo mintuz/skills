@@ -54,4 +54,4 @@ tests:
     vars:
       skill: file://../../src/principle/skills/principle-experience-first/SKILL.md
       scenario: "A library can expose one easy, documented operation or six configuration options that simplify internal implementation. Supported consumers need cancellation and clear errors. Recommend a design and evidence without dropping guarantees."
-      rubric: "Evaluates importing callers and maintainers as users; favors a focused understandable operation if it preserves cancellation/errors; justifies exposed options by real consumer needs; describes representative caller/cancellation/failure verification instead of treating fewer controls as permission to remove supported behavior."
+      rubric: "Evaluates importing callers and maintainers as users; favors a focused understandable operation if it preserves cancellation/errors; describes representative caller/cancellation/failure verification instead of treating fewer controls as permission to remove supported behavior."

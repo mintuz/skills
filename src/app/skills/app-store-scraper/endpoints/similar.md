@@ -69,9 +69,8 @@ Verify the heading text and the markup against the live page before you depend o
 
 ## Limitations
 
-- Requires HTML parsing (not a structured API)
-- Page structure may change without notice
-- "You Might Also Like" section may not always be present
+- Requires HTML parsing, not a structured API; the page structure may change without notice
+- The "You Might Also Like" section may be absent
 - Results depend on Apple's recommendation algorithm
 - Rate limiting may apply for frequent requests
 
@@ -81,7 +80,7 @@ The following can supply comparison candidates, but they do not prove Apple pres
 
 ### By Category
 
-Find comparison candidates by browsing the same category:
+Browse the same category:
 
 ```bash
 # Get app's category
@@ -98,8 +97,6 @@ curl -s -G "https://itunes.apple.com/search" \
 ```
 
 ### By Developer
-
-Find other apps from the same developer:
 
 ```bash
 DEV_ID=$(curl -s "https://itunes.apple.com/lookup?id=553834731" | \
@@ -119,8 +116,4 @@ curl -s "https://itunes.apple.com/lookup?id=${DEV_ID}&entity=software" | \
 
 ## Best Practices
 
-1. Cache results to minimize requests
-2. Add delays between scraping requests
-3. Handle a missing "You Might Also Like" section gracefully
-4. Validate extracted IDs before lookup
-5. Consider using official API endpoints when possible
+- Consider official API endpoints when they cover the need
