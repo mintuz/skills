@@ -1,6 +1,13 @@
 ---
 name: gps-method
-description: WHEN a user wants to set a goal, create an actionable plan, build an execution system, or diagnose why progress on an existing goal has stalled; triggers include "set a goal", "help me achieve", "create a plan", and "why am I not making progress"; NOT a substitute for a qualified professional: it declines to plan a decision that only a clinician, a lawyer, or a financial adviser may make, and redirects that part to them; returns a Goal, Plan, and System breakdown or a component-level diagnosis.
+description: >
+  WHEN a user wants to set a goal, create an actionable plan, build an execution
+  system, or diagnose why progress on an existing goal has stalled; triggers
+  include "set a goal", "help me achieve", "create a plan", and "why am I not
+  making progress"; NOT a substitute for a qualified professional: it declines
+  to plan a decision that only a clinician, a lawyer, or a financial adviser may
+  make, and redirects that part to them; returns a Goal, Plan, and System
+  breakdown or a component-level diagnosis.
 ---
 
 # GPS Method - Goal Achievement Framework
