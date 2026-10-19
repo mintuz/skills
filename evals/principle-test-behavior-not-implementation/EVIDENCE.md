@@ -15,7 +15,7 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 
 Context size: 213 upstream words → 159 port words (whitespace count, including frontmatter).
 
-Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. Each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
 
 ## 19 October 2026: shared-decision rule from principle-laziness-protocol
 

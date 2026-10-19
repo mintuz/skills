@@ -18,4 +18,4 @@ Context size: 136 upstream words → 152 port words (whitespace count, including
 
 The first hypothetical evaluation incorrectly required executed work. That grading defect is retained separately in `invalid-grading-evidence.json`, excluded from RED, and corrected before the recorded RED attempt.
 
-Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. Each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.

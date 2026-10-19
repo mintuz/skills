@@ -147,7 +147,6 @@
     "regressed_cases": []
   },
   "native_replay": {
-    "durable_report": "../../reports/skill-audit-2026-10-13/principle-validation.md",
     "source_sha256": "79c545f601335e069485e883f5efbd45c4ce9afec61e4352935a4f2142e3d35d",
     "hosts": {
       "claude": {

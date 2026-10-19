@@ -17,7 +17,7 @@ Context size: 110 upstream words → 149 port words (whitespace count, including
 
 The first treatment run is retained in `green-first-evidence.json`. The grader acknowledged the named requirements but deducted for unspecified detail; the rubric was clarified to accept conceptual design at the requested analysis-only stage.
 
-Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. Each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
 
 ## Rerun, 19 October 2026
 

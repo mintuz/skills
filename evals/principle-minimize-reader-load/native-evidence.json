@@ -1,5 +1,4 @@
 {
-  "durable_report": "../../reports/skill-audit-2026-10-13/principle-validation.md",
   "source_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
   "hosts": {
     "claude": {

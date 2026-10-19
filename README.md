@@ -38,7 +38,7 @@ go run scripts/codex-sync.go --output /path/to/your/skills
 
 Point the harness’s skill discovery at that directory, or copy it into its documented skill location. The copier preserves ordinary `SKILL.md` bundles; despite its name it does not translate the instructions into a Codex-only format. Leave `--prefix` off to preserve names such as `principle-prove-it-works`.
 
-Use one authoritative distribution per skill name. Run `omp --help` for the installed version’s discovery/filter options. See [validation status](reports/skill-audit-2026-10-13/delivery-summary.md) for checks actually completed; portable prose alone is not a runtime certification.
+Use one authoritative distribution per skill name. Run `omp --help` for the installed version’s discovery/filter options. Portable prose alone is not a runtime certification.
 
 ## Plugins
 
