@@ -30,8 +30,7 @@ Build ChatGPT apps using the OpenAI Apps SDK, Model Context Protocol (MCP), and 
 
 ## The Payload Boundary Rule
 
-This section owns the rule for what may leave the server. Every other page in
-this skill defers to it.
+Every other page in this skill defers to this rule.
 
 `structuredContent`, `content`, `_meta`, and widget state all reach the user's
 browser. `_meta` is widget-visible transport, not a private channel: the model
@@ -42,9 +41,8 @@ Keep server-side: credentials, records the signed-in user may not see, internal
 fields the view does not render, raw diagnostics, stack traces, and technical
 logs. Return safe error content with an opaque correlation ID for support cases.
 
-Send the page or slice the view renders, not the whole result set. To show more,
-return an opaque cursor or page argument and fetch the next page with another
-tool call.
+Send only the page or slice the view renders. To show more, return an opaque
+cursor or page argument and fetch the next page with another tool call.
 
 ## Decision Trees
 
@@ -73,8 +71,8 @@ Is this data from your API/database?
 ```
 
 Treat widget state as model-visible context, not private client storage: ChatGPT
-carries it into the conversation, so it costs tokens on later turns and the user
-can read it. Keep it to identifiers and view preferences, such as the selected
+carries it into the conversation, where it costs tokens on later turns and the
+user can read it. Keep only identifiers and view preferences, such as selected
 ID, current page, current step, and sort order. Never keep answers, records, file
 contents, or credentials there; store those on the server and re-fetch them with
 a tool call.
@@ -108,9 +106,8 @@ Does the model need this data to:
 └── No → _meta (the authorised projection the widget renders)
 ```
 
-Precomputed series, layout hints, and other display-only data belong in `_meta`,
-because the model does not reason about them. Apply the payload boundary rule
-above to both halves.
+Display-only data (precomputed series, layout hints) belongs in `_meta`; the
+model does not reason about it. Apply the payload boundary rule to both halves.
 
 ### Should I use custom UI or just text?
 

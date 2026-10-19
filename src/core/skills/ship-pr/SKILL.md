@@ -5,13 +5,13 @@ description: WHEN shipping finished local changes through a pull request on GitH
 
 # Ship PR
 
-Escort finished work from the current worktree to a merged pull request on the repository's forge (the service that hosts the repository: GitHub, Forgejo, or Gitea).
+Escort finished work from the current worktree to a merged pull request on the repository's forge (the service hosting the repository: GitHub, Forgejo, or Gitea).
 
 ## Forge and tool
 
-Read the host from the `origin` remote URL. Treat `github.com` as GitHub. For any other host, run `gh auth status --hostname <host>`, and run `tea whoami` with the `tea` login configured for that host. Use the one tool whose probe succeeds. If neither probe or both probes succeed, stop and ask the user which forge and tool to use.
+Read the host from the `origin` remote URL. Treat `github.com` as GitHub. For any other host, run `gh auth status --hostname <host>` and `tea whoami` with the `tea` login configured for that host, then use the one tool whose probe succeeds. If neither or both probes succeed, stop and ask the user which forge and tool to use.
 
-Use `gh` on GitHub. Use `tea` on Forgejo or Gitea. Where this skill names a `gh` command, run the `tea` equivalent:
+Use `gh` on GitHub and `tea` on Forgejo or Gitea. Where this skill names a `gh` command, run the `tea` equivalent:
 
 - `tea whoami` verifies authentication.
 - `tea pr ls` lists open pull requests. `tea pr create` creates a pull request.
@@ -21,7 +21,7 @@ Use `gh` on GitHub. Use `tea` on Forgejo or Gitea. Where this skill names a `gh`
 - `tea api /repos/{owner}/{repo}/commits/<sha>/status` returns the combined commit status.
 - `tea api /repos/{owner}/{repo}/branches/<base>` returns the base branch with its effective protection: `protected`, `required_approvals`, `enable_status_check`, and `status_check_contexts`.
 
-On Forgejo or Gitea, decide the gates from these responses. A review gate is open when a non-dismissed review has state `REQUEST_CHANGES`, or when the count of reviews with state `APPROVED`, `dismissed` false, and `stale` false is below `required_approvals`. A status gate is open when `enable_status_check` is true and any context in `status_check_contexts` is absent from the combined status or is not `success`. These fields do not cover every protection policy, for example official-review requests or approval whitelists. When they do not explain a refusal that the forge reports, report that gate as unverified and keep polling.
+On Forgejo or Gitea, decide the gates from these responses. A review gate is open when a non-dismissed review has state `REQUEST_CHANGES`, or when the count of reviews with state `APPROVED`, `dismissed` false, and `stale` false is below `required_approvals`. A status gate is open when `enable_status_check` is true and any context in `status_check_contexts` is absent from the combined status or is not `success`. These fields miss some protection policies (e.g. official-review requests, approval whitelists); when they do not explain a refusal the forge reports, report that gate as unverified and keep polling.
 
 ## Prerequisites
 
@@ -30,27 +30,27 @@ On Forgejo or Gitea, decide the gates from these responses. A review gate is ope
 
 ## Authority
 
-Treat invocation as authorization to commit the in-scope changes, push their branch, and create or update their pull request. Treat the user as merge owner. Reserve substantial behavioral changes, ambiguous conflict choices, shared-history rewrites, and merging the pull request for explicit user direction.
+Treat invocation as authorisation to commit the in-scope changes, push their branch, and create or update their pull request. Treat the user as merge owner. Reserve substantial behavioural changes, ambiguous conflict choices, shared-history rewrites, and merging the pull request for explicit user direction.
 
 ## 1. Establish the ship set
 
-Read repository instructions, then inspect the worktree, staged changes, branch, remotes, base branch, and forge authentication. Fetch the intended base and branch from the observed remote base rather than a known-stale local default branch. Separate the intended change from unrelated user work and preserve the latter unstaged. If the current branch is the default branch, create a focused feature branch following repository naming conventions.
+Read repository instructions, then inspect the worktree, staged changes, branch, remotes, base branch, and forge authentication. Fetch the intended base and branch from the observed remote base, not a known-stale local default branch. Separate the intended change from unrelated user work, and preserve the unrelated work unstaged. On the default branch, create a focused feature branch following repository naming conventions.
 
-Ship only finished work. Evidence that a ship-set file is unfinished includes tests that fail because the behavior is not yet written and TODO comments for that behavior. When you observe such evidence, stop. Report the evidence that you observed, and name each failing test and each TODO so that the user can find them. Then ask the user whether to finish the work or to ship only the finished commits with the unfinished file left uncommitted and unchanged. Do not develop the missing behavior.
+Ship only finished work. Evidence that a ship-set file is unfinished includes tests that fail because the behaviour is not yet written, and TODO comments for that behaviour. On such evidence, stop: report it, naming each failing test and each TODO so the user can find them, then ask whether to finish the work or to ship only the finished commits with the unfinished file left uncommitted and unchanged. Do not develop the missing behaviour.
 
-If the worktree lacks the repository's installed dependencies (for example, a fresh worktree with no `node_modules`), install them with the repository's package manager before any local check or commit. Commit hooks, formatters, and tests need them. Run the repository's relevant local checks, including the commands that commit hooks run, before committing. Fix only failures caused by the ship set and within its existing intent.
+If the worktree lacks the repository's installed dependencies (e.g. a fresh worktree with no `node_modules`), install them with the repository's package manager before any local check or commit: commit hooks, formatters, and tests need them. Before committing, run the relevant local checks, including the commands commit hooks run. Fix only failures caused by the ship set and within its existing intent.
 
 **Complete when:** the ship set and base branch are unambiguous, every intended file is accounted for, unrelated work is preserved, forge authentication works, dependencies are installed, and relevant local checks pass.
 
 ## 2. Commit intentionally
 
-Use `core:commit-messages` to decide whether the ship set is one atomic commit or several and to write every message. Stage explicit paths for one logical change at a time, inspect the staged diff, and commit it. Include existing in-scope commits rather than duplicating them.
+Use `core:commit-messages` to decide whether the ship set is one atomic commit or several, and to write every message. Stage explicit paths for one logical change at a time, inspect the staged diff, and commit. Include existing in-scope commits rather than duplicating them.
 
 **Complete when:** every intended change is represented by atomic, why-first commits; no unrelated change is committed; and the worktree contains no uncommitted ship-set changes.
 
 ## 3. Publish the pull request
 
-Push the current branch with an upstream. Reuse its open pull request when one exists; otherwise use `core:pr` and `gh pr create` (or `tea pr create`) to create a ready-for-review pull request unless the user or repository policy requires a draft. Derive the PR from the complete base-to-head diff and commit history.
+Push the current branch with an upstream. Reuse its open pull request when one exists; otherwise create a ready-for-review pull request with `core:pr` and `gh pr create` (or `tea pr create`), unless the user or repository policy requires a draft. Derive the PR from the complete base-to-head diff and commit history.
 
 After the initial push and every later push, run a **head checkpoint**. Require local `HEAD`, its upstream, and the PR head SHA to match. Confirm that exactly one open pull request has the intended base and head. Bind checks, mergeability, and the next bounded poll only to that SHA. Every prior-SHA verdict is stale.
 
@@ -58,7 +58,7 @@ After the initial push and every later push, run a **head checkpoint**. Require 
 
 ## 4. Escort until merge
 
-Enter a persistent polling loop with bounded waits using `gh pr view`, `gh pr checks`, and `gh run view --log-failed` (or the `tea api` calls above) as needed. Check the PR state, merged state (`mergedAt` on GitHub), head SHA, mergeability, review decision, and every required status check on each cycle. Use the available recurring monitor or wait mechanism; otherwise poll about every 30–60 seconds. Share concise status updates at least every 60 seconds while actively waiting.
+Enter a persistent polling loop with bounded waits, using `gh pr view`, `gh pr checks`, and `gh run view --log-failed` (or the `tea api` calls above) as needed. On each cycle, check the PR state, merged state (`mergedAt` on GitHub), head SHA, mergeability, review decision, and every required status check. Use the available recurring monitor or wait mechanism; otherwise poll about every 30–60 seconds. While actively waiting, share concise status updates at least every 60 seconds.
 
 React to each observation:
 
@@ -74,7 +74,7 @@ React to each observation:
 | Closed without merge | Stop polling. Report the terminal blocker with the PR URL, head SHA, last known checks and reviews, and any stated reason; ask the user for direction. |
 | Merged | Report the PR URL and merge commit, then finish. |
 
-A repair is **minor** only when it is localized, mechanical, intent-preserving, and verified by the failing check—for example formatting, lint autofixes, or an unambiguous adjacent-line conflict. Treat product behavior, public APIs, schemas, data, security, dependency strategy, broad cross-file conflicts, and multiple plausible outcomes as **substantial**.
+A repair is **minor** only when it is localised, mechanical, intent-preserving, and verified by the failing check (e.g. formatting, lint autofixes, an unambiguous adjacent-line conflict). Treat product behaviour, public APIs, schemas, data, security, dependency strategy, broad cross-file conflicts, and multiple plausible outcomes as **substantial**.
 
 Green checks are an intermediate state. Report the PR as ready to merge only after you observe that checks, review decision, and branch protection all allow the merge; report any gate you observe.
 

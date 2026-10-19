@@ -1,10 +1,6 @@
 # MLX Swift Advanced Patterns
 
-Advanced features including tool calling, embeddings, and structured generation.
-
 ## Tool/Function Calling
-
-Enable LLMs to call functions and use tools.
 
 ### Define Tools
 
@@ -301,8 +297,6 @@ print(extracted.priority) // .high
 ```
 
 ## Batch Processing
-
-Process multiple requests efficiently:
 
 ```swift
 actor BatchProcessor {

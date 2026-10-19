@@ -1,7 +1,5 @@
 # Form Patterns
 
-SwiftUI Form patterns for settings screens and data input.
-
 ## When to Use Form
 
 - **Settings screens**: App preferences and configuration
@@ -324,9 +322,8 @@ struct RegistrationForm: View {
 
 ## Common Mistakes
 
-- **Wrapping Form in NavigationStack inside sheet**: Only wrap when Form is root of sheet
-- **Complex custom layouts inside Form**: Use ScrollView + VStack for custom layouts
-- **Competing background styles**: Choose either default or custom, not both
-- **Missing keyboard toolbar**: Add Done button for better UX
-- **No validation feedback**: Provide clear validation messages
-- **Not using `@FocusState`**: Focus management improves multi-field forms
+- **Wrapping Form in NavigationStack inside a sheet**: wrap only when the Form is the sheet's root
+- **Competing background styles**: choose default or custom, not both
+- **Missing keyboard toolbar**: add a Done button
+- **No validation feedback**: show clear validation messages
+- **Skipping `@FocusState`**: focus management improves multi-field forms

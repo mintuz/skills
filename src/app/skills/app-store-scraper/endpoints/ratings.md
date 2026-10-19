@@ -114,7 +114,6 @@ done
 
 ## Important Notes
 
-- **Requires X-Apple-Store-Front header** - the request returns HTML without it
 - Storefront ID must match the country in the URL
 - An unknown app ID returns HTTP 404 with an empty body
 - Some apps may not have rating histogram data
@@ -122,18 +121,14 @@ done
 
 ## Finding Storefront IDs
 
-If you need a storefront ID not listed:
+For an unlisted storefront, inspect an App Store page's headers:
 
 ```bash
 # Visit an App Store page and inspect headers
 curl -I "https://apps.apple.com/us/app/id553834731" | grep -i "x-apple"
 ```
 
-Or use these common patterns:
-- US: 143441
-- UK: 143444
-- Most EU countries: 1434XX range
-- Asia-Pacific: 1434XX-1434XX range
+Or use the ranges: most EU countries fall in 1434XX; Asia-Pacific in 1434XX-1434XX.
 
 ## Use Cases
 

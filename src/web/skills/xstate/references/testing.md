@@ -2,7 +2,7 @@
 
 ## Drive real actors
 
-Create real actors from production factories. Inject fake IDs, clocks, transports, persistence, and resources. Send typed public events. Assert public states, emitted commands, external effects, and teardown instead of internal action names or child IDs.
+Create real actors from production factories with fake IDs, clocks, transports, persistence, and resources. Send typed public events. Assert public states, emitted commands, external effects, and teardown, not internal action names or child IDs.
 
 ```ts
 import { createActor } from "xstate";
@@ -36,7 +36,7 @@ it("emits one start command", () => {
 
 ## Cover negative space and time
 
-For every temporal branch, test the accepted event and the event that must have no effect. Cover relevant cases:
+For every temporal branch, test the accepted event and the event that must have no effect. Cover the relevant cases:
 
 - duplicate commands and observations;
 - stale attempt, generation, command, and version identities;
@@ -48,7 +48,7 @@ For every temporal branch, test the accepted event and the event that must have 
 - authoritative observation before and after transport acceptance;
 - matching and nonmatching convergence.
 
-Make each negative assertion decisive. Assert the state immediately after the event that must have no effect, before sending any later event that would reach the same state anyway. Use the production scheduling boundary with fake clocks or timers. After cancellation, advance time and prove no new attempt starts. If an intermediate snapshot would violate the contract, subscribe and prove that snapshot is never emitted.
+Make each negative assertion decisive: assert the state immediately after the event that must have no effect, before any later event that would reach the same state anyway. Use the production scheduling boundary with fake clocks or timers. After cancellation, advance time and prove no new attempt starts. If an intermediate snapshot would violate the contract, subscribe and prove that snapshot is never emitted.
 
 ## Prove teardown
 
@@ -80,7 +80,7 @@ it("disposes once", () => {
 
 ## Test `sendParent` through a parent
 
-An isolated child has no parent mailbox. Test it through the smallest parent that listens for the event.
+An isolated child has no parent mailbox; test it through the smallest parent that listens for the event.
 
 ```ts
 import { createActor, sendParent, setup } from "xstate";
@@ -110,4 +110,4 @@ it("receives the child event", () => {
 });
 ```
 
-Use `xstate/graph` model-based path coverage only when interacting regions or guarded paths justify it. Treat graph coverage as a supplement; it cannot prove port behaviour, external authority, or teardown.
+Use `xstate/graph` model-based path coverage only when interacting regions or guarded paths justify it, as a supplement: it cannot prove port behaviour, external authority, or teardown.

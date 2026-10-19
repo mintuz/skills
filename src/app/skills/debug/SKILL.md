@@ -52,15 +52,15 @@ visible action, such as deleting stored data or resetting a shared store.
    **Complete when:** one cause explains the evidence and every affected caller
    and lifecycle state is accounted for.
 
-4. **Fix once** — State the change with specifics: the file, the declaration,
-   and the values or calls that change. For diagnosis-only work, report the
-   cause and the proposed change, then stop. For an authorised fix, make the
-   smallest change at the shared owner. Do not rename, move, or restructure code
-   when a local change at that owner resolves the proved cause. Leave one
-   focused regression check for non-trivial logic; the check must fail on the
-   reproduced defect and cover data preservation when persistence is involved.
-   State whether the proved fix remains inside the supplied authorisation; stop
-   before any materially different or destructive action.
+4. **Fix once** — State the change with specifics: file, declaration, and the
+   values or calls that change. For diagnosis-only work, report the cause and
+   proposed change, then stop. For an authorised fix, make the smallest change
+   at the shared owner; do not rename, move, or restructure code when a local
+   change there resolves the proved cause. For non-trivial logic, leave one
+   focused regression check that fails on the reproduced defect and covers data
+   preservation when persistence is involved. State whether the proved fix stays
+   inside the supplied authorisation; stop before any materially different or
+   destructive action.
 
    **Complete when:** for diagnosis-only work, the cause and the proposed change
    are reported; for an authorised fix, the change and its regression check

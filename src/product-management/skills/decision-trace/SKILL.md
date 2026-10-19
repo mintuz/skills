@@ -5,17 +5,17 @@ description: WHEN tracing a decision or delivery-status claim from a meeting, tr
 
 # Decision Trace
 
-Treat a claimed decision as a lineage from its source to delivery artifacts. Prove the decision and each handoff without judging whether code satisfies it. When the user asks whether the decision was implemented correctly, finish this trace before invoking `acceptance-review` with its handoff.
+Treat a claimed decision as a lineage from its source to delivery artifacts. Prove the decision and each handoff; do not judge whether code satisfies it. When the user asks whether the decision was implemented correctly, finish this trace, then invoke `acceptance-review` with its handoff.
 
 ## 1. Frame the claim and cutoff
 
-Rewrite the claimed decision as one or more exact behaviors without strengthening it. Split behaviors whose lineage can differ. Record the source scope, relevant repositories, and the artifact date or revision that defines the trace cutoff. Use the available primary source regardless of provider. Treat a delivery-status claim in a handover or status document as a trace claim. Verify it against PRs and commits dated after the document before you relay it as current. Match evidence to the claimed state: a merge proves integration only, a deployment record proves deployment, and a run log proves execution.
+Rewrite the claimed decision as one or more exact behaviors without strengthening it. Split behaviors whose lineage can differ. Record the source scope, relevant repositories, and the artifact date or revision that sets the trace cutoff. Use the available primary source regardless of provider. A delivery-status claim in a handover or status document is a trace claim: verify it against PRs and commits dated after the document before relaying it as current. Match evidence to the claimed state: a merge proves integration only, a deployment record proves deployment, and a run log proves execution.
 
 **Complete when:** every claimed behavior, the source scope, and the trace cutoff are explicit, with unavailable inputs recorded as gaps.
 
 ## 2. Classify the source record
 
-Read the relevant primary-source span from the first claim through its latest qualification, objection, resolution, or superseding statement. Quote only decisive words; attach the speaker, date, and a precise locator. Label each non-quote as paraphrase or inference.
+Read the relevant primary-source span from the first claim through its latest qualification, objection, resolution, or superseding statement. Quote only decisive words, with speaker, date, and precise locator. Label each non-quote as paraphrase or inference.
 
 Classify each claim:
 
@@ -26,7 +26,7 @@ Classify each claim:
 | `disagreement` | Incompatible positions remain unresolved |
 | `unknown` | Source, context, attribution, authority, or resolution is insufficient |
 
-Prefer a later explicit resolution for its stated scope while preserving the chronology. Rationale supports a classification but does not prove a decision; silence and missing records remain `unknown`.
+Prefer a later explicit resolution for its stated scope; preserve the chronology. Rationale supports a classification but does not prove a decision; silence and missing records remain `unknown`.
 
 Grade confidence `high`, `medium`, or `low` in the classification—not in the claimed decision—using source directness, attribution, and relevant-context completeness. Name every reason the grade is below `high`.
 
@@ -38,7 +38,7 @@ Follow the chain as far as evidence permits:
 
 `source statement → decision record or brief → specification → issue → PR or commit`
 
-Read every discovered artifact. Cite the exact field, section, description, or commit message that connects each handoff. Grade each handoff against its immediate upstream artifact, not against the source statement:
+Read every discovered artifact. Cite the exact field, section, description, or commit message connecting each handoff. Grade each handoff against its immediate upstream artifact, not the source statement:
 
 - `explicit` — the downstream artifact directly links to the upstream artifact and preserves its stated behavior unchanged;
 - `inferred` — its scope aligns with the upstream artifact without a direct link;

@@ -1,7 +1,5 @@
 # Grid Patterns
 
-SwiftUI LazyVGrid and LazyHGrid patterns for photo galleries, icon pickers, and media layouts.
-
 ## When to Use Grids
 
 - **Photo galleries**: Image collections, media libraries
@@ -41,7 +39,7 @@ struct PhotoGrid: View {
 }
 ```
 
-**Adaptive columns** adjust count based on available width—ideal for responsive layouts across device sizes.
+**Adaptive columns** adjust their count to the available width, for responsive layouts across device sizes.
 
 ### Fixed Column Count
 
@@ -70,7 +68,7 @@ struct IconPicker: View {
 }
 ```
 
-**Flexible columns** distribute available space equally—use for predictable, consistent layouts.
+**Flexible columns** share available space equally, for predictable, consistent layouts.
 
 ## Layout Customization
 
@@ -120,7 +118,7 @@ LazyVGrid(
 .padding(.horizontal, 16)  // Grid container padding
 ```
 
-**GridItem spacing** controls horizontal gaps:
+**GridItem spacing** sets horizontal gaps:
 
 ```swift
 var columns: [GridItem] {
@@ -326,9 +324,7 @@ struct Photo: Identifiable {
 
 ## Common Mistakes
 
-- **Using non-lazy grids for large collections**: All views created upfront
-- **Expensive operations per cell**: Pre-compute or cache instead
-- **Inconsistent aspect ratios**: Use `.aspectRatio()` for consistent sizing
-- **Nested grids**: Rarely necessary, usually indicates wrong pattern
-- **Missing `.contentShape(Rectangle())`**: Tap targets smaller than visual bounds
-- **Adaptive + fixed widths mixed incorrectly**: Understand GridItem sizing modes
+- **Inconsistent aspect ratios**: use `.aspectRatio()` for consistent sizing
+- **Nested grids**: rarely necessary; usually a sign of the wrong pattern
+- **Missing `.contentShape(Rectangle())`**: tap targets smaller than visual bounds
+- **Adaptive + fixed widths mixed incorrectly**: understand GridItem sizing modes

@@ -7,7 +7,7 @@ description: WHEN rendering pseudocode of how code composes—module boundaries,
 
 Code has a **waterline**. Above it sits the **shape**: modules and their boundaries, types, signatures, the values that cross each boundary, and the order calls happen in. Below it sits syntax and the statements inside a body.
 
-Render the shape and collapse everything below the waterline to intent. Only bodies are pseudo—every name, type, and path is read from the source and cited, or marked `[NEW]`. Run this read-only: the render is the deliverable, not the edit. When the request also asks for a review verdict, a diagram, or the change itself, say plainly that the render carries none of them and leave that work to the workflow that owns it, then return the render.
+Render the shape and collapse everything below the waterline to intent. Only bodies are pseudo: read every name, type, and path from the source and cite it, or mark it `[NEW]`. Run read-only: the render is the deliverable, not the edit. When the request also asks for a review verdict, a diagram, or the change itself, state plainly that the render carries none of them, leave that work to its owning workflow, and return the render.
 
 ## 1. Frame the render
 
@@ -21,9 +21,9 @@ Classify each entry point `existing` or `[NEW]`. For a `[NEW]` render, resolve t
 
 Follow every call from each entry point, opening each file on the path. For every function reached, record its declaration file and line, its signature as written, the effects it causes, and each call's call-site line.
 
-Expand a path until it reaches a boundary crossing, a pure leaf, the frame edge, a function already recorded, or a call the evidence does not resolve to a target—dispatch through a registry, table, or interface that nothing in the evidence binds to a target. A path ends nowhere else. Record an unresolved call as unresolved, and name the evidence that would resolve it with identifiers taken from the source, not with a general category: give the binding, registration, or configuration call that would attach a target, and the target itself where the evidence identifies one.
+Expand a path until it reaches a boundary crossing, a pure leaf, the frame edge, a function already recorded, or an unresolved call: dispatch through a registry, table, or interface that nothing in the evidence binds to a target. A path ends nowhere else. Record an unresolved call as unresolved and name the evidence that would resolve it using source identifiers, not a general category: the binding, registration, or configuration call that would attach a target, plus the target where the evidence identifies one.
 
-For a `[NEW]` render, read the surrounding modules the change attaches to with the same rigour; parts that do not exist yet are derived from the requirement and marked. Mark `[NEW]` at every level it applies to: the route, the module, the type, each field the requirement adds, the signature, and the edge.
+For a `[NEW]` render, read the surrounding modules the change attaches to with the same rigour; derive parts that do not exist yet from the requirement and mark them. Mark `[NEW]` at every level it applies to: the route, the module, the type, each field the requirement adds, the signature, and the edge.
 
 **Complete when:** every path terminates on one of those conditions, and every name that will appear in the render is either recorded with a file and line or marked `[NEW]`.
 
@@ -50,7 +50,7 @@ Where the cut is not obvious, place it here:
 
 ## 4. Render the call graph
 
-One graph per wiring, as an indented tree. Each edge reads `→ Callable(arg: Type, arg: Type) : Return`, written as `Receiver.method(…)` where the source calls through a receiver, then its annotations, then the caller's call-site file and line. Order siblings by execution order. The root line carries the entry point's own declaration, because the root has no caller. Callee declarations stay in the signatures, so sibling edges under one caller all cite that caller's file.
+One graph per wiring, as an indented tree. Each edge reads `→ Callable(arg: Type, arg: Type) : Return` (`Receiver.method(…)` where the source calls through a receiver), then its annotations, then the caller's call-site file and line. Order siblings by execution order. The root line carries the entry point's own declaration, because the root has no caller. Callee declarations stay in the signatures, so sibling edges under one caller all cite that caller's file.
 
 ```
 submitCheckout(req: HttpRequest) : HttpResponse                          src/http/checkout.ts:14
@@ -83,8 +83,8 @@ A function already drawn in the same graph appears as `→ Name (above)` in plac
 
 Lead with the entry points, the frame edge, and the wirings drawn. Then give the types, the boundary table, the signatures, and the call graphs.
 
-Close with what the shape shows, stated as facts already visible in the render rather than as judgements: dependency cycles, a dependency pointing against the module layering, argument counts, functions reached from many callers, boundary crossings on the primary path, and paths no wiring covers. Name what stayed unread and why.
+Close with what the shape shows, stated as facts visible in the render, not judgements: dependency cycles, dependencies pointing against the module layering, argument counts, functions reached from many callers, boundary crossings on the primary path, and paths no wiring covers. Name what stayed unread and why.
 
-When the render is a plan for work about to be done, offer to save it so the implementation can be checked against it. Write the file only after the user asks for it.
+When the render plans work about to be done, offer to save it so the implementation can be checked against it. Write the file only when the user asks.
 
 **Complete when:** every citation resolves, every observation points at an element of the render, and every gap names what would close it.

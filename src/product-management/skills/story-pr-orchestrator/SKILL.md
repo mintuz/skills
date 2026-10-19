@@ -5,11 +5,11 @@ description: WHEN delivering an approved multi-story feature or several specs as
 
 # Story PR Orchestrator
 
-Treat delivery as a dependency frontier. A story is ready only when every prerequisite is merged into the base it will build on; approval, green checks, or an open PR do not satisfy that gate. Keep the parent agent as coordinator while story agents own implementation. If the request contains one story with no dependencies, state that the request is outside this skill and hand the story to ordinary single-story delivery (one task, worktree, branch, and PR) without a ledger. When a user instruction conflicts with a dependency, evidence, or authority gate, name the instruction and the gate it fails in the output.
+Treat delivery as a dependency frontier. A story is ready only when every prerequisite is merged into the base it will build on; approval, green checks, or an open PR do not satisfy that gate. The parent agent coordinates; story agents own implementation. If the request contains one story with no dependencies, state that it is outside this skill and hand it to ordinary single-story delivery (one task, worktree, branch, and PR) without a ledger. When a user instruction conflicts with a dependency, evidence, or authority gate, name the instruction and the gate it fails in the output.
 
 ## 1. Refresh the delivery baseline
 
-Read the repository instructions, current default branch, selected specs and task lists, status document, latest relevant transcript, and current task, worktree, branch, and PR state. Fetch remote state when available and record the exact source SHA. Resolve stale or conflicting sources before dispatching implementation. Rank conflicting sources by their documented change authority, then by date. When no source clearly outranks the others, record the conflict as a blocker that needs the user's decision. Record unavailable governing artifacts as named gaps.
+Read the repository instructions, current default branch, selected specs and task lists, status document, latest relevant transcript, and current task, worktree, branch, and PR state. Fetch remote state when available and record the exact source SHA. Resolve stale or conflicting sources before dispatching implementation: rank them by documented change authority, then by date. When no source clearly outranks the others, record the conflict as a blocker needing the user's decision. Record unavailable governing artifacts as named gaps.
 
 **Complete when:** the source SHA and revision or date of every governing artifact are recorded, and each discrepancy is recorded with the sources on each side and an explicit resolution or blocker.
 
@@ -21,7 +21,7 @@ Derive story boundaries, acceptance criteria, and dependency edges from the refr
 
 ## 3. Reconcile active ownership
 
-Inspect existing agents or threads, worktrees, branches, dirty files, and PRs before assigning work. Resume or account for matching work instead of duplicating it. Give each story non-overlapping ownership and preserve unrelated changes in every worktree.
+Inspect existing agents or threads, worktrees, branches, dirty files, and PRs before assigning work. Resume or account for matching work; never duplicate it. Give each story non-overlapping ownership and preserve unrelated changes in every worktree.
 
 **Complete when:** all active work maps to a story or is explicitly out of scope, with no unresolved ownership collision.
 

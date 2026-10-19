@@ -1,6 +1,6 @@
 # Reviews
 
-Fetch user reviews for an app with pagination and sorting.
+Fetch an app's user reviews, paginated and sorted.
 
 ## Endpoint
 
@@ -31,8 +31,6 @@ curl -s "https://itunes.apple.com/us/rss/customerreviews/page=1/id=553834731/sor
     date: .updated.label
   }'
 ```
-
-**Note:** Skip first entry (`[1:]`) as it contains app metadata, not a review.
 
 ### Most Helpful Reviews
 
@@ -138,18 +136,16 @@ curl -s "https://itunes.apple.com/us/rss/customerreviews/page=1/id=553834731/sor
 
 ## Pagination Limits
 
-- Maximum 10 pages available
-- Each page contains ~50 reviews
-- First entry is always app metadata (not a review)
-- Total accessible reviews: ~500 per app
+- Maximum 10 pages, ~50 reviews each: ~500 accessible reviews per app
+- The first entry of every page is app metadata, not a review: skip it (`[1:]`)
 
 ## Collecting All Pages
 
-Follow these rules when you combine pages into one data set:
+To combine pages into one data set:
 
 1. Request pages in order from 1. Stop when the response `feed` has no `entry` key, or after page 10. A missing `entry` key is the end of the data, not an error.
 2. Validate each page as exactly one JSON object with `jq -es 'length == 1 and (.[0] | type == "object")'` before you parse it. Wait 1-2 seconds between page requests.
-3. Skip index 0 on every page. It is app metadata.
+3. Skip index 0 (app metadata) on every page.
 4. Deduplicate by the review `id.label` and keep the first occurrence, so that the most-recent order survives. Do not use `unique_by`: it sorts by the key. Adjacent pages can overlap when new reviews arrive between requests. Do not deduplicate by author or title.
 5. Normalise each review to `{id, rating, title, content, version, date}`.
 6. Set `complete: true` when an empty page ended the loop. Set `complete: false` when page 10 still had entries.
@@ -184,15 +180,8 @@ printf '%s\n' "${PAGES[@]}" | jq -s --argjson complete "$COMPLETE" '{
 
 ## Sorting Options
 
-### `mostrecent`
-- Shows newest reviews first
-- Best for monitoring recent feedback
-- Useful for version-specific issues
-
-### `mosthelpful`
-- Shows most voted reviews first
-- Better quality/detailed reviews
-- Good for understanding common themes
+- `mostrecent`: newest first. Best for monitoring recent feedback; useful for version-specific issues.
+- `mosthelpful`: most-voted first. Surfaces more detailed reviews and common themes.
 
 ## Use Cases
 
@@ -205,8 +194,6 @@ printf '%s\n' "${PAGES[@]}" | jq -s --argjson complete "$COMPLETE" '{
 
 ## Tips
 
-- Always skip first entry (`[1:]`) in results
-- Add delay between page requests
 - Reviews are region-specific
 - Not all apps have reviews in all regions
 - Review availability depends on app's release date

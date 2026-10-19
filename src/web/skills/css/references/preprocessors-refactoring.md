@@ -2,7 +2,7 @@
 
 ## @extend vs Mixins
 
-**Use @extend for "same-for-a-reason"** - thematically related rulesets:
+**Use @extend for "same-for-a-reason"**: thematically related rulesets.
 
 ```scss
 // OK - Same component variants
@@ -19,7 +19,7 @@
 }
 ```
 
-**Use mixins for "same-just-because"** - coincidentally similar styles:
+**Use mixins for "same-just-because"**: coincidentally similar styles.
 
 ```scss
 // Good - Repeated pattern, not related components
@@ -40,8 +40,7 @@
 
 **Why mixins are generally safer:**
 
-- Repetition in compiled output is fine (gzip handles it)
-- Repetition in source is the problem
+- Repetition in compiled output is fine (gzip handles it); repetition in source is the problem
 - Mixins don't disrupt source order
 - Mixins don't create unexpected selector groupings
 
@@ -65,7 +64,7 @@
 }
 ```
 
-**When & IS acceptable:**
+**& is acceptable for:**
 
 - Pseudo-classes: `&:hover`, `&:focus`
 - Pseudo-elements: `&::before`, `&::after`
@@ -80,14 +79,14 @@
 @import "components.css";
 ```
 
-**Problem:** @import delays rendering by creating a request chain:
+@import delays rendering with a request chain:
 
 1. Browser requests HTML
 2. HTML requests first CSS
 3. First CSS requests second via @import
 4. Rendering blocked until all complete
 
-**Better approaches:**
+Better approaches: multiple link elements, which load in parallel, or concatenating files with a build tool:
 
 ```html
 <!-- Multiple link elements load in parallel -->
@@ -95,59 +94,38 @@
 <link rel="stylesheet" href="components.css" />
 ```
 
-Or use a build tool to concatenate files.
-
 ### Finding Dead CSS
 
-When automated tools can't determine if CSS is truly unused:
+Use beacons when automated tools can't determine whether CSS is unused:
 
-1. **Hypothesis:** Identify selectors you believe are from deprecated features
-2. **Beacon:** Add a transparent 1x1px GIF as background with a unique URL. First check the computed `background-image` of the matched elements in every state; if any rule gives them a real image, the beacon replaces it. In that case log usage another way (for example a build-time class-usage report or a script that reports matched selectors):
+1. **Hypothesis:** identify selectors you believe come from deprecated features.
+2. **Beacon:** add a transparent 1x1px GIF background with a unique URL. If any rule gives the matched elements a real image in any state, the beacon would replace it; log usage another way instead (for example a build-time class-usage report or a script that reports matched selectors):
    ```css
    .legacy-modal {
      background-image: url("/beacon.gif?selector=legacy-modal");
    }
    ```
-3. **Verify delivery:** Confirm one beacon request reaches the server logs. Caches, CSP `img-src`, and service workers can drop beacon requests.
-4. **Monitor:** Check server logs over 2-3 months
-5. **Analyze:** Zero requests marks a deletion candidate, not proof. Delete candidates in small, reversible increments and monitor for regressions.
+3. **Verify delivery:** confirm one beacon request reaches the server logs. Caches, CSP `img-src`, and service workers can drop beacon requests.
+4. **Monitor and delete** as the SKILL.md refactoring tree sets out, and watch for regressions after each increment.
 
 ## CSS Refactoring: The Three I's
 
-### 1. Identify
+The SKILL.md refactoring tree carries the core steps. Additionally:
 
-Focus refactoring strategically:
-
-- Prioritize frequently-used, problematic components
-- Avoid refactoring stable code that rarely changes
-- Limit scope to single features, not sweeping changes
-
-### 2. Isolate
-
-Rebuild refactored features separately:
-
-- Use CodePen/jsFiddle to construct new version
-- Don't build on top of existing CSS
-- Ensure proper encapsulation from the start
-
-### 3. Implement
-
-Reintegrate carefully:
-
-- Place fixes for internal issues within the component's partial
-- Use `shame.css` for fixes addressing legacy conflicts
-- Document what can be removed once legacy code is gone
+1. **Identify:** leave stable code that rarely changes; limit scope to single features, not sweeping changes.
+2. **Isolate:** build in proper encapsulation from the start.
+3. **Implement:** document what can be removed once legacy code is gone.
 
 ## Code Smells Reference
 
 ### Critical Issues (Must Fix)
 
-| Smell                    | Problem                           | Solution                                 |
-| ------------------------ | --------------------------------- | ---------------------------------------- |
+| Smell                    | Problem                           | Solution                                                |
+| ------------------------ | --------------------------------- | ------------------------------------------------------- |
 | Unexplained `!important` | Creates specificity arms race     | Restructure, or document an immutable external boundary |
-| ID selectors             | No number of classes beats one ID | Use classes or `[id="x"]`                |
-| Shorthand causing resets | Unintentionally resets properties | Use longhand for precision               |
-| Broad selectors          | `header {}` affects too much      | Use specific class names                 |
+| ID selectors             | No number of classes beats one ID | Use classes or `[id="x"]`                               |
+| Shorthand causing resets | Unintentionally resets properties | Use longhand for precision                              |
+| Broad selectors          | `header {}` affects too much      | Use specific class names                                |
 
 ### High Priority Issues
 

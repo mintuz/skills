@@ -1,11 +1,9 @@
 # Best Practices
 
-Guidelines for building maintainable Tailwind CSS design systems.
-
 ## Do's ✓
 
 ### Use CSS Variables for Theming
-Enable runtime theme changes without rebuilding.
+Runtime theme changes without rebuilding.
 
 Tailwind 3, in `tailwind.config.*`:
 ```typescript
@@ -22,10 +20,7 @@ Tailwind 4, in CSS:
 ```
 
 ### Compose Variants with a Literal Map or CVA
-Give each variant a complete literal class string, never an interpolated one.
-Use CVA when the project already installs `class-variance-authority`, or when
-the requester asks for CVA and accepts the dependency. Otherwise use an
-exhaustive `Record<Variant, string>` map.
+Choose per [Component Variants](../SKILL.md#component-variants):
 ```typescript
 const buttonVariants = cva("base-styles", {
   variants: { size: { sm: "...", lg: "..." } }
@@ -45,7 +40,7 @@ Name by purpose, not appearance:
 ```
 
 ### Forward Refs
-Enable component composition:
+For component composition:
 ```typescript
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (props, ref) => <button ref={ref} {...props} />
@@ -99,7 +94,7 @@ Hurts readability and defeats Tailwind's purpose:
 ```
 
 ### Don't Build Class Names Dynamically
-Tailwind scans source as plain text and never generates an interpolated name:
+See [Literal Class Names](../SKILL.md#literal-class-names):
 ```typescript
 // Bad - `bg-emerald-600` is never generated
 <button className={`bg-${color}-600`}>

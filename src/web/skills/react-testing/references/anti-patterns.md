@@ -19,15 +19,7 @@ render(<MyComponent />);
 await user.click(button);
 ```
 
-**Modern RTL auto-wraps:**
-- `render()`
-- `userEvent` methods
-- `fireEvent`
-- `waitFor`, `findBy`
-
-**When you DO need manual `act()`:**
-- Custom hook state updates (`renderHook`)
-- Direct state mutations (rare, usually bad practice)
+Modern RTL auto-wraps `render()`, `userEvent` methods, `fireEvent`, `waitFor`, and `findBy`. You need manual `act()` for custom hook state updates (`renderHook`) and direct state mutations (rare, usually bad practice).
 
 ## 2. Manual cleanup() calls
 
@@ -43,9 +35,7 @@ afterEach(() => {
 // Cleanup happens automatically after each test
 ```
 
-**RTL registers that cleanup only when the runner exposes a global `afterEach`.**
-In Vitest set `globals: true`, or register `afterEach(cleanup)` once in a shared
-setup file. Do not repeat that hook in every test file.
+RTL registers that cleanup only when the runner exposes a global `afterEach`. In Vitest set `globals: true`, or register `afterEach(cleanup)` once in a shared setup file, not in every test file.
 
 ## 3. beforeEach render pattern
 
@@ -107,4 +97,4 @@ render(<MyComponent />);
 // Full component tree rendered - realistic test
 ```
 
-**Why:** Shallow rendering hides integration bugs between parent/child components.
+**Why:** shallow rendering hides integration bugs between parent and child components.

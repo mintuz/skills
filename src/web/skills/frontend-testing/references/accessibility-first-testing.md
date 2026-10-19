@@ -2,11 +2,9 @@
 
 ## Why Accessible Queries
 
-**Three benefits:**
-
-1. **Tests mirror real usage** - Query like screen readers do
-2. **Improves app accessibility** - Tests force accessible markup
-3. **Refactor-friendly** - Coupled to user experience, not implementation
+1. **Tests mirror real usage** - query like screen readers do.
+2. **Improves app accessibility** - tests force accessible markup.
+3. **Refactor-friendly** - coupled to user experience, not implementation.
 
 ```typescript
 // ❌ WRONG - Implementation detail
@@ -16,16 +14,11 @@ screen.getByTestId('user-menu');
 screen.getByRole('button', { name: /user menu/i });
 ```
 
-When an accessible query fails, **treat it as a likely accessibility issue in
-your markup** and check that first. Some elements you do not own, such as a
-third-party widget, expose no accessible route at all; the main skill file
-describes the deliberate fallback for that case.
+When an accessible query fails, check your markup first for an accessibility issue. Some elements you do not own, such as a third-party widget, expose no accessible route; "When No Accessible Query Fits" in the main skill file gives the fallback.
 
 ## ARIA Attributes
 
-**When to add ARIA:**
-
-✅ **Custom components** (where semantic HTML unavailable):
+✅ **Add ARIA to custom components** where semantic HTML is unavailable:
 ```html
 <div role="dialog" aria-label="Confirmation Dialog">
   <h2>Are you sure?</h2>
@@ -33,7 +26,7 @@ describes the deliberate fallback for that case.
 </div>
 ```
 
-❌ **DON'T restate a role semantic HTML already has:**
+❌ **Do not restate a role semantic HTML already has:**
 ```html
 <!-- ❌ WRONG - Redundant role -->
 <button role="button">Submit</button>
@@ -42,7 +35,7 @@ describes the deliberate fallback for that case.
 <button>Submit</button>
 ```
 
-✅ **DO add ARIA state to semantic HTML.** A role is intrinsic; state is not.
+✅ **Add ARIA state to semantic HTML.** A role is intrinsic; state is not.
 ```html
 <button aria-expanded="false" aria-controls="filters">Filters</button>
 <button aria-pressed="true">Bold</button>
@@ -50,7 +43,7 @@ describes the deliberate fallback for that case.
 
 ## Semantic HTML Priority
 
-**Always prefer semantic HTML over ARIA:**
+Prefer semantic HTML over ARIA. It gives built-in keyboard navigation, focus management, and screen reader support with less code.
 
 ```html
 <!-- ❌ WRONG - Custom element + ARIA -->
@@ -63,9 +56,3 @@ describes the deliberate fallback for that case.
   Submit
 </button>
 ```
-
-**Semantic HTML provides:**
-- Built-in keyboard navigation
-- Built-in focus management
-- Built-in screen reader support
-- Less code, more accessibility

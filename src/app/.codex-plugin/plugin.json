@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "1.8.0",
+  "version": "1.8.2",
   "description": "Skills and tools for Swift app development on iOS.",
   "author": { "name": "Adam Bulmer", "email": "[email protected]", "url": "https://github.com/mintuz" },
   "repository": "https://github.com/mintuz/skills",

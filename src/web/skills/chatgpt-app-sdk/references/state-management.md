@@ -12,8 +12,7 @@
 ### Business Data (Server-Owned)
 
 - MCP server owns business data and diagnostics; responses expose only authorized data and opaque correlation IDs
-- Widget sees updated data when tool call completes
-- Reapply local UI state on top of snapshot
+- Widget sees updated data when the tool call completes; reapply local UI state on top of the snapshot
 
 **When to use:**
 
@@ -38,12 +37,8 @@
 ### UI State (Widget-Scoped)
 
 - Ephemeral UI interactions (selections, expansions, sort orders)
-- Use `window.openai.widgetState` and `setWidgetState()`
-- Or `useWidgetState` hook in React
-- Treat widget state as model-visible context, not private client storage. It
-  costs tokens on later turns. Keep it to identifiers and view preferences.
-  Store answers, records, and file contents on the server and re-fetch them with
-  a tool call. See the payload boundary rule in [SKILL.md](../SKILL.md).
+- Use `window.openai.widgetState` and `setWidgetState()`, or the `useWidgetState` hook in React
+- Widget state is model-visible; see the widget-state and payload boundary rules in [SKILL.md](../SKILL.md)
 
 **When to use:**
 
@@ -63,13 +58,13 @@ const [uiState, setUiState] = useWidgetState({
 });
 ```
 
-**For detailed hook implementation and patterns:** See [react-integration.md](./react-integration.md)
+Hook implementation and patterns: [react-integration.md](./react-integration.md)
 
 ## Best Practices
 
 ### Don't Auto-Sync UI State
 
-Widgets retain selections and view preferences when server data refreshes - this is intentional design
+Widgets intentionally keep selections and view preferences when server data refreshes.
 
 ```typescript
 // GOOD - UI state persists across data updates

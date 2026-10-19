@@ -4,7 +4,7 @@
 
 ### @State - Local, ephemeral view state
 
-Use for simple view-specific state (toggles, text input, local UI state). Owned by the view, dies with the view. Keep state as close to where it's used as possible.
+For view-specific state (toggles, text input, local UI state). The view owns it; it dies with the view.
 
 ```swift
 struct ContentView: View {
@@ -24,7 +24,7 @@ struct ContentView: View {
 
 ### @Binding - Two-way connection between views
 
-Use to share state between parent and child views. Child reads and writes, parent owns. Enables data flow down and actions flow up.
+Shares state between parent and child: the parent owns it, the child reads and writes it.
 
 ```swift
 struct ParentView: View {
@@ -48,7 +48,7 @@ struct ChildView: View {
 
 ### @Observable - Shared state across views (preferred for new code)
 
-Use for shared state, services, managers. Replaces ObservableObject pattern. More efficient than ObservableObject with fine-grained updates.
+For shared state, services, and managers. Replaces `ObservableObject`, with finer-grained, more efficient updates.
 
 ```swift
 @Observable
@@ -64,7 +64,7 @@ class AppAccountsManager {
 
 ### @Environment - Dependency injection
 
-Use for injecting shared services and managers. Makes dependencies explicit and testable. Access app-wide state without prop drilling.
+Injects shared services and managers. Makes dependencies explicit and testable, and reaches app-wide state without prop drilling.
 
 ```swift
 struct ContentView: View {
@@ -95,7 +95,7 @@ struct MyApp: App {
 
 ### State Flows Down, Actions Flow Up
 
-Views receive data from above and send actions upward. This unidirectional flow makes apps predictable and debuggable.
+Views receive data from above and send actions upward. Unidirectional flow keeps apps predictable and debuggable.
 
 ```swift
 struct ParentView: View {
@@ -127,12 +127,13 @@ struct ItemListView: View {
 
 ### Keep State Close to Usage
 
-Two moves are available, and they are not the same move.
+Lifting a value to the nearest common ancestor and moving it into a shared `@Observable` service are different moves; SKILL.md step 1 says when each applies. Two sibling views under one parent need only the lift.
 
-1. Lift the value to the nearest common ancestor of the views that read it. Keep it in `@State` there. Pass it down as an argument or a `@Binding`. Two sibling views under one parent need only this move.
-2. Move the value into a shared `@Observable` service. Do this when the value must outlive that ancestor view, when it is domain state that unrelated features read, or when passing it down would thread it through views that do not use it.
+A value in a shared service costs:
 
-A value in a shared service takes the service's lifetime. It therefore stays set after the screen closes. Every view that reads it is invalidated when it changes, including a view that shows it only incidentally. The service also grows concerns that belong to one screen, which makes its ownership and its tests harder to follow.
+- It takes the service's lifetime, so it stays set after the screen closes.
+- Every view that reads it is invalidated when it changes, including a view that shows it only incidentally.
+- The service grows concerns that belong to one screen, which makes its ownership and its tests harder to follow.
 
 **WRONG - Premature lifting:**
 

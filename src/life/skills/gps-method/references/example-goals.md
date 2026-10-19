@@ -1,6 +1,6 @@
 # GPS Method Example Goals
 
-Complete GPS breakdowns across different domains to demonstrate quality and structure.
+Complete GPS breakdowns showing the expected quality and structure.
 
 ## Example 1: Learning Goal - Master TypeScript
 

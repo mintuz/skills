@@ -1,10 +1,8 @@
 # Async Testing Patterns
 
-UI frameworks are async by nature (state updates, API calls, suspense). Testing Library provides utilities for async scenarios.
-
 ## findBy Queries
 
-**Built-in async queries** (combines `getBy` + `waitFor`):
+`findBy*` combines `getBy*` with `waitFor`. Use it when an element appears after an async operation, a loading state disappears, or an API response renders content.
 
 ```typescript
 // ✅ CORRECT - Wait for element to appear
@@ -13,12 +11,6 @@ const message = await screen.findByText(/success/i);
 // Under the hood: retries getByText until it succeeds or timeout
 ```
 
-**When to use:**
-- Element appears after async operation
-- Loading states disappear
-- API responses render content
-
-**Configuration:**
 ```typescript
 // Default: 1000ms timeout
 const message = await screen.findByText(/success/i);
@@ -29,7 +21,7 @@ const message = await screen.findByText(/success/i, {}, { timeout: 3000 });
 
 ## waitFor Utility
 
-**For complex conditions** that `findBy` can't handle:
+Use `waitFor` for conditions `findBy` cannot express. It retries until the callback stops throwing or the timeout (default 1000ms) is reached.
 
 ```typescript
 // ✅ CORRECT - Complex assertion
@@ -43,10 +35,6 @@ await waitFor(() => {
 });
 ```
 
-**waitFor retries until:**
-- Assertion passes (doesn't throw)
-- Timeout reached (default 1000ms)
-
 ## Common waitFor Mistakes
 
 ❌ **Side effects in waitFor**
@@ -57,7 +45,7 @@ await waitFor(async () => {
 });
 ```
 
-✅ **CORRECT - Only assertions**
+✅ **Only assertions**
 ```typescript
 await user.click(button); // Outside waitFor
 await waitFor(() => {
@@ -75,20 +63,15 @@ await waitFor(() => {
 });
 ```
 
-`waitFor` reruns the whole callback whenever any assertion throws, so both
-assertions do retry. The cost is diagnosis: the failure message names only the
-first assertion that threw. Split unrelated assertions so each failure is
-specific. Keep them together when the combined state is the condition you are
-waiting for, and when either element on its own would be a false pass.
+`waitFor` reruns the whole callback whenever any assertion throws, so both assertions do retry. The cost is diagnosis: the failure message names only the first assertion that threw. Split unrelated assertions so each failure is specific. Keep them together when the combined state is the condition you are waiting for, and when either element alone would be a false pass.
 
-✅ **CORRECT - Await each condition on its own**
+✅ **Await each condition on its own**
 ```typescript
 await screen.findByText(/name/i);
 await screen.findByText(/email/i);
 ```
 
-Do not follow one `waitFor` with a plain `getBy*` for the second element. That
-`getBy*` runs once and fails when the second element arrives later.
+Do not follow one `waitFor` with a plain `getBy*` for the second element: that `getBy*` runs once and fails when the second element arrives later.
 
 ---
 
@@ -97,14 +80,12 @@ Do not follow one `waitFor` with a plain `getBy*` for the second element. That
 await waitFor(() => screen.findByText(/success/i)); // Redundant!
 ```
 
-✅ **CORRECT - findBy already waits**
+✅ **findBy already waits**
 ```typescript
 await screen.findByText(/success/i);
 ```
 
 ## waitForElementToBeRemoved
-
-**For disappearance scenarios:**
 
 ```typescript
 // ✅ CORRECT - Wait for loading spinner to disappear
@@ -114,14 +95,11 @@ await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 await waitForElementToBeRemoved(() => screen.queryByRole('dialog'));
 ```
 
-**Note:** Use `queryBy*`, which returns null. The element must already be in the
-DOM when the call starts; otherwise `waitForElementToBeRemoved` throws at once.
+Pass a `queryBy*` callback, which returns null. The element must be in the DOM when the call starts; otherwise `waitForElementToBeRemoved` throws at once.
 
 ## Prove appearance before you assert absence
 
-An absence assertion made straight after an interaction is anchored to nothing.
-Depending on how fast the promise settles, it may run before the component could
-react. It then passes whether the component is correct or broken.
+The main skill file's "Absence" rule applies: wait for a settled state first.
 
 ❌ **WRONG - Green for the wrong reason**
 ```typescript
@@ -137,15 +115,9 @@ expect(status).toHaveTextContent(/saved/i);
 expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 ```
 
-**Rule:** Anchor every absence assertion to an observable state that can only
-exist after the async work finished. The `status` and `alert` roles take their
-accessible name from the author, not from their text, so find them by role alone
-and assert their text with `toHaveTextContent`.
-
 ## Common Patterns
 
-**Loading states:** the test controls when the load finishes, and the helper
-owns both states.
+**Loading states:** the test controls when the load finishes; the helper owns both states.
 ```typescript
 let resolveUser: (name: string) => void;
 const loadUser = vi.fn(() => new Promise<string>((resolve) => {
@@ -166,8 +138,7 @@ await screen.findByText(/john doe/i);
 expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
 ```
 
-**API responses:** mount the application helper, which owns the request and
-renders the results.
+**API responses:** mount the application helper, which owns the request and renders the results.
 ```typescript
 const user = userEvent.setup();
 const search = vi.fn().mockResolvedValue(tenResults);
@@ -183,8 +154,7 @@ await waitFor(() => {
 });
 ```
 
-**Debounced inputs:** the helper owns the debounce timer, so the test waits on
-the rendered suggestion rather than on the timer.
+**Debounced inputs:** the helper owns the debounce timer, so the test waits on the rendered suggestion, not the timer.
 ```typescript
 const user = userEvent.setup();
 const suggest = vi.fn().mockResolvedValue(['React Testing Library']);

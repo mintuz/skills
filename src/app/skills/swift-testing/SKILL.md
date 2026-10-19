@@ -5,18 +5,16 @@ description: WHEN writing, running, or diagnosing Swift Testing suites, includin
 
 # Swift Testing Framework: Basics
 
-Guidance for starting with Swift Testing (Testing framework) and writing clear, macro-driven tests.
-
 ## Core Concepts
 
 - Import `Testing` to unlock macros; tests are plain functions annotated with `@Test`.
 - Name tests freely; XCTest's `test` name prefix has no meaning in Swift Testing. Use `@Test("Display Name")` to set the navigator title.
-- `#expect` is the primary assertion; pass a boolean expression to assert truthy outcomes.
-- Assert one behaviour per test function. Split a test that checks unrelated behaviours.
-- Async/throwing tests are supported via `async`/`throws` on the test function.
-- Swift Testing and XCTest run side by side in the same test target. A project that still holds XCTest tests is a supported end state.
-- Convert an existing XCTest target in stages when one change would be too large to review or to bisect. Give the staged order, one class or small batch per stage. Keep the target green between stages.
-- Swift Testing covers unit and integration tests. It provides no UI-automation API and no performance-measurement API. Keep XCUITest tests and XCTest `measure` performance tests on XCTest.
+- `#expect` is the primary assertion; pass it a boolean expression.
+- Assert one behaviour per test function; split a test that checks unrelated behaviours.
+- Mark the test function `async`/`throws` for async or throwing tests.
+- Swift Testing and XCTest run side by side in the same test target; a project that still holds XCTest tests is a supported end state.
+- When one change would be too large to review or bisect, convert an XCTest target in stages: give the staged order, one class or small batch per stage, and keep the target green between stages.
+- Swift Testing covers unit and integration tests but has no UI-automation or performance-measurement API. Keep XCUITest tests and XCTest `measure` performance tests on XCTest.
 
 ## Example: Simple Test
 
@@ -54,8 +52,7 @@ Pass an error type to `#expect(throws:)` to assert that any error of that type i
 
 ## Require vs Expect
 
-- `#require` throws immediately when the condition is false, halting the test early.
-- Handy for unwrapping optionals before continuing with more assertions.
+`#require` throws immediately when the condition is false, halting the test. It is handy for unwrapping optionals before further assertions.
 
 ```swift
 @Test func verifyOptionalFunc() throws {
@@ -66,7 +63,7 @@ Pass an error type to `#expect(throws:)` to assert that any error of that type i
 
 ## Recording Issues
 
-Use `Issue.record("message")` to record a failure. It does not stop the test, so add an explicit `return` when the rest of the test cannot run. Prefer `try #require` when a value must exist before the test continues.
+`Issue.record("message")` records a failure without stopping the test; add an explicit `return` when the rest cannot run. Prefer `try #require` when a value must exist before the test continues.
 
 ```swift
 @Test func verifyOptionalFunc() throws {
@@ -80,18 +77,18 @@ Use `Issue.record("message")` to record a failure. It does not stop the test, so
 
 ## Reading Results Under xcodebuild
 
-- Swift Testing does not emit XCTest's `Test Case ... passed` lines. Treat `Executed 0 tests, with 0 failures` as the empty XCTest summary. It proves nothing about the Swift Testing run.
-- Read the verdict from the fresh result bundle. A pass requires the expected non-zero test count there, no failure or crash there, and a zero exit status. The `✔ Test run with N tests in M suites passed` console line corroborates that count. A filtered or `-quiet` log can omit that line, so never treat its absence alone as the whole verdict.
-- Give every run a fresh `-resultBundlePath <bundle>`. Scope the run with `-only-testing` when one target or test matters. Preserve the log. Read the bundle with `xcrun xcresulttool get test-results summary --path <bundle>`. Crash reasons such as `Test crashed with signal abrt` may appear only there.
-- When a run reports zero tests, suspect the selection before the code. Confirm that `-only-testing` still names the current suite and test after any rename. Confirm that the target belongs to the test plan.
-- Take the expected test count from the target's tests or its test plan. Never take it from the run you are judging.
-- Treat `The test runner hung before establishing connection` as an environmental fault. Run `xcrun simctl shutdown all`. Then retry the run once.
-- `test-without-building` runs the product and `.xctestrun` file that an earlier build produced. Rerun with `xcodebuild test` when that product is the suspect, so the build graph runs before the tests. A load error names the missing library, not the cause. When a load failure survives the rebuild, inspect the framework's embedding and runpath settings as candidates.
+- Swift Testing does not emit XCTest's `Test Case ... passed` lines. `Executed 0 tests, with 0 failures` is the empty XCTest summary and proves nothing about the Swift Testing run.
+- Read the verdict from the fresh result bundle. A pass requires the expected non-zero test count there, no failure or crash there, and a zero exit status. The `✔ Test run with N tests in M suites passed` console line corroborates that count; a filtered or `-quiet` log can omit it, so never treat its absence alone as the verdict.
+- Give every run a fresh `-resultBundlePath <bundle>`; scope it with `-only-testing` when one target or test matters; preserve the log. Read the bundle with `xcrun xcresulttool get test-results summary --path <bundle>`; crash reasons such as `Test crashed with signal abrt` may appear only there.
+- When a run reports zero tests, suspect the selection before the code: confirm `-only-testing` still names the current suite and test after any rename, and that the target belongs to the test plan.
+- Take the expected test count from the target's tests or test plan, never from the run you are judging.
+- `The test runner hung before establishing connection` is an environmental fault: run `xcrun simctl shutdown all`, then retry once.
+- `test-without-building` runs the product and `.xctestrun` file an earlier build produced. When that product is the suspect, rerun with `xcodebuild test` so the build graph runs first. A load error names the missing library, not the cause; when a load failure survives the rebuild, inspect the framework's embedding and runpath settings as candidates.
 
 ## Parameterized and Parallel Tests
 
-- Put table cases in one `@Test(arguments:)`. Keep arguments immutable and `Sendable`. Give a case type a stable `CustomTestStringConvertible` description when its values do not identify failures clearly.
-- Swift Testing runs tests and parameterized cases in parallel by default. Create every mutable fixture inside the test invocation, for example an in-memory database container, its context, the object under test, and its records. Share only immutable case data.
-- Swift Testing does not isolate `static` properties, singletons, or other global state between tests. Never reach a mutable fixture through one.
-- Use `.serialized` only when a dependency genuinely cannot be isolated. Keep production concurrency unchanged.
+- Put table cases in one `@Test(arguments:)` with immutable, `Sendable` arguments. When a case type's values do not identify failures clearly, give it a stable `CustomTestStringConvertible` description.
+- Tests and parameterized cases run in parallel by default. Create every mutable fixture inside the test invocation (e.g. an in-memory database container, its context, the object under test, its records); share only immutable case data.
+- Swift Testing does not isolate `static` properties, singletons, or other global state between tests; never reach a mutable fixture through one.
+- Use `.serialized` only when a dependency genuinely cannot be isolated; keep production concurrency unchanged.
 - Prove a flake fixed with repeated full-target runs under normal parallel execution, the expected case count, and clean fresh result bundles; one isolated pass is insufficient.

@@ -48,18 +48,19 @@ class ConsoleLogger implements Logger {
 }
 ```
 
-**When interface is appropriate:**
+**When `interface` is appropriate:**
 
-- Defining contracts that classes will implement
-- Dependency injection boundaries
-- Plugin/adapter systems
-- Never for plain data structures
+- contracts that classes implement;
+- dependency injection boundaries;
+- plugin/adapter systems.
+
+Never use `interface` for plain data structures.
 
 ## The `any` Type
 
 ### Never Use `any`
 
-`any` completely disables type checking. It's a hole in your type system:
+`any` disables type checking entirely:
 
 ```typescript
 // Bad - any spreads like a virus
@@ -73,7 +74,7 @@ const result: any = await fetchData();
 
 ### Use `unknown` Instead
 
-`unknown` is type-safe - you must validate before using:
+`unknown` forces validation before use:
 
 ```typescript
 // Good - unknown forces validation
@@ -96,7 +97,7 @@ const isUser = (value: unknown): value is User => {
 
 ## Type Assertions
 
-Avoid `as` type assertions. They bypass type checking:
+Avoid `as` assertions; they bypass type checking:
 
 ```typescript
 // Bad - assumes without verification
@@ -110,7 +111,7 @@ const user = response as User;
 const user = UserSchema.parse(response);
 ```
 
-Use `as` only where a check you have just run cannot be expressed in the type system, such as the constructor of a branded type. Put the assertion immediately after the check. Write a comment that names the checked condition:
+For the one permitted use (a just-run check the type system cannot express, such as a branded type constructor), follow SKILL.md "An assertion the type system cannot avoid":
 
 ```typescript
 const createUserId = (id: string): UserId | null => {
@@ -143,7 +144,7 @@ const createUserId = (id: string): UserId | null => {
 }
 ```
 
-**Why each flag matters:**
+**Key flags:**
 
 | Flag                | Purpose                                   |
 | ------------------- | ----------------------------------------- |

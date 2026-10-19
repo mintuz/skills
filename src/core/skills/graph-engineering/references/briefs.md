@@ -1,6 +1,6 @@
 # Briefs, Contracts, and Handoffs
 
-The artifacts that cross node boundaries. Fill them; do not freestyle them. Every one of these is data the next stage parses, not prose the next stage reads.
+The artifacts that cross node boundaries. Fill them; never freestyle them: each is data the next stage parses, not prose it reads.
 
 ## The Verification Contract
 
@@ -13,7 +13,7 @@ Written in step 1, before any node runs. One row per assertion.
 | `assertion` | One independently decidable observable outcome, stated without naming an implementation |
 | `lane` | `static` or `behavioral` |
 | `evidence_path` | How this assertion will be checked — the command, the interaction, the surface |
-| `owner` | Node identifier, assigned in step 2; empty until then, and empty at dispatch time is a gap |
+| `owner` | Node identifier, assigned in step 2; empty at dispatch is a gap |
 
 Write assertions as outcomes. *"A declined payment leaves no order row and returns a decline to the caller"* is decidable. *"Handle payment failures correctly"* is not. *"Call `rollback()` in the catch block"* is an implementation, and it locks the contract to one design.
 
@@ -25,7 +25,7 @@ A behavioral assertion judged against a supplied baseline — a design export, a
 | `threshold` | What counts as close enough — layout fidelity, pixel identity, or a named materiality bar |
 | `capture` | The reproducible render protocol — viewport, theme, seed data, animation state |
 
-Reference-judged assertions are verified by `gauntlet-loop` rounds rather than a single verifier; the verdict vocabulary is unchanged (`WIN` enters the ledger as `pass`, `LOSE` as `fail`, `UNJUDGEABLE` as `unjudgeable`). The loop's depth and critic seat are confirmed at step 5's approval and recorded here before dispatch.
+Record the loop's depth and critic seat here before dispatch, once confirmed at step 5's approval.
 
 ## The Worker Brief
 
@@ -54,7 +54,7 @@ work, and you do not decide what runs next.
    evidence, not a quality verdict.
 ```
 
-Attach the assertion rows, the shared-state locator, and the paths. **Never attach the orchestrator's session history**: the node inherits the orchestrator's assumptions along with it, and every node then shares one blind spot.
+Attach the assertion rows, the shared-state locator, and the paths. **Never attach the orchestrator's session history.**
 
 ## The Verifier Brief
 
@@ -83,7 +83,7 @@ unjudgeable — never fail.
    Never infer pass from absence of contrary evidence.
 ```
 
-Withhold the worker's handoff narrative, rationale, and any claim of quality. Pass the artifact only; the verifier gathers its own raw evidence. For a high-stakes node, run several verifiers on distinct angles — does it reproduce, does it hold at the boundaries, does it regress adjacent behavior — and require agreement.
+Pass the artifact only. For a high-stakes node, run several verifiers on distinct angles — does it reproduce, does it hold at the boundaries, does it regress adjacent behavior — and require agreement.
 
 Verdict shape:
 
@@ -104,7 +104,7 @@ Verdict shape:
 
 ## The Heartbeat Brief
 
-One monitor per run, spawned at dispatch alongside the first node. It measures; it never builds, judges, or schedules work. In a runtime with no background monitor, the orchestrator runs this brief itself before every dispatch decision.
+One monitor per run, spawned alongside the first node. In a runtime with no background monitor, the orchestrator runs this brief itself before every dispatch decision.
 
 ```text
 You are the heartbeat of an execution graph. You watch usage headroom; you
@@ -144,13 +144,13 @@ A node closes with this, not with a claim of completion.
 Rules:
 
 - `commands` records every check actually run with its real exit code. A claimed check is not a check.
-- `undone`, `issues`, and `departures` are load-bearing. All three empty on a non-trivial node is a signal the node did not look, not that it was clean.
+- `undone`, `issues`, and `departures` are load-bearing: all three empty on a non-trivial node signals the node did not look, not that it was clean.
 - An unaddressed `issues` or `departures` entry **blocks the checkpoint**. Each becomes a scoped follow-up node or an explicitly recorded acceptance before the graph advances.
 - `decisions` are folded into shared state at the checkpoint, so later nodes inherit them instead of re-deciding them differently.
 
 ## The Shared State Artifact
 
-One document every agent reads, and only the orchestrator writes:
+One document every agent reads and only the orchestrator writes:
 
 - the verification contract with current assertion status;
 - the current graph render, refreshed at every checkpoint, with node classes showing what is done, ready, and blocked;
@@ -160,4 +160,4 @@ One document every agent reads, and only the orchestrator writes:
 - usage headroom as last reported by the heartbeat, and any scheduled pause or resume;
 - open questions and named contract gaps.
 
-Broadcast changes here rather than re-briefing dispatched nodes. Nodes that started early and nodes that start late must be working from the same facts, and a fact that lives only in the orchestrator's context is not shared.
+A fact that lives only in the orchestrator's context is not shared.

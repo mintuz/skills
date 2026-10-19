@@ -6,7 +6,7 @@ React hooks that wrap `window.openai` for reactive, type-safe widget development
 
 ### useOpenAiGlobal
 
-Subscribe to individual `window.openai` properties with automatic re-renders on change.
+Subscribe to individual `window.openai` properties; components re-render when they change.
 
 **Signature:**
 
@@ -252,7 +252,7 @@ function ScrollableList() {
 
 ### useWidgetProps
 
-Generic hook for retrieving tool output with type safety and fallback support.
+Type-safe tool output with a fallback.
 
 ```typescript
 export const useWidgetProps = <T extends UnknownObject>(
@@ -527,8 +527,6 @@ const [formData, setFormData] = useState({ title: "" });
 
 ### Don't: Auto-Sync Widget State to Server Data
 
-Widget state should persist independently:
-
 ```typescript
 // GOOD - Widget state persists
 const tasks = useOpenAiGlobal("toolOutput")?.tasks ?? [];
@@ -543,10 +541,8 @@ useEffect(() => {
 
 ### Don't: Put Secrets in Widget State or `_meta`
 
-Treat widget state as model-visible. `_meta` reaches the widget in the user's browser.
-Neither is a secret store. Keep every credential on the MCP server and call the
-third-party API from there. See the payload boundary rule in
-[SKILL.md](../SKILL.md).
+Keep every credential on the MCP server and call the third-party API from there
+(payload boundary rule in [SKILL.md](../SKILL.md)).
 
 ```typescript
 // GOOD - the server holds the key and returns only the result

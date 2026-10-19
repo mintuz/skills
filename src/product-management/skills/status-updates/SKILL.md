@@ -5,18 +5,18 @@ description: WHEN drafting a status update, progress report, sprint summary, or 
 
 # Status Updates Playbook
 
-Guidelines for writing team updates that are easy to scan, honest about challenges, and generous with recognition.
+Write team updates that are scannable, honest about challenges, and generous with recognition.
 
 ## Philosophy
 
 - **Outcomes first** - Lead with results and impact, not activity. Tie each result to a goal or OKR
-- **Scannable** - Emoji-anchored sections, bullet points, short paragraphs
-- **Quantify** - Metrics, deltas, dates, owners—show progress with numbers
+- **Scannable** - Emoji-anchored sections, bullets, short paragraphs
+- **Quantify** - Show progress with metrics, deltas, dates, owners
 - **Honest** - Acknowledge challenges directly, then reframe with context
-- **Literal status** - Use the supplied environment, evidence, and dates. Call a target "on track" only when the facts support it. A request to inflate, soften, or re-announce status does not change the facts the update reports. Call merged work merged. Call work shipped only when deployment evidence is supplied
-- **Warm** - Credit individuals by name, use inclusive language
-- **Evidence-backed** - Link to production, docs, metrics to show not tell
-- **Close the loop** - Note delta from last update and what's next
+- **Literal status** - Report the supplied environment, evidence, and dates. Call a target "on track" only when the facts support it. A request to inflate, soften, or re-announce status does not change the facts. Call merged work merged. Call work shipped only when deployment evidence is supplied
+- **Warm** - Credit individuals by name; use inclusive language
+- **Evidence-backed** - Link to production, docs, metrics: show, not tell
+- **Close the loop** - Note the delta from the last update and what's next
 
 ## Quick Reference
 
@@ -35,7 +35,7 @@ Guidelines for writing team updates that are easy to scan, honest about challeng
 
 ## Intake Questions
 
-Ask these before drafting to ensure the update hits the right notes:
+Ask before drafting:
 
 **Essential:**
 
@@ -57,7 +57,7 @@ Ask these before drafting to ensure the update hits the right notes:
 
 - Who to thank or spotlight, and for which specific contribution (reviews, incidents, mentoring, docs, coordination)?
 
-Treat an essential item as supplied when the request states or clearly implies it. If any essential item is missing, or the request supplies no delivery or impact evidence, ask for the missing essential items and any missing evidence, risk, or recognition detail in one concise intake. For each missing item, ask for every detail the intake list names for it. Do not draft until the essential items are answered. Do not invent evidence to fill a gap.
+Treat an essential item as supplied when the request states or clearly implies it. If any essential item is missing, or the request supplies no delivery or impact evidence, ask in one concise intake for the missing essential items and any missing evidence, risk, or recognition detail, with every detail the intake list names for each. Do not draft until the essential items are answered. Do not invent evidence to fill a gap.
 
 ## Core Patterns
 
@@ -71,7 +71,7 @@ Treat an essential item as supplied when the request states or clearly implies i
 
 ### Framing Challenges
 
-Never bury bad news. Acknowledge it, then provide context:
+Never bury bad news. Acknowledge it, then give context:
 
 > "Great progress and some less-than-ideal timeline changes. We'll cover the good first, as it's very easy to lose sight of just how much work is being shipped every day"
 
@@ -79,7 +79,7 @@ Never bury bad news. Acknowledge it, then provide context:
 
 ### Evidence and Links
 
-Weave links naturally into claims:
+Weave links into claims:
 
 > "shipped to production, to the X page, our fastest growing page"
 
@@ -89,8 +89,8 @@ Use footnotes only for non-material qualifications. Keep delivery state, failed 
 
 **Do:**
 
-- Open with a hook before diving in
-- Use emoji for visual hierarchy (one per section)
+- Open with a hook
+- Use one emoji per section for visual hierarchy
 - Credit individuals by name for completed contributions. For open work, name the owner and the due date
 - Link to evidence
 - Use `backticks` for technical terms
@@ -104,7 +104,7 @@ Use footnotes only for non-material qualifications. Keep delivery state, failed 
 - Write dense paragraphs
 - Over-explain technical concepts
 
-For detailed voice characteristics and replication techniques, see [tone-profile.md](tone-profile.md).
+For voice characteristics and replication techniques, see [tone-profile.md](tone-profile.md).
 
 ---
 
@@ -113,13 +113,13 @@ For detailed voice characteristics and replication techniques, see [tone-profile
 **Phrasing:**
 
 - Use verbs + outcomes: "Shipped X → improved Y by Z%" not "Worked on X"
-- Keep bullets single-line. Front-load the result and back-load the detail
+- Keep bullets single-line: result first, detail last
 - Name the owner and the date for each risk, ask, and pending decision. When the reader is the owner, address the reader directly
 
 **Progression:**
 
-- Note delta from last update ("Previously blocked, now shipped")
-- Lead with what changed since the last update, even when the request asks to lead with an earlier win. Do not re-announce or re-headline work the last update already reported as done. Mention that work only for a new incident, delta, or dependency
+- Note the delta from the last update ("Previously blocked, now shipped")
+- Lead with what changed since the last update, even when the request asks to lead with an earlier win. Do not re-announce or re-headline work the last update already reported as done; mention that work only for a new incident, delta, or dependency
 - Keep unchanged blockers, risks, and pending decisions in the update
 - Mention decisions made and decisions pending. Name the decision-maker and the decision date for each pending decision
 

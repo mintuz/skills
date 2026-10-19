@@ -2,13 +2,13 @@
 
 ## Set the boundary
 
-Create one route- or feature-owned actor for one mounted journey. Start it at mount and stop it at unmount. Let that actor own its child actors, commands, resources, retries, and convergence with external truth.
+Create one route- or feature-owned actor per mounted journey, started at mount and stopped at unmount. That actor owns its child actors, commands, resources, retries, and convergence with external truth.
 
 Split child actors by cohesive capability and lifetime, not by technical layer. Keep pure parsing, projection, and transformation as ordinary functions. Add shared wrappers only after repeated use proves a stable abstraction.
 
 ## Use typed factories and boundaries
 
-Build each machine through a factory. Inject IDs, clocks, transports, persistence, and resource constructors. Use actor `input` for per-instance data. Do not import mutable globals into machine logic.
+Build each machine through a factory that injects IDs, clocks, transports, persistence, and resource constructors. Use actor `input` for per-instance data. Do not import mutable globals into machine logic.
 
 Define incoming events and outgoing commands as discriminated unions. Keep commands independent of transport encoding; adapt them at the injected port.
 
@@ -69,7 +69,7 @@ export const makeJourneyMachine = (ports: Ports) => {
 
 Represent mutually exclusive meanings as states such as `idle`, `active`, `retrying`, and `cancelled`. Store data in context only when it survives transitions or several states need it. Derive lifecycle status from `snapshot.matches(...)`, tags, selectors, or pure functions.
 
-Use hierarchy when a parent state owns policy shared by child phases. Place each transition on the narrowest state that owns its meaning. Put a transition at the root only when it must apply in every state.
+Use hierarchy when a parent state owns policy shared by child phases. Place each transition on the narrowest state that owns its meaning; put it at the root only when it must apply in every state.
 
 Use parallel regions only for concerns that progress independently under one owner. Join multipart readiness by making each region reach a final child; the parallel parent then completes through `onDone`.
 

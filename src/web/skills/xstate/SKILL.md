@@ -9,7 +9,7 @@ Treat a statechart as an executable ownership model for time, concurrency, and r
 
 ## Recognise a hand-rolled statechart
 
-Each of the following is a lifecycle already being modelled by hand:
+Each of these is a lifecycle already modelled by hand:
 
 - a `useState` flag for work in flight: `isSubmitting`, `isLoading`, `pending`;
 - a `.then`, `.catch`, or `await` block that sets two or more pieces of state in sequence;
@@ -21,7 +21,7 @@ Each of the following is a lifecycle already being modelled by hand:
 - a `pointerdown`, `dragstart`, or gesture handler that binds listeners to the document and must unbind them;
 - handling for a response that arrives after cancel, replacement, or unmount.
 
-Any one of them is the entry point to step 1, however small the request, and whether or not the file imports `xstate`. When the code already exists, name each defect it has today and the wrong behaviour a user would see, before you propose the machine that removes it.
+Any one of them leads to step 1, however small the request and whether or not the file imports `xstate`. When the code already exists, name each defect it has today and the wrong behaviour a user would see before proposing the machine that removes it.
 
 For a visualisation-only request, inspect the current machine source and go to step 6 instead.
 
@@ -29,11 +29,12 @@ For a visualisation-only request, inspect the current machine source and go to s
 
 Inventory the mounted journey, external authority, live resources, concurrent concerns, retry and cancellation policy, and every source of stale or duplicate work. Inspect existing actors and runtime integrations, and confirm the installed XState major version; the XState 4 and 5 APIs differ.
 
-Use XState only where ordering, concurrency, retries, cancellation, stale results, or resource lifetimes make the behaviour temporal. Two tests find that lifetime; classify by what they show, not by what the state renders.
+Use XState only where ordering, concurrency, retries, cancellation, stale results, or resource lifetimes make the behaviour temporal. Classify with two tests, by what they show, not by what the state renders:
 
-First, an external answer — a network response, a timer, another actor, the platform — makes state temporal whatever it looks like on screen. A disabled button or a spinner is the presentation of temporal state, not presentation state.
+1. An external answer (a network response, a timer, another actor, the platform) makes state temporal whatever it looks like on screen. A disabled button or a spinner presents temporal state; it is not presentation state.
+2. Direct user input creates a lifecycle whenever the interaction has an interruptible middle: a drag holds pointer capture, cancels on Escape, and must release on unmount; a panel that animates shut has a closing phase.
 
-Second, direct user input creates a lifecycle whenever the interaction has an interruptible middle: a drag holds pointer capture, cancels on Escape, and must release on unmount; a panel that animates shut has a closing phase. State belongs to the UI framework only when both tests come back empty — one event sets the value completely, leaving no phase to interrupt and nothing to dispose.
+State belongs to the UI framework only when both tests come back empty: one event sets the value completely, leaving no phase to interrupt and nothing to dispose.
 
 **Complete when:** every temporal responsibility has one named owner, and every proposed actor owns at least one distinct lifecycle or resource.
 
@@ -41,7 +42,7 @@ Second, direct user input creates a lifecycle whenever the interaction has an in
 
 Read [modelling.md](references/modelling.md) before creating or changing a machine. Apply it to the actor boundary, typed factory, event and command unions, lifecycle states, transition placement, hierarchy, parallel regions, and readiness joins.
 
-Find which layer owns machines before you create the file: architecture tests, import-boundary rules such as `eslint-plugin-boundaries` or `dependency-cruiser`, `CLAUDE.md`, architecture decision records, and the directory holding existing machines. A correct machine in a forbidden directory fails CI.
+Before creating the file, find which layer owns machines: architecture tests, import-boundary rules such as `eslint-plugin-boundaries` or `dependency-cruiser`, `CLAUDE.md`, architecture decision records, and the directory holding existing machines. A correct machine in a forbidden directory fails CI.
 
 **Complete when:** the machine sits in the layer the repository's own rules assign to machines, mutually exclusive meanings are states, independent concerns are parallel only when they have independent lifecycles, and each transition sits at the narrowest state that owns it.
 
@@ -55,7 +56,7 @@ Read [lifecycles.md](references/lifecycles.md) whenever the feature invokes asyn
 
 Read [react.md](references/react.md) for any `@xstate/react` surface. Let the route or feature boundary own `useActorRef`, expose typed actor refs to descendants, and subscribe through focused selectors.
 
-Run both step 1 tests over every `useState` you write or keep, and state the verdict in your reply so the user can overrule it. Where they are decisive, act on the answer and report the call in one line: *"`isSubmitting` is set by the request, so it moved into the machine as `submitting`."* Where it is genuinely close — a real but small lifecycle, or a machine the repository's layer rules would push far from its component — put the choice to the user before you build: name the state, name the phase that makes it a lifecycle, and ask whether it belongs in the machine.
+Run both step 1 tests over every `useState` you write or keep, and state the verdict in your reply so the user can overrule it. Where the tests are decisive, act and report the call in one line: *"`isSubmitting` is set by the request, so it moved into the machine as `submitting`."* Where the call is genuinely close (a real but small lifecycle, or a machine the repository's layer rules would push far from its component), ask the user before building: name the state, name the phase that makes it a lifecycle, and ask whether it belongs in the machine.
 
 **Complete when:** every retained `useState` holds a value one event sets completely, no React state duplicates a fact an external answer owns, actor-derived status and permissions have one pure derivation, and each component subscribes only to values it renders or uses.
 
@@ -67,7 +68,7 @@ Read [testing.md](references/testing.md) before writing or reviewing tests. Driv
 
 ## 6. Render the statecharts
 
-Read [diagramming.md](references/diagramming.md) whenever the user asks for a diagram. Also render or update the diagrams after designing or changing any machine, even when the user did not ask for a diagram.
+Read [diagramming.md](references/diagramming.md) whenever the user asks for a diagram. After designing or changing any machine, render or update its diagrams even unasked.
 
 **Complete when:** every designed or changed machine has a source-grounded diagram, composite and concurrent boundaries are legal, parser-sensitive labels are safe, and render validation is reported accurately.
 

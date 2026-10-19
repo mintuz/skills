@@ -4,8 +4,6 @@
 
 ### Single Responsibility Principle (SRP)
 
-Each CSS class should handle one concern only. Separate structure from cosmetics:
-
 ```css
 /* Bad - multiple responsibilities */
 .promo {
@@ -26,13 +24,11 @@ Each CSS class should handle one concern only. Separate structure from cosmetics
 
 **Benefits:**
 
-- Improved maintainability - changes to one responsibility don't affect others
-- Enhanced reusability - classes can be recombined across different contexts
-- DRYer code - base abstractions can be modified once for far-reaching changes
+- Maintainability: changing one responsibility leaves the others untouched
+- Reusability: classes recombine across contexts
+- DRYer code: one edit to a base abstraction reaches every use
 
 ### Open/Closed Principle
-
-CSS should be open for extension, closed for modification. Base objects should never change once established - only extend them:
 
 ```css
 /* Base abstraction - don't modify */
@@ -49,15 +45,12 @@ CSS should be open for extension, closed for modification. Base objects should n
 }
 ```
 
-**Key points:**
-
-- Keep base objects simple and minimal
-- Never modify base abstractions - add new extending classes instead
-- If an abstraction doesn't fit, stop using it rather than forcing modifications
+- Keep base objects simple and minimal.
+- If an abstraction doesn't fit, stop using it rather than modifying it.
 
 ### Immutable CSS
 
-Certain classes should be treated as constants - never modified after creation:
+Treat these classes as constants:
 
 | Prefix | Type      | Purpose                       |
 | ------ | --------- | ----------------------------- |
@@ -126,7 +119,7 @@ Certain classes should be treated as constants - never modified after creation:
 
 ### Focusable Visually Hidden Control (Stateful)
 
-A skip link or similar control is hidden until it receives focus. The base rule and the focus rule form one contract, so neither uses `!important`. The focus rule restores every hiding property.
+A skip link or similar control stays hidden until it receives focus.
 
 ```css
 .u-skip-link {
@@ -171,8 +164,8 @@ A skip link or similar control is hidden until it receives focus. The base rule 
 
 **Rules:**
 
-- Do not hide with `display: none`, `visibility: hidden`, `font-size: 0`, or off-screen coordinates. These remove the control from the accessibility tree or the visible viewport.
-- Forced-colors mode removes `box-shadow` and replaces author colours. Do not rely on `box-shadow` alone for the focus indicator; `outline` (recommended) or a border survives. Name system colours (`Canvas`, `CanvasText`, `LinkText`, `Highlight`) in a `@media (forced-colors: active)` rule.
+- Do not hide with `display: none`, `visibility: hidden`, `font-size: 0`, or off-screen coordinates: these remove the control from the accessibility tree or the visible viewport.
+- Forced-colors mode also replaces author colours; an `outline` or a border survives it. Name system colours (`Canvas`, `CanvasText`, `LinkText`, `Highlight`) in a `@media (forced-colors: active)` rule.
 - Use `rem` for text and padding so the control scales with user font preferences.
 
 ### Self-Chaining for Specificity

@@ -2,7 +2,7 @@
 
 ## Testing Pyramid
 
-Prioritize integration tests over unit tests:
+Prioritise integration tests over unit tests:
 
 ```
         ┌───────────┐
@@ -26,7 +26,7 @@ Prioritize integration tests over unit tests:
 
 ## Testing Library Principles
 
-Test like a real user - query by accessible names, not implementation:
+Test like a real user: query by accessible names, not implementation details.
 
 ```typescript
 // ❌ Bad - testing implementation

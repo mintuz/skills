@@ -1,10 +1,10 @@
 # TabView Patterns
 
-TabView guidance that builds on the AppRouter setup in `references/navigation-patterns.md`.
+Builds on the AppRouter setup in `references/navigation-patterns.md`.
 
 ## Tab Selection Hooks
 
-Use a custom binding when you need to intercept tab selection:
+Use a custom binding to intercept tab selection:
 
 ```swift
 struct ContentView: View {

@@ -1,17 +1,12 @@
 # User Event Simulation
 
-**Always use `userEvent` over `fireEvent`** for realistic interactions.
-
 ## userEvent vs fireEvent
 
-**Why userEvent is superior:**
-- Dispatches the whole pointer, focus, and mouse event sequence a browser fires
-  for the interaction, not one synthetic event
-- Respects the order and the timing a browser uses
-- Throws when the target has `pointer-events: none`, and suppresses the mouse
-  activation events on a disabled control, so `click` never fires there and the
-  test fails on an unreachable element instead of passing
-- Catches bugs that a single synthetic event hides
+Use `userEvent`, not `fireEvent`. `userEvent`:
+- dispatches the whole pointer, focus, and mouse event sequence a browser fires for the interaction, not one synthetic event
+- respects browser order and timing
+- throws when the target has `pointer-events: none`, and suppresses mouse activation events on a disabled control, so `click` never fires there and the test fails on an unreachable element instead of passing
+- catches bugs a single synthetic event hides
 
 ```typescript
 // ❌ WRONG - fireEvent (incomplete simulation)
@@ -26,13 +21,9 @@ await user.type(input, 'test');
 await user.click(button);
 ```
 
-**Only use `fireEvent` when:**
-- `userEvent` doesn't support the event (rare)
-- Testing non-standard browser behavior
+Use `fireEvent` only when `userEvent` does not support the event (rare) or when testing non-standard browser behaviour.
 
 ## userEvent.setup() Pattern
-
-**Modern best practice (2025):**
 
 ```typescript
 // ✅ CORRECT - Setup per test
@@ -52,12 +43,7 @@ beforeEach(() => {
 });
 ```
 
-**Why:** `setup()` binds to the current `document` and installs its clipboard and
-pointer state when you call it. Calling it in the test body keeps that setup next
-to the markup it drives, and makes per-test options such as
-`userEvent.setup({ advanceTimers: vi.advanceTimersByTime })` obvious at the point
-of use. Under fake timers, pass `advanceTimers`; do not disable the delay with
-`delay: null`.
+**Why:** `setup()` binds to the current `document` and installs its clipboard and pointer state when called. Calling it in the test body keeps that setup next to the markup it drives and makes per-test options such as `userEvent.setup({ advanceTimers: vi.advanceTimersByTime })` visible at the point of use. Under fake timers, pass `advanceTimers`; do not disable the delay with `delay: null`.
 
 ## Common Interactions
 
