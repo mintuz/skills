@@ -2,7 +2,7 @@
 
 ## wrapper Option
 
-**For hooks that need context providers:**
+For hooks that need context providers:
 
 ```tsx
 const { result } = renderHook(() => useAuth(), {

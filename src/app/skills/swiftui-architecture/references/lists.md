@@ -1,7 +1,5 @@
 # List Patterns
 
-SwiftUI List patterns for feeds, settings, and scrollable content.
-
 ## When to Use List
 
 - **Long scrolling feeds**: Posts, messages, activity streams
@@ -160,7 +158,7 @@ struct SearchableList: View {
 
 ### Lazy Loading
 
-List is lazy by default, but you can optimize further:
+List is lazy by default; you can defer per-row work further:
 
 ```swift
 List(items) { item in
@@ -174,7 +172,7 @@ List(items) { item in
 
 ### Stable IDs
 
-Always use stable, unique identifiers for list items:
+Use stable, unique identifiers for list items. Random or computed IDs break animations and scroll position:
 
 ```swift
 // Good: Stable ID from data model
@@ -192,8 +190,7 @@ struct Item: Identifiable {
 
 ## Common Mistakes
 
-- **Nesting List inside ScrollView**: Causes gesture conflicts and broken scrolling
-- **Using non-lazy arrays with thousands of items**: List is lazy, but avoid heavy computation in row views
-- **Unstable IDs**: Random or computed IDs break animations and scroll position
-- **Heavy layouts in rows**: Extract complex row views into separate components
-- **Missing `.buttonStyle(.plain)`**: Default button style interferes with custom tap gestures
+- **Nesting List inside ScrollView**: causes gesture conflicts and broken scrolling
+- **Thousands of items**: List is lazy, but avoid heavy computation in row views
+- **Heavy layouts in rows**: extract complex row views into separate components
+- **Missing `.buttonStyle(.plain)`**: the default button style interferes with custom tap gestures

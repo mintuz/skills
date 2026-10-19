@@ -1,0 +1,56 @@
+description: "principle-sequence-verifiable-units behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A failed unit blocks the work that depends on it"
+    vars:
+      skill: file://../../src/principle/skills/principle-sequence-verifiable-units/SKILL.md
+      scenario: "An approved serializer migration first changes a shared encoder, then the JSON and CBOR formats that depend on it. After the encoder change, its round-trip check fails on one edge case (negative zero). A teammate suggests moving on to the JSON and CBOR units now and fixing every failure together at the end, because the format tests will exercise the encoder anyway. Propose the sequence."
+      rubric: "Does not start the dependent JSON or CBOR units while the encoder check fails; diagnoses the failure at the encoder boundary and either fixes it until the check passes or rolls the encoder unit back; then gives each format unit its own before/after check and rollback; ends with cross-format integration checks rather than deferring all failures to the end."
+  - description: "A unit follows the invariant rather than file count"
+    vars:
+      skill: file://../../src/principle/skills/principle-sequence-verifiable-units/SKILL.md
+      scenario: "A renamed wire field requires updating one producer, one consumer and a contract fixture together. Any single-file state fails the accepted protocol. Independently an obsolete helper can be deleted. The user wants reviewable commits and a green shared branch. Choose units and proof order."
+      rubric: "Groups the producer, consumer and fixture into one contract-preserving unit instead of one file per unit; orders independent helper deletion and protocol change with their own checks and rollback; can show a failing test in isolated evidence but does not land a broken shared commit merely to force red-green history; ends at verified integration."

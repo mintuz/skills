@@ -1,12 +1,10 @@
 # Animation Utilities
 
-Tailwind CSS Animate utilities for smooth transitions and motion.
-
-Every example here assumes two packages: `tailwindcss-animate` for the
-`animate-in` and `animate-out` utilities, and `@radix-ui/react-dialog` for the
-Dialog example. Use these patterns only when the project already installs those
-packages, or when the requester accepts them. Otherwise build the transition
-from Tailwind's own `transition`, `duration` and `data-[state=...]` utilities.
+Every example assumes `tailwindcss-animate` (for `animate-in` and `animate-out`)
+and `@radix-ui/react-dialog` (for the Dialog example). Use these patterns only
+when the project installs those packages or the requester accepts them;
+otherwise build the transition from Tailwind's own `transition`, `duration` and
+`data-[state=...]` utilities.
 
 ## Animation Presets
 

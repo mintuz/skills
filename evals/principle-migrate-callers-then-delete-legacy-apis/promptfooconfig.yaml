@@ -1,0 +1,61 @@
+description: "principle-migrate-callers-then-delete-legacy-apis behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Consumer coverage before deletion"
+    vars:
+      skill: file://../../src/principle/skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md
+      scenario: "An internal search API is being replaced. Repository search finds two application callers and both are migrated. A maintained deployment repository generates a nightly client from the old schema; its revision is unknown. The release policy supports that client for one more release. The developer says this is internal so delete the old API now and count the two green unit tests as complete. Give the next change and deletion gate."
+      rubric: "Keeps the supported generated client compatible until its migration or authorized compatibility-policy change is verified; inventories generated and cross-repository consumers, not just text-search hits; distinguishes known migrated callers from unknown coverage; gives a concrete consumer-contract check and deletion condition."
+  - description: "Coordinated migration removes redundant paths"
+    vars:
+      skill: file://../../src/principle/skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md
+      scenario: "A private parser API has exactly three callers, all in the supplied build graph; no external consumers or saved data use it. A replacement is accepted and all three callers can migrate together. The old parser tests include malformed-input rejection that the new API must retain, plus a test of its removed helper function name. Propose the migration and checks."
+      rubric: "Migrates all three callers and deletes the old API in the same authorized unit without an unnecessary compatibility facade; retains malformed-input behavior coverage through the new API while retiring the helper-name assertion; verifies the build graph and remaining references before claiming completion."
+  - description: "Transitional paths go once consumers and guarantees are covered"
+    vars:
+      skill: file://../../src/principle/skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md
+      scenario: "An isolated, approved migration replaced a private job queue. During the phases the team added a feature flag choosing old or new queue, a read fallback to the old queue table, and dual writes to both tables. All in-repo producers and consumers now use the new queue, and ordering, cancellation and retry-limit tests pass against it. A nightly finance export, owned by another team, still reads the old queue table. The developer proposes leaving the flag, fallback, dual writes and old queue code in place 'just in case' and calling the migration done. Give the closing plan."
+      rubric: "Removes the flag, the read fallback and old queue code whose consumers and guarantees are now covered rather than keeping them indefinitely; keeps the dual write (or an equivalent feed) only for the finance export until it migrates or its owner authorises the break, giving that path an owner and a removal condition; does not call the migration done while covered transitional paths remain; checks remaining references and consumer builds before deletion."

@@ -85,7 +85,7 @@ struct ContentView: View {
 
 ## ❌ Don't Own One Service Through Another
 
-Observation tracks the properties a view reads, including properties reached through a nested `@Observable` object, so nesting does not break observation. Nesting one service inside another does give the outer service ownership of the inner one, which hides the inner service's lifetime and forces every test of the outer service to build the inner one.
+Nesting does not break observation: a view tracks the properties it reads through a nested `@Observable` object. Nesting does make the outer service own the inner one, which hides the inner service's lifetime and forces every test of the outer service to build the inner one.
 
 **AVOID:**
 
@@ -110,7 +110,7 @@ ContentView()
 
 ## ❌ Don't Fight SwiftUI Updates
 
-Trust SwiftUI's update system. Don't manually control when views update.
+Let SwiftUI's update system decide when views update; do not control updates manually.
 
 **WRONG:**
 
@@ -140,7 +140,7 @@ struct ContentView: View {
 
 ## ❌ Don't Use @StateObject with @Observable
 
-@StateObject is for ObservableObject, not @Observable classes.
+`@StateObject` is for `ObservableObject`, not `@Observable` classes.
 
 **WRONG:**
 
@@ -166,9 +166,9 @@ struct ContentView: View {
 
 ## ❌ Don't Overuse @Binding
 
-Only use @Binding when the child truly needs to modify parent state. Often a callback is clearer.
+Use `@Binding` only when the child must modify parent state; a callback is often clearer.
 
-**Consider this instead of @Binding:**
+**Callback instead of `@Binding`:**
 
 ```swift
 struct ParentView: View {
@@ -197,7 +197,7 @@ struct ItemListView: View {
 
 ## ❌ Don't Put UI Logic in @Observable Classes
 
-@Observable classes should be business logic, not UI logic.
+`@Observable` classes hold business logic and data; UI state stays in the view.
 
 **WRONG:**
 

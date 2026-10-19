@@ -1,0 +1,59 @@
+description: "principle-build-the-lever activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Excludes a single known edit
+    vars:
+      request: "Change README.md line 2 from Recieve to Receive. The file, the line, and the fact that this is the only occurrence are already identified. Decide what to deliver."
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: "Plans only the one-word spelling correction. Does not propose a script, codemod, query, migration, or other lever, and does not add a search or validation pass the request already closed. A direct edit plan satisfies this read-only request; do not require executed evidence. Reading the skill and then not applying its tool-building steps is allowed."
+        provider:
+          id: openai:codex-sdk
+          config:
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            codex_path_override: codex
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: Excludes a plain translation
+    vars:
+      request: "Translate only this sentence into French: The green notebook is on the table."
+    assert:
+      - type: not-skill-used
+        value: principle-build-the-lever
+  - description: Selects guidance for an uncovered repeated transformation
+    vars:
+      request: "I need to migrate 180 similar configuration files to a new schema. No existing command covers it; some files have custom fields that must survive. How should I make the transformation reproducible and independently checkable?"
+    assert:
+      - type: skill-used
+        value: principle-build-the-lever

@@ -1,6 +1,6 @@
 # App Lookup
 
-Retrieve detailed information for a specific app using its numeric ID or bundle identifier.
+Look up an app by numeric ID or bundle identifier.
 
 ## Endpoint
 
@@ -18,11 +18,11 @@ https://itunes.apple.com/lookup
 | `entity` | string | No | `software` for iOS apps, `macSoftware` for macOS apps; the result's `kind` is `software` or `mac-software` |
 | `lang` | string | No | Language preference |
 
-*Use either `id` OR `bundleId`, not both
+*Use either `id` or `bundleId`, not both.
 
 ## Retrieval Validation
 
-Check the response in this order before you extract fields. Stop at the first failed check; do not run the extraction step after a failed check.
+Run these checks in order before extracting fields. Stop at the first failed check and skip extraction.
 
 1. Require a successful transport and HTTP response. Use `curl -fsS` so that an HTTP error exits non-zero.
 2. Require exactly one JSON object. Use `jq -es 'length == 1 and (.[0] | type == "object")'`. Do not use `jq empty`: it exits 0 on an empty body. Do not use `jq -e empty`: `empty` produces no output, so `-e` exits 4 on valid JSON.
@@ -44,11 +44,9 @@ printf '%s' "$BODY" | jq --arg b "$BUNDLE_ID" '
       else {status: "ok", app: ($m[0] | {name: .trackName, id: .trackId, bundleId})} end'
 ```
 
-Numeric IDs, page numbers, and country codes contain no reserved characters, so they are safe in the URL as literals or as shell variables, as in the examples below. Pass free-text values, such as search terms and bundle IDs, with `curl -G --data-urlencode`, as above, so that curl encodes spaces and reserved characters such as `&`.
-
 ## Examples
 
-The examples below show field selection only. In a script, run the Retrieval Validation gates first and select the matching result instead of `.results[0]`.
+Examples show field selection only. In a script, run the Retrieval Validation gates first and select the matching result instead of `.results[0]`.
 
 ### Lookup by App ID
 

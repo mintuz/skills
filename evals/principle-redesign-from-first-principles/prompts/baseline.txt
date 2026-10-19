@@ -1,0 +1,3 @@
+Read-only scenario evaluation. Do not use tools or installed skills. Use only the supplied facts and general engineering judgment. Return the requested decision and evidence limits.
+
+{{scenario}}

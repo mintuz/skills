@@ -2,21 +2,19 @@
 
 ## State Categories
 
-Divide state by usage rather than storing everything globally:
+Divide state by usage, not into one global store:
 
 | State Type         | Description                     | Solution                 |
 | ------------------ | ------------------------------- | ------------------------ |
 | Component State    | Local to one component          | `useState`, `useReducer` |
-| Application State  | Global UI state (modals, theme) | XState, Zustand, Context |
+| Application State  | Global UI state (modals, theme) | Zustand, Context         |
 | Server Cache State | Data from API responses         | TanStack Query           |
 | Form State         | User inputs and validation      | React Hook Form          |
 | URL State          | Filters, search terms, page numbers | URL search params via the router |
 
-URL state gives shareable links and browser back and forward history for free; a global store does not. Read and update the search params through the router, with no `useState` copy to keep in sync.
+A value one event sets completely, such as a theme or a modal's open flag, is plain state. State that changes in response to an external answer or an interruptible interaction (async submit, retries, cancellation, polling, optimistic updates, a drag) is a lifecycle: model it with the `xstate` skill.
 
 ## Component State
-
-Start local, lift only when needed:
 
 ```typescript
 // ✅ Start with useState
@@ -48,7 +46,7 @@ const reducer = (state: State, action: Action): State => {
 
 ## Server Cache State
 
-Never store API data in global state stores. Use the project's data-fetching library (React Query or SWR) when it is installed. When the project has none and dependencies cannot change, keep request state local to the component and follow the async-effect rules in [useeffect.md](./useeffect.md).
+Never store API data in global state stores. Use the project's data-fetching library (React Query or SWR) when installed. When the project has none and dependencies cannot change, keep request state local to the component and follow the async-effect rules in [useeffect.md](./useeffect.md).
 
 ```typescript
 // ❌ Bad - API data in global store
@@ -71,8 +69,8 @@ const useUsers = () => {
 
 ## State Placement Guidelines
 
-1. **Start local** - Begin with component state
-2. **Lift only when needed** - Move up only when sibling components need access
+1. **Start local** - begin with component state
+2. **Lift only when needed** - move up only when sibling components need access
 3. **Use Context for low-velocity data** - Theme, user info, feature flags
 4. **Use atomic stores for high-velocity data** - Frequently changing values
 5. **Never globalize prematurely** - Avoid putting everything in global state

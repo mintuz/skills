@@ -1,0 +1,66 @@
+description: "recall activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use recall for the following request. Recall where I left off on invoice export in this workspace over the past seven days. Available local histories contain one original discussion, its resumed copy and two eval children quoting it. Original says PR 12 was open. Live source host says PR 12 merged, but deployment API is unavailable. Other project chats also mention exports. Return brief and search scope."
+    assert:
+      -
+        type: "skill-used"
+        value: "recall"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Implement the precisely specified new parser method. No previous context is needed."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply recall workflow or claim to have performed unavailable work; it stays within the requested task."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Natural task selects the narrow workflow"
+    vars:
+      request: "Where did I leave off on invoice export in this workspace last week? Reconcile the relevant history with current branch status."
+    assert:
+      -
+        type: "skill-used"
+        value: "recall"

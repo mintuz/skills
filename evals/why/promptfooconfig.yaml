@@ -1,0 +1,81 @@
+description: "why portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Explicit rationale settles narrow question"
+    vars:
+      skill: "file://../../src/core/skills/why/SKILL.md"
+      scenario: "Why is retryCount 3? retry.ts:7 sets 3. Commit 9b changes 5 to 3; its reviewed message says the upstream lease lasts 12 seconds and each retry can take 4 seconds. Repository uses Forgejo, and its local commit is available; no gh tool. No contradictions or broader question are known. Describe answer and investigation scope."
+      rubric: "Anchors rationale in supplied commit/code, answers directly and bounds investigation to probative evidence. Does not require gh, all seven enterprise categories, delegation or particular model. Distinguishes historical reason from currently measured latency."
+  -
+    description: "Comment is not decision history"
+    vars:
+      skill: "file://../../src/core/skills/why/SKILL.md"
+      scenario: "Why did we pick retryCount 3? Source says // three attempts; the introducing commit says tidy retry helper, with no linked issue. Someone suggests it must have been benchmarked. Only code and these local records are available."
+      rubric: "States rationale unknown; neither comment nor cleanup message proves performance intent. Treats benchmark explanation as hypothesis and names relevant missing contemporaneous evidence rather than inventing benchmark facts."
+  -
+    description: "Contradictory scoped transcript"
+    vars:
+      skill: "file://../../src/core/skills/why/SKILL.md"
+      scenario: "Why does the cache still retain deleted drafts? Old ADR D4 says retain for undo. The user explicitly authorizes yesterday’s design conversation, whose final note says legal review may require immediate purge but has not decided. Current cache.ts:31 retains for seven days. Explain rationale and uncertainty."
+      rubric: "Cites older undo rationale, current retention and later unresolved legal discussion separately; does not let recency manufacture settled authority. Searches only authorized relevant window if tools are needed, exposes contradiction and unknown decision."
+  -
+    description: "Read-only rationale investigation"
+    vars:
+      skill: "file://../../src/core/skills/why/SKILL.md"
+      scenario: "Why does the export service use chunked writes? Commit c8 cites memory pressure, issue E4 reports an OOM on large exports, and a later profile shows network waiting dominates small exports. User asks for explanation only. What does the evidence justify?"
+      rubric: "Explains historical memory motivation and dataset-dependent current profile without claiming network caused original choice or removing chunking; maintains read-only scope and separates fact/inference/unknown with source locators."
+  -
+    description: "Plan source collection on a non-GitHub host"
+    vars:
+      skill: "file://../../src/core/skills/why/SKILL.md"
+      scenario: "Why did our export service choose chunked writes? No source has been inspected yet. The repository remote is Forgejo. Available capabilities are local source/history reads, a Forgejo API, project issue search, a team-chat connector and observability; there is no GitHub CLI or Cursor Task API. Give a bounded read-only investigation plan with the first sources and when to expand. Do not execute it."
+      rubric: "Starts from current code and the most probative relevant commits/review rationale through actual available local/Forgejo capabilities. Expands relevant categories only when a material rationale gap remains, records consulted sources and meaningful gaps, and does not require all-category parallel searches, Cursor APIs, a fixed model or gh."

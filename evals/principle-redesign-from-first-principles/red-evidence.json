@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-zDD-2026-10-13T20:32:18",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-redesign-from-first-principles"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "170e0a658783e43fee8ec5a8c2422a4abb8f69cef621dd1819a95910b8207034",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.7,
+      "response": {
+        "output": "Recommend offline editing that lets users read and change notes without connectivity, preserves edits across restarts, and reconciles them when connectivity returns\u2014with visible handling of conflicts, the audited encryption boundary preserved, and old clients remaining compatible.\n\nApply the first-principles question within those constraints: if offline editing had been foundational, what responsibilities would local storage, synchronization, and conflict resolution need? The clean-slate proposal is unsuitable because removing the encryption boundary violates an existing constraint; replacing every module has no demonstrated necessity.\n\nThe next reviewable step is an analysis-only design proposal tracing an edit from offline creation through reconnection, including concurrent edits and old-client behavior. It should compare incremental options, map affected types, interfaces, documentation, examples, and rationale, and propose a small implementation slice for later approval.\n\nEvidence limit: no files, security audit, or client contracts were inspected. This is a direction for review, not a validated architecture; storage placement, synchronization semantics, compatibility, and security implications remain unverified.",
+        "tokenUsage": {
+          "prompt": 21870,
+          "completion": 204,
+          "cached": 19072,
+          "total": 22074,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The output starts with offline editing and reconciliation outcomes, preserves encryption and compatibility constraints, and clearly separates clean-slate reasoning from authorization to implement. However, it defers the requested incremental design to a future proposal: it does not allocate concrete responsibilities, compare specific incremental options with a larger redesign, or identify a small implementation slice. It therefore satisfies the boundaries but only partially satisfies the substantive design requirement.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.7,
+        "reason": "The output starts with offline editing and reconciliation outcomes, preserves encryption and compatibility constraints, and clearly separates clean-slate reasoning from authorization to implement. However, it defers the requested incremental design to a future proposal: it does not allocate concrete responsibilities, compare specific incremental options with a larger redesign, or identify a small implementation slice. It therefore satisfies the boundaries but only partially satisfies the substantive design requirement."
+      },
+      "failure_reason": 1,
+      "case": "Design analysis does not authorize a rewrite"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Apply the skill\u2019s first-principles question: if recurrence had been required from the start, an appointment would have shared details and a schedule that is either **one-off** or **recurring**.\n\nThe smallest coherent design is:\n\n- **Types:** represent those two schedule variants explicitly. Keep recurrence rules within the recurring variant, rather than adding optional recurrence fields throughout the appointment model.\n- **Validation:** validate each variant together. Define recurrence\u2019s time zone, termination rules, and supported patterns before implementation; reject unsupported or contradictory combinations.\n- **Compatibility:** preserve supported old clients\u2019 single-date create requests and interpret them as one-off schedules at the API boundary. Keep their existing response contract usable.\n- **UI:** show a date for one-off appointments and a readable recurrence summary for recurring appointments, including relevant time-zone and ending information.\n- **Examples and docs:** cover both variants, explain legacy request mapping, and update every affected reference and rationale that assumes one date.\n\nDeliver incrementally:\n\n1. **Establish the contract.** Inspect affected files and record existing client behavior. Agree recurrence semantics and how old clients encounter recurring appointments. Add compatibility and validation cases.\n2. **Introduce the schedule model while preserving one-off behavior.** Update internal types, validators, and boundary mapping together. Verify existing clients still create and receive one-off appointments correctly.\n3. **Enable recurrence end to end.** Deliver recurring creation, persistence, scheduling behavior, and UI summaries together with API examples and docs. Start with only the agreed recurrence patterns.\n4. **Complete the reference audit.** Remove remaining single-date assumptions and verify both appointment variants and supported client contracts.\n\n**Decision:** use one explicit schedule model with compatibility translation at the boundary; avoid a separate recurrence subsystem unless the actual requirements demand it.\n\n**Evidence limits:** this is a proposed design, not a verified implementation plan. No files or tests were inspected. Storage constraints, scheduling mechanics, recurrence semantics, and old-client read behavior remain unknown and may change the slices.",
+        "tokenUsage": {
+          "prompt": 21860,
+          "completion": 407,
+          "cached": 19072,
+          "total": 22267,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Integrate a foundational requirement coherently"
+    }
+  ]
+}

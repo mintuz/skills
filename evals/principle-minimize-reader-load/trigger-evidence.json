@@ -1,0 +1,106 @@
+{
+  "stage": "trigger",
+  "eval_id": "eval-Eas-2026-10-13T20:54:56",
+  "command": [
+    "pnpm",
+    "test:skills:triggers",
+    "--",
+    "principle-minimize-reader-load"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Five pass-through wrappers force readers to reconstruct one operation across six locations. Mutable globals add hidden inputs: understanding a result requires knowing who last changed the state and whether another request can change it mid-operation.\n\nSimplify the reasoning by:\n\n- Collapsing wrappers that only forward calls, preserving any authorization, error handling, or resource ownership.\n- Passing request-owned values explicitly instead of reading mutable globals.\n- Giving genuinely shared resources one explicit owner.\n- Keeping each invariant at the boundary responsible for enforcing it.\n\nThe target trace is **caller \u2192 meaningful operation \u2192 result**, with inputs and state ownership visible. Verify overlapping requests and failure paths before claiming behavior is preserved.\n\nNo implementation files were available, so this is a structural review.\n\nSkill followed: principle-minimize-reader-load.",
+        "tokenUsage": {
+          "prompt": 66374,
+          "completion": 334,
+          "cached": 53248,
+          "total": 66708,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 19,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Applies to the principle decision"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "HELLO WORLD",
+        "tokenUsage": {
+          "prompt": 21710,
+          "completion": 33,
+          "cached": 9600,
+          "total": 21743,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 24,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Does not impose a workflow on a literal conversion"
+    }
+  ]
+}

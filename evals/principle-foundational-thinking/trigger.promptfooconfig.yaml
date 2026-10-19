@@ -1,0 +1,35 @@
+description: "principle-foundational-thinking activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "Implement a bounded per-user draft cache. Existing CI and test infrastructure work. A proposed scaffold adds a generic event bus, a future multi-region adapter and new test runner. Two concurrent requests can update the same draft. Describe the design order."
+    assert:
+      - type: skill-used
+        value: principle-foundational-thinking
+  - description: Excludes a plain translation
+    vars:
+      request: "Translate only this sentence into French: The green notebook is on the table."
+    assert:
+      - type: not-skill-used
+        value: principle-foundational-thinking

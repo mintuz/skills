@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-E6w-2026-10-13T20:39:26",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-redesign-from-first-principles"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "f455e0290291c2af0b145a87d70ef2cc0c10a4b1085fc1f49de57580b506f86b",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.9,
+      "response": {
+        "output": "Recommend an incremental offline editing design that preserves the audited encryption boundary and compatibility with old clients.\n\nThe required outcome is that users can edit notes without connectivity and reconcile those edits when connectivity returns. If offline editing had always been required, the design would likely include protected local storage, a durable queue of pending edits, retry-safe synchronization, and an explicit policy for concurrent edits.\n\nCompare those needs with the existing system and extend only the affected boundaries. Keep encryption within its audited boundary; review how local persistence and synchronization can use it. Preserve the remote protocol used by old clients through compatible additions or version negotiation. Avoid silent overwrites when offline and remote edits conflict.\n\nThis adds storage, synchronization, and conflict-handling complexity, but replacing every module and removing the encryption boundary is neither necessary to the outcome nor authorized.\n\nThe next reviewable step is an analysis-only design proposal tracing one note from offline edit through reconnection, conflict resolution, and synchronization. It should identify affected storage, types, validation, consumers, examples, and documentation; record security and compatibility invariants; and propose a bounded implementation slice with validation and rollback criteria.\n\nEvidence limits: no code, protocol, or audit materials were inspected. This is a design direction, not proof of feasibility, security, compatibility, or delivery. Local key availability, existing version semantics, and old-client behavior remain open questions.",
+        "tokenUsage": {
+          "prompt": 21916,
+          "completion": 275,
+          "cached": 19072,
+          "total": 22191,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "The output starts from offline editing and reconciliation, preserves encryption and old-client compatibility, and separates clean-slate reasoning from authorized changes. It favors scoped storage, synchronization, and conflict-handling additions over wholesale replacement, with explicit safeguards against silent overwrites. It proposes a bounded, reviewable design step with invariants, validation, and rollback criteria without claiming execution or unsupported evidence. The incremental design remains somewhat high-level.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.9,
+        "reason": "The output starts from offline editing and reconciliation, preserves encryption and old-client compatibility, and separates clean-slate reasoning from authorized changes. It favors scoped storage, synchronization, and conflict-handling additions over wholesale replacement, with explicit safeguards against silent overwrites. It proposes a bounded, reviewable design step with invariants, validation, and rollback criteria without claiming execution or unsupported evidence. The incremental design remains somewhat high-level."
+      },
+      "failure_reason": 1,
+      "case": "Design analysis does not authorize a rewrite"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use an appointment schedule with two explicit variants: **one-off** (a single date) and **recurring** (a start, recurrence rule, timezone, and end condition). Both share the existing appointment fields.\n\nPreserve the existing single-date request format for supported old clients, translating it to the one-off variant at the API boundary. Define how recurring appointments appear in responses to old clients before exposing them; those clients must not receive a shape they cannot interpret.\n\nThe smallest coherent evolution is to:\n\n- Keep one-off behavior unchanged.\n- Define recurrence semantics explicitly: local time versus fixed elapsed time, daylight-saving transitions, ending rules, and occurrence limits.\n- Update types and validators together so each variant has one unambiguous valid shape.\n- Make UI summaries distinguish a single date from a recurring schedule.\n- Update API examples and documentation for both variants, including legacy compatibility.\n\nDeliver in bounded slices:\n\n1. **Contract and compatibility:** agree on the two variants and recurrence semantics; add representative compatibility and validation tests.\n2. **Scheduling support:** implement storage, boundary translation, validation, and occurrence calculation together. Preserve existing records as one-off appointments, using a migration only if needed.\n3. **Consumer support and release:** update UI summaries, examples, and docs; enable recurring creation once affected consumers handle it. Verify old-client creation, recurring behavior, and date-boundary cases.\n\nRollback should disable new recurring creation while preserving existing recurring records and their readable representation. A code rollback is safe only if the earlier version can handle those records.\n\n**Evidence limits:** This is a scenario-based design outline. No paths, contracts, storage model, or tests were inspected. Exact schema changes, migration needs, old-client response handling, and delivered behavior remain unverified.",
+        "tokenUsage": {
+          "prompt": 21906,
+          "completion": 356,
+          "cached": 19072,
+          "total": 22262,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Integrate a foundational requirement coherently"
+    }
+  ]
+}

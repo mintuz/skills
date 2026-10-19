@@ -12,7 +12,7 @@ const displayMode = useOpenAiGlobal("displayMode");
 const locale = useOpenAiGlobal("locale");
 ```
 
-Components automatically re-render when subscribed values change.
+Components re-render when subscribed values change.
 
 ### useWidgetState Hook
 
@@ -27,7 +27,7 @@ const [uiState, setUiState] = useWidgetState({
 
 State persists across widget renders and conversation turns.
 
-**For detailed hook implementation, usage patterns, and best practices:** See [react-integration.md](./react-integration.md)
+Hook implementation and patterns: [react-integration.md](./react-integration.md)
 
 ## Bundling Strategy
 
@@ -154,7 +154,7 @@ server.registerResource(
 
 ## Localization
 
-Components receive `locale` via `window.openai`. Mirror it to `document.documentElement.lang` for proper number/date formatting.
+Components receive `locale` via `window.openai`. Mirror it to `document.documentElement.lang` so numbers and dates format correctly.
 
 ## window.openai API Reference
 

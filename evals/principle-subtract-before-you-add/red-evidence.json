@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-ael-2026-10-13T20:33:41",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-subtract-before-you-add"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "8c93bb9d1a7f38e2ef37655d93f0e790fa59903105af3d500cc8a663ebe45f3f",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reuse the existing retry queue for the new job, adding only the job-specific handling needed. A second queue duplicates behavior already provided by bounded attempts and stable idempotency keys.\n\nKeep the timeout guard unless evidence shows it is redundant. Bounded retries limit attempt count; they do not necessarily prevent an individual attempt from hanging. Calling the guard \u201cdefensive boilerplate\u201d does not establish that it is safe to remove.\n\nSubtract proven duplication first, then extend the shared mechanism. The scenario supports reuse, but provides no implementation or runtime evidence that the queue accommodates the new job or that another layer enforces the timeout. Verify those points before changing either behavior.",
+        "tokenUsage": {
+          "prompt": 21888,
+          "completion": 134,
+          "cached": 19072,
+          "total": 22022,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Existing mechanism can meet the new requirement"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.8,
+      "response": {
+        "output": "Delete the wrapper reference file and update the maintained index to link directly to the current parser doc.\n\nKeep both validators. They protect different boundaries: untrusted imported JSON and internal state that the mutable plugin hook can corrupt. The tests support both roles; two validators alone do not establish redundancy.\n\nEvidence limit: the scenario justifies removing the content-free wrapper, but provides no basis for removing either validator or claiming their checks can safely be combined.",
+        "tokenUsage": {
+          "prompt": 21897,
+          "completion": 91,
+          "cached": 19072,
+          "total": 21988,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "Keeps both validators for distinct trust and invalidation boundaries, removes only the content-free wrapper while repairing index links, and avoids speculative checks or unsupported redundancy claims. However, it does not explicitly retain the negative-path tests; citing their support does not establish that decision.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.8,
+        "reason": "Keeps both validators for distinct trust and invalidation boundaries, removes only the content-free wrapper while repairing index links, and avoids speculative checks or unsupported redundancy claims. However, it does not explicitly retain the negative-path tests; citing their support does not establish that decision."
+      },
+      "failure_reason": 1,
+      "case": "Removal requires behavior and reference evidence"
+    }
+  ]
+}

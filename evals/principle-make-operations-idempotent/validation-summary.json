@@ -1,0 +1,132 @@
+{
+  "skill": "principle-make-operations-idempotent",
+  "source_sha256": "8177936d797ca418ee07561c28cabd391aa89f0ecf7e15de4e1a719ffa84ad26",
+  "source_words": 237,
+  "red_fixture_sha256": "540738217c3da7bf513b9886924ad6a2bc77e58be867f5bd2e1831c74bf2ce70",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Valid behavioral RED: cleanup not constrained to owned artifacts.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-Oqe-2026-10-13T20:35:29",
+    "log": "/tmp/principles-a-evidence/principle-make-operations-idempotent-red.log",
+    "cases": [
+      {
+        "case": "A PID is not universal ownership proof",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Interruptions need convergent recovery",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The output uses stable identity, validates content, reconciles partial runs, adopts correct final files, and proposes repeated-run and crash checks that converge on valid output and a matching manifest. However, temporary cleanup is based on content equivalence without explicitly restricting deletion to artifacts owned by this export. Content equivalence does not establish ownership, so a required boundary is missing.",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-UDJ-2026-10-13T20:42:13",
+    "log": "/tmp/principles-a-evidence/principle-make-operations-idempotent-green.log",
+    "cases": [
+      {
+        "case": "A PID is not universal ownership proof",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Interruptions need convergent recovery",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-azS-2026-10-13T21:04:26",
+    "log": "/tmp/principles-a-evidence/principle-make-operations-idempotent-compare.log",
+    "cases": [
+      {
+        "case": "A PID is not universal ownership proof",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Interruptions need convergent recovery",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "A PID is not universal ownership proof",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Interruptions need convergent recovery",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-6Hl-2026-10-13T21:28:07",
+    "log": "/tmp/principles-a-evidence/principle-make-operations-idempotent-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [
+    "Comparison does not demonstrate higher treatment pass count than no-skill baseline."
+  ],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 2,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {}
+}

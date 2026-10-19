@@ -1,0 +1,106 @@
+{
+  "stage": "red",
+  "eval_id": "eval-qCQ-2026-10-13T20:32:48",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-separate-before-serializing-shared-state"
+  ],
+  "exit_code": 100,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "05294b40448e927c5da1c7b6f5c6b9fed3744637e3833d2d948b9154a9dd00bb",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.8,
+      "response": {
+        "output": "Use separate, worker-owned files: `indexer-state.json` and `metrics-state.json`, each containing its worker\u2019s `lastRun`. Combine them when the dashboard reads them. No cross-worker atomic invariant requires a shared file, so the proposed mutex adds unnecessary coordination.\n\nCheck these failure cases:\n\n- Concurrent worker updates preserve both timestamps.\n- Each worker writes only its own file.\n- A crash during a write cannot expose partial JSON; use atomic file replacement.\n- A missing, corrupt, or stale file affects only that worker\u2019s dashboard status; show it as unavailable or stale.\n- If multiple instances of the same worker can overlap, enforce exclusive ownership or serialize that worker\u2019s writes to prevent an older run overwriting a newer timestamp.\n\nEvidence limit: this recommendation follows from the supplied scenario. No implementation, filesystem guarantees, or failure behavior has been inspected or tested.",
+        "tokenUsage": {
+          "prompt": 22043,
+          "completion": 177,
+          "cached": 0,
+          "total": 22220,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "Assigns independently owned files, combines them at dashboard read time, avoids a global mutex, and addresses missing, stale, corrupt, and interrupted updates. However, it does not explain that separate fields in a shared JSON file still race when workers rewrite the whole file.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.8,
+        "reason": "Assigns independently owned files, combines them at dashboard read time, avoids a global mutex, and addresses missing, stale, corrupt, and interrupted updates. However, it does not explain that separate fields in a shared JSON file still race when workers rewrite the whole file."
+      },
+      "failure_reason": 1,
+      "case": "Partition genuinely independent facts"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the per-worker `availableSeats` files: both workers could independently sell the same last seat. Seat availability and confirmed bookings form one canonical inventory invariant, so shared mutation is necessary.\n\nUse a durable database transaction that serializes reservations for the same inventory record:\n\n- Lock the inventory row, then check `availableSeats > 0`.\n- Decrement availability and insert the confirmed booking within the same transaction.\n- Commit both changes atomically; otherwise roll back. The second worker waits, then sees no remaining seat.\n- Use a unique reservation request ID so retrying after an uncertain commit cannot create another booking.\n\nCrash recovery must preserve committed transactions and discard incomplete ones. This requires transactional storage with suitable durability guarantees, with every booking writer using the same enforcement path.\n\n**Evidence limits:** This is a design recommendation based on the scenario. No implementation, transaction isolation, durability configuration, or concurrent/crash tests were supplied, so correctness in practice is unverified.",
+        "tokenUsage": {
+          "prompt": 22049,
+          "completion": 195,
+          "cached": 19072,
+          "total": 22244,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Atomic invariant prevents naive separation"
+    }
+  ]
+}

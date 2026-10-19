@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -72,19 +73,24 @@ func main() {
 		fatal("Failed to read marketplace.json: %v", err)
 	}
 
+	notices, err := loadThirdPartyNotices(*marketplaceFile)
+	if err != nil {
+		fatal("Failed to read third-party notices: %v", err)
+	}
+
 	// Create output directory
 	stats := &PackageStats{}
 	if !*dryRun {
 		if err := os.MkdirAll(absOutputDir, 0755); err != nil {
 			fatal("Failed to create output directory: %v", err)
 		}
-		if err := createSkillZips(absOutputDir, marketplace, *verbose, *usePrefix, stats); err != nil {
+		if err := createSkillZips(absOutputDir, marketplace, notices, *verbose, *usePrefix, stats); err != nil {
 			fatal("Failed to create zip files: %v", err)
 		}
 	} else {
 		// Dry run - just validate skills
 		for _, plugin := range marketplace.Plugins {
-			validatePlugin(plugin, *verbose, *usePrefix, stats)
+			validatePlugin(plugin, notices, *verbose, *usePrefix, stats)
 		}
 	}
 
@@ -106,10 +112,10 @@ func readMarketplace(path string) (*MarketplaceConfig, error) {
 	return &config, nil
 }
 
-func createSkillZips(outputDir string, marketplace *MarketplaceConfig, verbose bool, usePrefix bool, stats *PackageStats) error {
+func createSkillZips(outputDir string, marketplace *MarketplaceConfig, notices *noticeSet, verbose bool, usePrefix bool, stats *PackageStats) error {
 	// Process each plugin
 	for _, plugin := range marketplace.Plugins {
-		if err := packagePluginSkills(plugin, outputDir, verbose, usePrefix, stats); err != nil {
+		if err := packagePluginSkills(plugin, outputDir, notices, verbose, usePrefix, stats); err != nil {
 			fmt.Printf("%s[ERROR]%s Failed to package plugin '%s': %v\n", colorRed, colorReset, plugin.Name, err)
 			return err
 		}
@@ -118,7 +124,7 @@ func createSkillZips(outputDir string, marketplace *MarketplaceConfig, verbose b
 	return nil
 }
 
-func validatePlugin(plugin Plugin, verbose bool, usePrefix bool, stats *PackageStats) {
+func validatePlugin(plugin Plugin, notices *noticeSet, verbose bool, usePrefix bool, stats *PackageStats) {
 	if len(plugin.Skills) == 0 {
 		if verbose {
 			fmt.Printf("%s[SKIP]%s Plugin '%s' has no skills\n", colorYellow, colorReset, plugin.Name)
@@ -162,12 +168,16 @@ func validatePlugin(plugin Plugin, verbose bool, usePrefix bool, stats *PackageS
 			continue
 		}
 
-		fmt.Printf("%s[DRY RUN]%s Would package: %s\n", colorYellow, colorReset, packagedName)
+		notice := ""
+		if notices.includes(skillName) {
+			notice = " + THIRD_PARTY_NOTICES.md"
+		}
+		fmt.Printf("%s[DRY RUN]%s Would package: %s%s\n", colorYellow, colorReset, packagedName, notice)
 		stats.SkillsPackaged++
 	}
 }
 
-func packagePluginSkills(plugin Plugin, outputDir string, verbose bool, usePrefix bool, stats *PackageStats) error {
+func packagePluginSkills(plugin Plugin, outputDir string, notices *noticeSet, verbose bool, usePrefix bool, stats *PackageStats) error {
 	if len(plugin.Skills) == 0 {
 		if verbose {
 			fmt.Printf("%s[SKIP]%s Plugin '%s' has no skills\n", colorYellow, colorReset, plugin.Name)
@@ -184,7 +194,7 @@ func packagePluginSkills(plugin Plugin, outputDir string, verbose bool, usePrefi
 		// Construct the actual path by combining plugin source with skills directory
 		actualSkillPath := filepath.Join(plugin.Source, "skills", skillName)
 
-		if err := packageSkillToZip(plugin.Name, actualSkillPath, outputDir, verbose, usePrefix, stats); err != nil {
+		if err := packageSkillToZip(plugin.Name, actualSkillPath, outputDir, notices, verbose, usePrefix, stats); err != nil {
 			fmt.Printf("%s[ERROR]%s Failed to package %s: %v\n", colorRed, colorReset, skillPath, err)
 			stats.SkillsFailed++
 		} else {
@@ -195,7 +205,7 @@ func packagePluginSkills(plugin Plugin, outputDir string, verbose bool, usePrefi
 	return nil
 }
 
-func packageSkillToZip(pluginName, skillPath string, outputDir string, verbose bool, usePrefix bool, stats *PackageStats) error {
+func packageSkillToZip(pluginName, skillPath string, outputDir string, notices *noticeSet, verbose bool, usePrefix bool, stats *PackageStats) error {
 	// Extract skill name from path
 	skillName := filepath.Base(skillPath)
 
@@ -277,6 +287,19 @@ func packageSkillToZip(pluginName, skillPath string, outputDir string, verbose b
 		return err
 	}
 
+	// Derived bundles carry the single upstream MIT notice. The per-skill
+	// LICENSE copies are not part of the source tree.
+	if notices.includes(skillName) {
+		zipEntryPath := filepath.Join(packagedName, "THIRD_PARTY_NOTICES.md")
+		if err := addFileToZip(zipWriter, notices.path, zipEntryPath); err != nil {
+			return fmt.Errorf("failed to add THIRD_PARTY_NOTICES.md: %w", err)
+		}
+		fileCount++
+		if verbose {
+			fmt.Printf("    %s✓%s Added: %s\n", colorGreen, colorReset, filepath.ToSlash(zipEntryPath))
+		}
+	}
+
 	stats.FilesAdded += fileCount
 	fmt.Printf("%s[PACKAGED]%s %s.zip (%d files added)\n", colorGreen, colorReset, packagedName, fileCount)
 
@@ -353,6 +376,108 @@ func printSummary(stats *PackageStats, outputDir string, dryRun bool) {
 		fmt.Printf("%s✓ Successfully created %d zip files!%s\n", colorGreen, stats.SkillsPackaged, colorReset)
 		fmt.Printf("  Location: %s\n\n", outputDir)
 	}
+}
+
+type noticeSet struct {
+	path   string
+	skills map[string]struct{}
+}
+
+func (n *noticeSet) includes(skill string) bool {
+	_, ok := n.skills[skill]
+	return ok
+}
+
+func loadThirdPartyNotices(marketplaceFile string) (*noticeSet, error) {
+	path, err := findThirdPartyNotices(marketplaceFile)
+	if err != nil {
+		return nil, err
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("read third-party notices: %w", err)
+	}
+	text := string(data)
+	for _, required := range []string{
+		"Copyright (c) 2026 Lauren Tan",
+		"Permission is hereby granted, free of charge",
+		"The above copyright notice and this permission notice shall be included",
+		`THE SOFTWARE IS PROVIDED "AS IS"`,
+	} {
+		if !strings.Contains(text, required) {
+			return nil, fmt.Errorf("%s is missing the upstream MIT notice", path)
+		}
+	}
+	skills, err := derivedSkillNames(text)
+	if err != nil {
+		return nil, err
+	}
+	return &noticeSet{path: path, skills: skills}, nil
+}
+
+func findThirdPartyNotices(marketplaceFile string) (string, error) {
+	absMarketplace, err := filepath.Abs(marketplaceFile)
+	if err != nil {
+		return "", err
+	}
+	candidates := []string{
+		filepath.Join(filepath.Dir(filepath.Dir(absMarketplace)), "THIRD_PARTY_NOTICES.md"),
+	}
+	if cwd, cwdErr := os.Getwd(); cwdErr == nil {
+		candidates = append(candidates, filepath.Join(cwd, "THIRD_PARTY_NOTICES.md"))
+	}
+	seen := map[string]struct{}{}
+	for _, candidate := range candidates {
+		if _, ok := seen[candidate]; ok {
+			continue
+		}
+		seen[candidate] = struct{}{}
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate, nil
+		}
+	}
+	return "", fmt.Errorf("THIRD_PARTY_NOTICES.md not found beside the marketplace or in the working directory")
+}
+
+func derivedSkillNames(text string) (map[string]struct{}, error) {
+	skills := map[string]struct{}{}
+	inSection := false
+	for _, line := range strings.Split(text, "\n") {
+		if strings.HasPrefix(line, "## ") {
+			if inSection {
+				break
+			}
+			if strings.TrimSpace(line) == "## Derived skills" {
+				inSection = true
+			}
+			continue
+		}
+		if !inSection {
+			continue
+		}
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			continue
+		}
+		if !strings.HasPrefix(trimmed, "- `") || !strings.HasSuffix(trimmed, "`") {
+			return nil, fmt.Errorf("unrecognized derived-skill entry: %s", trimmed)
+		}
+		name := strings.TrimSuffix(strings.TrimPrefix(trimmed, "- `"), "`")
+		if name == "" || strings.ContainsAny(name, "`/\\") {
+			return nil, fmt.Errorf("invalid derived-skill name: %s", trimmed)
+		}
+		if _, exists := skills[name]; exists {
+			return nil, fmt.Errorf("duplicate derived skill: %s", name)
+		}
+		skills[name] = struct{}{}
+	}
+	if !inSection {
+		return nil, fmt.Errorf("THIRD_PARTY_NOTICES.md is missing a Derived skills section")
+	}
+	if len(skills) == 0 {
+		return nil, fmt.Errorf("THIRD_PARTY_NOTICES.md lists no derived skills")
+	}
+	return skills, nil
 }
 
 func fatal(format string, args ...interface{}) {

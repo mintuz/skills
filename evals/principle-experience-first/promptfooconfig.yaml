@@ -1,0 +1,57 @@
+description: "principle-experience-first behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Observe actual states before polishing"
+    vars:
+      skill: file://../../src/principle/skills/principle-experience-first/SKILL.md
+      scenario: "Improve the checkout error experience. The app is runnable, but nobody has inspected it. You are offered a pretty mockup of the happy path and asked to implement immediately. Authorization covers an additive proposal including loading, retry and failure."
+      rubric: "First observes the real checkout journey and relevant states; anchors proposal in actual baseline and requested loading/retry/failure states; evaluates recovery, feedback and accessibility in the central task; labels mockups separately from implementation/runtime proof; stays within additive proposal scope."
+  - description: "A library consumer is a user"
+    vars:
+      skill: file://../../src/principle/skills/principle-experience-first/SKILL.md
+      scenario: "A library can expose one easy, documented operation or six configuration options that simplify internal implementation. Supported consumers need cancellation and clear errors. Recommend a design and evidence without dropping guarantees."
+      rubric: "Evaluates importing callers and maintainers as users; favors a focused understandable operation if it preserves cancellation/errors; describes representative caller/cancellation/failure verification instead of treating fewer controls as permission to remove supported behavior."

@@ -1,8 +1,6 @@
 # Testing Library Anti-Patterns
 
-`@testing-library/dom` exports no `render` function. Mount the markup yourself,
-then query it through `screen`, which is always bound to `document.body`. Only
-framework wrappers, such as `@testing-library/react`, export `render`.
+`@testing-library/dom` exports no `render` function. Mount the markup yourself, then query it through `screen`, which is always bound to `document.body`. Only framework wrappers, such as `@testing-library/react`, export `render`.
 
 ## 1. Not using `screen` object
 
@@ -23,16 +21,13 @@ document.body.innerHTML = '<button>Submit</button>';
 const button = screen.getByRole('button', { name: /submit/i });
 ```
 
-**Why:** `screen` needs no destructuring and gives better error messages. Use
-`within(element)` when you must scope a query to one region.
+**Why:** `screen` needs no destructuring and gives better error messages. Use `within(element)` to scope a query to one region.
 
 ---
 
 ## 2. Using querySelector instead of an available accessible query
 
-A CSS selector is an escape hatch, not a first choice. It is wrong only when a
-user-facing query would reach the same element. See "When No Accessible Query
-Fits" in the main skill file for the case where no accessible route exists.
+A CSS selector is an escape hatch, wrong only when a user-facing query would reach the same element. See "When No Accessible Query Fits" in the main skill file for the case where no accessible route exists.
 
 ❌ **WRONG - Selector where a role query works**
 ```typescript
@@ -84,10 +79,7 @@ expect(element).toHaveClass('active');
 
 ## 5. Manual cleanup() calls
 
-`@testing-library/dom` exports no `cleanup`. Framework wrappers export it and
-register it for you, but only when a global `afterEach` exists at import time.
-Under Vitest that means `globals: true`, or an explicit `cleanup` call in your
-own `afterEach`.
+`@testing-library/dom` exports no `cleanup`. Framework wrappers export it and register it for you, but only when a global `afterEach` exists at import time. Under Vitest that means `globals: true`, or an explicit `cleanup` call in your own `afterEach`.
 
 ❌ **WRONG - Call the wrapper's cleanup by hand**
 ```typescript
@@ -103,8 +95,7 @@ afterEach(() => {
 });
 ```
 
-**Why:** jsdom keeps one document for the whole test file. Markup you write into
-`document.body` yourself survives into the next test and makes queries ambiguous.
+**Why:** jsdom keeps one document for the whole test file. Markup you write into `document.body` yourself survives into the next test and makes queries ambiguous.
 
 ---
 
@@ -139,9 +130,7 @@ it('test 1', () => {
 });
 ```
 
-**Why:** the hook queries the element before the test arranges its own state, and
-the stale reference survives any re-render. The mount helper below keeps setup
-beside the assertions that depend on it.
+**Why:** the hook queries the element before the test arranges its own state, and the stale reference survives any re-render. A mount helper keeps setup beside the assertions that depend on it.
 
 ✅ **CORRECT - Mount helper called per test**
 ```typescript
@@ -163,10 +152,7 @@ For framework mount helpers, see the `react-testing` skill.
 
 ## 8. Several unrelated assertions in one waitFor
 
-`waitFor` reruns the whole callback whenever any assertion throws, so every
-assertion does retry. The cost is diagnosis: the failure names only the first
-assertion that threw. Split unrelated assertions. Keep them together when the
-combined state is the condition you are waiting for.
+`waitFor` reruns the whole callback when any assertion throws, so every assertion retries, but the failure names only the first one that threw. Split unrelated assertions; keep them together when the combined state is the condition you wait for.
 
 ❌ **AVOID - Several unrelated assertions**
 ```typescript
@@ -182,8 +168,7 @@ await screen.findByText(/name/i);
 await screen.findByText(/email/i);
 ```
 
-Do not follow one `waitFor` with a plain `getBy*` for the second element. That
-`getBy*` runs once and fails when the second element arrives later.
+Never follow one `waitFor` with a plain `getBy*` for the second element: that `getBy*` runs once and fails when the second element arrives later.
 
 ---
 
@@ -209,23 +194,19 @@ await waitFor(() => {
 
 ## 10. Choosing between exact and flexible matching
 
-This is a choice, not an anti-pattern. Both forms are supported.
+A choice, not an anti-pattern; both forms are supported.
 
-**Exact string** - couples the test to the copy. Correct when the exact wording
-is part of the behaviour you are asserting.
+**Exact string** - couples the test to the copy. Correct when the exact wording is part of the behaviour you assert.
 ```typescript
 screen.getByText('Welcome, John Doe');
 ```
 
-**Regex** - tolerates wording, casing, and interpolated values around the part
-that matters.
+**Regex** - tolerates wording, casing, and interpolated values around the part that matters.
 ```typescript
 screen.getByText(/welcome.*john doe/i);
 ```
 
-**Two notes:** the default normalizer already trims and collapses whitespace, so
-an exact string is not whitespace-fragile. An unanchored regex can match more
-than you intend, so anchor it when the match must be precise.
+The default normalizer already trims and collapses whitespace, so an exact string is not whitespace-fragile. An unanchored regex can match more than you intend; anchor it when the match must be precise.
 
 ---
 
@@ -273,7 +254,8 @@ screen.getByRole('button', { name: /submit/i });
 
 ## 14. Not installing ESLint plugins
 
-**Install these plugins:**
+The plugins catch these anti-patterns automatically.
+
 ```bash
 npm install -D eslint-plugin-testing-library eslint-plugin-jest-dom
 ```
@@ -288,5 +270,3 @@ npm install -D eslint-plugin-testing-library eslint-plugin-jest-dom
   ],
 }
 ```
-
-**Catches anti-patterns automatically.**

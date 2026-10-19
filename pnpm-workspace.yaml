@@ -5,3 +5,6 @@ allowBuilds:
   onnxruntime-node: false
   protobufjs: false
   sharp: false
+
+overrides:
+  '@openai/codex-sdk': 0.162.1

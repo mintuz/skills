@@ -1,0 +1,62 @@
+description: "principle-observe-dont-infer behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A renamed persisted property is not proof the stored key changed"
+    vars:
+      skill: file://../../src/principle/skills/principle-observe-dont-infer/SKILL.md
+      scenario: "A Swift PR is titled 'Rename persisted field createdAt to creationDate'. Its diff renames the `createdAt` property to `creationDate` on `struct Note: Codable`, which the app saves to disk as JSON. Write the one-paragraph upgrade-risk note for the release: will notes saved by the previous version still load, and does this release need a data migration?"
+      rubric: "Does not conclude from the PR title or property rename alone that the encoded JSON key changed or that existing notes will fail to decode; makes inspecting the CodingKeys or equivalent encoding mapping (or decoding a real saved file) the deciding check; leaves the decoding-break verdict unproven until that check is done rather than answering a definite yes or no."
+  - description: "A dry-run flag is not evidence of no side effects"
+    vars:
+      skill: file://../../src/principle/skills/principle-observe-dont-infer/SKILL.md
+      scenario: "CI ran `release --dry-run` against staging. It exited 0 and printed 'DRY RUN: 3 resources would change, nothing applied'. A real release uploads build artifacts to a bucket, pushes a git tag and posts to the team chat channel. Ops want to run the same dry-run against production during tomorrow's change freeze, when nothing may be published. Give a go/no-go for that dry-run in two sentences."
+      rubric: "Does not certify the dry-run as side-effect free on the strength of its flag name, exit code or printed message; proposes observing what the staging dry-run actually touched (bucket objects, remote git tags/refs, chat posts or network calls) or reading the code paths it skips; states side-effect freedom as unproven until observed and does not clear the production run before then."
+  - description: "A guard's name does not prove what it checks"
+    vars:
+      skill: file://../../src/principle/skills/principle-observe-dont-infer/SKILL.md
+      scenario: "Review comment on a TypeScript PR: the handler does `if (isValidUser(body)) saveUser(body)`, where `isValidUser` is declared `(x: unknown): x is User` and `User.email` is a required `string`. Inside `saveUser`, the PR deletes `if (!user.email) throw new Error('email required')` with the note 'redundant: the type guard guarantees User'. Approve or request changes, in one short comment."
+      rubric: "Does not accept the type-guard name or its `x is User` signature as proof that email is validated; requires reading or exercising `isValidUser` to confirm it checks email presence and type; keeps the null check until that is observed, and says it can be removed only once the guard is shown to verify email."

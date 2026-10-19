@@ -1,0 +1,75 @@
+description: "design-handover portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Accepted exception across states"
+    vars:
+      skill: "file://../../src/product-management/skills/design-handover/SKILL.md"
+      scenario: "Use design-handover to package approved Work Object behavior. Scope has waiting, ready, accepted states. Design D7 uses a green dot; recorded user ruling U9 explicitly chooses orange in all states. Assets: waiting-exploration.png is a mockup, ready-d7.png is a design export, accepted-build42.png is an actual app capture from build42 using fixture object7. Destination is docs/handover.md. Produce the package outline and state examples."
+      rubric: "Provides three stable examples with Given/When/Then and matching distinct assets, source/authority and provenance; preserves orange as authorized departure U9 from D7; does not use waiting mockup as accepted runtime proof; records where visual does not yet reflect orange instead of inventing capture. Uses linked durable document/assets without mandatory framework."
+  -
+    description: "Later ruling removes frame and capture unavailable"
+    vars:
+      skill: "file://../../src/product-management/skills/design-handover/SKILL.md"
+      scenario: "Use design-handover. Old design D2 and screenshot build8 include a confirmation frame. Later final user ruling U3 removes it. Accepted flow now returns directly to list. Current app cannot start. Existing asset is old-build8.png. Produce handover entry and gaps."
+      rubric: "Treats later final ruling as authority, records removed frame and direct return, labels old screenshot as outdated baseline, marks current capture missing and no invented runtime proof or silent reversal. Leaves unrelated launch repair out of packaging scope."
+  -
+    description: "Spacing request is outside scope"
+    vars:
+      skill: "file://../../src/product-management/skills/design-handover/SKILL.md"
+      scenario: "User asks only to fix spacing in this supplied screenshot, not for a handover. They have not invoked design-handover. Describe the appropriate response; no code or actual image tools are available in this scenario."
+      rubric: "Routes to visual-spacing work/eyes without starting handover package, approval reviewers or behavior decisions. Does not falsely claim edits performed."
+  -
+    description: "Unresolved behavior remains a gap"
+    vars:
+      skill: "file://../../src/product-management/skills/design-handover/SKILL.md"
+      scenario: "Use design-handover for checkout states. Confirmed: declined card shows error, successful payment shows receipt. Missing: decision whether retry preserves coupon. No source ruling resolves this and the Figma retry frame predates coupon support. Assets must stay in existing docs/assets. What is the transfer artifact?"
+      rubric: "Records accepted success/decline examples with stable source-linked identifiers and known/missing visual provenance, marks coupon retry unresolved and asks only that product decision if needed, does not make Figma automatically authoritative or invent behavior. Keeps existing destination/assets and no implementation or publication implied."

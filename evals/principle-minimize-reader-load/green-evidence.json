@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-FMv-2026-10-13T20:42:32",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-minimize-reader-load"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Inline `OrderService.getOrder(id)` at its caller; preserve `BillingFacade`.\n\n- **Order lookup:** The trace becomes caller \u2192 repository instead of caller \u2192 service \u2192 repository. Given the stated absence of transformation or other ownership, removing this forwarding step reduces indirection.\n- **Payment:** The facade owns idempotency, provider-error mapping, and protection against raw card data entering logs. Removing it would require explicitly relocating those responsibilities and could make the complete payment path harder to reason about. One caller and one implementation do not justify removal.\n\nThe smallest change is to bypass the order forwarding method and remove it if unused\u2014not necessarily delete the whole service.\n\n**Evidence limits:** This is a scenario-based assessment, not verified code or runtime behavior. Confirm the order method has no additional responsibilities and check lookup success, missing-order, and failure behavior. Any later payment restructuring must verify equivalent idempotency under overlapping requests, error mapping, and safe logging on failure paths.",
+        "tokenUsage": {
+          "prompt": 21927,
+          "completion": 196,
+          "cached": 19072,
+          "total": 22123,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "One implementation can hide a real boundary"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Keep the handler largely flat. Moving every function into a service class adds indirection without fixing shared mutable request state.\n\nUse a smaller design:\n\n- Resolve `currentUser` and `selectedTenant` for each request, authorize that user\u2019s access to that tenant, and pass the resulting values explicitly to operations that need them.\n- Keep `retryCount` local to the operation being retried. Derive other values from request inputs instead of maintaining synchronized copies.\n- Keep shared resources, such as connection pools, under explicit owners. Extract a boundary only when it owns a meaningful decision or invariant, such as authorization, retry policy, or resource cleanup.\n\nThe concrete trace becomes **request \u2192 authenticated user \u2192 authorized tenant \u2192 operation \u2192 local retries**. Today, answering \u201cwhich tenant does this operation use?\u201d also requires considering every concurrent request that can overwrite the globals. The proposed design removes that mutable context without introducing a chain of service calls.\n\nVerify it by:\n\n- Interleaving two requests with different users and tenants; confirm each operation retains its own authorized identity and tenant.\n- Forcing retries in one request; confirm the other request\u2019s retry budget is unaffected.\n- Exercising authorization rejection, retry exhaustion, and cleanup after failure; confirm rejected requests perform no tenant operation and resources are released correctly.\n- Comparing the complete before/after trace: count indirections and mutable values a reader must track, including any extracted boundaries.\n\nThe scenario supports identifying a concurrency hazard and recommending request-local state. Without code or executed tests, it does not establish that this design preserves all existing behavior or that the hazard has caused a production failure.",
+        "tokenUsage": {
+          "prompt": 21907,
+          "completion": 327,
+          "cached": 0,
+          "total": 22234,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Flat code still has hidden state"
+    }
+  ]
+}

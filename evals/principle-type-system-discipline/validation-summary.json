@@ -1,0 +1,190 @@
+{
+  "skill": "principle-type-system-discipline",
+  "model": "gpt-6-astra",
+  "model_reasoning_effort": "medium",
+  "provider": "openai:codex-sdk",
+  "codex_path_override": "codex",
+  "source_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+  "upstream_sha256": "2e492cef34bb25a20b9115df61f9ef3a9837e3fda144ffda8079e5f45a1b72e8",
+  "word_count_method": "Whitespace-separated words; body excludes YAML frontmatter and includes headings.",
+  "words": {
+    "upstream_body": 519,
+    "port_body": 138,
+    "upstream_total": 565,
+    "port_total": 162
+  },
+  "configuration_validation": "passed",
+  "stages": {
+    "red": {
+      "eval_id": "eval-GSa-2026-10-13T20:34:34",
+      "source_sha256": "2e492cef34bb25a20b9115df61f9ef3a9837e3fda144ffda8079e5f45a1b72e8",
+      "passed": 1,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": false,
+          "score": 0.8,
+          "failure_reason_code": 1,
+          "reason": "The proposal separates UserId and InvoiceId with validated construction, preserves sum on ordinary arrays including empty arrays, parses JSON as unknown instead of casting, and uses authoritative schema-derived types when available. However, it does not show the required compile-time swapped-ID check or runtime malformed-input check. These could be hypothetical examples; execution is not required.",
+          "case": "Semantic safety without universal branding"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Exhaustive variants and persistence boundaries"
+        }
+      ],
+      "evidence_file": "red-evidence.json"
+    },
+    "green": {
+      "eval_id": "eval-nqW-2026-10-13T20:41:40",
+      "source_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+      "passed": 2,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Semantic safety without universal branding"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Exhaustive variants and persistence boundaries"
+        }
+      ],
+      "evidence_file": "green-evidence.json"
+    },
+    "compare": {
+      "eval_id": "eval-6FT-2026-10-13T20:52:48",
+      "source_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+      "passed": 3,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "baseline",
+          "passed": false,
+          "score": 0.7,
+          "failure_reason_code": 1,
+          "reason": "The proposal separates UserId and InvoiceId at settle, requires validated construction, preserves sum on ordinary arrays including empty, and treats external JSON as unknown rather than casting. However, it does not address authoritative schema-derived types or show the required compile-time swapped-ID check and runtime malformed-input check. These could be hypothetical examples; executed tests are unnecessary.",
+          "case": "Semantic safety without universal branding"
+        },
+        {
+          "case_index": 0,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Semantic safety without universal branding"
+        },
+        {
+          "case_index": 1,
+          "prompt": "baseline",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Exhaustive variants and persistence boundaries"
+        },
+        {
+          "case_index": 1,
+          "prompt": "treatment",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Exhaustive variants and persistence boundaries"
+        }
+      ],
+      "evidence_file": "compare-evidence.json"
+    },
+    "trigger": {
+      "eval_id": "eval-jfk-2026-10-13T20:57:59",
+      "source_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+      "passed": 1,
+      "cases": [
+        {
+          "case_index": 0,
+          "prompt": "trigger",
+          "passed": false,
+          "score": 0.0,
+          "failure_reason_code": 1,
+          "reason": "Missing required skill(s): principle-type-system-discipline. Actual skills: (none)",
+          "case": "Applies to the principle decision"
+        },
+        {
+          "case_index": 1,
+          "prompt": "trigger",
+          "passed": true,
+          "score": 1.0,
+          "failure_reason_code": 0,
+          "reason": "All assertions passed",
+          "case": "Does not impose a workflow on a literal conversion"
+        }
+      ],
+      "evidence_file": "trigger-evidence.json"
+    }
+  },
+  "excluded_attempts": [],
+  "unmet_gates": [
+    "trigger has failing cases"
+  ],
+  "comparison": {
+    "improved_cases": [
+      0
+    ],
+    "regressed_cases": []
+  },
+  "trigger_instrumentation_observation": {
+    "eval_id": "eval-jfk-2026-10-13T20:57:59",
+    "reported_skill_used": false,
+    "observed_exact_skill_body_read": true,
+    "source_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+    "command_exit_code": 1,
+    "reason": "The command read the complete current SKILL.md, then an empty rg --files result made the chained command exit 1. Promptfoo skill-used ignored that failed command. The response correctly applies the skill. No source change or rerun performed to hide the assertion failure."
+  },
+  "native_replay": {
+    "source_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+    "hosts": {
+      "claude": {
+        "model_observed": [
+          "claude-sonnet-5-5"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      },
+      "omp": {
+        "model_observed": [
+          "gpt-6-astra"
+        ],
+        "effort_configured": "medium",
+        "native_loader_resolution_observed": true,
+        "skill_body_matches_frozen_source": true,
+        "direct_filesystem_fallback": false,
+        "core_behavior_review_passed": true
+      }
+    },
+    "limits": [
+      "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+      "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+      "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+      "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+    ]
+  }
+}

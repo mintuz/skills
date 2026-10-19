@@ -1,0 +1,66 @@
+description: "create-verification-skill activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use create-verification-skill for the following request. Create a verification recipe for Ledger CLI. Repo policy puts shared skills in tools/skills, registered by tools/index.yml. Existing harness starts an isolated ledger store, adds an invoice through the public CLI, then lists it. An authoring run on revision c71 passes; evidence is saved outside the scratch directory. The app is already running in another terminal for the user. Describe the deliverable and remaining acceptance steps."
+    assert:
+      -
+        type: "skill-used"
+        value: "create-verification-skill"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Run the already documented unit test once; do not create or refresh any recipe."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply create-verification-skill workflow or claim to have performed unavailable work; it stays within the requested task."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Natural task selects the narrow workflow"
+    vars:
+      request: "Create a reusable project verification recipe for one critical journey using our existing harness, and prove a fresh agent can replay it."
+    assert:
+      -
+        type: "skill-used"
+        value: "create-verification-skill"

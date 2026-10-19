@@ -1,0 +1,155 @@
+{
+  "skill": "principle-encode-lessons-in-structure",
+  "source_sha256": "f31a7df0510dcad787869fa159495a89c4e3da19e7bdc58cf7bace52ff6cd65e",
+  "source_words": 189,
+  "red_fixture_sha256": "228963799189f481827d6f28065f278bc2008ffa37030b1234cbd5814d36b9e9",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Original failed grade invalid: demanded executed tests from a read-only plan.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-Bfv-2026-10-13T20:32:16",
+    "log": "/tmp/principles-a-evidence/principle-encode-lessons-in-structure-red.log",
+    "cases": [
+      {
+        "case": "A verified lesson earns one guard",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.0,
+        "reason": "Chooses a narrow constructor guard for the unit mismatch, avoids duplicated warnings, and stays focused. However, rejection of the bad case and acceptance of valid use are only proposed as future tests, not demonstrated; the output explicitly states that no changes or tests were executed.",
+        "error": null
+      },
+      {
+        "case": "Judgment is not a linter",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-nH0-2026-10-13T20:49:58",
+    "log": "/tmp/principles-a-evidence/principle-encode-lessons-in-structure-green-retry.log",
+    "cases": [
+      {
+        "case": "A verified lesson earns one guard",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Judgment is not a linter",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-qvW-2026-10-13T20:58:37",
+    "log": "/tmp/principles-a-evidence/principle-encode-lessons-in-structure-compare.log",
+    "cases": [
+      {
+        "case": "A verified lesson earns one guard",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Judgment is not a linter",
+        "prompt": "baseline",
+        "passed": false,
+        "score": 0.0,
+        "reason": "The plan makes the incident template authoritative, explains how writers separate facts from hypotheses, and gives reviewers an evidence-based check without mechanical enforcement. However, it only proposes adding a worked example; it supplies no concrete failure/success example, which the rubric requires.",
+        "error": null
+      },
+      {
+        "case": "A verified lesson earns one guard",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Judgment is not a linter",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-Yzn-2026-10-13T21:26:05",
+    "log": "/tmp/principles-a-evidence/principle-encode-lessons-in-structure-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [
+    "Valid behavioral RED not demonstrated."
+  ],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "comparison": {
+    "baseline_passes": 1,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {
+    "principle-encode-lessons-in-structure-green.log": {
+      "id": "eval-MWx-2026-10-13T20:38:53",
+      "log": "/tmp/principles-a-evidence/principle-encode-lessons-in-structure-green.log",
+      "cases": [
+        {
+          "case": "A verified lesson earns one guard",
+          "prompt": "with-skill",
+          "passed": false,
+          "score": 0.0,
+          "reason": "The recommendation chooses a narrow unit-aware constructor guard, avoids duplicated warnings, and stays focused. However, rejection of metre inputs and acceptance of valid millisecond inputs are only proposed, not demonstrated; the output explicitly says no changes or tests were executed. Therefore, not every required outcome is met.",
+          "error": null
+        },
+        {
+          "case": "Judgment is not a linter",
+          "prompt": "with-skill",
+          "passed": true,
+          "score": 1.0,
+          "reason": "All assertions passed",
+          "error": null
+        }
+      ]
+    }
+  }
+}

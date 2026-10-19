@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-W40-2026-10-13T20:37:49",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-model-the-domain"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "79c545f601335e069485e883f5efbd45c4ce9afec61e4352935a4f2142e3d35d",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use one shared upload model with four alternatives:\n\n```ts\ntype UploadState =\n  | { kind: \"pending\" }\n  | { kind: \"uploading\" }\n  | { kind: \"failed\"; error: UploadError }\n  | { kind: \"complete\"; receipt: Receipt };\n```\n\nThis removes contradictory flags and ensures failed and complete states carry their required data.\n\nGive one domain module ownership of transitions and action availability. Button rendering and the worker use that shared policy; persistence loading parses into the same model.\n\n| Current state | Action | Result |\n|---|---|---|\n| pending | start | uploading |\n| uploading | fail(error) | failed(error) |\n| uploading | succeed(receipt) | complete(receipt) |\n| failed | retry | uploading |\n| complete | retry | rejected |\n\nReject other transitions unless explicitly required. The start, fail and succeed transitions above are proposed lifecycle rules; only retry behavior is explicitly specified.\n\nAt the persistence boundary, validate or migrate legacy flags and payloads. All flags false can represent pending if that legacy convention is confirmed. Reject conflicting flags, missing required payloads and malformed data; do not silently choose a winning flag.\n\nVerify through public behavior:\n\n- Each allowed transition produces the expected state and payload.\n- Retry succeeds from failed and is rejected from complete; other unspecified transitions are rejected.\n- Buttons and worker actions follow the same transition policy.\n- Valid persisted states restore correctly; invalid combinations and missing payloads fail explicitly.\n- Worker failure produces failed(error); retry removes the previous error by entering uploading.\n- Restored uploading states follow an explicitly chosen recovery policy.\n\nNo framework or additional ownership layers are needed. This is a proposed model, not tested implementation evidence. Legacy encoding and recovery of interrupted uploads remain unspecified.",
+        "tokenUsage": {
+          "prompt": 21908,
+          "completion": 362,
+          "cached": 19072,
+          "total": 22270,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Represent legal lifecycle states"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the registry, event bus, and state machine. Keep the two-branch formatter and change the initials separator.\n\nThe supplied skill explicitly excludes clear local transformations. Here, the validated boolean expresses two legal alternatives; there are no stored invalid states, duplicated rules, transitions, or ownership problems. Removing a branch alone does not justify abstraction.\n\nVerify that initials use the requested separator and that full-name output remains unchanged. This decision relies only on the supplied scenario; no implementation or tests were inspected or run.",
+        "tokenUsage": {
+          "prompt": 21903,
+          "completion": 104,
+          "cached": 19072,
+          "total": 22007,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Do not manufacture an abstraction"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+description: "principle-test-behavior-not-implementation behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Empty and absent outcomes are real contracts"
+    vars:
+      skill: file://../../src/principle/skills/principle-test-behavior-not-implementation/SKILL.md
+      scenario: "A repository find(key) returns undefined for a missing record; listVisible(user) returns [] when every record is unauthorized. Existing tests call the actual repository with an empty fixture and assert exactly those results. A proposed cleanup deletes these tests because returning undefined or [] is always vacuous. Design meaningful coverage."
+      rubric: "Preserves legitimate missing/unauthorized absence outcomes; strengthens with populated fixtures, found/authorized positive cases and an unauthorized stored record so unconditional undefined or empty mutants fail; exercises the subject through its public contract; distinguishes absence of unauthorized effect from no execution and avoids banning exact empty assertions."
+  - description: "Test an observable effect rather than helper choreography"
+    vars:
+      skill: file://../../src/principle/skills/principle-test-behavior-not-implementation/SKILL.md
+      scenario: "A mail service calls format(), authorize() and transport.send(). The user-visible contract sends exactly one message with subject \"Receipt 42\" to the buyer after success, and no message for a declined order. A test only checks format called once and computes its expected subject by calling format again. Rewrite the test design."
+      rubric: "Tests successful and declined orders via the public entry point; asserts literal subject, intended recipient and exactly-once external send effect for success plus no send on decline; avoids using the subject helper to compute its own oracle or asserting private call order; explains which wrong payload/unauthorized-send/no-op regressions the checks detect."
+  - description: "A shared decision covers allowed, denied and caller differences"
+    vars:
+      skill: file://../../src/principle/skills/principle-test-behavior-not-implementation/SKILL.md
+      scenario: "Three callers recompute the same feature eligibility differently. A shared existing domain function already returns the correct decision, but a proposal threads five new flags through all layers. Recommend the focused change and how to test it."
+      rubric: "Tests representative allowed and denied eligibility outcomes and each intentional caller difference through public behaviour, so a wrong shared decision or a caller that silently loses its intended difference fails a test; does not test the change by asserting flag plumbing or private calls."

@@ -2,8 +2,6 @@
 
 ## Display Modes
 
-Choose the appropriate display mode based on content complexity and user workflow.
-
 | Mode               | Use When                                     | Max Actions | Scrolling |
 | ------------------ | -------------------------------------------- | ----------- | --------- |
 | Inline Card        | Quick confirmation or small structured data  | 2           | None      |
@@ -43,7 +41,7 @@ Choose the appropriate display mode based on content complexity and user workflo
 
 - ChatGPT composer remains overlaid for continued conversation
 - Full scrolling and navigation support
-- Use when inline cards can't contain the content
+- Use when content overflows an inline card
 
 **Example use cases:** Multi-step forms, data visualization, document editors
 
@@ -64,8 +62,8 @@ Choose the appropriate display mode based on content complexity and user workflo
 ### Color
 
 - Use system-defined palettes for core elements
-- Brand accents only on buttons, icons, or badges
-- DON'T change text colors or core component styles
+- Use brand accents only on buttons, icons, or badges
+- Never change text colours or core component styles
 
 ### Typography
 

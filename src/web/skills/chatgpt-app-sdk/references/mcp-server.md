@@ -94,8 +94,6 @@ server.registerTool(
 
 ### 3. Return Layered Payloads
 
-Responses include three components:
-
 ```typescript
 {
   // What the model reads (concise)
@@ -116,16 +114,16 @@ For widget runtime and `window.openai` usage, see `./ui-components.md` and `./re
 ### Idempotent Handlers
 
 The model or the widget may retry a tool call, and the server may restart between
-attempts. Give every tool with a side effect an idempotency key that the caller
-supplies and the server scopes: the authenticated account, the tool name, and a
-stable request ID from the original user action. Store the key, a fingerprint of
-the validated inputs, and the terminal result in the same durable store as the
-effect, and write both in one transaction. Replay the stored result for the same
-key and the same fingerprint. Return a conflict for the same key with a different
-fingerprint. Pass the same key to any provider that accepts an idempotency key.
+attempts. Give every side-effecting tool an idempotency key, scoped by the server
+to the authenticated account, the tool name, and a caller-supplied stable request
+ID from the original user action. In one transaction, write the effect and, in
+the same durable store, the key, a fingerprint of the validated inputs, and the
+terminal result. Same key, same fingerprint: replay the stored result. Same key,
+different fingerprint: return a conflict. Pass the same key to any provider that
+accepts an idempotency key.
 
-An in-memory map is not an idempotency store: it is lost on restart and is not
-shared between instances. Never put a clock reading in the key, because a fresh
+Never use an in-memory map as the idempotency store: it is lost on restart and
+not shared between instances. Never put a clock reading in the key; a fresh
 timestamp makes every retry look like a new request.
 
 ```typescript
@@ -153,8 +151,8 @@ async function handleCreateTask({ requestId, title }, { authInfo }) {
 
 ### Trim Structured Content
 
-Keep model-facing data concise. Send the widget the page it renders, not the whole
-result set. See the payload boundary rule in [SKILL.md](../SKILL.md).
+Keep model-facing data concise; the widget gets only the rendered page (see the
+payload boundary rule in [SKILL.md](../SKILL.md)).
 
 ```typescript
 return {
@@ -205,7 +203,7 @@ try {
 
 ### Template URIs
 
-Cache-bust by changing URIs when making breaking changes:
+Change the URI on breaking changes to cache-bust:
 
 ```typescript
 // Before: ui://widget/kanban.html
@@ -214,4 +212,4 @@ Cache-bust by changing URIs when making breaking changes:
 
 ### Deployment
 
-Deploy behind HTTPS before connecting to ChatGPT. For local development, see [local-tunnel-setup.md](./local-tunnel-setup.md) to configure persistent Cloudflare Tunnels
+Deploy behind HTTPS before connecting to ChatGPT. For local development with persistent Cloudflare Tunnels, see [local-tunnel-setup.md](./local-tunnel-setup.md).

@@ -7,7 +7,7 @@ description: >
 
 # App Store Scraper
 
-Comprehensive toolkit for retrieving structured data from Apple's App Store and iTunes APIs using curl and jq. The API endpoints return JSON that can be parsed and formatted for analysis. The similar-apps page returns HTML.
+Retrieve structured data from Apple's App Store and iTunes APIs with curl and jq. The API endpoints return JSON; the similar-apps page returns HTML.
 
 ## Quick Start
 
@@ -24,7 +24,7 @@ curl -fsS "https://itunes.apple.com/lookup?id=553834731&entity=software" | \
 
 ## Decision Trees
 
-Use these decision trees to quickly find the right endpoint for your needs.
+Pick the endpoint from a decision tree, then follow its link to the endpoint documentation.
 
 ### 🎯 Decision Tree 1: What Data Do You Need?
 
@@ -116,7 +116,7 @@ Do you need region-specific or multi-app data?
 
 ### Endpoints (API-Based)
 
-Reliable, structured API endpoints that return JSON:
+Reliable, structured JSON APIs:
 
 | Endpoint | Description | File |
 |----------|-------------|------|
@@ -226,17 +226,16 @@ curl -s "https://itunes.apple.com/us/rss/customerreviews/page=1/id=553834731/sor
 ## Best Practices
 
 1. **Validate responses** before you extract fields. For every endpoint: transport (`curl -fsS`). For every JSON endpoint: exactly one JSON object (`jq -es 'length == 1 and (.[0] | type == "object")'`); for the similar-apps HTML page: the `similarItems` section is present. Then apply the endpoint's own checks: for lookups, non-zero `resultCount` and an identity and `kind` match; for search, zero results is a valid empty result; for the reviews feed, a missing `entry` key is the end of the data. Stop at the first failed check and report a distinct status per failure class. See [Retrieval Validation](endpoints/app-lookup.md#retrieval-validation)
-2. **Encode free-text values** such as search terms and bundle IDs with `curl -G --data-urlencode`. Numeric IDs, page numbers, and country codes contain no reserved characters, so they are safe in the URL as literals or as shell variables
-3. **Implement caching** to reduce API load
-4. **Add rate limiting** (1-2s between requests)
-5. **Batch requests** when possible using comma-separated IDs
-6. **Handle errors gracefully** with retries and fallbacks
+2. **Encode free-text values** (search terms, bundle IDs) with `curl -G --data-urlencode` so that curl encodes spaces and reserved characters such as `&`. Numeric IDs, page numbers, and country codes contain no reserved characters; use them in the URL as literals or shell variables
+3. **Cache** responses to reduce API load
+4. **Rate-limit** to 1-2s between requests; Apple publishes no official limit
+5. **Batch** lookups with comma-separated IDs when possible
+6. **Handle errors** with retries and fallbacks
 
 ## API Limitations
 
-- **Rate limiting**: No official limits, but be respectful (1-2s between requests)
-- **Pagination**: Limited on some endpoints (max 200 results for search)
-- **History**: Only current version data available via API
+- **Pagination**: limited on some endpoints (search returns at most 200 results)
+- **History**: the API returns current-version data only
 - **Similar apps**: Only IDs inside the page's "You Might Also Like" section qualify. Report unavailable when that section cannot be found; category and developer discovery are separate proxies.
 
 ## External Resources
@@ -244,7 +243,3 @@ curl -s "https://itunes.apple.com/us/rss/customerreviews/page=1/id=553834731/sor
 - [iTunes Search API Documentation](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/)
 - [RSS Feed Generator](https://rss.applemarketingtools.com/)
 - [jq Documentation](https://jqlang.github.io/jq/)
-
----
-
-**Start Here:** Use the decision trees above to find the right endpoint for your needs, then follow the links to detailed documentation.

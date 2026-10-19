@@ -1,0 +1,32 @@
+{
+  "name": "principle",
+  "version": "2.0.0",
+  "description": "Independent engineering principles for focused decisions and execution.",
+  "author": {
+    "name": "Adam Bulmer",
+    "url": "https://github.com/mintuz"
+  },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": [
+    "principles",
+    "engineering",
+    "verification",
+    "design"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Principles",
+    "shortDescription": "Focused engineering judgement",
+    "longDescription": "54 independently invocable engineering principles for design, verification, ownership and scope.",
+    "developerName": "Adam Bulmer",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Apply principle-prove-it-works to this change."
+    ]
+  }
+}

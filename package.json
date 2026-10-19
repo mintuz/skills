@@ -13,6 +13,7 @@
     "eval:skills:view": "PROMPTFOO_CONFIG_DIR=.promptfoo PROMPTFOO_DISABLE_TELEMETRY=1 promptfoo view"
   },
   "devDependencies": {
-    "promptfoo": "0.122.2"
+    "promptfoo": "0.122.2",
+    "yaml": "2.9.0"
   }
 }

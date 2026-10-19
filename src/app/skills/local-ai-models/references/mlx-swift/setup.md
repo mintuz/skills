@@ -1,7 +1,5 @@
 # MLX Swift Setup
 
-Setup guide for MLX Swift framework.
-
 ## Requirements
 
 - iOS 18.0+ minimum deployment target
@@ -39,7 +37,7 @@ import MLXEmbedders
 
 ## Model Loading
 
-MLX Swift requires explicit model loading from Hugging Face Hub:
+Load models explicitly from the Hugging Face Hub:
 
 ```swift
 // Load from registry
@@ -118,11 +116,9 @@ class MLXChatService {
 
 ## Privacy Considerations
 
-MLX Swift downloads models from Hugging Face on first use. After download, models run entirely on-device with full privacy.
+MLX Swift downloads models from Hugging Face on first use; after download, models run entirely on-device.
 
 ## Recommended Models
-
-Best models for iOS devices:
 
 - **Llama-3.2-3B-Instruct-4bit** - Fast, good quality
 - **Qwen2.5-3B-Instruct-4bit** - Code-focused

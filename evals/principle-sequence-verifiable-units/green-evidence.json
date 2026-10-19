@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-TOU-2026-10-13T20:40:26",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-sequence-verifiable-units"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Replace the proposed plan with this sequence:\n\n1. **Establish the baseline.** Inspect the branch, commit and dirty changes read-only. Leave the colleague\u2019s UI work untouched; do not stash, reset or rebase the shared checkout.\n2. **Isolate the migration.** Create a separate checkout and migration branch from the recorded commit. Updating to trunk is a separate, deliberate decision, not a prerequisite.\n3. **Verify the starting point.** Run the available baseline serializer tests in isolation. Record results and diagnose failures before migration work.\n4. **Migrate one format at a time.** Treat each format\u2019s serializer, dependent consumers and fixtures as one coherent contract change. From a recorded passing state, make the change, run its decisive compatibility and regression checks, and advance only after they pass. Keep each unit independently revertible in the isolated branch.\n5. **Verify the final combination.** Run the complete serializer suite and relevant integration checks across all three migrated formats. Present baseline results before each format\u2019s change and validation, followed by final integration results.\n\nUse the agreed delivery policy; this sequence does not require three commits or a PR stack.\n\n**Evidence limits:** This is a proposed sequence only. No checkout or tests were inspected or run. The scenario establishes format independence and available baseline tests, but does not establish test coverage, passing results or compatibility guarantees.",
+        "tokenUsage": {
+          "prompt": 21923,
+          "completion": 280,
+          "cached": 19072,
+          "total": 22203,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Dirty shared branch is not a rebase target"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use two reviewable units:\n\n1. **Delete the obsolete helper.** Confirm no remaining callers, delete it, and run the relevant checks. Revert this commit to roll back.\n2. **Rename the wire field atomically.** Update the producer, consumer, and contract fixture in one commit: together they form the smallest valid protocol change. Run the contract check and relevant producer/consumer tests before advancing. Roll back all three together by reverting the commit.\n\nFirst inspect the baseline and unrelated work, preserving dirty or shared state. Record baseline checks. If demonstrating the invalid partial rename helps review, capture its failing check in isolation, then show the complete change passing; do not put that broken state on the shared branch.\n\nOrder evidence as baseline \u2192 verified helper removal \u2192 isolated rename failure \u2192 atomic rename passing \u2192 final cross-unit integration checks. Share only verified green commits.\n\n**Evidence limits:** This is a proposed sequence based solely on the scenario. No baseline, helper references, tests, or branch state were inspected; no passing checks or rollback execution are established.",
+        "tokenUsage": {
+          "prompt": 21912,
+          "completion": 216,
+          "cached": 19072,
+          "total": 22128,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "A unit follows the invariant rather than file count"
+    }
+  ]
+}

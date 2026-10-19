@@ -1,0 +1,35 @@
+description: "principle-never-weaken-a-check activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Applies when a gate fails"
+    vars:
+      request: "CI is blocked by a performance test asserting under 200 ms; my change touches that endpoint and it now fails at 230 ms. Should I just bump the threshold to 400 ms in my PR?"
+    assert:
+      - type: skill-used
+        value: principle-never-weaken-a-check
+  - description: "Leaves check selection to its owner"
+    vars:
+      request: "My one-line copy change is ready. Which checks should I run before merging it?"
+    assert:
+      - type: not-skill-used
+        value: principle-never-weaken-a-check

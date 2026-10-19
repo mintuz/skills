@@ -2,29 +2,24 @@
 
 ## rem vs px Decision Framework
 
-Ask: **"Should this value scale when users increase their browser's default font size?"**
-
-- Yes → Use `rem`
-- No → Use `px`
-
 ### When to Use rem
 
-| Use Case                  | Reason                                                  |
-| ------------------------- | ------------------------------------------------------- |
-| `font-size`               | Must respect user font preferences for accessibility    |
-| Vertical margins on text  | Larger text benefits from proportional spacing          |
-| Media queries             | User enlarging text effectively reduces available space |
-| Spacing that should scale | Maintains proportions with font size                    |
-| Padding around text in a control | Keeps the hit area proportional to the label     |
+| Use Case                         | Reason                                                  |
+| -------------------------------- | ------------------------------------------------------- |
+| `font-size`                      | Must respect user font preferences for accessibility    |
+| Vertical margins on text         | Larger text benefits from proportional spacing          |
+| Media queries                    | User enlarging text effectively reduces available space |
+| Spacing that should scale        | Maintains proportions with font size                    |
+| Padding around text in a control | Keeps the hit area proportional to the label            |
 
 ### When to Use px
 
-| Use Case                    | Reason                               |
-| --------------------------- | ------------------------------------ |
-| Border widths               | Shouldn't thicken because text grew  |
-| Box shadows                 | Visual effect, not content-related   |
+| Use Case                               | Reason                               |
+| -------------------------------------- | ------------------------------------ |
+| Border widths                          | Shouldn't thicken because text grew  |
+| Box shadows                            | Visual effect, not content-related   |
 | Horizontal padding of wide text blocks | Scaling reduces available line width |
-| Values that shouldn't scale | Fixed visual elements                |
+| Values that shouldn't scale            | Fixed visual elements                |
 
 ### Use Unitless for line-height
 
@@ -40,7 +35,7 @@ Ask: **"Should this value scale when users increase their browser's default font
 }
 ```
 
-Unitless line-height inherits the multiplier, not a fixed value. Child elements with different font-sizes will calculate their own line-height.
+Children inherit the multiplier, not a fixed value, so each child computes its own line-height from its font-size.
 
 ### The 62.5% Trick (Avoid)
 
@@ -56,11 +51,11 @@ body {
 
 **Problems:**
 
-- Breaks third-party components expecting 16px root
-- Some screen readers use root font-size
-- Creates confusion when components render at wrong size
+- Breaks third-party components expecting a 16px root
+- Some screen readers use the root font-size
+- Components render at the wrong size, causing confusion
 
-**Better approach - use CSS custom properties:**
+**Better approach — use CSS custom properties:**
 
 ```css
 :root {
@@ -76,8 +71,6 @@ body {
 
 ### Components Should Not Have Margin
 
-Margin on components violates encapsulation by affecting space outside the component's visual boundaries:
-
 ```css
 /* Bad - margin inside component */
 .card {
@@ -87,9 +80,9 @@ Margin on components violates encapsulation by affecting space outside the compo
 
 **Problems:**
 
-1. Breaks encapsulation - adds "invisible" space outside visual boundaries
-2. Reduces reusability - different contexts need different spacing
-3. Conflicts with design thinking - spacing is contextual, not global
+1. Breaks encapsulation: adds invisible space outside the component's visual boundaries
+2. Reduces reusability: different contexts need different spacing
+3. Conflicts with design thinking: spacing is contextual, not global
 
 **Better approaches:**
 
@@ -104,7 +97,7 @@ Margin on components violates encapsulation by affecting space outside the compo
 
 ### Single-Direction Margins
 
-Use margins in one direction only (typically `margin-bottom`) for predictable spacing:
+Set margins in one direction only (typically `margin-bottom`):
 
 ```css
 /* Lobotomized owl selector */
@@ -115,34 +108,34 @@ Use margins in one direction only (typically `margin-bottom`) for predictable sp
 
 **Benefits:**
 
-- Simplified vertical rhythm
-- Confidence in component portability
-- Reduced cognitive load (no margin collapse surprises)
-- Predictable spacing behavior
+- Simpler vertical rhythm
+- Portable components
+- No margin collapse surprises
+- Predictable spacing
 
 ### Margin Collapse Rules
 
-Margins collapse in Flow layout only. Key rules:
+Margins collapse in Flow layout only.
 
-| Rule            | Description                            |
-| --------------- | -------------------------------------- |
-| Only vertical   | Horizontal margins never collapse      |
-| Only adjoining  | The margins touch with nothing between them: block siblings, a parent and its first or last child, or an empty block's own top and bottom |
-| Positive: larger wins | Two positive margins collapse to the larger one |
-| Negative: add   | Largest positive plus most negative; two negatives collapse to the most negative |
-| Nesting allowed | Parent and child margins can merge     |
+| Rule                  | Description                                                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Only vertical         | Horizontal margins never collapse                                                                                                       |
+| Only adjoining        | The margins touch with nothing between them: block siblings, a parent and its first or last child, or an empty block's own top and bottom |
+| Positive: larger wins | Two positive margins collapse to the larger one                                                                                         |
+| Negative: add         | Largest positive plus most negative; two negatives collapse to the most negative                                                         |
+| Nesting allowed       | Parent and child margins can merge                                                                                                      |
 
 **What blocks collapse (scoped to the relationship it affects):**
 
 - Padding or border between the two margins
 - Content or a fixed height between the two margins
-- `overflow: hidden`, `auto`, or `scroll` on the parent (or `display: flow-root`): creates a new block formatting context, which stops parent-child collapse; siblings inside the parent still collapse with each other. `overflow: clip` does not create a formatting context, so add `display: flow-root` when you need one.
+- `overflow: hidden`, `auto`, or `scroll` on the parent (or `display: flow-root`): creates a new block formatting context, which stops parent-child collapse; siblings inside the parent still collapse with each other. `overflow: clip` creates no formatting context, so add `display: flow-root` when you need one.
 - Flexbox or Grid layouts: children's margins never collapse
 - Floated or absolutely positioned elements: their margins never collapse
 
 ## Layout Algorithm Awareness
 
-CSS properties behave differently depending on which layout algorithm is active:
+Properties behave differently under each layout algorithm:
 
 | Algorithm  | Triggered By               |
 | ---------- | -------------------------- |
@@ -153,7 +146,7 @@ CSS properties behave differently depending on which layout algorithm is active:
 
 ### Common Gotchas
 
-**z-index only works in certain contexts:**
+**z-index works only in certain contexts:**
 
 ```css
 /* z-index ignored in Flow layout */

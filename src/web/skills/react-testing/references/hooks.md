@@ -2,7 +2,7 @@
 
 ## Custom Hooks with renderHook
 
-**Built into React Testing Library** (since v13):
+Built into React Testing Library since v13:
 
 ```tsx
 import { act, renderHook } from '@testing-library/react';
@@ -20,10 +20,9 @@ it('should toggle value', () => {
 });
 ```
 
-**Pattern:**
-- `result.current` - Current return value of hook
-- `act()` - Wrap a state-changing callback that you invoke directly, because it runs outside Testing Library's auto-wrapped helpers
-- `rerender()` - Re-run hook with new props
+- `result.current` - current return value of the hook
+- `act()` - wraps a state-changing callback you invoke directly, because it runs outside Testing Library's auto-wrapped helpers
+- `rerender()` - re-runs the hook with new props
 
 ## Hooks with Props
 
@@ -42,8 +41,4 @@ it('should format the current amount', () => {
 });
 ```
 
-**`rerender` changes the arguments of the hook callback only.** It does not
-change the props of the `wrapper`. Choose a hook whose return value derives from
-the argument; a hook that only seeds `useState` keeps its first value after a
-`rerender`. To change provider props, render a consumer component with
-`render()` and use that render result's `rerender()`.
+`rerender` changes the hook callback's arguments only (see "Hooks and Context" in the main skill file). Choose a hook whose return value derives from the argument; a hook that only seeds `useState` keeps its first value after a `rerender`.

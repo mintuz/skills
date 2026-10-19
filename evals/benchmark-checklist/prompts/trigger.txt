@@ -1,0 +1,4 @@
+Skills under .agents/skills are available. Read a skill only when its description applies or the user explicitly invokes it. Respect manual-only invocation metadata. Do not execute the task or modify files; give a short plan and finish by naming the skill followed, or none.
+
+Request:
+{{request}}

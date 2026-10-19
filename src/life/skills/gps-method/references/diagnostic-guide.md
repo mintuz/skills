@@ -1,17 +1,10 @@
 # GPS Diagnostic Guide
 
-When users are struggling to make progress, use this guide to identify the breakdown point and provide targeted solutions.
+Identify the breakdown point and give targeted fixes.
 
 ## Diagnostic Framework
 
-First ask whether available capacity changed. Did the Goal, the Plan, and the
-System work until an outside event reduced the time, money, or energy available?
-If it did, the current Plan is the broken component, because it no longer fits
-capacity. Rescale the Plan to fit current capacity. Keep the anti-goals. Treat
-the target and the deadline as provisional until the user knows how long the new
-capacity will last.
-
-Otherwise run through these three diagnostic questions in order:
+Check capacity first (Question 0 in `SKILL.md`; decision tree below). If capacity did not change, run these three diagnoses in order:
 
 ### 1. Goal Diagnosis
 
@@ -123,23 +116,13 @@ Otherwise run through these three diagnostic questions in order:
 
 ## Diagnostic Decision Tree
 
-Work through these checks in order. Stop at the first one that identifies the
-breakdown.
+Stop at the first check that identifies the breakdown.
 
-1. **Did the Goal, the Plan, and the System work until available capacity
-   changed?** If they did, and an outside event then reduced the time, money, or
-   energy available, the current Plan is the broken component. Rescale the Plan
-   to fit current capacity. Keep the anti-goals. Treat the target and the
-   deadline as provisional. If capacity fell but the plan never worked, record
-   the constraint and continue with check 2.
-2. **Is the Goal specific and compelling?** If not, rework the Goal before
-   anything else.
-3. **Is the user confident the Plan will work, and confident they will do it?**
-   If either rating is below 80%, revise the Plan.
-4. **Are tracking, reminders, and accountability all in place?** If not, fix the
-   System.
-5. **All components work.** Look deeper at execution quality, at whether the
-   timeline is realistic, and at external factors.
+1. **Did the Goal, the Plan, and the System work until an outside event reduced the time, money, or energy available?** If so, apply Question 0 in `SKILL.md`. If capacity fell but the plan never worked, record the constraint and continue with check 2.
+2. **Is the Goal specific and compelling?** If not, rework the Goal first.
+3. **Is the user confident the Plan will work, and that they will do it?** If either rating is below 80%, revise the Plan.
+4. **Are tracking, reminders, and accountability all in place?** If not, fix the System.
+5. **All components work.** Look deeper at execution quality, timeline realism, and external factors.
 
 ## Common Breakdown Patterns
 

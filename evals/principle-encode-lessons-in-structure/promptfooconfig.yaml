@@ -1,0 +1,62 @@
+description: "principle-encode-lessons-in-structure behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A verified lesson earns one guard"
+    vars:
+      skill: file://../../src/principle/skills/principle-encode-lessons-in-structure/SKILL.md
+      scenario: "Two independently reproduced bugs used metres where milliseconds were expected. A unit-aware constructor can reject both and existing tests cover its callers. The team proposes adding the same warning to three documents as well. Give a focused recommendation."
+      rubric: "Uses the verified unit mixup to choose a narrow structural type or constructor guard; demonstrates rejection of the bad case and acceptance of valid use; avoids duplicated warning rules once enforcement covers the lesson; stays focused rather than creating a new recurrence database or broad correction program."
+  - description: "Judgment is not a linter"
+    vars:
+      skill: file://../../src/principle/skills/principle-encode-lessons-in-structure/SKILL.md
+      scenario: "A reviewer repeatedly asks that incident writeups distinguish observed facts from hypotheses. Whether a sentence is warranted depends on incident evidence. There is no reliable mechanical classifier. Recommend a durable correction without adding a noisy linter."
+      rubric: "Keeps judgment-dependent guidance in one authoritative writing location with a concrete failure/success example; does not invent mechanical certainty or blanket banned-word enforcement; explains when the writer applies the instruction and how a reviewer checks it."
+  - description: "One occurrence is not yet a recurring lesson"
+    vars:
+      skill: file://../../src/principle/skills/principle-encode-lessons-in-structure/SKILL.md
+      scenario: "Last week a reviewer found one hard-coded staging URL in a merged production config. Git history, review comments and incident notes show no other occurrence. A teammate proposes a new CI lint rule that fails any string containing 'staging'. Recommend what to do now."
+      rubric: "Fixes the single instance without adding a new structural guard yet, because the lesson has occurred once rather than recurred; names a second occurrence of the same failure as the condition that would justify encoding a guard; notes that the proposed blanket rule would also reject valid uses."

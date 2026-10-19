@@ -1,0 +1,56 @@
+description: "principle-minimize-reader-load behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "One implementation can hide a real boundary"
+    vars:
+      skill: file://../../src/principle/skills/principle-minimize-reader-load/SKILL.md
+      scenario: "A payment call passes through BillingFacade with one caller and one gateway implementation. The facade owns idempotency keys, maps provider errors, and prevents raw card data reaching logs. Separately OrderService forwards getOrder(id) to a repository without transforming anything. A reviewer proposes inlining both because each has one caller. Evaluate reader load and the smallest change."
+      rubric: "Evaluates the complete payment and lookup paths, including state and ownership; preserves or equivalently relocates the idempotency, error, and privacy boundary rather than deleting it on caller count; identifies the pass-through as the candidate to inline only after checking its contract; measures understanding by trace steps and state to retain, not lines or a time limit."
+  - description: "A broad mirror interface hides no decision"
+    vars:
+      skill: file://../../src/principle/skills/principle-minimize-reader-load/SKILL.md
+      scenario: "Reading a saved document goes ReportController -> DocumentStore interface (14 methods mirroring the storage SDK one-to-one; both callers still need to know SDK paging and error codes) -> RetryingDocumentStore (owns retry, backoff and timeout policy) -> SDK. Nobody plans to add anything; newcomers take a long time to answer where a returned document comes from. A teammate proposes deleting both DocumentStore and RetryingDocumentStore so the controller calls the SDK directly. Recommend the smallest change and how to check it."
+      rubric: "Traces a concrete question (where the returned document comes from, what can change it) through the whole path; collapses the one-to-one mirror interface, or narrows it into an interface that hides a meaningful decision such as paging or error mapping, so no remaining layer merely forwards; keeps RetryingDocumentStore or explicitly relocates its retry, backoff and timeout ownership rather than deleting it; compares the before/after trace and checks paging, failure and retry behaviour, not line count."

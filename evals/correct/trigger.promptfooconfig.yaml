@@ -1,0 +1,66 @@
+description: "correct activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use correct for the following request. User asks to prevent repeated CustomerId/OrderId swaps in checkout only. Review R1 rejected swapped arguments last Monday; unrelated commit C2 made same error Friday. Both used string aliases. Existing lint cannot tell them apart. Describe one correction and its proof; user did not request a commit."
+    assert:
+      -
+        type: "skill-used"
+        value: "correct"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Rewrite this sentence with shorter words; this is a writing preference."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply correct workflow or claim to have performed unavailable work; it stays within the requested task."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Natural task selects the narrow workflow"
+    vars:
+      request: "Two independent reviews caught swapped domain IDs in checkout. Make that repeated mistake mechanically harder and prove the guard."
+    assert:
+      -
+        type: "skill-used"
+        value: "correct"

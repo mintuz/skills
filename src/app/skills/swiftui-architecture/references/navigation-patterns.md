@@ -1,8 +1,8 @@
 # Navigation Patterns with AppRouter
 
-Comprehensive guide to navigation using AppRouter for SwiftUI apps on iOS 17+.
+AppRouter navigation for SwiftUI apps on iOS 17+.
 
-AppRouter is an external Swift package. Add it to the project before you use these patterns. Use SwiftUI's own `NavigationStack` with typed destinations when the project does not depend on AppRouter.
+AppRouter is an external Swift package; add it to the project before using these patterns. When the project does not depend on AppRouter, use SwiftUI's own `NavigationStack` with typed destinations.
 
 Terminology: use “AppRouter” for the library, and “router” for an instance.
 
@@ -21,8 +21,7 @@ Terminology: use “AppRouter” for the library, and “router” for an instan
 - **Sheets**: Modal presentations shared across the app
 - **Tabs**: Top-level navigation sections (Router only)
 
-- For sheet presentation details, see `references/sheets.md`.
-- For tab-specific patterns, see `references/tabs.md`.
+See `references/sheets.md` for sheet presentation and `references/tabs.md` for tab-specific patterns.
 
 ## Router Setup Patterns
 
@@ -295,7 +294,7 @@ ContentView()
 
 ### Contextual Routing
 
-The same path component can resolve to different destinations based on context:
+With `fullPath`, the same path component can resolve to different destinations by context:
 
 ```swift
 static func from(
@@ -324,7 +323,7 @@ static func from(
 
 ### Type Aliases
 
-Reduce verbose generic syntax with type aliases:
+Shorten verbose generic syntax with a type alias:
 
 ```swift
 typealias AppRouter = Router<AppTab, Destination, Sheet>
@@ -351,18 +350,9 @@ func showUserProfile(userId: String) {
 ## Best Practices
 
 1. **Type Safety**: Use enum cases with associated values for type-safe navigation
-2. **Single Source of Truth**: Centralize destination mapping in one place
-3. **Environment Injection**: Inject router via `.environment()` to avoid prop drilling
-4. **Validate Deep Links**: Always validate required parameters before creating destinations
-5. **Lightweight Routes**: Keep route data simple and `Hashable`—pass IDs, not objects
-6. **Independent Tab History**: Each tab should have its own navigation stack
+2. **Single Source of Truth**: Centralise destination mapping in one place
+3. **Environment Injection**: Inject the router via `.environment()`; never prop-drill it as a parameter
+4. **Validate Deep Links**: Validate the URL scheme before handling a URL (never assume every URL is internal), and guard on every required parameter before creating a destination
+5. **Lightweight Routes**: Keep route data simple and `Hashable`: pass IDs, never objects or view instances, and load details in the destination view
+6. **Independent Tab History**: Give each tab its own navigation stack; never share one stack across tabs
 7. **Test Deep Links**: Use `xcrun simctl openurl booted "myapp://detail?id=123"` to test
-
-## Common Mistakes to Avoid
-
-- **Shared navigation stacks across tabs**: Each tab needs its own stack
-- **Storing views in routes**: Routes should be data (IDs), not view instances
-- **Complex route payloads**: Pass lightweight data, load details in destination view
-- **Missing parameter validation**: Always guard on required deep link parameters
-- **Assuming all URLs are internal**: Validate URL scheme before handling
-- **Prop drilling router**: Use `.environment()` instead of passing as parameter

@@ -37,7 +37,7 @@ apiClient.interceptors.response.use(
 
 ## API Request Structure
 
-Each API endpoint should have three parts. This example uses Zod and TanStack Query; use them only when the project already has them. Without them, keep the same three parts and write the hook with the async-effect rules in [useeffect.md](./useeffect.md).
+Each API endpoint should have three parts. This example uses Zod and TanStack Query; use them only when the project already has them. Without them, keep the three parts and write the hook with the async-effect rules in [useeffect.md](./useeffect.md).
 
 ```typescript
 // src/features/users/api/get-user.ts
@@ -85,7 +85,7 @@ export const useUser = (userId: string) => {
 
 ### API Error Interceptors
 
-Handle errors globally at the API client level:
+Handle errors globally at the API client:
 
 ```typescript
 apiClient.interceptors.response.use(
@@ -119,7 +119,7 @@ apiClient.interceptors.response.use(
 );
 ```
 
-**403 handling:** A 403 from a user action (delete, update, submit) is a per-action result. The component that made the request renders it as a failed action. Do not redirect the whole app, clear the session, or log the user out for a per-action 403. Redirect only when a route-level access check fails on navigation.
+**403 handling:** A 403 from a user action (delete, update, submit) is a per-action result; the authorization rule in SKILL.md applies. Also never clear the session for it. Redirect only when a route-level access check fails on navigation.
 
 ### Error Boundaries
 
@@ -187,11 +187,11 @@ export class ErrorBoundary extends Component<Props, State> {
 | HttpOnly Cookie | High     | Persistent      | None       |
 | localStorage    | Low      | Persistent      | Vulnerable |
 
-**Recommendation:** Use HttpOnly cookies when possible. If using localStorage, ensure robust XSS prevention.
+**Recommendation:** Use HttpOnly cookies when possible. With localStorage, ensure robust XSS prevention.
 
 ### Input Sanitization
 
-Always sanitize user inputs before rendering:
+Always sanitize user input before rendering:
 
 ```typescript
 // ❌ Dangerous - XSS vulnerability
@@ -212,7 +212,7 @@ const Comment = ({ content }: { content: string }) => (
 
 ### Authorization Patterns
 
-Client permission checks are UX gating only. They decide whether to render or enable a control. They cannot stop a crafted HTTP request. The server must authenticate the actor and authorize each mutation for that actor and resource before it changes data, and it must return 403 with no change when the check fails. Mirror the server rule in the client predicate; never treat the client predicate as the rule.
+Client permission checks only decide whether to render or enable a control; the server rule in SKILL.md is the authorization. On failure the server returns 403 with no change. Mirror the server rule in the client predicate; never treat the client predicate as the rule.
 
 **Role-Based Access Control (RBAC):**
 

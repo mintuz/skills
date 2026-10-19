@@ -1,15 +1,11 @@
 # Model Quantization Guide
 
-Guide for quantizing models with MLX-LM for on-device deployment.
+Quantisation stores weights at lower precision (e.g. 4-bit instead of 16-bit), which:
 
-## What is Quantization?
-
-Quantization reduces model size by using lower precision numbers (e.g., 4-bit instead of 16-bit). This:
-
-- Reduces memory usage (75%+ reduction)
-- Faster inference
-- Enables larger models on device
-- Minimal quality loss with proper quantization
+- Cuts memory use by 75%+
+- Speeds inference
+- Fits larger models on device
+- Loses little quality when done properly
 
 ## Installing MLX-LM
 
@@ -20,7 +16,7 @@ pip install mlx-lm
 
 ## Basic Quantization
 
-Convert and quantize a Hugging Face model:
+Convert and quantise a Hugging Face model:
 
 ```bash
 # 4-bit quantization (recommended)
@@ -118,7 +114,7 @@ let model = try await LLMModelFactory.shared.loadContainer(
 
 ## Pre-Quantized Models
 
-Many models are already quantized on Hugging Face:
+Many models on Hugging Face are already quantised:
 
 ```swift
 // Pre-quantized models from mlx-community
@@ -129,11 +125,11 @@ let models = [
 ]
 ```
 
-Search Hugging Face for "mlx-community" to find pre-quantized models.
+Search Hugging Face for "mlx-community" to find more.
 
 ## Testing Quantized Models
 
-Always test quantized models before deployment:
+Test quantised models before deployment:
 
 ```swift
 @Observable

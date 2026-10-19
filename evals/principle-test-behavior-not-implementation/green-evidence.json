@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-dUt-2026-10-13T20:41:14",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-test-behavior-not-implementation"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "2b5238ca7442f0ccfaaa52ae5f90fc3ff9acdcd0ddabf16e19c19da282f33532",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the cleanup\u2019s rationale. `undefined` and `[]` are valid observable contracts. The existing tests cover empty repositories, but cannot detect implementations that always return those values.\n\nCall the actual repository through its public interface with discriminating fixtures:\n\n| Case | Independent assertion |\n|---|---|\n| `find(existingKey)` with a stored record | Returns the expected record with literal field values |\n| `find(missingKey)` with other records stored | Returns `undefined` |\n| `listVisible(user)` with stored records all unauthorized for that user | Returns exactly `[]` |\n| `listVisible(user)` with both authorized and unauthorized records | Returns exactly the expected authorized records, with no unauthorized records |\n| Empty repository | Preserve the existing `undefined` and `[]` checks |\n\nThese cases detect unconditional-empty implementations, returning an unrelated record for a missing key, and authorization filtering that leaks records or excludes everything. Assert ordering only if the public contract specifies it; avoid assertions about internal helper calls.\n\nEvidence limit: the existing tests establish only empty-fixture behavior. This proposed coverage strengthens failure sensitivity, but no tests were run and no implementation was inspected.",
+        "tokenUsage": {
+          "prompt": 21927,
+          "completion": 236,
+          "cached": 19072,
+          "total": 22163,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Empty and absent outcomes are real contracts"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Test through the mail service\u2019s public interface, with a recording fake or mock at the transport boundary.\n\n- **Successful order:** Use order 42 with a known buyer address. Assert exactly one outbound message, addressed to that buyer, with the literal subject `\"Receipt 42\"`. Do not derive the expected subject with `format()`.\n- **Declined order:** Use a populated order with a buyer address and a declined outcome. Assert zero outbound messages.\n\nRemove assertions about how often `format()` or `authorize()` runs; their call sequence is not the stated contract.\n\nThese tests should fail if the service sends nothing on success, sends duplicates, uses the wrong recipient or subject, or sends for a declined order. The success case prevents an implementation that always sends nothing from passing.\n\nEvidence limit: a transport fake proves the service\u2019s outbound requests, not actual email delivery. No separate authorization behavior is specified, so these cases do not establish authorization correctness.",
+        "tokenUsage": {
+          "prompt": 21930,
+          "completion": 194,
+          "cached": 19072,
+          "total": 22124,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Test an observable effect rather than helper choreography"
+    }
+  ]
+}

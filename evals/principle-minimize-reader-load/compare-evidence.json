@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-6bK-2026-10-13T20:44:57",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-minimize-reader-load"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "75d44ef4af165b254da9f38d3190b602456c9b180da966c7e147cd96e1dd9d05",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 0,
+      "score": 0.7,
+      "response": {
+        "output": "Keep `BillingFacade`. Its idempotency handling, provider-error mapping, and protection against logging raw card data form a meaningful boundary. Inlining it would make the caller reason about payment details and safety rules. One caller and one implementation do not make that boundary redundant.\n\nConsider removing only the pass-through `OrderService.getOrder(id)`. As described, it adds a navigation step without hiding complexity. The smallest useful change is to have its caller use the repository directly and remove the redundant method\u2014not necessarily the whole service.\n\nThese are structural judgments from the supplied facts, not measured reader-load improvements. Before removing the forwarding method, verify that it has no framework hooks, transaction or authorization behavior, or required public contract. Preserve the payment guarantees unchanged.",
+        "tokenUsage": {
+          "prompt": 21718,
+          "completion": 153,
+          "cached": 19072,
+          "total": 21871,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": "Preserves BillingFacade\u2019s idempotency, error mapping, and privacy boundary regardless of caller count, and identifies only the forwarding lookup method for removal after contract checks. However, it does not evaluate state and ownership across the complete paths or assess understanding through trace steps and state the reader must retain. Calling the improvement unmeasured appropriately avoids fabricated evidence but does not satisfy those requirements.",
+      "grading_result": {
+        "pass": false,
+        "score": 0.7,
+        "reason": "Preserves BillingFacade\u2019s idempotency, error mapping, and privacy boundary regardless of caller count, and identifies only the forwarding lookup method for removal after contract checks. However, it does not evaluate state and ownership across the complete paths or assess understanding through trace steps and state the reader must retain. Calling the improvement unmeasured appropriately avoids fabricated evidence but does not satisfy those requirements."
+      },
+      "failure_reason": 1,
+      "case": "One implementation can hide a real boundary"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Inline only `OrderService.getOrder(id)`, provided it has no additional boundary responsibilities. It adds a pass-through hop: caller \u2192 service \u2192 repository becomes caller \u2192 repository, with the same input and result.\n\nKeep `BillingFacade`. It owns three meaningful guarantees: idempotency keys, provider-error mapping, and keeping raw card data out of logs. Removing it would require explicitly relocating all three; one caller and one implementation do not establish lower reader load.\n\nThe smallest change is to remove the redundant order forwarding hop while preserving the payment boundary.\n\nEvidence limits: the scenario supports this structural decision, but provides no code or runtime verification. Confirm the order path preserves results and failures. Any later payment refactor needs checks for overlapping requests, idempotency, error mapping, and log privacy. No reduction in mutable state or measured reading time is established.",
+        "tokenUsage": {
+          "prompt": 21927,
+          "completion": 174,
+          "cached": 19072,
+          "total": 22101,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "One implementation can hide a real boundary"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Keep the handler in one file initially. The immediate problem is shared mutable request state; moving functions into service classes does not fix that if the instances still share that state.\n\nUse a smaller design:\n\n- Resolve `selectedTenant` and `currentUser` per request and pass them explicitly to the functions that need them.\n- Keep `retryCount` local to the operation being retried, resetting it for each new operation.\n- Share only dependencies that are safe to use concurrently, such as an appropriately configured database pool.\n- Extract a module or class when it owns a coherent responsibility or invariant, rather than creating one class per function.\n\nVerify with a deterministic concurrency test: start requests for different tenants and users, pause one at an awaited dependency, then let the other proceed. Assert that each request\u2019s reads, writes and response use its own tenant and user. Force retries in one request and confirm that the other\u2019s retry budget is unaffected. Retain checks for existing success, failure and retry-limit behavior.\n\nThe supplied facts establish a concurrency hazard, but not an observed production incident. Without code or test results, this is a proposed fix and verification plan; the appropriate extraction boundaries and whether other shared state exists remain unverified.",
+        "tokenUsage": {
+          "prompt": 21698,
+          "completion": 248,
+          "cached": 19072,
+          "total": 21946,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Flat code still has hidden state"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Reject the class-per-function proposal: it adds indirections without fixing shared mutable request state.\n\nKeep the handler mostly flat, but move `selectedTenant`, `currentUser`, and `retryCount` into each request\u2019s scope. Pass needed values explicitly to helpers. Derive tenant and user from authenticated request information, and enforce tenant authorization before accessing tenant data. Keep retry progress local to the operation being retried. Any shared resources, such as a connection pool, should retain an explicit owner.\n\nExtract a boundary only when it hides a meaningful decision or owns an invariant\u2014for example, tenant authorization or retry policy.\n\nVerify the complete path:\n\n- **Before:** a reader must trace every module-level write and consider other requests changing the values.\n- **After:** a reader traces request inputs through authorization to the operation; request-specific values cannot be overwritten by another request.\n- Test overlapping requests with different users and tenants, deliberately interleaving execution. Confirm each operation uses its own authorized identity and tenant.\n- Exercise retries, exhausted retries, authorization failures, and cleanup. Confirm one request\u2019s failure cannot alter another\u2019s retry count or context.\n\nThe scenario establishes the shared-state risk, but provides no code or test results. This design is a recommendation; behavioral preservation and reduced tracing complexity still need verification against the implementation.",
+        "tokenUsage": {
+          "prompt": 21907,
+          "completion": 264,
+          "cached": 19072,
+          "total": 22171,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Flat code still has hidden state"
+    }
+  ]
+}

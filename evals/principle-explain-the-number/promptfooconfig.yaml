@@ -1,0 +1,62 @@
+description: "principle-explain-the-number behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A deterministic count needs provenance not a profile"
+    vars:
+      skill: file://../../src/principle/skills/principle-explain-the-number/SKILL.md
+      scenario: "A parser counted 74 SKILL.md files in a pinned checkout, excluding generated fixture folders. Someone demands five trials and a CPU profile before the count can be reported. Explain the defensible report."
+      rubric: "States unit, pinned revision, included/excluded scope and counting method; distinguishes deterministic inventory from noisy performance or causal claims; does not demand a runtime limiter or spread for the fixed file count; explains freshness or uncounted-scope uncertainty."
+  - description: "A speedup may be skipped work"
+    vars:
+      skill: file://../../src/principle/skills/principle-explain-the-number/SKILL.md
+      scenario: "A new importer reports 800 rows/second versus 400 before. Half its inputs now hit cache and failures are not counted. There was one run per version. The team wants to report a 2x processing improvement. Respond with the measurement plan and current conclusion."
+      rubric: "Declines the causal 2x improvement claim on current evidence; makes completed correct work/cache/error handling comparable; records environment, units, run count and spread across repetitions; seeks profile/counter evidence for limiting path rather than guessing from source; distinguishes component throughput from end-to-end benefit."
+  - description: "An evaluation result needs repetitions, not a profiler"
+    vars:
+      skill: file://../../src/principle/skills/principle-explain-the-number/SKILL.md
+      scenario: "A prompt change scored 9/10 on a ten-scenario agent evaluation versus 7/10 for the old prompt. Each version ran once, on one model, and the new run used a later model snapshot. One of the old prompt's failures was a provider timeout. A reviewer insists on a CPU profile of the agent before anything is reported; the author wants to announce that the new prompt makes agents 20% better. Give the defensible report and next step."
+      rubric: "Does not announce a general 20% improvement; makes conditions equivalent (same model snapshot) and treats the provider timeout as an error rather than a prompt failure; asks for repeated trials and reports run count and spread before claiming a difference; does not require a CPU profile or runtime limiter for this evaluation result; bounds any conclusion to these scenarios, trials and models."

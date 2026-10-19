@@ -1,7 +1,5 @@
 # Utility Functions
 
-Helper functions for class name composition and common patterns.
-
 ## Class Name Utility (cn)
 
 ```typescript
@@ -16,8 +14,8 @@ export function cn(...inputs: ClassValue[]) {
 
 ### Why cn()?
 
-- **clsx**: Conditionally construct className strings
-- **twMerge**: Intelligently merge Tailwind classes (later classes override earlier ones)
+- **clsx**: conditionally construct className strings
+- **twMerge**: merge Tailwind classes (later classes override earlier ones)
 
 ### Usage Examples
 
@@ -71,10 +69,9 @@ export const transition = "transition-colors duration-200";
 
 ## Installation
 
-Install these packages only when the project does not already provide `clsx`
-and `tailwind-merge`, and the requester asks for them or accepts the dependency.
-Do not add either package on your own initiative; plain string joining is the
-dependency-free equivalent.
+Install `clsx` and `tailwind-merge` only when the project lacks them and the
+requester asks for them or accepts the dependency. Never add either on your own
+initiative; plain string joining is the dependency-free equivalent.
 
 ```bash
 yarn add clsx tailwind-merge
@@ -82,14 +79,14 @@ yarn add clsx tailwind-merge
 pnpm add clsx tailwind-merge
 ```
 
-When you cannot add a dependency, join class strings with plain JavaScript, for
-example `[base, variantClasses, className].filter(Boolean).join(" ")`. Such a
-join does not resolve conflicts, so make sure the strings you join do not set
-the same property twice.
+Without the dependency, join class strings in plain JavaScript, such as
+`[base, variantClasses, className].filter(Boolean).join(" ")`. Such a join does
+not resolve conflicts, so ensure the joined strings never set the same property
+twice.
 
 ## TypeScript Support
 
-The `cn` function accepts:
+`cn` accepts:
 
 - Strings
 - Objects (conditional classes)

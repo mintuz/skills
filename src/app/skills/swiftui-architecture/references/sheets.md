@@ -1,6 +1,6 @@
 # Sheet Patterns
 
-SwiftUI sheet patterns that build on the AppRouter setup in `references/navigation-patterns.md`.
+Builds on the AppRouter setup in `references/navigation-patterns.md`.
 
 ## Sheet with Navigation
 

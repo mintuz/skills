@@ -1,0 +1,106 @@
+{
+  "stage": "green",
+  "eval_id": "eval-nqW-2026-10-13T20:41:40",
+  "command": [
+    "pnpm",
+    "test:skills",
+    "--",
+    "principle-type-system-discipline"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "5e25b11289edc1b69f974e5c3400172bcf770db9ee3779d675f2e10b50dfa5f2",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use distinct validated `UserId` and `InvoiceId` types at the risky API:\n\n```ts\nsettle(userId: UserId, invoiceId: InvoiceId)\n```\n\nThis targets the repeated swapped-ID incidents. Reject blanket branding: introduce distinctions only where they enforce meaningful invariants.\n\nKeep `sum(values: number[]): number`. It is already total, with `sum([]) === 0`; requiring `NonEmptyList` would unnecessarily exclude valid input.\n\nParse incoming JSON as `unknown` and validate it before constructing domain values. Derive types from an authoritative schema where available. Validate persisted data too, accounting for older schemas and mutations that could invalidate assumptions. Do not cast JSON into trusted types.\n\nVerify:\n\n- Swapped typed IDs fail compilation.\n- Malformed boundary inputs are rejected.\n- Valid settlement inputs retain intended behavior.\n- Empty-array sums still return `0`.\n\n**Evidence limits:** The scenario supports these recommendations, but provides no implementation, schema, or test results. Exact ID validation rules remain unspecified. Brands alone cannot detect swapped raw strings with identical formats or prove that an invoice belongs to a user; those require runtime relationship checks where applicable.",
+        "tokenUsage": {
+          "prompt": 21922,
+          "completion": 238,
+          "cached": 19072,
+          "total": 22160,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Semantic safety without universal branding"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use a discriminated union with required payloads:\n\n```ts\ntype Job =\n  | { status: \"pending\" }\n  | { status: \"success\"; result: Result }\n  | { status: \"failure\"; error: Error };\n```\n\nNext release adds `{ status: \"cancelled\" }`. Handle jobs with exhaustive switches and a `never` check so adding cancellation creates compiler errors at handlers that need updating.\n\nTreat persisted records as `unknown`. Parse them through a versioned runtime schema, deriving domain types from that schema where supported. For legacy records, accept only:\n\n- Pending: neither flag set; no result or error.\n- Success: `done: true`, `failed: false`, valid result, no error.\n- Failure: valid error, no result, with flags matching the documented legacy failure convention.\n\nThe scenario does not establish whether legacy failure required `done: true` or `done: false`; resolve that from the historical contract before defining migration. Reject or quarantine contradictory, incomplete, malformed, or unknown-version records rather than casting them to `Job`. Validate payload contents as well as presence.\n\nConstruct transitions by replacing the whole variant; prevent field mutation from breaking validated assumptions. Validate again at persistence boundaries. Define how older readers handle cancelled records before rollout.\n\nCheck:\n\n- **Runtime rejection:** contradictory flags, missing payloads, unexpected payloads, malformed payloads, unknown statuses and versions.\n- **Runtime behavior:** valid legacy migrations, serialization round trips, and permitted state transitions.\n- **Compile-time rejection:** success without a result, failure without an error, wrong payload combinations, and unhandled cancellation.\n\nThese are proposed checks, not verified results. Payload schemas, historical flag semantics, and cancellation transition rules were not supplied.",
+        "tokenUsage": {
+          "prompt": 21916,
+          "completion": 356,
+          "cached": 19072,
+          "total": 22272,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Exhaustive variants and persistence boundaries"
+    }
+  ]
+}

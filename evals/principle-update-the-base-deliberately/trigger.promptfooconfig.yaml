@@ -1,0 +1,35 @@
+description: "principle-update-the-base-deliberately activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "Start the payments fix from the latest main. My checkout has uncommitted work on another feature and this branch is a few days old."
+    assert:
+      - type: skill-used
+        value: principle-update-the-base-deliberately
+  - description: Excludes ordering units of a migration
+    vars:
+      request: "Order a migration across four serializers into bounded units, each with its own check and rollback."
+    assert:
+      - type: not-skill-used
+        value: principle-update-the-base-deliberately

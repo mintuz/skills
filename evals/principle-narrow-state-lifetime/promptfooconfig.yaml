@@ -1,0 +1,62 @@
+description: "principle-narrow-state-lifetime behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Flat code still has hidden state"
+    vars:
+      skill: file://../../src/principle/skills/principle-narrow-state-lifetime/SKILL.md
+      scenario: "A request handler is one flat file with mutable module-level selectedTenant, currentUser and retryCount. Concurrent requests can overwrite them. A proposal moves every function into its own service class to improve maintainability. Explain a smaller design and how to verify it."
+      rubric: "Shrinks request-specific mutable values to request-owned state or explicit inputs rather than merely adding classes; keeps genuinely shared resources (if any) under an explicit owner rather than moving them into request scope; checks overlapping requests with different tenants and retry paths; does not treat a flat file or shorter code as sufficient proof."
+  - description: "A reset hook does not shorten a lifetime"
+    vars:
+      skill: file://../../src/principle/skills/principle-narrow-state-lifetime/SKILL.md
+      scenario: "A long-lived ExportService instance sets this.currentJob at the start of export(job) and its helper methods buildRows(), upload() and notify() read this.currentJob. The same instance owns an S3 client reused across exports. Exports run one at a time today; a new requirement allows two concurrent exports. A teammate proposes adding a mutex around export() and clearing this.currentJob in a finally block. Recommend the change and its verification."
+      rubric: "Removes the currentJob field and passes the job (or values derived from it) to helpers as explicit arguments or locals, so per-export state lives only for that export; rejects the mutex and finally-reset as the primary fix because they keep state wider than its use and serialise exports the requirement wants concurrent; keeps the S3 client as a shared resource owned by the service; verifies two overlapping exports with different jobs and an export that fails followed by another."
+  - description: "Screen state should end with its operation"
+    vars:
+      skill: file://../../src/principle/skills/principle-narrow-state-lifetime/SKILL.md
+      scenario: "A SwiftUI view model held by the app for the whole session has var uploadProgress: Double?, var lastError: String? and var pendingFile: URL?, set during upload(file). After a failed upload, leaving and reopening the screen shows the old error and progress. The proposed fix resets all three fields in onAppear. Recommend the change and how to check it."
+      rubric: "Rejects lifecycle reset as the primary fix because the values still outlive the upload; scopes progress, error and file to the upload operation or the screen instance (for example an upload state value created per attempt and passed explicitly) so they end when that work ends; keeps genuinely session-wide data, if any, under an explicit owner; checks failed upload then reopen, two consecutive uploads, and leaving mid-upload."

@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-ZjC-2026-10-13T20:50:33",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-sequence-verifiable-units"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "8ff32d8f25d97b8483124050fe1740cd7d682385b6dcd6e182228e87b35aef9a",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Replace the plan with independently verifiable steps:\n\n1. Record the shared checkout\u2019s branch, commit, and working-tree status. Leave the colleague\u2019s UI changes untouched: no stash, reset, checkout, or rebase there.\n2. Create a separate worktree and migration branch from the approved starting commit. If trunk integration is required, do it on that isolated branch before implementation.\n3. Run baseline serializer tests in the isolated worktree. Record the commit and results; investigate failures before attributing any to the migration.\n4. Migrate one format. Run its focused tests and the serializer regression suite, inspect the diff for scope, and commit that verified unit.\n5. Repeat for each remaining format, keeping each change independently reviewable and revertible.\n6. Run the full relevant suite on the completed migration. Review the combined diff and confirm the original checkout\u2019s branch, commit, and UI changes remain unchanged.\n\n**Evidence limits:** This is a proposed sequence; no checkout or tests were inspected. Format independence is supplied, not verified. Passing existing tests establishes only the behavior they cover; compatibility claims require appropriate fixtures or contract checks. Rebasing onto trunk is not established as necessary by the supplied facts.",
+        "tokenUsage": {
+          "prompt": 21717,
+          "completion": 245,
+          "cached": 19072,
+          "total": 21962,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Dirty shared branch is not a rebase target"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Replace the proposed plan with this sequence:\n\n1. **Establish the baseline read-only.** Inspect the branch, commit, working-tree changes, and serializer contracts. Identify the colleague\u2019s UI changes; leave them untouched. Do not rebase, stash, or reset the shared checkout.\n2. **Isolate the migration.** Create a separate checkout and migration branch from a recorded, agreed commit. Updating to trunk is a separate scoped decision, not a prerequisite.\n3. **Verify the starting point.** Run the baseline serializer tests in the isolated checkout. Record results and diagnose failures before making migration changes.\n4. **Migrate one format.** Keep its producer, consumers, and fixtures together as one coherent contract change. Run decisive format-specific compatibility and regression checks. If they fail, diagnose or roll back that unit before advancing.\n5. **Repeat for the other two formats.** Each starts from the preceding verified state and has its own recorded checks and rollback boundary. Their independence permits any order; no mandatory commit stack is needed.\n6. **Verify the final integration.** Run the full serializer suite and relevant cross-format integration checks. Present baseline evidence before migration results, including any failing case before its correction.\n\nRollback happens only in the isolated migration checkout. Preserve the approved delivery policy.\n\n**Evidence limits:** This is a proposed sequence. No checkout, independence claim, test coverage, or test result has been verified. Baseline tests being available does not establish that they pass or adequately cover compatibility.",
+        "tokenUsage": {
+          "prompt": 21923,
+          "completion": 306,
+          "cached": 19072,
+          "total": 22229,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Dirty shared branch is not a rebase target"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use two reviewable commits:\n\n1. **Atomic protocol rename:** update the producer, consumer, and contract fixture together. These three files form one verifiable unit; splitting them would create invalid protocol states.\n2. **Obsolete helper deletion:** keep this independent cleanup in its own commit.\n\nProof order:\n\n- Establish the baseline checks.\n- Apply the complete rename, then run contract validation and the relevant producer\u2013consumer integration checks before committing.\n- Delete the helper, check for remaining references, and run the affected build/tests before committing.\n- Run required branch checks on the final combined state before advancing the shared branch. If checks require remote CI, use a review branch first.\n\nThe supplied facts establish the commit boundaries, but provide no execution evidence. Neither commit nor the final branch can yet be claimed green.",
+        "tokenUsage": {
+          "prompt": 21706,
+          "completion": 165,
+          "cached": 19072,
+          "total": 21871,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "A unit follows the invariant rather than file count"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use two coherent units:\n\n1. **Delete the obsolete helper independently.** From a recorded baseline, remove it and run relevant checks. Keep this as a reviewable commit; rollback is its revert.\n2. **Rename the wire field atomically.** Update the producer, consumer and contract fixture in one commit. These files form one protocol contract; single-file commits would break it. Run the accepted protocol checks before advancing. Roll back all three together.\n\nFirst inspect baseline health and unrelated changes, preserving dirty or shared work and using an isolated checkout if needed. No automatic rebase, stash or reset.\n\nPresent proof as: baseline \u2192 verified helper removal \u2192 isolated evidence that partial renames fail \u2192 complete rename passing \u2192 final cross-unit integration checks. Keep failing intermediate states out of the shared branch, and publish only verified green commits.\n\n**Evidence limits:** This is a proposed sequence based on the scenario. No repository inspection or checks were performed; baseline health, helper independence and final compatibility remain unverified.",
+        "tokenUsage": {
+          "prompt": 21912,
+          "completion": 204,
+          "cached": 19072,
+          "total": 22116,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "A unit follows the invariant rather than file count"
+    }
+  ]
+}

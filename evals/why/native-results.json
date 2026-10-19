@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "skill": "why",
+  "source_sha256": "024dc38a3f3d67af2d43bfde4409af2d603567d6d9d074976a5c5bdf71cb0020",
+  "scope": "Native project discovery and one representative read-only scenario per skill. This is not implementation, runtime, full regression or operational cold-replay evidence. No external action or file creation claimed by model. Manual review, not automated rubric score.",
+  "observed_contracts": "Local reviewed rationale sufficient; no forced source-host CLI or broad search; recorded rationale separated from present runtime guarantees.",
+  "runs": [
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "024dc38a3f3d67af2d43bfde4409af2d603567d6d9d074976a5c5bdf71cb0020",
+      "fixture": "/tmp/workflow-native/claude/.claude/skills/why/SKILL.md",
+      "loader_call": {
+        "name": "Skill",
+        "args": {
+          "skill": "why"
+        },
+        "id": "toolu_01ToDBXhBfVov67GYWF1A4CM"
+      },
+      "loader_result": {
+        "id": "toolu_01ToDBXhBfVov67GYWF1A4CM",
+        "is_error": null,
+        "content": "Launching skill: why"
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "why\n**Loaded from:** `/private/tmp/workflow-native/claude/.claude/skills/why`\n\n**Answer:** the reviewed message of commit 9b, which changed 5 to 3, says the upstream lease lasts 12 seconds and each retry can take 4 seconds. Three retries at 4 seconds is 12 seconds, so the count appears chosen to fit within the lease. The message states this rationale directly.\n\n**Inference, not recorded:** 3\u00d74=12 matches the lease exactly. The message doesn't say whether 4 seconds is a timeout or an observed figure. It also doesn't say whether \"3\" counts retries or total attempts.\n\n**Scope:** `retry.ts:7`, local commit 9b and its reviewed message. Forgejo is the source host, so I'd use the local commit and any Forgejo review link reachable read-only, and not `gh`. I'd do no broader search, since nothing contradicts the message.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/claude"
+    },
+    {
+      "host": "omp",
+      "model": [
+        "gpt-6-astra"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "024dc38a3f3d67af2d43bfde4409af2d603567d6d9d074976a5c5bdf71cb0020",
+      "fixture": "/tmp/workflow-native/omp/.agents/skills/why/SKILL.md",
+      "loader_call": {
+        "name": "read",
+        "args": {
+          "path": "skill://why"
+        },
+        "id": "call_e31efb8c8d874d1aa17184d56bebd9bd|fc_06a2b1e266e81043016acea05bb3e48191abb6e2c8dfc4a3ce"
+      },
+      "loader_result": {
+        "id": "call_e31efb8c8d874d1aa17184d56bebd9bd|fc_06a2b1e266e81043016acea05bb3e48191abb6e2c8dfc4a3ce",
+        "is_error": false
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "why\n\n**Loaded:** `/tmp/workflow-native/omp/.agents/skills/why/SKILL.md`\n\n**Supported rationale:** Commit `9b` reduced `retryCount` from 5 to 3 to fit the stated retry budget within the upstream\u2019s 12-second lease: three retries at up to four seconds each account for 12 seconds. `retry.ts:7` establishes the current value; the reviewed commit message establishes the recorded reason.\n\n**Investigation scope:** Inspect the current line and the locally available commit and reviewed message. That explicit rationale settles the narrow historical question. No `gh` tool, Forgejo API call or wider search is needed unless contradictory evidence or a material gap appears.\n\n**Authority limit:** The rationale does not prove that present end-to-end execution fits the lease. Initial attempts, backoff and other overhead are not specified. No benchmark or current timing guarantee follows from the commit message. The answer here relies on the supplied account, not an inspected commit.\n\n",
+      "raw_evidence_directory": "/tmp/workflow-native/omp"
+    }
+  ]
+}

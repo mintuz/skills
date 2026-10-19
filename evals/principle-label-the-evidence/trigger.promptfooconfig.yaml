@@ -1,0 +1,35 @@
+description: "principle-label-the-evidence activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "Write up my investigation findings for the handover: some things I observed in prod traces, some I'm inferring from reading code, one hypothesis I ruled out and one open question. Make each claim's status and evidence clear."
+    assert:
+      - type: skill-used
+        value: principle-label-the-evidence
+  - description: "Excludes a plain translation"
+    vars:
+      request: "Translate only this sentence into French: The green notebook is on the table."
+    assert:
+      - type: not-skill-used
+        value: principle-label-the-evidence

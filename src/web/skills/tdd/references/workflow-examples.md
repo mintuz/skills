@@ -140,45 +140,11 @@ const processPayment = (payment: Payment): Result<Receipt> => {
 };
 ```
 
-## The RED-GREEN-REFACTOR Cycle
-
-### RED - Write a Failing Test
-
-Write a test that describes the desired behavior. The test must fail because the behavior doesn't exist yet.
-
-**Rules:**
-- Start with the simplest behavior
-- Test ONE thing at a time
-- Focus on business behavior, not implementation
-- Use descriptive test names that document intent
-- Use factory functions for test data
-
-### GREEN - Minimal Implementation
-
-Write the **minimum** code to make the test pass. Nothing more.
-
-**Rules:**
-- Only enough code to pass the current test
-- Resist "just in case" logic
-- No speculative features
-- If writing more than needed, STOP and question why
-
-### REFACTOR - Assess and Improve
-
-With tests green, assess whether refactoring would add value.
-
-**Rules:**
-- Secure a reversible GREEN baseline FIRST
-- External APIs stay unchanged
-- All tests must still pass
-- Keep the refactor separate from the behavior change
-- Not all code needs refactoring - if clean, move on
-
 ## Refactoring Assessment
 
 ### When to Refactor
 
-After tests are green, assess whether refactoring would add value:
+With tests green, look for these signals:
 
 | Signal | Refactoring Action |
 | --- | --- |
@@ -191,19 +157,9 @@ After tests are green, assess whether refactoring would add value:
 
 ### When NOT to Refactor
 
-Not all code needs refactoring. If the code is already clean:
+If the code is already clean, move to the next test:
 
 - Clear function names ✓
 - No magic numbers ✓
 - Simple structure ✓
 - Self-documenting ✓
-
-Then move to the next test.
-
-### Refactoring Rules
-
-1. **Secure a reversible GREEN baseline FIRST** - Commit the green code when you are allowed to commit. When a commit is not allowed, keep the green state recoverable another way. Never refactor code you cannot restore
-2. **Keep tests green** - All tests must pass throughout
-3. **Preserve external API** - Don't change public interfaces
-4. **Keep the refactor separate** - A separate commit, or a separate reviewable step when you cannot commit
-5. **Small steps** - Refactor incrementally

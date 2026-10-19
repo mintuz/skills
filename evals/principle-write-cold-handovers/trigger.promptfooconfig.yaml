@@ -1,0 +1,35 @@
+description: "principle-write-cold-handovers activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Selects relevant guidance"
+    vars:
+      request: "I'm about to hand this bug over to another agent that won't see our chat. Here's my note: 'Tried the obvious fixes, still flaky, Sam's idea next, mostly done.' Can you make it something they can pick up cold?"
+    assert:
+      - type: skill-used
+        value: principle-write-cold-handovers
+  - description: "Excludes resuming from a handover"
+    vars:
+      request: "I'm picking up yesterday's work from this handover note: 'Branch feat/export at 7d1e2a0, CI green, PR #88 approved.' The user now wants #88 merged. What should I check before merging?"
+    assert:
+      - type: not-skill-used
+        value: principle-write-cold-handovers

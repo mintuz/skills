@@ -1,57 +1,30 @@
 # Query Selection
 
-**Most critical Testing Library skill: choosing the right query.**
-
 ## Priority Order
 
 Use queries in this order (accessibility-first):
 
-1. **`getByRole`** - Highest priority
-   - Queries by ARIA role + accessible name
-   - Mirrors screen reader experience
-   - Forces semantic HTML
-
-2. **`getByLabelText`** - Form fields
-   - Finds inputs by associated `<label>`
-   - Ensures accessible forms
-
-3. **`getByPlaceholderText`** - Fallback for inputs
-   - Only when label not present
-   - Placeholder shouldn't replace label
-
-4. **`getByText`** - Content with no useful role
-   - Paragraphs, spans, and plain `div` content users read
-   - Use `getByRole` instead when the element has a role that identifies it,
-     such as `heading`, `listitem`, or `cell`
-
-5. **`getByDisplayValue`** - Current form values
-   - Inputs with pre-filled values
-
-6. **`getByAltText`** - Images
-   - Ensures accessible images
-
-7. **`getByTitle`** - SVG titles, title attributes
-   - Rare, when other queries unavailable
-
-8. **`getByTestId`** - Last resort only
-   - When no other query works
-   - Not user-facing
+1. **`getByRole`** - highest priority. Matches ARIA role + accessible name, mirrors the screen reader experience, forces semantic HTML.
+2. **`getByLabelText`** - form fields. Finds inputs by their associated `<label>`; ensures accessible forms.
+3. **`getByPlaceholderText`** - input fallback, only when no label is present. A placeholder shouldn't replace a label.
+4. **`getByText`** - content with no useful role: paragraphs, spans, and plain `div` content users read. Use `getByRole` instead when a role identifies the element, such as `heading`, `listitem`, or `cell`.
+5. **`getByDisplayValue`** - current form values, such as pre-filled inputs.
+6. **`getByAltText`** - images; ensures accessible images.
+7. **`getByTitle`** - SVG titles, `title` attributes. Rare, when other queries are unavailable.
+8. **`getByTestId`** - last resort, when no other query works. Not user-facing.
 
 ## Query Variants
 
-Every query name combines a variant with a cardinality. The three variants are
-`getBy*`, `queryBy*`, and `findBy*`. Each has an all-elements form: `getAllBy*`,
-`queryAllBy*`, and `findAllBy*`, which return an array and, except for
-`queryAllBy*`, throw when nothing matches.
+Every query name combines a variant with a cardinality. The variants are `getBy*`, `queryBy*`, and `findBy*`. Each has an all-elements form (`getAllBy*`, `queryAllBy*`, `findAllBy*`) that returns an array and, except for `queryAllBy*`, throws when nothing matches.
 
-**`getBy*`** - Element must exist (throws if not found)
+**`getBy*`** - element must exist (throws if not found)
 ```typescript
 // ✅ Use when asserting element EXISTS
 const button = screen.getByRole('button', { name: /submit/i });
 expect(button).toBeDisabled();
 ```
 
-**`queryBy*`** - Returns null if not found
+**`queryBy*`** - returns null if not found
 ```typescript
 // ✅ Use when asserting element DOESN'T exist
 expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -60,7 +33,7 @@ expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 expect(() => screen.getByRole('dialog')).toThrow(); // Ugly!
 ```
 
-**`findBy*`** - Async, waits for element to appear
+**`findBy*`** - async, waits for the element to appear
 ```typescript
 // ✅ Use when element appears after async operation
 const message = await screen.findByText(/success/i);
@@ -68,48 +41,48 @@ const message = await screen.findByText(/success/i);
 
 ## Common Mistakes
 
-❌ **Using `container.querySelector` where a role query works**
+❌ **`container.querySelector` where a role query works**
 ```typescript
 const button = container.querySelector('.submit-button'); // DOM implementation detail
 ```
 
-✅ **CORRECT - Query by accessible role**
+✅ **Query by accessible role**
 ```typescript
 const button = screen.getByRole('button', { name: /submit/i }); // User-facing
 ```
 
 ---
 
-❌ **Using `getByTestId` when role available**
+❌ **`getByTestId` when a role is available**
 ```typescript
 screen.getByTestId('submit-button'); // Not how users find button
 ```
 
-✅ **CORRECT - Query by role**
+✅ **Query by role**
 ```typescript
 screen.getByRole('button', { name: /submit/i }); // How screen readers find it
 ```
 
 ---
 
-❌ **Not using accessible names**
+❌ **Role query without an accessible name**
 ```typescript
 screen.getByRole('button'); // Which button? Multiple on page!
 ```
 
-✅ **CORRECT - Specify accessible name**
+✅ **Specify the accessible name**
 ```typescript
 screen.getByRole('button', { name: /submit/i }); // Specific button
 ```
 
 ---
 
-❌ **Using getBy to assert non-existence**
+❌ **`getBy` to assert non-existence**
 ```typescript
 expect(() => screen.getByText(/error/i)).toThrow(); // Awkward
 ```
 
-✅ **CORRECT - Use queryBy**
+✅ **Use `queryBy`**
 ```typescript
 expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
 ```

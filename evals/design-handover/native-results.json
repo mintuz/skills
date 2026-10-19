@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "skill": "design-handover",
+  "source_sha256": "b1c06b8f0e6add13227bd1c81539a86e469ceddb65241b37a36de02536e45955",
+  "scope": "Native project discovery and one representative read-only scenario per skill. This is not implementation, runtime, full regression or operational cold-replay evidence. No external action or file creation claimed by model. Manual review, not automated rubric score.",
+  "observed_contracts": "Explicit invocation; stable GWT examples, U9 supersession, labelled visual types, build/fixture provenance and unverified matches; no implementation.",
+  "runs": [
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "b1c06b8f0e6add13227bd1c81539a86e469ceddb65241b37a36de02536e45955",
+      "fixture": "/tmp/workflow-native/claude/.claude/skills/design-handover/SKILL.md",
+      "loader_call": {
+        "name": "Skill",
+        "args": {
+          "skill": "design-handover"
+        },
+        "id": "toolu_01HTALNQh7znPXdNcTFfK6Bt"
+      },
+      "loader_result": {
+        "id": "toolu_01HTALNQh7znPXdNcTFfK6Bt",
+        "is_error": true,
+        "content": "<tool_use_error>Skill design-handover cannot be used with Skill tool due to disable-model-invocation. Ask the user to run /design-handover themselves \u2014 it cannot be invoked via the Skill tool. Do not replicate this skill's workflow by other means \u2014 it is reserved for explicit user invocation.</tool_use_error>"
+      },
+      "loader_status": "manual-policy-refusal",
+      "behavior_status": "not-run-manual-policy",
+      "response": "design-handover\n**Not loaded.** The Skill tool refused it with a `disable-model-invocation` error. It's reserved for you to run as `/design-handover`, and I'm not allowed to reproduce its workflow by other means. I haven't produced a package outline or state examples for the Work Object scenario. If you run `/design-handover` yourself, I can take it from there.",
+      "raw_evidence_directory": "/tmp/workflow-native/claude"
+    },
+    {
+      "host": "omp",
+      "model": [
+        "gpt-6-astra"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "b1c06b8f0e6add13227bd1c81539a86e469ceddb65241b37a36de02536e45955",
+      "fixture": "/tmp/workflow-native/omp/.agents/skills/design-handover/SKILL.md",
+      "loader_call": {
+        "name": "read",
+        "args": {
+          "path": "skill://design-handover"
+        },
+        "id": "call_f8e5c1af78ae4dbcab579a1ec0d2b851|fc_06a2b1e266e81043016acea05bb3e48191956a0590a5125678"
+      },
+      "loader_result": {
+        "id": "call_f8e5c1af78ae4dbcab579a1ec0d2b851|fc_06a2b1e266e81043016acea05bb3e48191956a0590a5125678",
+        "is_error": false
+      },
+      "loader_status": "loaded",
+      "behavior_status": "representative-contracts-observed",
+      "response": "design-handover\n\n**Loaded:** `/tmp/workflow-native/omp/.agents/skills/design-handover/SKILL.md`\n\n**Proposed destination:** `docs/handover.md`. No document or assets were written.\n\n### Package outline\n\n1. **Scope:** Work Object states: waiting, ready and accepted.\n2. **Authority:** Link design `D7` and recorded user ruling `U9`. Explicitly state that `U9` supersedes D7\u2019s green dot: use **orange in all three states**.\n3. **State examples:** Include stable IDs, Given/When/Then behaviour, source authority, labelled visuals and provenance.\n4. **Evidence gaps:** Record missing current app captures and any unverified visual matches.\n5. **Transfer checks:** Verify durable asset links, state coverage, visual correspondence and capture provenance.\n\n### State examples\n\n| ID | Given / When / Then | Paired visual and proof limit |\n|---|---|---|\n| `WO-WAITING` | **Given** a waiting Work Object, **when** it is displayed, **then** its state indicator is orange under `U9`. | `waiting-exploration.png` \u2014 **exploratory mockup**. Not runtime proof; correspondence with U9 is unverified. |\n| `WO-READY` | **Given** a ready Work Object, **when** it is displayed, **then** its state indicator is orange under `U9`. | `ready-d7.png` \u2014 **design export**. D7\u2019s green specification is superseded for colour; this export is not proof of the approved orange implementation. |\n| `WO-ACCEPTED` | **Given** an accepted Work Object, **when** it is displayed, **then** its state indicator is orange under `U9`. | `accepted-build42.png` \u2014 **running-app capture**, build `build42`, fixture `object7`. Actual app provenance does not establish that the image shows orange or matches the current build. |\n\nRecord the green-to-orange departure beside each example with authority `U9`. Do not invent transition triggers or additional state behaviour. Before final handover, inspect each image, verify its pairing and durable link, and record missing capture conditions. Packaging does not itself implement or runtime-verify the approved behaviour.",
+      "raw_evidence_directory": "/tmp/workflow-native/omp"
+    },
+    {
+      "host": "claude",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "reasoning_effort": "medium",
+      "source_sha256": "b1c06b8f0e6add13227bd1c81539a86e469ceddb65241b37a36de02536e45955",
+      "loader_status": "native-user-slash-expanded",
+      "loader_evidence": {
+        "slash_registered": true,
+        "session_id": "0d20accc-c925-4535-8889-739848246964",
+        "user_messages": [
+          "<command-message>design-handover</command-message>\n<command-name>/design-handover</command-name>\n<command-args>Use design-handover to package approved Work Object behavior. Scope has waiting, ready, accepted states. Design D7 uses a green dot; recorded user ruling U9 explicitly chooses orange in all states. Assets: waiting-exploration.png is a mockup, ready-d7.png is a design export, accepted-build42.png is an actual app capture from build42 using fixture object7. Destination is docs/handover.md. Produce the package outline and state examples.\nThis is a read-only scenario replay. Use only the supplied facts, do not inspect unrelated files or execute commands, do not delegate, and do not claim files were written or runtime was verified.</command-args>",
+          [
+            {
+              "type": "text",
+              "text": "Base directory for this skill: /private/tmp/workflow-native/claude-manual/.claude/skills/design-handover\n\n# Design handover\n\nUse only when explicitly invoked. Transfer existing accepted decisions into one linked document and its durable assets. A request for general polish or one screenshot correction stays with the appropriate visual workflow, such as `eyes`.\n\n1. **Resolve scope and authority.** Read the named designs, accepted behavior and recorded human rulings. Track supersession and explicit departures; neither a tool's design nor the newest ambiguous comment automatically wins. Ask only for unresolved product decisions or required facts that existing evidence cannot supply. Implementation, publication, unrelated launch repair and new behavior decisions are separate work.\n2. **Pair every in-scope state.** Assign a stable example ID and write Given/When/Then from the accepted behavior. Beside it, record:\n   - a source link/locator and its authority or supersession status;\n   - the matching visual link, labelled running-app capture, design export or exploratory mockup;\n   - revision/build, fixture/state and capture conditions when relevant;\n   - differences from the source design and the ruling authorizing each departure;\n   - explicit missing evidence or unresolved decisions when an honest pairing is unavailable.\n3. **Save for the next session.** Use the project's existing destination and asset conventions, normally Markdown. Keep assets durable and linked, not ephemeral references to this chat. Reuse available capture/export tools without requiring a particular design service, renderer or framework. An unavailable current app leaves a capture gap; an outdated screenshot remains labelled historical and a mockup cannot become runtime proof.\n4. **Check the transfer.** Account for every accepted state, verify each visual matches its example and provenance, check links, and retain unresolved decisions as gaps. Report the saved document and assets, accepted departures and remaining evidence gaps. Do not imply that packaging the handover implemented, approved or runtime-verified the behavior.\n\n\nARGUMENTS: Use design-handover to package approved Work Object behavior. Scope has waiting, ready, accepted states. Design D7 uses a green dot; recorded user ruling U9 explicitly chooses orange in all states. Assets: waiting-exploration.png is a mockup, ready-d7.png is a design export, accepted-build42.png is an actual app capture from build42 using fixture object7. Destination is docs/handover.md. Produce the package outline and state examples.\nThis is a read-only scenario replay. Use only the supplied facts, do not inspect unrelated files or execute commands, do not delegate, and do not claim files were written or runtime was verified."
+            }
+          ]
+        ]
+      },
+      "tool_calls": [],
+      "behavior_status": "representative-contracts-observed",
+      "response": "# Work Object handover: package outline and state examples\n\nThis is a draft in chat only. I haven't written `docs/handover.md`, copied any assets, or run or verified the app.\n\n## Package outline for `docs/handover.md`\n\n1. **Purpose and scope.** The document covers the Work Object states waiting, ready and accepted. It transfers existing decisions and does not implement or approve anything.\n2. **Authority and supersession.**\n   - D7 (design) uses a green dot.\n   - U9 (recorded user ruling) chooses **orange in all states**. U9 is an explicit departure from D7, so it governs.\n   - Any green dot shown in a D7-derived asset is superseded.\n3. **State examples.** WO-01 (waiting), WO-02 (ready) and WO-03 (accepted), detailed below.\n4. **Asset index.** Each asset gets a path, a type label, provenance and a status.\n5. **Departures from source design.** Each departure is listed with the ruling that authorizes it.\n6. **Gaps and unresolved items.**\n7. **Transfer checklist.** This covers states accounted for, visual-to-example match, link check and provenance.\n\n## Asset index\n\n| Asset | Label | Provenance | Status |\n|---|---|---|---|\n| `waiting-exploration.png` | Exploratory mockup | Not stated | Not runtime evidence |\n| `ready-d7.png` | Design export (D7) | D7 | Shows green per D7, which U9 supersedes for color |\n| `accepted-build42.png` | Running-app capture | build42, fixture `object7` | Runtime evidence for build42 only |\n\nThe assets should be stored under the project's existing asset convention. I wasn't given that path, so the links below are placeholders.\n\n## State examples\n\n### WO-01: Waiting\n- **Given/When/Then:** The accepted-behavior source wasn't supplied. Draft: *Given* a Work Object in the waiting state, *When* it is displayed, *Then* it shows the waiting indicator in **orange** (U9). The trigger and expected content need to come from the accepted-behavior source.\n- **Source:** U9 for color. The D7 locator for waiting is not supplied.\n- **Visual:** `waiting-exploration.png`, labelled **exploratory mockup**.\n- **Capture conditions:** Not applicable, since it is not a capture.\n- **Differences and departures:** The color is orange per U9. If D7 specifies green for this state, that is a departure authorized by U9. I can't confirm the mockup's actual color from the facts given.\n- **Gap:** There is no running-app capture or design export for waiting. The mockup can't serve as runtime proof.\n\n### WO-02: Ready\n- **Given/When/Then:** Draft: *Given* a Work Object in the ready state, *When* it is displayed, *Then* it shows the ready indicator in **orange** (U9). The trigger and details are not supplied.\n- **Source:** D7 as the design, with U9 superseding its color.\n- **Visual:** `ready-d7.png`, labelled **design export**.\n- **Differences and departures:** D7 uses a green dot. U9 chooses orange, so the export's color is superseded and the handover must say so next to the image. If the export is kept as-is, it needs a caption saying \"green dot superseded by U9; implement orange\".\n- **Gap:** There is no running-app capture of ready, and no orange design export.\n\n### WO-03: Accepted\n- **Given/When/Then:** Draft: *Given* a Work Object in the accepted state, *When* it is displayed, *Then* it shows the accepted indicator in **orange** (U9). The trigger and details are not supplied.\n- **Source:** U9 for color. The D7 locator for accepted is not supplied.\n- **Visual:** `accepted-build42.png`, labelled **running-app capture**.\n- **Capture conditions:** build42, fixture `object7`.\n- **Differences and departures:** I can't tell from the facts whether the capture shows orange. Before the handover claims it matches U9, someone needs to check the image.\n- **Gap:** The capture covers only this one fixture and build. It is historical if build42 is no longer current.\n\n## Gaps and unresolved items\n- The accepted-behavior source for each state is missing, so the Given/When/Then lines are drafts.\n- Waiting has no running-app capture.\n- Ready has no capture and no orange export. The only visual shows the superseded green.\n- The color shown in the accepted capture is unconfirmed.\n- The asset storage path and the D7 locators are not supplied.\n- The current app state is not verified, and I made no runtime claims.\n\n## Reported outcome\n- All three states are accounted for in the outline.\n- U9 (orange in all states) overrides D7's green dot.\n- Nothing has been saved, implemented or runtime-verified.",
+      "raw_evidence_directory": "/tmp/workflow-native/claude-manual"
+    }
+  ]
+}

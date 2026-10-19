@@ -47,7 +47,7 @@ it('should render modal in portal', () => {
 });
 ```
 
-**Testing Library queries the entire document,** so portals work automatically.
+Testing Library queries the entire document, so portals need no extra setup.
 
 ## Testing Suspense
 

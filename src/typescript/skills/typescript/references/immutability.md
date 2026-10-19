@@ -2,7 +2,7 @@
 
 ## No Data Mutation Across a Boundary
 
-Mutation of a value a caller owns causes bugs that are hard to track. Return a new value instead:
+Mutating a caller-owned value causes hard-to-trace bugs. Return a new value:
 
 ```typescript
 // Bad - mutates array
@@ -30,7 +30,7 @@ const updateUser = (user: User, email: string): User => {
 
 ## Use `readonly`
 
-Mark properties as readonly to prevent accidental mutation:
+Mark properties `readonly` to prevent accidental mutation:
 
 ```typescript
 type User = {
@@ -47,7 +47,7 @@ type DeepReadonly<T> = {
 
 ## Mutating Array Methods
 
-Never call a mutating array method on an array a caller owns, or on an array you have already returned. Use the alternative instead:
+Never call a mutating array method on a caller-owned or already-returned array. Use the alternative:
 
 | Forbidden   | Alternative                                 |
 | ----------- | ------------------------------------------- |
@@ -61,7 +61,7 @@ Never call a mutating array method on an array a caller owns, or on an array you
 
 ### Exception: a local accumulator
 
-The alternatives above copy the array. A function that builds a collection may create the array itself and `push` into it, then return it under a `readonly` type, because no caller can observe the mutation. Use this form for any loop over a large input: `[...accumulator, item]` inside a loop copies the accumulator on every step and makes the loop quadratic.
+The alternatives copy the array. For the local-accumulator exception (and why loops over large input need it), see SKILL.md "Building a collection in a hot path":
 
 ```typescript
 // Good - local accumulator, O(n), no caller-visible mutation
@@ -78,7 +78,7 @@ const activeIds = (rows: readonly Row[]): readonly string[] => {
 
 ### Options Objects Over Positional Parameters
 
-When a function has 3+ parameters, use an options object:
+With 3+ parameters, use an options object:
 
 ```typescript
 // Bad - positional parameters
@@ -116,7 +116,7 @@ const createUser = (options: CreateUserOptions) => {
 
 ### Boolean Parameters
 
-Avoid boolean flags - use descriptive options instead:
+Replace boolean flags with descriptive options:
 
 ```typescript
 // Bad - what does `true` mean?
@@ -166,7 +166,7 @@ if (result.success) {
 
 ### Early Returns
 
-Use early returns instead of nested conditionals:
+Use early returns, not nested conditionals:
 
 ```typescript
 // Bad - nested conditionals

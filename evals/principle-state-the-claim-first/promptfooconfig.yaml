@@ -1,0 +1,57 @@
+description: "principle-state-the-claim-first behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Turn a vague speed goal into a falsifiable claim before work"
+    vars:
+      skill: file://../../src/principle/skills/principle-state-the-claim-first/SKILL.md
+      scenario: "Product wants the catalogue search page 'snappier for big stores'. The engineering lead says: skip the planning, start rewriting the ranking query now and we will see if it is faster. Edits and benchmarks are authorised. Give the first steps."
+      rubric: "Before any code change or measurement, writes the specific claim it expects to report, in reportable words naming the metric, the workload or dataset, and a threshold or direction (for example p95 search response time on a named large-store catalogue); names the result that would falsify it; makes the planned before/after checks test that sentence rather than starting the rewrite first."
+  - description: "A fix starts with the claim the fix must make true"
+    vars:
+      skill: file://../../src/principle/skills/principle-state-the-claim-first/SKILL.md
+      scenario: "Users report that saved drafts sometimes vanish after the app is backgrounded. You suspect the autosave debounce. Edits are authorised. Before touching code, give the first steps."
+      rubric: "Before the first change, records the falsifiable done claim the fix must make true in observable terms (for example a draft typed and then backgrounded within the debounce window is present after relaunch) and the observation that would refute it; keeps the debounce suspicion as a hypothesis rather than the claim; plans the reproduction and checks against that claim."

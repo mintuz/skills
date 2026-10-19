@@ -1,22 +1,14 @@
 # CVA (Class Variance Authority) Components
 
-Type-safe variant components using Class Variance Authority for consistent component APIs.
-
 ## Before You Use CVA
 
-CVA is a dependency (`class-variance-authority`). Use it when the project
-already installs the package, or when the requester asks for CVA and accepts the
-dependency. Do not add the package on your own initiative: the exhaustive
-`Record<Variant, string>` map described in `SKILL.md` is the dependency-free
-equivalent, so use that map whenever the package is absent and nobody has chosen
-to add it. CVA still pays off, once it is available, when a component has
-several independent variant axes, such as `variant` plus `size`. Both
-mechanisms keep every utility name literal in the source, which is what Tailwind
-scans for.
+Choose CVA per [Component Variants](../SKILL.md#component-variants): it is a
+dependency (`class-variance-authority`), so without the package and without the
+requester choosing it, use the exhaustive `Record<Variant, string>` map instead.
 
 ## Pattern Overview
 
-CVA provides a type-safe way to define component variants with:
+CVA defines type-safe component variants with:
 - Base styles shared across all variants
 - Named variant groups (variant, size, state)
 - Default variants
@@ -92,9 +84,8 @@ export { Button, buttonVariants }
 
 ```
 
-To render the button as another element, add `@radix-ui/react-slot` and swap the
-element for `Slot`. Add that package only when the requester accepts it.
-
+To render the button as another element, add `@radix-ui/react-slot` (only when
+the requester accepts it) and swap the element for `Slot`.
 
 ## Component Architecture
 
@@ -105,6 +96,6 @@ Base styles → Variants → Sizes → States → Overrides
 ## Key Benefits
 
 - **Type Safety**: TypeScript knows valid variant combinations
-- **Consistency**: Centralized variant definitions
-- **Composability**: Easy to combine with other classes via `cn()`
-- **Maintainability**: Single source of truth for component styles
+- **Consistency**: centralised variant definitions
+- **Composability**: combines with other classes via `cn()`
+- **Maintainability**: single source of truth for component styles

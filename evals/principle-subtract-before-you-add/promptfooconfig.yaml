@@ -1,0 +1,61 @@
+description: "principle-subtract-before-you-add behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Existing mechanism can meet the new requirement"
+    vars:
+      skill: file://../../src/principle/skills/principle-subtract-before-you-add/SKILL.md
+      scenario: "A service already has a retry queue with bounded attempts and stable idempotency keys. A new feature needs the same retry behavior for another job. A proposal adds a second queue and deletes the existing timeout guard because it is defensive boilerplate. Explain the smallest safe change."
+      rubric: "Checks whether the existing queue can carry the new job before adding another mechanism; retains the timeout guard unless its behavior is proven redundant; maps retry/idempotency guarantees and validates the new job path; removes only demonstrated duplication or dead code within scope, without speculative redesign."
+  - description: "Removal requires behavior and reference evidence"
+    vars:
+      skill: file://../../src/principle/skills/principle-subtract-before-you-add/SKILL.md
+      scenario: "A settings parser has two validators: one validates untrusted imported JSON and one validates the internal representation after a mutable plugin hook. Tests cover both malformed JSON and hook corruption. A wrapper reference file only points to the current parser doc and has no unique content; one maintained index links to it. Which subtraction is justified?"
+      rubric: "Recognizes both validators protect distinct trust/invalidation points and keeps those behaviors unless equivalent protection is proven; removes the content-free wrapper only with index references repaired; retains negative-path tests; does not equate two validators with redundant validation or grow speculative checks."
+  - description: "Smallest coherent change beats smallest diff"
+    vars:
+      skill: file://../../src/principle/skills/principle-subtract-before-you-add/SKILL.md
+      scenario: "A bug fix can remove six lines but silently drops cancellation support, or change twenty lines preserving cancellation with a required regression test. The user wants the smallest correct fix and repository rules require that test. Choose and justify."
+      rubric: "Chooses the smallest change that keeps supported cancellation and the required test, not the raw minimum line count; explains that the shorter patch shifts cost by dropping a guarantee; avoids unrelated cleanup or new abstractions."

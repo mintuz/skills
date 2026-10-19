@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-QoK-2026-10-13T20:54:01",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-migrate-callers-then-delete-legacy-apis"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "9ef97758204fc0cad95dacafeb9e2fa0519f86e86898faef6dabf74a1c113739",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "**Next change:** Keep the old API available for the remaining supported release. Identify the deployment repository revision and migrate its nightly client generation to the new schema. Validate the generated client against the new API.\n\n**Deletion gate:** Delete the old API only after the client\u2019s support window ends and evidence confirms all supported callers and generation paths have migrated.\n\n**Evidence limits:** The repository search establishes only that the two known application callers migrated. Two green unit tests do not establish generated-client compatibility or deployment readiness. The unknown deployment revision leaves that dependency unresolved; \u201cinternal\u201d does not override the release policy.",
+        "tokenUsage": {
+          "prompt": 21746,
+          "completion": 122,
+          "cached": 19072,
+          "total": 21868,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Consumer coverage before deletion"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "**Next change:** Keep the old API compatible for the nightly generated client through its remaining supported release. Identify the deployment repository\u2019s client revision and owner, migrate its generation to the new schema, and verify the generated client builds and exercises the replacement, including supported failure behavior. Any temporary adapter must name that client, its removal condition, and a bounded lifetime.\n\n**Deletion gate:** Delete the old API once all supported consumers have migrated and the release compatibility obligation has ended\u2014or the responsible owner explicitly authorizes the compatibility break. Check generated artifacts, consumer builds, and remaining references as part of that verification.\n\n**Evidence limits:** The two migrated callers and two green unit tests do not establish complete consumer coverage or release compatibility. The nightly client is a known supported consumer; its unknown revision remains an explicit coverage gap. \u201cInternal\u201d does not override that obligation.",
+        "tokenUsage": {
+          "prompt": 21939,
+          "completion": 173,
+          "cached": 19072,
+          "total": 22112,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Consumer coverage before deletion"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Migrate all three callers together, then delete the legacy parser API and its unused helpers in the same change. No compatibility wrapper or staged deprecation is needed given the stated closed set of consumers.\n\nChecks:\n\n- Preserve the malformed-input rejection cases, exercising them through the replacement API. Confirm rejection semantics remain correct.\n- Remove the test that asserts the deleted helper\u2019s name; it tests an implementation detail that is intentionally gone.\n- Run replacement parser tests and integration tests covering all three callers, including valid inputs and malformed-input handling.\n- Build and type-check every target in the supplied graph, and search for remaining references to the legacy API and helper.\n\nEvidence limit: this is a proposal based on the supplied facts. No code, reference searches, builds, or tests were inspected or run.",
+        "tokenUsage": {
+          "prompt": 21737,
+          "completion": 161,
+          "cached": 19072,
+          "total": 21898,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Coordinated migration removes redundant paths"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Migrate all three callers and delete the old parser API in one coordinated change. No temporary adapter is needed.\n\n- Preserve malformed-input rejection tests, exercising that behavior through the replacement and its callers.\n- Remove the test that asserts the deleted helper\u2019s name; it protects an implementation detail.\n- Build all three consumers and run their relevant tests, covering valid input and rejection behavior.\n- Check any generated artifacts and remaining references before removing the legacy path.\n\nThe supplied build graph and explicit absence of external consumers or saved data establish the scope. These are proposed checks, not verified results; a clean text search alone would not prove the migration complete.",
+        "tokenUsage": {
+          "prompt": 21930,
+          "completion": 131,
+          "cached": 19072,
+          "total": 22061,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Coordinated migration removes redundant paths"
+    }
+  ]
+}

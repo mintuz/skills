@@ -1,0 +1,57 @@
+description: "principle-foundational-thinking behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Foundation is earned by the current capability"
+    vars:
+      skill: file://../../src/principle/skills/principle-foundational-thinking/SKILL.md
+      scenario: "Implement a bounded per-user draft cache. Existing CI and test infrastructure work. A proposed scaffold adds a generic event bus, a future multi-region adapter and new test runner. Two concurrent requests can update the same draft. Describe the design order."
+      rubric: "Starts with essential draft identity/state, access paths, lifetime and ownership; rejects the event bus, multi-region adapter and replacement test runner because no present requirement uses them; sequences a coherent testable increment rather than spreading special-case caller coordination."
+  - description: "Similar lines need not share an abstraction"
+    vars:
+      skill: file://../../src/principle/skills/principle-foundational-thinking/SKILL.md
+      scenario: "Three unrelated command handlers each perform three similar logging statements; their domain data models are drifting on the same Account identity. Decide what to consolidate first and what evidence completes the change."
+      rubric: "Converges shared Account identity/contract where the domain is common; permits simple duplicated logging without speculative abstraction; traces actual access/caller needs; checks behavior and edge cases rather than line count; removes only proven dead code within scope."

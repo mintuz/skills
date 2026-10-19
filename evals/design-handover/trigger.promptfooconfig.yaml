@@ -1,0 +1,58 @@
+description: "design-handover activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use design-handover for the following request. Use design-handover to package approved Work Object behavior. Scope has waiting, ready, accepted states. Design D7 uses a green dot; recorded user ruling U9 explicitly chooses orange in all states. Assets: waiting-exploration.png is a mockup, ready-d7.png is a design export, accepted-build42.png is an actual app capture from build42 using fixture object7. Destination is docs/handover.md. Produce the package outline and state examples."
+    assert:
+      -
+        type: "skill-used"
+        value: "design-handover"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Adjust the spacing in this screenshot. Do not create a handover."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply design-handover workflow or claim to have performed unavailable work; it stays within the requested task. It does not generate a handover package or automatically activate the manual-only skill."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

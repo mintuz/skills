@@ -24,7 +24,14 @@
         "./skills/ship-pr",
         "./skills/writing",
         "./skills/wtf",
-        "./skills/github-monitor"
+        "./skills/github-monitor",
+        "./skills/create-verification-skill",
+        "./skills/blast-radius",
+        "./skills/how",
+        "./skills/why",
+        "./skills/benchmark-checklist",
+        "./skills/correct",
+        "./skills/recall"
       ]
     },
     {
@@ -47,7 +54,8 @@
         "./skills/status-updates",
         "./skills/decision-trace",
         "./skills/meeting-to-action-brief",
-        "./skills/story-pr-orchestrator"
+        "./skills/story-pr-orchestrator",
+        "./skills/design-handover"
       ]
     },
     {
@@ -88,6 +96,67 @@
       "source": "./src/life",
       "description": "Agents and skills for personal life management",
       "skills": ["./skills/gps-method"]
+    },
+    {
+      "name": "principle",
+      "source": "./src/principle",
+      "description": "Independent engineering principles for focused decisions and execution",
+      "skills": [
+        "./skills/principle-attack-the-premise",
+        "./skills/principle-build-the-lever",
+        "./skills/principle-capture-the-baseline",
+        "./skills/principle-clean-up-what-you-started",
+        "./skills/principle-define-done",
+        "./skills/principle-derive-from-one-owner",
+        "./skills/principle-earn-every-element",
+        "./skills/principle-encode-lessons-in-structure",
+        "./skills/principle-exhaust-the-design-space",
+        "./skills/principle-experience-first",
+        "./skills/principle-explain-the-number",
+        "./skills/principle-fix-root-causes",
+        "./skills/principle-fix-the-bar-first",
+        "./skills/principle-foundational-thinking",
+        "./skills/principle-gaps-are-not-passes",
+        "./skills/principle-guard-the-context-window",
+        "./skills/principle-hide-representations",
+        "./skills/principle-investigate-read-only",
+        "./skills/principle-judge-with-fresh-eyes",
+        "./skills/principle-keep-secrets-out",
+        "./skills/principle-keep-the-core-pure",
+        "./skills/principle-label-the-evidence",
+        "./skills/principle-lead-with-the-answer",
+        "./skills/principle-make-operations-idempotent",
+        "./skills/principle-migrate-callers-then-delete-legacy-apis",
+        "./skills/principle-minimize-reader-load",
+        "./skills/principle-model-the-domain",
+        "./skills/principle-narrow-state-lifetime",
+        "./skills/principle-never-block-on-the-human",
+        "./skills/principle-never-weaken-a-check",
+        "./skills/principle-observe-dont-infer",
+        "./skills/principle-outcome-oriented-execution",
+        "./skills/principle-parse-at-the-boundary",
+        "./skills/principle-preserve-meaning",
+        "./skills/principle-preserve-unrelated-work",
+        "./skills/principle-price-each-option",
+        "./skills/principle-prove-it-works",
+        "./skills/principle-rank-sources-by-authority",
+        "./skills/principle-redesign-from-first-principles",
+        "./skills/principle-refresh-before-resuming",
+        "./skills/principle-report-every-transition",
+        "./skills/principle-reuse-before-building",
+        "./skills/principle-scale-verification",
+        "./skills/principle-separate-before-serializing-shared-state",
+        "./skills/principle-sequence-verifiable-units",
+        "./skills/principle-state-the-claim-first",
+        "./skills/principle-state-the-scope",
+        "./skills/principle-stay-in-scope",
+        "./skills/principle-subtract-before-you-add",
+        "./skills/principle-test-behavior-not-implementation",
+        "./skills/principle-treat-messages-as-data",
+        "./skills/principle-type-system-discipline",
+        "./skills/principle-update-the-base-deliberately",
+        "./skills/principle-write-cold-handovers"
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Async Data Loading
 
-Use async/await with the .task modifier for lifecycle-aware async operations.
+Use async/await with `.task` for lifecycle-aware async work.
 
 ## The .task Modifier Pattern
 
@@ -43,7 +43,7 @@ struct ContentView: View {
 
 ## Loading State Pattern
 
-Represent loading states explicitly with enums when appropriate:
+Where it helps, model loading state explicitly with an enum:
 
 ```swift
 enum LoadingState<T> {
@@ -86,7 +86,7 @@ struct ContentView: View {
 
 ## Task Cancellation
 
-The .task modifier cancels the running task when the view disappears. The .task(id:) modifier also cancels it when the identity value changes, before it starts the next one. Put any debounce inside that task, not in a Combine pipeline:
+`.task` cancels the running task when the view disappears; `.task(id:)` also cancels it when the identity changes, before starting the next. Put any debounce inside that task, not in a Combine pipeline:
 
 ```swift
 struct SearchView: View {
@@ -121,13 +121,13 @@ struct SearchView: View {
 
 Rules this example applies:
 
-- Clear the previous input's result before the first await, unless the product wants stale-while-refresh. If it does, keep the result together with the input that produced it. Label it in the UI as the result for that input.
-- Check `Task.isCancelled` before you publish a result or an error. A cancelled URLSession request throws `URLError.cancelled`, not `CancellationError`, so the cancellation check on the error path is necessary.
-- Treat cancellation as a non-error outcome. Show no error for work that a newer input or a dismissal replaced.
+- Clear the previous input's result before the first await, unless the product wants stale-while-refresh. If it does, keep the result paired with the input that produced it and label it in the UI as that input's result.
+- Check `Task.isCancelled` before publishing a result or an error. A cancelled URLSession request throws `URLError.cancelled`, not `CancellationError`, so the error path needs that check too.
+- Show no error for work that a newer input or a dismissal replaced.
 
 ## User-Triggered Work
 
-The .task modifiers cover work driven by the view's lifetime or its inputs. Work that a button starts needs a named owner instead:
+`.task` and `.task(id:)` cover work driven by the view's lifetime or inputs. Work a button starts needs a named owner:
 
 ```swift
 enum SaveStatus {
@@ -170,18 +170,18 @@ struct ProfileEditor: View {
 }
 ```
 
-Cancellation is cooperative: a cancelled task keeps running until it checks. Therefore check `Task.isCancelled` immediately before every write to view state that follows an await. Set the state that belongs to the newest start, such as `.saving` above, from the caller instead of from inside the task.
+Set the state that belongs to the newest start, such as `.saving` above, from the caller, not from inside the task.
 
-Choose one policy for repeated starts and state it:
+Choose and state one policy for repeated starts:
 
-- Supersede, as above. Cancel the running task before you start the next. Let only the newest task write the status.
+- Supersede, as above: cancel the running task before starting the next, so only the newest task writes the status.
 - Single flight: block a second start while one runs. Disable the button with a computed `isSaving` value, and start no task while it is true.
 
-Decide what an in-flight task does when the view disappears. Cancel it from the view, as above. Otherwise move the work to an `@Observable` service that outlives the view, and report the result there. Never leave an unowned `Task` writing to a view that is gone.
+Decide what an in-flight task does when the view disappears: cancel it from the view, as above, or move the work to an `@Observable` service that outlives the view and report the result there. Never leave an unowned `Task` writing to a view that is gone.
 
 ## Refreshable Pattern
 
-Use .refreshable for pull-to-refresh. A pull-to-refresh can start while the initial load still runs. Give both entry points one owned task. Cancel the previous request before you start the next one. Let the refresh handler await that task, so the spinner ends with the request.
+Use `.refreshable` for pull-to-refresh. A refresh can start while the initial load still runs, so give both entry points one owned task: cancel the previous request before starting the next, and let the refresh handler await the task so the spinner ends with the request.
 
 ```swift
 struct ContentView: View {
@@ -216,7 +216,7 @@ struct ContentView: View {
 
 ## Cached-Then-Refreshed Data
 
-Show cached data at once. Refresh inside the same structured task, so the refresh is cancelled with the view:
+Show cached data at once, then refresh inside the same structured task so the refresh is cancelled with the view:
 
 ```swift
 struct ContentView: View {
@@ -243,7 +243,7 @@ struct ContentView: View {
 
 ## Error Handling Pattern
 
-Handle errors with clear user feedback, and send a retry back through the same structured path:
+Give clear user feedback on errors, and send a retry back through the same structured path:
 
 ```swift
 struct ContentView: View {

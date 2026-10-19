@@ -1,0 +1,56 @@
+description: "principle-prove-it-works behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Match proof to artifact identity"
+    vars:
+      skill: file://../../src/principle/skills/principle-prove-it-works/SKILL.md
+      scenario: "A pull request changes a Save button. Build and unit tests pass on commit A. The screenshot is from yesterday on commit B; simulator automation tapped a button but never checked persisted data. The claimed result is that commit A saves a note and restores it after relaunch on a physical phone. You have no physical phone available. Give the verdict and next evidence."
+      rubric: "Does not use stale screenshot, build, unit tests or tap telemetry as proof of persistence or physical-device behavior; binds checks to commit A, installed build and relevant environment; proposes observing saved content after relaunch on available simulator while recording device coverage unavailable; leaves the physical-phone claim unverified."
+  - description: "Failed observation is one hypothesis"
+    vars:
+      skill: file://../../src/principle/skills/principle-prove-it-works/SKILL.md
+      scenario: "A service health check fails with connection refused. The process may have exited, the check may target the wrong port, or startup may still be underway. A log mtime advanced two seconds ago. A developer says that proves the service is alive and asks you to change the health check. Diagnose without edits; an existing process/port/status command is available."
+      rubric: "Checks actual process identity/liveness, listening port and startup state using existing commands; treats check-method failure and system failure as competing explanations; does not infer liveness from mtime or modify the health check without evidence; avoids inventing a new reusable script when the existing check suffices and reports remaining uncertainty."

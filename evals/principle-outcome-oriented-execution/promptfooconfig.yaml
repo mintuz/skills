@@ -1,0 +1,56 @@
+description: "principle-outcome-oriented-execution behavior comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        model_reasoning_effort: medium
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Evaluate every substantive requirement below using supplied facts. This is a read-only hypothetical: grade proposed actions, never demand executed work or fabricated evidence. Reward concrete decisions, not verbosity or echoed wording. Do not require exact phrasing or unrequested implementation. {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            model_reasoning_effort: medium
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Temporary breakage needs an isolated boundary"
+    vars:
+      skill: file://../../src/principle/skills/principle-outcome-oriented-execution/SKILL.md
+      scenario: "An approved endpoint migration has a target contract and tests. The current checkout is a shared integration branch used by another engineer and deploy automation. A rename would break the build for two intermediate steps. The developer suggests pushing both broken steps now and fixing tests at the end to avoid adapters. Give an execution plan."
+      rubric: "Keeps shared/deployed state usable and moves temporary breakage into authorized isolated work or chooses compatible verifiable slices; declares the scope and end of any breakage; retains focused checks while migrating; requires relevant static and runtime/contract checks before integration and does not add permanent compatibility machinery merely for convenience."
+  - description: "Finish the outcome with phase gates"
+    vars:
+      skill: file://../../src/principle/skills/principle-outcome-oriented-execution/SKILL.md
+      scenario: "An isolated migration replaces a private queue implementation. The accepted outcome preserves ordering, cancellation and retry limits. The initial compile test passes, but a mid-migration cancellation test fails. The final code is not yet run. Assess whether to stop or continue and define completion."
+      rubric: "Continues toward the accepted ordering/cancellation/retry outcome rather than declaring done at compilation; investigates the failed phase check before depending on it; distinguishes temporary isolated breakage from accepted final behavior; names relevant final checks and rollback without claiming unrun results."

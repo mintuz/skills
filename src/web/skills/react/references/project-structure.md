@@ -19,7 +19,7 @@ src/
 
 ## Feature-Based Module Pattern
 
-Each feature is a self-contained module with its own internal structure:
+Each feature is a self-contained module:
 
 ```
 src/features/payments/
@@ -32,7 +32,7 @@ src/features/payments/
 └── index.ts       # Public API (what this feature exports)
 ```
 
-**Only include folders that the feature needs.** A simple feature might only have `components/` and `api/`.
+**Include only the folders the feature needs.** A simple feature might have only `components/` and `api/`.
 
 ## Import Architecture
 
@@ -55,8 +55,6 @@ Enforce unidirectional code flow: **shared → features → app**
 │           (no feature imports)               │
 └─────────────────────────────────────────────┘
 ```
-
-**Key rule:** Features cannot import from other features. Compose features at the app level instead. Do not disable the boundary lint rule for one import. When two features need one component, move the component to `src/components/`. Pass its data in through props. The shared component does not import a feature API hook. The API module stays in the feature that owns the endpoint. Each feature that renders the shared component supplies that data itself: from its own API response, or through a feature-local component that calls the feature's own API hook. Alternatively, the app-level page composes the two features.
 
 ## ESLint Boundary Enforcement
 

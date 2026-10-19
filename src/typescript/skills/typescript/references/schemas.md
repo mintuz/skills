@@ -1,8 +1,6 @@
 # Schema-First Development
 
-## Core Principle
-
-At a trust boundary, define the schema before the type when a schema library is available. Schemas provide runtime validation, and types are derived from them:
+At a trust boundary with a schema library available, define the schema, then derive the type from it:
 
 ```typescript
 import { z } from "zod";
@@ -35,7 +33,7 @@ const parseUser = (data: unknown): User => {
 
 ### Schema REQUIRED
 
-Use schemas when data crosses trust boundaries or has validation rules:
+Use a schema when data crosses a trust boundary or has validation rules:
 
 | Scenario            | Example                        | Reason                           |
 | ------------------- | ------------------------------ | -------------------------------- |
@@ -67,7 +65,7 @@ const PaymentSchema = z.object({
 
 ### Schema OPTIONAL (Type is Fine)
 
-Use plain types for internal code where TypeScript provides sufficient safety:
+Use plain types where TypeScript alone gives sufficient safety:
 
 | Scenario           | Example                                 | Reason                       |
 | ------------------ | --------------------------------------- | ---------------------------- |
@@ -97,18 +95,9 @@ interface Repository<T> {
 }
 ```
 
-### Decision Framework
-
-Ask in order:
-
-1. Does data cross a trust boundary? → **Schema required**
-2. Does type have validation rules (format, constraints)? → **Schema required**
-3. Is this a shared contract between systems? → **Schema required**
-4. Pure internal type? → **Type is fine**
-
 ## When No Schema Library Is Available
 
-A frozen dependency set does not remove the boundary check. Do not add a dependency, and do not let unvalidated data through. Write a decoder that accepts `unknown` and reports a failure through the contract the caller expects. This example returns a Result:
+Example decoder for a frozen dependency set, reporting failure as a Result:
 
 ```typescript
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -129,13 +118,13 @@ const decodeUser = (value: unknown): Result<User, "invalid-user"> => {
 };
 ```
 
-Validate every field the source documents. Type an undocumented field as `unknown`, and state which fact is missing before the type can be narrowed.
+For each undocumented field typed `unknown`, state which fact is missing before the type can be narrowed.
 
 ## Test Data Factories
 
 ### Factory Functions with Overrides
 
-Create test data using factories that accept partial overrides:
+Build test data with factories that accept partial overrides:
 
 ```typescript
 const getMockUser = (overrides?: Partial<User>): User => {

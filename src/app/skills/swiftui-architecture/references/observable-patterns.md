@@ -1,7 +1,5 @@
 # Observable Pattern for Shared State
 
-The @Observable macro is the modern approach for shared state.
-
 ## When to Use @Observable
 
 - App-wide managers (authentication, settings, network)
@@ -26,7 +24,7 @@ class SettingsManager {
 
 ## Observable Services Pattern
 
-Keep business logic in @Observable services for testability. Let a service hold data only when more than one screen reads that data; a single screen keeps its own items, loading flag, and error in `@State`. Mark a service whose state a view reads with `@MainActor`, so its stored state is written on the main actor:
+Keep business logic in `@Observable` services for testability. A service holds data only when more than one screen reads it; a single screen keeps its own items, loading flag, and error in `@State`. Mark a service whose state a view reads `@MainActor` so its stored state is written on the main actor:
 
 ```swift
 @Observable
@@ -56,7 +54,7 @@ class ItemService {
 }
 ```
 
-Views stay thin and just coordinate:
+Views stay thin and coordinate:
 
 ```swift
 struct ItemListView: View {

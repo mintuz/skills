@@ -17,14 +17,16 @@ standing instruction that the fix serves (for example "get the app building"),
 authorises ordinary code and test edits; do not ask for that approval again. A
 symptom report, or a failure you observed yourself with no such instruction,
 authorises diagnosis only: report the cause, state the exact change you would
-make, and ask before you edit. When a fix is authorised, stop and ask again only
-when the proved fix needs a materially different, destructive, or externally
-visible action, such as deleting stored data or resetting a shared store.
+make, and ask before you edit (`principle-investigate-read-only`). When a fix is
+authorised, stop and ask again only when the proved fix needs a materially
+different, destructive, or externally visible action, such as deleting stored
+data or resetting a shared store (`principle-stay-in-scope`).
 
 ## Root-cause loop
 
 1. **Bound and reproduce** — Name the failing surface, expected state, exact
-   sequence, and requested terminal outcome. Reproduce before choosing a cause.
+   sequence, and requested terminal outcome. Reproduce before choosing a cause
+   (`principle-capture-the-baseline`).
    Capture the evidence that matches the failing surface: the build log for a
    build failure, runtime logs for a crash or wrong behaviour, and a screenshot
    only when the failure is visual. Do not launch the app or capture runtime
@@ -38,7 +40,7 @@ visible action, such as deleting stored data or resetting a shared store.
 2. **Prove the runtime identity** — When the failure occurs in a launched app,
    verify the selected scheme and configuration, built product, bundle
    identifier, installed app, launched process, and named UI surface before
-   blaming source. Map the expected surface to the exact source view and
+   blaming source (`principle-prove-it-works`). Map the expected surface to the exact source view and
    styling rule. Skip this step for a build failure.
 
    **Complete when:** the observed runtime is tied to the source under review, or
@@ -47,20 +49,22 @@ visible action, such as deleting stored data or resetting a shared store.
 3. **Trace the owner** — Follow the real entry point through state, lifecycle,
    storage, and dependencies to the narrowest shared cause. Search every caller
    of the shared function before changing it. Keep observations, hypotheses, and
-   inferences distinct; test competing hypotheses against the captured evidence.
+   inferences distinct; test competing hypotheses against the captured evidence
+   (`principle-label-the-evidence`).
 
    **Complete when:** one cause explains the evidence and every affected caller
    and lifecycle state is accounted for.
 
-4. **Fix once** — State the change with specifics: the file, the declaration,
-   and the values or calls that change. For diagnosis-only work, report the
-   cause and the proposed change, then stop. For an authorised fix, make the
-   smallest change at the shared owner. Do not rename, move, or restructure code
-   when a local change at that owner resolves the proved cause. Leave one
-   focused regression check for non-trivial logic; the check must fail on the
-   reproduced defect and cover data preservation when persistence is involved.
-   State whether the proved fix remains inside the supplied authorisation; stop
-   before any materially different or destructive action.
+4. **Fix once** — State the change with specifics: file, declaration, and the
+   values or calls that change. For diagnosis-only work, report the cause and
+   proposed change, then stop. For an authorised fix, make the smallest change
+   at the shared owner; do not rename, move, or restructure code when a local
+   change there resolves the proved cause (`principle-fix-root-causes`). For
+   non-trivial logic, leave one focused regression check that fails on the
+   reproduced defect and covers data preservation when persistence is involved
+   (`principle-test-behavior-not-implementation`). State whether the proved fix stays
+   inside the supplied authorisation; stop before any materially different or
+   destructive action.
 
    **Complete when:** for diagnosis-only work, the cause and the proposed change
    are reported; for an authorised fix, the change and its regression check
@@ -70,7 +74,7 @@ visible action, such as deleting stored data or resetting a shared store.
    Run the focused check, inspect fresh logs, compare the same visual surface when
    relevant, and exercise the lifecycle boundary such as backgrounding or
    relaunch. Report observed proof separately from any remaining gap. Do not
-   report a planned step as an observed result.
+   report a planned step as an observed result (`principle-gaps-are-not-passes`).
 
    **Complete when:** the original failure no longer reproduces, relevant logs are
    clean, persisted state survives the tested lifecycle, and any unproved live

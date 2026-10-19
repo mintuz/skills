@@ -5,100 +5,45 @@ description: WHEN writing or reviewing TypeScript, defining types/schemas, or bu
 
 # TypeScript Best Practices
 
-Production-grade TypeScript development with schema-first design, strict type safety, and immutable patterns.
+Schema-first design, strict type safety, and immutable patterns.
 
 ## Core Principles
 
-1. **Type Safety at All Boundaries** - Runtime validation (schemas) + compile-time safety (TypeScript)
-2. **Schema-First at Trust Boundaries** - Where data enters the system, define the schema before the type, and derive the type from the schema
-3. **Immutability at the boundary** - Never mutate a value a caller owns or a value you have already returned. Local mutation is allowed inside the function that created the value, if the value cannot escape before the function returns.
-4. **Explicit Types** - No implicit any, strict mode enabled
-5. **Behavior over implementation** - Focus on contracts and outcomes
+1. **Type safety at all boundaries**: runtime validation (schemas) plus compile-time safety (TypeScript) (`principle-parse-at-the-boundary`).
+2. **Schema-first at trust boundaries**: where data enters the system, define the schema first and derive the type from it (`principle-type-system-discipline`).
+3. **Immutability at the boundary**: never mutate a value a caller owns or a value you have already returned. Local mutation is allowed inside the function that created the value, if the value cannot escape before the function returns.
+4. **Explicit types**: no implicit `any`; strict mode enabled.
+5. **Behaviour over implementation**: focus on contracts and outcomes.
 
 ## Rules for Hard Cases
 
 ### No schema library is available
 
-A trust boundary still needs a runtime check. Do not add a dependency when the dependency set is frozen. Do not skip the check. Write a decoder that accepts `unknown`. Narrow each field with `typeof`, `Array.isArray`, or a type predicate. Report an invalid value through the failure path the function already contracts, such as a Result variant or a `null` return.
+A trust boundary still needs a runtime check. When the dependency set is frozen, add no dependency and do not skip the check. Write a decoder that accepts `unknown`. Narrow each field with `typeof`, `Array.isArray`, or a type predicate. Report an invalid value through the failure path the function already contracts, such as a Result variant or a `null` return (`principle-parse-at-the-boundary`).
 
 ### Building a collection in a hot path
 
-Create the accumulator inside the function. Append to it with `push`, or assign to it by key. Return it under a `readonly` type. Do not build a growing collection with `[...accumulator, item]` or `{ ...accumulator, [key]: value }` inside a loop. Each step copies an accumulator that keeps growing, so the loop becomes quadratic.
+Create the accumulator inside the function, append with `push` or assign by key, and return it under a `readonly` type. Do not build a growing collection with `[...accumulator, item]` or `{ ...accumulator, [key]: value }` inside a loop: each step copies the growing accumulator, so the loop becomes quadratic.
 
 ### External data that is not fully documented
 
-Validate every field the source documents. Type each undocumented part as `unknown`. Do not guess its field names. Then say in your answer what the validator does not check, and why. A reader must see how far the validation reaches without reading the code.
+Validate every field the source documents. Type each undocumented part as `unknown`; do not guess its field names. State in your answer what the validator does not check, and why, so a reader sees how far validation reaches without reading the code.
 
 ### An assertion the type system cannot avoid
 
-Never use `as` to state a fact you have not checked. Never assert a shape because a document, a contract, or an upstream promise describes it. Narrow a value you have just checked with a user-defined type predicate, or with one assertion placed immediately after the check. Name the checked condition, in the predicate name or in a comment on the assertion.
+Never use `as` to state a fact you have not checked, including a shape that a document, contract, or upstream promise describes. Narrow a value you have just checked with a user-defined type predicate, or with one assertion placed immediately after the check. Name the checked condition in the predicate name or in a comment on the assertion (`principle-type-system-discipline`, `principle-observe-dont-infer`).
 
-## Quick Reference
+## Reference Guides
 
-| Topic                                                                  | Guide                                                 |
-| ---------------------------------------------------------------------- | ----------------------------------------------------- |
-| Schema-first development, when to use schemas vs types, test factories | [schemas.md](references/schemas.md)                   |
-| Type vs interface, any vs unknown, assertions, strict mode             | [types-interfaces.md](references/types-interfaces.md) |
-| Immutability patterns, readonly, forbidden methods, error handling     | [immutability.md](references/immutability.md)         |
-| Branded types, utility types, code smells reference                    | [utilities.md](references/utilities.md)               |
-| Common TypeScript patterns with examples                               | [patterns.md](references/patterns.md)                 |
+| Guide                                                 | Read for                                                                                                                                           |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [schemas.md](references/schemas.md)                   | Schema-first patterns; when a schema is required vs optional; trust boundary identification; test data factories with schema validation; schema examples (API responses, business validation) |
+| [types-interfaces.md](references/types-interfaces.md) | Type vs interface; `any` vs `unknown`; type assertions; strict mode and tsconfig.json settings                                                     |
+| [immutability.md](references/immutability.md)         | Immutability patterns (spread operators); `readonly`; forbidden array methods; options objects vs positional parameters; boolean parameter anti-patterns; Result types; early returns |
+| [utilities.md](references/utilities.md)               | Branded types for domain concepts; built-in utility types (`Pick`, `Omit`, `Partial`, etc.); custom utility types; code smell tables               |
+| [patterns.md](references/patterns.md)                 | Worked examples: schema-first at trust boundaries; internal types without schemas; schema with test factory; Result type; branded types; immutable array operations; options object |
 
-## When to Use Each Guide
-
-### Schemas
-
-Use [schemas.md](references/schemas.md) when you need:
-
-- Schema-first development patterns
-- Decision framework: when schema is required vs optional
-- Trust boundary identification
-- Test data factory patterns with schema validation
-- Examples of schema usage (API responses, business validation)
-
-### Types and Interfaces
-
-Use [types-interfaces.md](references/types-interfaces.md) when you need:
-
-- Type vs interface guidance
-- The any vs unknown decision
-- Type assertion best practices
-- Strict mode configuration
-- tsconfig.json settings
-
-### Immutability
-
-Use [immutability.md](references/immutability.md) when you need:
-
-- Immutability patterns (spread operators)
-- Readonly modifiers
-- Forbidden array methods reference
-- Options objects vs positional parameters
-- Boolean parameter anti-patterns
-- Result types for error handling
-- Early return patterns
-
-### Utilities
-
-Use [utilities.md](references/utilities.md) when you need:
-
-- Branded types for domain concepts
-- Built-in utility types (Pick, Omit, Partial, etc.)
-- Custom utility types
-- Code smell reference tables
-
-### Patterns
-
-Use [patterns.md](references/patterns.md) when you need:
-
-- Schema-first examples at trust boundaries
-- Internal type examples without schemas
-- Schema with test factory patterns
-- Result type for error handling
-- Branded types for domain safety
-- Immutable array operations
-- Options object pattern
-
-## Quick Reference: Decision Trees
+## Decision Trees
 
 ### Should I use a schema?
 
@@ -143,7 +88,7 @@ Before committing TypeScript code, verify:
 - [ ] No `any` types (use `unknown` instead)
 - [ ] Runtime validation at all trust boundaries (API, user input, files), by schema, or by a hand-written decoder when no schema library is available
 - [ ] Where a schema library supplies the validator, the type is derived from the schema (for example `z.infer`) rather than declared a second time
-- [ ] Using `type` for data, `interface` only for behavior contracts
+- [ ] `type` for data, `interface` only for behaviour contracts
 - [ ] All data structures use `readonly` where appropriate
 - [ ] No mutation of caller-owned or already-returned values; any mutation stays inside the function that created the value
 - [ ] Functions with 3+ params use options objects
@@ -151,5 +96,5 @@ Before committing TypeScript code, verify:
 - [ ] Every operation that can fail reports the failure through its own contract (a Result variant, a `null` return, or a documented throw)
 - [ ] Early returns instead of nested conditionals
 - [ ] Test factories validate with schemas
-- [ ] Branded types for domain concepts that shouldn't mix
+- [ ] Branded types for domain concepts that shouldn't mix (`principle-type-system-discipline`)
 - [ ] Explicit return types on functions

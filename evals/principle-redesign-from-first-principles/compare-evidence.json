@@ -1,0 +1,196 @@
+{
+  "stage": "compare",
+  "eval_id": "eval-ygK-2026-10-13T20:48:51",
+  "command": [
+    "pnpm",
+    "eval:skills",
+    "--",
+    "principle-redesign-from-first-principles"
+  ],
+  "exit_code": 0,
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "skill_sha256": "f455e0290291c2af0b145a87d70ef2cc0c10a4b1085fc1f49de57580b506f86b",
+  "results": [
+    {
+      "test_idx": 0,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Recommend adding offline editing while preserving the audited encryption boundary and compatibility with old clients. Success means users can edit without a connection, retain changes across restarts, and reconnect without silent data loss or weakening confidentiality.\n\nExplore local persistence within the existing security model, queued synchronization, and explicit conflict handling. Change only the modules needed to achieve those outcomes. A full replacement has no demonstrated benefit here, and removing the encryption boundary would require a separate security justification.\n\nThe next reviewable step is a short design proposal covering the offline data flow, encryption responsibilities, old-client behavior, and failure cases: interrupted sync, concurrent edits, deletion conflicts, and recovery. Keep this analysis-only; make no implementation changes.\n\nEvidence limits: the supplied facts do not establish how encryption, storage, or synchronization currently work. Local storage feasibility, protocol compatibility, effort, and security properties remain unverified.",
+        "tokenUsage": {
+          "prompt": 21716,
+          "completion": 177,
+          "cached": 19072,
+          "total": 21893,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Design analysis does not authorize a rewrite"
+    },
+    {
+      "test_idx": 0,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Recommend a bounded evolution: users can edit notes offline and synchronize them when connectivity returns, while preserving the audited encryption boundary and compatibility with old clients.\n\nIf offline editing had always been required, the design would need durable local edits, explicit synchronization state, retry-safe operations, and a defined policy for concurrent edits. Compare those needs with the existing system and add the smallest coherent local persistence and synchronization capability. Keep data protection within the audited boundary; avoid protocol changes that old clients cannot safely interpret.\n\nReject the proposed wholesale replacement: removing the encryption boundary violates a constraint, and replacing every module is not justified by the outcome. The main tradeoffs are local storage exposure, synchronization complexity, and how users resolve conflicting edits.\n\nThe next reviewable step is an analysis-only design proposal mapping the current encryption and client contracts to an offline edit lifecycle, including affected types, validation, consumers, documentation, migration, rollback, and verification criteria. No implementation is authorized.\n\nEvidence limits: no code, encryption design, or client protocol was supplied or inspected. This is a candidate direction; feasibility, security, compatibility, and delivery remain unverified.",
+        "tokenUsage": {
+          "prompt": 21916,
+          "completion": 227,
+          "cached": 19072,
+          "total": 22143,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Design analysis does not authorize a rewrite"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 0,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use a shared appointment model with two explicit scheduling variants: **one-off** and **recurring**. Preserve the existing single-date API request as a valid way to create a one-off appointment.\n\nThe smallest coherent design is:\n\n- Keep common appointment details shared. Represent scheduling internally as either a single date or a recurrence rule with an anchor date and the timezone needed to interpret it.\n- Define the minimum recurrence semantics before implementation: supported patterns, ending conditions, and daylight-saving behavior. Avoid adding exceptions or per-occurrence editing unless required.\n- Normalize legacy requests into the one-off variant at the API boundary. Validate each variant independently and reject ambiguous requests containing conflicting schedule fields.\n- Update types, validators, UI summaries, API examples, and docs together so each consistently describes both variants. Preserve existing one-off behavior and supported client contracts.\n\nDeliver in two slices:\n\n1. **Establish compatibility.** Introduce the internal schedule variants and legacy-request normalization while keeping creation behavior one-off only. Prove that supported old requests, stored appointments, and relevant responses still behave correctly. Use a storage migration only if the actual persistence model requires one.\n2. **Enable minimal recurrence end to end.** Deliver one agreed recurrence pattern through creation, persistence, validation, scheduling behavior, and UI summaries, with matching examples and documentation. Test recurrence boundaries and timezone behavior alongside one-off regressions. Expand patterns later only when needed.\n\nEach slice should be independently deployable; recurrence should become available only when its complete path works.\n\n**Evidence limits:** The supplied facts establish that the single-date assumption spans several surfaces and that legacy creation compatibility is required. They do not establish the storage schema, recurrence requirements, response compatibility rules, or execution architecture. This is a proposed design and delivery boundary, not proof that a migration is necessary or that compatibility has been verified.",
+        "tokenUsage": {
+          "prompt": 21706,
+          "completion": 371,
+          "cached": 19072,
+          "total": 22077,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Integrate a foundational requirement coherently"
+    },
+    {
+      "test_idx": 1,
+      "prompt_idx": 1,
+      "success": 1,
+      "score": 1.0,
+      "response": {
+        "output": "Use an explicit appointment schedule with two variants: **one-off** (a single date) and **recurring** (a start, recurrence rule, time zone, and end condition). Keep shared appointment details outside the variants.\n\nPreserve these invariants:\n\n- Existing clients\u2019 single-date requests still create one-off appointments.\n- Each appointment has exactly one schedule variant; conflicting or incomplete fields are rejected.\n- Recurrence has defined behavior for time zones, daylight-saving transitions, and termination.\n- Existing clients receive a compatible representation. Do not expose recurring appointments as misleading single-date appointments; choose a versioned or capability-aware API boundary.\n\nThe smallest coherent evolution is to normalize legacy requests into the one-off variant at the API boundary and use the explicit schedule internally. This adds recurrence without maintaining contradictory single-date assumptions. It avoids a rewrite, though it requires coordinated changes across every affected consumer.\n\nDeliver in bounded slices:\n\n1. **Define the contract and compatibility checks.** Specify recurrence semantics, legacy request/response behavior, and examples of valid and invalid schedules. Confirm how old clients list or retrieve appointments once recurrence exists.\n2. **Introduce the schedule model with unchanged one-off behavior.** Update types, validation, persistence mapping, and API adapters together. Verify legacy creation and responses. Prefer an additive migration; retain a rollback path that preserves existing data.\n3. **Enable recurrence end to end.** Add recurring creation, occurrence calculation, and accurate UI summaries in one reviewable slice, with matching API examples and docs. Verify recurrence boundaries and agreed time-zone behavior before enabling it. Rollback can disable new recurring creation while preserving stored recurring appointments and their interpretation.\n\n**Evidence limits:** This is a design outline based solely on the scenario. No affected paths, API contracts, storage model, or tests were inspected. Recurrence semantics and old-client read behavior remain decisions to confirm; compatibility and delivery are not yet verified.",
+        "tokenUsage": {
+          "prompt": 21906,
+          "completion": 386,
+          "cached": 19072,
+          "total": 22292,
+          "numRequests": 1,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          },
+          "assertions": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            }
+          }
+        }
+      },
+      "error": null,
+      "grading_result": {
+        "pass": true,
+        "score": 1,
+        "reason": "All assertions passed"
+      },
+      "failure_reason": 0,
+      "case": "Integrate a foundational requirement coherently"
+    }
+  ]
+}

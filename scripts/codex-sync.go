@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -88,10 +89,15 @@ func main() {
 		fatal("Failed to read marketplace.json: %v", err)
 	}
 
+	notices, err := loadThirdPartyNotices(*marketplaceFile)
+	if err != nil {
+		fatal("Failed to read third-party notices: %v", err)
+	}
+
 	// Sync skills
 	stats := &SyncStats{}
 	for _, plugin := range marketplace.Plugins {
-		syncPlugin(plugin, absTargetDir, *verbose, *dryRun, *usePrefix, stats)
+		syncPlugin(plugin, absTargetDir, notices, *verbose, *dryRun, *usePrefix, stats)
 	}
 
 	// Print summary
@@ -112,7 +118,7 @@ func readMarketplace(path string) (*MarketplaceConfig, error) {
 	return &config, nil
 }
 
-func syncPlugin(plugin Plugin, targetDir string, verbose bool, dryRun bool, usePrefix bool, stats *SyncStats) {
+func syncPlugin(plugin Plugin, targetDir string, notices *noticeSet, verbose bool, dryRun bool, usePrefix bool, stats *SyncStats) {
 	if len(plugin.Skills) == 0 {
 		if verbose {
 			fmt.Printf("%s[SKIP]%s Plugin '%s' has no skills\n", colorYellow, colorReset, plugin.Name)
@@ -130,7 +136,7 @@ func syncPlugin(plugin Plugin, targetDir string, verbose bool, dryRun bool, useP
 		// e.g., "./src/core" + "/skills/" + "commit-messages" = "./src/core/skills/commit-messages"
 		actualSkillPath := filepath.Join(plugin.Source, "skills", skillName)
 
-		if err := syncSkill(plugin.Name, actualSkillPath, targetDir, verbose, dryRun, usePrefix, stats); err != nil {
+		if err := syncSkill(plugin.Name, actualSkillPath, targetDir, notices, verbose, dryRun, usePrefix, stats); err != nil {
 			fmt.Printf("%s[ERROR]%s Failed to sync %s: %v\n", colorRed, colorReset, skillPath, err)
 			stats.SkillsFailed++
 		} else {
@@ -139,7 +145,7 @@ func syncPlugin(plugin Plugin, targetDir string, verbose bool, dryRun bool, useP
 	}
 }
 
-func syncSkill(pluginName, skillPath, targetDir string, verbose bool, dryRun bool, usePrefix bool, stats *SyncStats) error {
+func syncSkill(pluginName, skillPath, targetDir string, notices *noticeSet, verbose bool, dryRun bool, usePrefix bool, stats *SyncStats) error {
 	// Extract skill name from path (e.g., "./skills/commit-messages" -> "commit-messages")
 	skillName := filepath.Base(skillPath)
 
@@ -175,7 +181,11 @@ func syncSkill(pluginName, skillPath, targetDir string, verbose bool, dryRun boo
 	}
 
 	if dryRun {
-		fmt.Printf("%s[DRY RUN]%s Would copy: %s\n", colorYellow, colorReset, codexSkillName)
+		notice := ""
+		if notices.includes(skillName) {
+			notice = " + THIRD_PARTY_NOTICES.md"
+		}
+		fmt.Printf("%s[DRY RUN]%s Would copy: %s%s\n", colorYellow, colorReset, codexSkillName, notice)
 		return nil
 	}
 
@@ -233,6 +243,18 @@ func syncSkill(pluginName, skillPath, targetDir string, verbose bool, dryRun boo
 
 	if err != nil {
 		return err
+	}
+
+	// Derived bundles carry the single upstream MIT notice. The per-skill
+	// LICENSE copies are not part of the source tree.
+	if notices.includes(skillName) {
+		if err := copyFile(notices.path, filepath.Join(dstDir, "THIRD_PARTY_NOTICES.md")); err != nil {
+			return fmt.Errorf("failed to copy THIRD_PARTY_NOTICES.md: %w", err)
+		}
+		fileCount++
+		if verbose {
+			fmt.Printf("    %s✓%s Copied: THIRD_PARTY_NOTICES.md\n", colorGreen, colorReset)
+		}
 	}
 
 	stats.FilesCreated += fileCount
@@ -299,6 +321,108 @@ func printSummary(stats *SyncStats, dryRun bool) {
 		fmt.Printf("You can now use these skills in Codex by typing $<skill-name>\n")
 		fmt.Printf("Example: $commit-messages or $react\n\n")
 	}
+}
+
+type noticeSet struct {
+	path   string
+	skills map[string]struct{}
+}
+
+func (n *noticeSet) includes(skill string) bool {
+	_, ok := n.skills[skill]
+	return ok
+}
+
+func loadThirdPartyNotices(marketplaceFile string) (*noticeSet, error) {
+	path, err := findThirdPartyNotices(marketplaceFile)
+	if err != nil {
+		return nil, err
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("read third-party notices: %w", err)
+	}
+	text := string(data)
+	for _, required := range []string{
+		"Copyright (c) 2026 Lauren Tan",
+		"Permission is hereby granted, free of charge",
+		"The above copyright notice and this permission notice shall be included",
+		`THE SOFTWARE IS PROVIDED "AS IS"`,
+	} {
+		if !strings.Contains(text, required) {
+			return nil, fmt.Errorf("%s is missing the upstream MIT notice", path)
+		}
+	}
+	skills, err := derivedSkillNames(text)
+	if err != nil {
+		return nil, err
+	}
+	return &noticeSet{path: path, skills: skills}, nil
+}
+
+func findThirdPartyNotices(marketplaceFile string) (string, error) {
+	absMarketplace, err := filepath.Abs(marketplaceFile)
+	if err != nil {
+		return "", err
+	}
+	candidates := []string{
+		filepath.Join(filepath.Dir(filepath.Dir(absMarketplace)), "THIRD_PARTY_NOTICES.md"),
+	}
+	if cwd, cwdErr := os.Getwd(); cwdErr == nil {
+		candidates = append(candidates, filepath.Join(cwd, "THIRD_PARTY_NOTICES.md"))
+	}
+	seen := map[string]struct{}{}
+	for _, candidate := range candidates {
+		if _, ok := seen[candidate]; ok {
+			continue
+		}
+		seen[candidate] = struct{}{}
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate, nil
+		}
+	}
+	return "", fmt.Errorf("THIRD_PARTY_NOTICES.md not found beside the marketplace or in the working directory")
+}
+
+func derivedSkillNames(text string) (map[string]struct{}, error) {
+	skills := map[string]struct{}{}
+	inSection := false
+	for _, line := range strings.Split(text, "\n") {
+		if strings.HasPrefix(line, "## ") {
+			if inSection {
+				break
+			}
+			if strings.TrimSpace(line) == "## Derived skills" {
+				inSection = true
+			}
+			continue
+		}
+		if !inSection {
+			continue
+		}
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			continue
+		}
+		if !strings.HasPrefix(trimmed, "- `") || !strings.HasSuffix(trimmed, "`") {
+			return nil, fmt.Errorf("unrecognized derived-skill entry: %s", trimmed)
+		}
+		name := strings.TrimSuffix(strings.TrimPrefix(trimmed, "- `"), "`")
+		if name == "" || strings.ContainsAny(name, "`/\\") {
+			return nil, fmt.Errorf("invalid derived-skill name: %s", trimmed)
+		}
+		if _, exists := skills[name]; exists {
+			return nil, fmt.Errorf("duplicate derived skill: %s", name)
+		}
+		skills[name] = struct{}{}
+	}
+	if !inSection {
+		return nil, fmt.Errorf("THIRD_PARTY_NOTICES.md is missing a Derived skills section")
+	}
+	if len(skills) == 0 {
+		return nil, fmt.Errorf("THIRD_PARTY_NOTICES.md lists no derived skills")
+	}
+	return skills, nil
 }
 
 func fatal(format string, args ...interface{}) {

@@ -1,0 +1,139 @@
+{
+  "skill": "principle-attack-the-premise",
+  "source_sha256": "ac7a00801afc493a9131c281ddee47135894a56839fe345ccea1d1bf139c9599",
+  "source_words": 214,
+  "red_fixture_sha256": "c87bd7536f772f8a403ad8155535ee17a1bbec9a353156693eb3bb1520c87ae3",
+  "trials_per_case_per_run": 1,
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "judge_model": "gpt-6-astra",
+  "judge_reasoning_effort": "medium",
+  "red_interpretation": "Valid behavioral RED: even distribution cannot reject pool saturation.",
+  "baseline_isolation": "Behavior workspace has no generated skill fixture; trigger uses trigger-workspace.",
+  "red": {
+    "id": "eval-Rk7-2026-10-13T20:30:27",
+    "log": "/tmp/principles-a-evidence/principle-attack-the-premise-red-db.json",
+    "cases": [
+      {
+        "case": "Even census does not exonerate a premise",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Question common ground before another patch",
+        "prompt": "with-skill",
+        "passed": false,
+        "score": 0.5,
+        "reason": "The output explicitly treats saturation as an unproven hypothesis and avoids unsupported changes. However, it does not compare pool waiting with a server or client bottleneck using bounded measurements. An even distribution across actors would not reject pool saturation, so it also fails to name a valid result that would reject the premise.",
+        "error": null
+      }
+    ]
+  },
+  "green": {
+    "id": "eval-jxi-2026-10-13T20:37:44",
+    "log": "/tmp/principles-a-evidence/principle-attack-the-premise-green.log",
+    "cases": [
+      {
+        "case": "Even census does not exonerate a premise",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Question common ground before another patch",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "compare": {
+    "id": "eval-iB6-2026-10-13T20:56:39",
+    "log": "/tmp/principles-a-evidence/principle-attack-the-premise-compare.log",
+    "cases": [
+      {
+        "case": "Even census does not exonerate a premise",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Question common ground before another patch",
+        "prompt": "baseline",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Even census does not exonerate a premise",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Question common ground before another patch",
+        "prompt": "with-skill",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "trigger": {
+    "id": "eval-W3K-2026-10-13T21:25:19",
+    "log": "/tmp/principles-a-evidence/principle-attack-the-premise-trigger.log",
+    "cases": [
+      {
+        "case": "Selects relevant guidance",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      },
+      {
+        "case": "Excludes a plain translation",
+        "prompt": "trigger",
+        "passed": true,
+        "score": 1.0,
+        "reason": "All assertions passed",
+        "error": null
+      }
+    ]
+  },
+  "unmet_gates": [
+    "Comparison does not demonstrate higher treatment pass count than no-skill baseline."
+  ],
+  "expected_case_counts": {
+    "red": 2,
+    "green": 2,
+    "compare": 4,
+    "trigger": 2
+  },
+  "invalid_prior_runs": [
+    {
+      "id": "eval-EZo-2026-10-13T20:28:17",
+      "kind": "provider error",
+      "detail": "Bundled Codex was too old for gpt-6-astra; not behavioral RED."
+    }
+  ],
+  "comparison": {
+    "baseline_passes": 2,
+    "treatment_passes": 2,
+    "case_count": 2
+  },
+  "prior_runs": {}
+}

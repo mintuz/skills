@@ -1,7 +1,5 @@
 # GPS Goal Template
 
-Use this template to document goals created with the GPS method.
-
 ## Template
 
 ```markdown

@@ -1,0 +1,31 @@
+{
+  "source_sha256": "10b407fabddafad839adfc86774dcac7d5e70d96545fd3ec88610c49dd75e457",
+  "hosts": {
+    "claude": {
+      "model_observed": [
+        "claude-sonnet-5-5"
+      ],
+      "effort_configured": "medium",
+      "native_loader_resolution_observed": true,
+      "skill_body_matches_frozen_source": true,
+      "direct_filesystem_fallback": false,
+      "core_behavior_review_passed": true
+    },
+    "omp": {
+      "model_observed": [
+        "gpt-6-astra"
+      ],
+      "effort_configured": "medium",
+      "native_loader_resolution_observed": true,
+      "skill_body_matches_frozen_source": true,
+      "direct_filesystem_fallback": false,
+      "core_behavior_review_passed": true
+    }
+  },
+  "limits": [
+    "Twelve skills share each fresh process context; this does not establish isolation between every skill.",
+    "Skills were explicitly named, so these are native invocation checks, not measurements of unprompted activation.",
+    "Core behavior was manually reviewed against the supplied scenario; this is separate from Promptfoo rubric scores.",
+    "Effort is explicitly configured to medium; native event streams do not independently expose all reasoning settings."
+  ]
+}

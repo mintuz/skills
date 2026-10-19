@@ -1,0 +1,57 @@
+description: "principle-keep-the-core-pure behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Extract the rule rather than growing the handler"
+    vars:
+      skill: file://../../src/principle/skills/principle-keep-the-core-pure/SKILL.md
+      scenario: "An Express refund webhook handler reads req.body, loads the order from Postgres, calls Date.now(), and inline decides refund eligibility: within 30 days, unless the item was digital and downloaded. It then calls Stripe and responds. Product adds a rule: subscription renewals are refundable within 7 days. The existing tests start the server with supertest and a seeded database. Implement the smallest change that can ship today, with tests."
+      rubric: "Moves the eligibility decision, including the new renewal rule, into a pure function with explicit inputs (order data, item type, download state, current time) and a returned decision; leaves the handler to parse, load, call the function and perform the Stripe and response effects; tests the day-boundary and item-type cases directly without the server, database or clock; does not add the new branch to the handler."
+  - description: "A framework hook should not own the domain decision"
+    vars:
+      skill: file://../../src/principle/skills/principle-keep-the-core-pure/SKILL.md
+      scenario: "In a NestJS app, a DiscountInterceptor reads the request user, the injected ConfigService and new Date(), then rewrites the response body's prices. Product adds: students get 15% off, except on sale items, and only from 09:00 store-local time. Existing interceptor tests build a full Nest testing module. Implement the smallest change, with tests."
+      rubric: "Moves the discount decision, including the student rule, into a framework-free pure function with explicit inputs (items with sale flags, student status, store-local time, configured rates) and a returned pricing result; leaves the interceptor to gather those inputs, call the function and rewrite the response; tests the 09:00 boundary, the sale-item exclusion and the student case directly without a Nest module or the real clock."

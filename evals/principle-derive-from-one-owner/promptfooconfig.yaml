@@ -1,0 +1,62 @@
+description: "principle-derive-from-one-owner behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "One decision owner beats plumbing"
+    vars:
+      skill: file://../../src/principle/skills/principle-derive-from-one-owner/SKILL.md
+      scenario: "Three callers recompute the same feature eligibility differently. A shared existing domain function already returns the correct decision, but a proposal threads five new flags through all layers. One caller, the internal preview build, intentionally also admits staff accounts. Recommend the focused change."
+      rubric: "Makes the existing eligibility function the single owner and passes its result only where needed; keeps the preview build's staff admission as an explicit, intentional difference at that caller rather than losing it or threading it as a flag through every layer; avoids new abstraction layers or flag plumbing; scopes the diff to the duplicated decision."
+  - description: "Drift is removed while an intentional difference stays explicit"
+    vars:
+      skill: file://../../src/principle/skills/principle-derive-from-one-owner/SKILL.md
+      scenario: "Three places decide whether a free trial has expired. The web app uses now > trialEnd, the mobile app uses now >= trialEnd, and billing uses now > trialEnd + 3 days because a documented grace period delays the first charge. Users see the upgrade wall on mobile one instant earlier than on web. A ticket asks to make all three consistent by switching everything to billing's rule. Recommend the change."
+      rubric: "Treats the web/mobile boundary difference as drift and gives trial expiry one owner that web and mobile both call; keeps billing's documented grace period as an intentional difference applied explicitly at billing on top of the owner's result, rather than imposing the grace period on web and mobile or erasing it from billing; does not leave three independent comparisons."
+  - description: "A ported copy is not an owner"
+    vars:
+      skill: file://../../src/principle/skills/principle-derive-from-one-owner/SKILL.md
+      scenario: "A TypeScript checkout client computes and stores the order total in the cart table so it can show it instantly. The Go payment service recomputes the total with its own tax and rounding rules before charging. Some orders show a one-cent mismatch between the displayed and charged amounts. Because the codebases cannot share code, a proposal ports the Go rounding function to TypeScript, adds shared test vectors, and adds a nightly job that flags orders whose two totals differ. Recommend the change."
+      rubric: "Makes the payment service the single owner of the payable total and has the client receive it (for example a quote from the service) before the customer confirms payment; rejects relying on a ported second copy of the rounding rule plus a nightly comparison job to keep two totals in step; stops storing an independently computed payable total in the cart table."

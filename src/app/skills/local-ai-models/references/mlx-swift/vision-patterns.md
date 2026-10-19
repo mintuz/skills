@@ -1,22 +1,8 @@
 # Vision Language Models (VLMs)
 
-Patterns for implementing Vision Language Models with MLX Swift to analyze and understand images.
-
-## What are VLMs?
-
-Vision Language Models combine image understanding with language generation. They can:
-
-- Describe image content
-- Answer questions about images
-- Extract information from images
-- Analyze visual scenes
-- Generate captions
-
-**Note:** VLMs require MLX Swift - not available in Foundation Models.
+VLMs combine image understanding with language generation: describe image content, answer questions about images, extract information, analyse visual scenes, and generate captions. VLMs require MLX Swift; Foundation Models has none.
 
 ## Pattern 1: Basic Image Analysis
-
-Analyze images with text prompts.
 
 ```swift
 import MLX
@@ -149,8 +135,6 @@ struct VisionView: View {
 
 ## Pattern 2: Streaming Vision Responses
 
-Stream VLM responses for better UX.
-
 ```swift
 @Observable
 class StreamingVisionViewModel {
@@ -195,8 +179,6 @@ class StreamingVisionViewModel {
 ```
 
 ## Pattern 3: Camera Integration
-
-Capture and analyze images from camera.
 
 ```swift
 import AVFoundation
@@ -290,8 +272,6 @@ class CameraVisionViewModel: NSObject, AVCapturePhotoCaptureDelegate {
 ```
 
 ## Pattern 4: Batch Image Analysis
-
-Analyze multiple images efficiently.
 
 ```swift
 @Observable
@@ -429,19 +409,15 @@ try await analyzeImage(prompt: prompt)
 
 ## Available VLM Models
 
-Recommended models for iOS:
-
 - `llava-1.5-7b-4bit` - Best balance of quality and performance
 - `paligemma-3b-4bit` - Smaller, faster option
 - `qwen2-vl-7b-4bit` - Good multilingual support
 
 ## Performance Tips
 
-1. **Image preprocessing**: Resize to reasonable dimensions
-2. **Model selection**: Use 4-bit quantized models
-3. **Batch processing**: Process multiple images sequentially
-4. **Memory management**: Unload model when not in use
-5. **UI feedback**: Show progress for long operations
+1. **Batch processing**: Process multiple images sequentially
+2. **Memory management**: Unload the model when not in use
+3. **UI feedback**: Show progress for long operations
 
 ## Next Steps
 

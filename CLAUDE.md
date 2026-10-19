@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Claude Code plugin marketplace containing seven plugins for software development and personal productivity workflows:
+Claude Code plugin marketplace containing eight plugins for software development and personal productivity workflows:
 
 - **core** – memory, commit hygiene, refactoring, prompt refinement, and branch review
 - **web** – CSS, React, Tailwind, testing, refactoring, and design practices
@@ -12,6 +12,7 @@ Claude Code plugin marketplace containing seven plugins for software development
 - **system-design** – Mermaid diagram generation from code
 - **product-management** – PRD creation, status updates, and task orchestration
 - **app** – Swift iOS testing, App Intent-first development, and SwiftUI architecture
+- **principle** – 24 independent `principle-*` engineering skills
 - **life** – personal life management with GPS method for goal achievement
 
 ## Plugin Architecture
@@ -22,41 +23,22 @@ Plugins extend Claude Code with three types of content:
 2. **Skills** - Knowledge bases that load into context (defined in `skills/*/SKILL.md`)
 3. **Commands** - Slash commands for quick actions (defined in `commands/*.md`)
 
-The marketplace registry (`.claude-plugin/marketplace.json`) indexes all plugins, while each plugin's manifest (`plugin.json`) defines metadata. Skills listed in marketplace.json become user-invocable (e.g., `/skill core:commit-messages`), while unlisted skills are only loaded by other skills or agents.
+The marketplace registry (`.claude-plugin/marketplace.json`) indexes all plugins, while each plugin's manifest (`plugin.json`) defines metadata. Discovery differs by harness: Claude registration lists skills, while Codex plugin manifests declare the skills directory. Update both `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`, and validate the target harness rather than assuming identical invocation syntax.
 
 ## Repository Structure
 
-```
-.claude-plugin/marketplace.json    # Marketplace registry (plugin metadata)
-src/
-  core/
-    .claude-plugin/plugin.json
-    agents/                        # compare-branch, refactor
-    skills/                        # commit-messages, learn, pr, writing, yagni
-  web/
-    .claude-plugin/plugin.json
-    skills/                        # css, frontend-testing, react, react-testing, refactoring, tdd, web-design
-  typescript/
-    .claude-plugin/plugin.json
-    skills/                        # typescript-best-practices
-  system-design/
-    .claude-plugin/plugin.json
-    skills/                        # mermaid-generator
-  product-management/
-    .claude-plugin/plugin.json
-  app/
-    .claude-plugin/plugin.json
-    skills/                        # app-intent-driven-development, swift-testing
+```text
+.claude-plugin/marketplace.json    # Claude registry with explicit skill paths
+.agents/plugins/marketplace.json  # Codex registry with local plugin sources
+src/<plugin>/
+  .claude-plugin/plugin.json
+  .codex-plugin/plugin.json
+  skills/<skill-name>/SKILL.md
+  agents/                         # Optional agent definitions
+  commands/                       # Optional host-specific commands
 ```
 
-Each plugin follows this structure:
-```
-src/[plugin-name]/
-  .claude-plugin/plugin.json       # Plugin manifest (name, version, description)
-  agents/                          # Agent definitions (*.md files with YAML frontmatter)
-  skills/[skill-name]/SKILL.md     # Knowledge bases
-  commands/                        # Slash commands (*.md files)
-```
+The eight plugin folders are `core`, `web`, `typescript`, `system-design`, `product-management`, `app`, `life` and `principle`. Keep portable skill instructions separate from host metadata.
 
 ## Agent Definition Format
 
@@ -123,15 +105,9 @@ Existing scenarios and assertions are the regression contract. Preserve them unl
 
 A skill change is complete only when the Promptfoo config records the new scenario and rubric, configuration validation passes, all treatment tests pass, and the comparison demonstrates the intended gain without regression.
 
-## Available Content Snapshot
+## Content inventory
 
-- **core:** agents `compare-branch`, `refactor`; skills `acceptance-review`, `babysit`, `commit-messages`, `gauntlet-loop`, `graph-engineering`, `learn`, `pr`, `pseudocode`, `reducer`, `ship-pr`, `writing`, `wtf`, `yagni`
-- **web:** skills `css`, `frontend-testing`, `react`, `xstate`, `react-testing`, `refactoring`, `tdd`, `web-design`, `tailwind`, `eyes`, `chatgpt-app-sdk`
-- **typescript:** skill `typescript-best-practices`
-- **system-design:** skill `mermaid-generator`
-- **product-management:** skills `status-updates`
-- **app:** skills `app-intent-driven-development`, `app-store-keyword-ops`, `app-store-scraper`, `asc-screenshots`, `debug`, `ios-localize-copy`, `local-ai-models`, `swift-testing`, `swiftui-architecture`, `xcode-dev-loop`
-- **life:** skill `gps-method`
+The canonical source is `src/<plugin>/skills/<skill-name>/SKILL.md`. Consult [README.md](README.md) and the marketplace registries for the current inventory. Principles live in the `principle` plugin, retaining `principle-*` directory and frontmatter names. Do not add a combined router or remove the prefix during packaging.
 
 ## Adding New Content
 
@@ -142,22 +118,15 @@ A skill change is complete only when the Promptfoo config records the new scenar
 **New Command:** Create `.md` in `src/[plugin]/commands/`
 
 **New Plugin:**
-1. Create `src/[plugin-name]/.claude-plugin/plugin.json` with name, version, description, author, repository, license, keywords
-2. Add entry to `.claude-plugin/marketplace.json`:
-   ```json
-   {
-     "name": "plugin-name",
-     "source": "./src/plugin-name",
-     "description": "...",
-     "skills": ["./skills/skill-name"]  // Optional, only for user-invocable skills
-   }
-   ```
-3. Create `agents/`, `skills/`, and/or `commands/` directories as needed
-4. Add `.mcp.json` if the plugin requires MCP servers
+
+1. Create `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` under `src/<plugin>/` with matching name/version and appropriate host fields. Codex declares `"skills": "./skills/"`.
+2. Register the plugin in both marketplaces. Claude uses `"source": "./src/<plugin>"` and explicit `skills` paths; Codex uses `"source": {"source": "local", "path": "./src/<plugin>"}` plus policy/category metadata. Follow an existing entry in each file.
+3. Add the needed skills, agents or commands. Add `.mcp.json` only when required.
+4. Validate discovery and packaging; matching Markdown alone does not prove every harness loads it.
 
 ## Version Bumping
 
-Increment `version` in the relevant `plugin.json` following semver when updating plugins.
+Bump both manifests for each affected plugin using semver; keep their versions aligned.
 
 ## MCP Server Integrations
 
@@ -171,7 +140,6 @@ These servers auto-load when the plugin is active.
 ## Skill Cross-References
 
 Skills can reference other skills as prerequisites. For example:
-- `web:tailwind` loads `web:css`, `web:react`, `typescript:skills`, and `web:web-design`
 - `app:swiftui-architecture` works alongside `app:swift-testing` and `app:app-intent-driven-development`
 
 When creating skills that build on others, include a "Prerequisites" section at the top.
