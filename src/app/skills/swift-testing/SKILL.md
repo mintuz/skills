@@ -13,7 +13,7 @@ description: WHEN writing, running, or diagnosing Swift Testing suites, includin
 - Assert one behaviour per test function; split a test that checks unrelated behaviours.
 - Mark the test function `async`/`throws` for async or throwing tests.
 - Swift Testing and XCTest run side by side in the same test target; a project that still holds XCTest tests is a supported end state.
-- When one change would be too large to review or bisect, convert an XCTest target in stages: give the staged order, one class or small batch per stage, and keep the target green between stages.
+- When one change would be too large to review or bisect, convert an XCTest target in stages: give the staged order, one class or small batch per stage, and keep the target green between stages (`principle-sequence-verifiable-units`).
 - Swift Testing covers unit and integration tests but has no UI-automation or performance-measurement API. Keep XCUITest tests and XCTest `measure` performance tests on XCTest.
 
 ## Example: Simple Test
@@ -77,18 +77,19 @@ Pass an error type to `#expect(throws:)` to assert that any error of that type i
 
 ## Reading Results Under xcodebuild
 
-- Swift Testing does not emit XCTest's `Test Case ... passed` lines. `Executed 0 tests, with 0 failures` is the empty XCTest summary and proves nothing about the Swift Testing run.
-- Read the verdict from the fresh result bundle. A pass requires the expected non-zero test count there, no failure or crash there, and a zero exit status. The `✔ Test run with N tests in M suites passed` console line corroborates that count; a filtered or `-quiet` log can omit it, so never treat its absence alone as the verdict.
-- Give every run a fresh `-resultBundlePath <bundle>`; scope it with `-only-testing` when one target or test matters; preserve the log. Read the bundle with `xcrun xcresulttool get test-results summary --path <bundle>`; crash reasons such as `Test crashed with signal abrt` may appear only there.
-- When a run reports zero tests, suspect the selection before the code: confirm `-only-testing` still names the current suite and test after any rename, and that the target belongs to the test plan.
+`app:xcode-dev-loop` owns reading xcodebuild results; keep these rules when you run Swift Testing:
+
+- `Executed 0 tests, with 0 failures` is the empty XCTest summary; it proves nothing about the Swift Testing run.
+- Give every run a fresh `-resultBundlePath <bundle>` and read the verdict there with `xcrun xcresulttool get test-results summary --path <bundle>`: a pass needs the expected non-zero test count, no failure or crash, and a zero exit status (`principle-prove-it-works`).
 - Take the expected test count from the target's tests or test plan, never from the run you are judging.
-- `The test runner hung before establishing connection` is an environmental fault: run `xcrun simctl shutdown all`, then retry once.
-- `test-without-building` runs the product and `.xctestrun` file an earlier build produced. When that product is the suspect, rerun with `xcodebuild test` so the build graph runs first. A load error names the missing library, not the cause; when a load failure survives the rebuild, inspect the framework's embedding and runpath settings as candidates.
+- A run that executed zero tests is not a pass, whatever its exit status (`principle-gaps-are-not-passes`). Suspect the selection first: confirm `-only-testing` still names the current suite and test after any rename, and that the target belongs to the test plan.
+- When `test-without-building` fails to load the test bundle, rerun with `xcodebuild test` so the build graph runs first. A load error names the missing library, not the cause.
+- When the test runner hangs before establishing connection, shut down only the pinned simulator (`xcrun simctl shutdown <udid>`), then retry once with a new result-bundle path (`principle-clean-up-what-you-started`).
 
 ## Parameterized and Parallel Tests
 
 - Put table cases in one `@Test(arguments:)` with immutable, `Sendable` arguments. When a case type's values do not identify failures clearly, give it a stable `CustomTestStringConvertible` description.
-- Tests and parameterized cases run in parallel by default. Create every mutable fixture inside the test invocation (e.g. an in-memory database container, its context, the object under test, its records); share only immutable case data.
+- Tests and parameterized cases run in parallel by default. Create every mutable fixture inside the test invocation (e.g. an in-memory database container, its context, the object under test, its records); share only immutable case data (`principle-separate-before-serializing-shared-state`).
 - Swift Testing does not isolate `static` properties, singletons, or other global state between tests; never reach a mutable fixture through one.
 - Use `.serialized` only when a dependency genuinely cannot be isolated; keep production concurrency unchanged.
-- Prove a flake fixed with repeated full-target runs under normal parallel execution, the expected case count, and clean fresh result bundles; one isolated pass is insufficient.
+- Prove a flake fixed with repeated full-target runs under normal parallel execution, the expected case count, and clean fresh result bundles; one isolated pass is insufficient (`principle-scale-verification`).

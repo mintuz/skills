@@ -5,47 +5,36 @@ description: WHEN changing production code under this codebase's working agreeme
 
 # YAGNI
 
-Finish the current task or spec with the minimum sufficient approach. Do not over-engineer or widen scope.
+Finish the current task or spec with the minimum sufficient approach. Do not over-engineer or widen scope. If you cannot prove a design is necessary, do not ship it (`principle-subtract-before-you-add`, `principle-foundational-thinking`).
 
-If you cannot prove a design is necessary, do not ship it. TDD is the one exception to "prove it first": write the failing test before the production code, because the test defines the behaviour the code owes. Restraint limits a test's size, never its existence.
+TDD is the one exception to "prove it first": write the failing test before the production code, because the test defines the behaviour the code owes. Restraint limits a test's size, never its existence.
 
 ## Workflow
 
-1. Read the requirement and the relevant code before changing anything; do not change code and then guess the intent. For a bug, find every caller of the code you plan to change. Put the fix where the accepted contract lives: when every caller shares that contract, fix the shared function once instead of guarding each caller.
-2. When the requirement is ambiguous or incomplete, ask. Name the facts you need and wait for them. Do not fill a missing requirement with your own assumption. You may name the options you see, but let the user choose, and plan no work that depends on an unconfirmed answer. Correct reasoning cannot fix a wrong premise.
-3. Produce a minimal plan before executing. The plan states:
-   - the goal;
-   - the non-goals, including what is explicitly out of scope;
-   - the acceptance criteria (the definition of done);
-   - what stays untouched.
-4. Default to one agent. Split off only independent subtasks, and only when splitting materially helps: parallel work multiplies the scope you must hold.
+1. Read the requirement and the relevant code before changing anything; never change code and then guess the intent. For a bug, find every caller of the code you plan to change; when every caller shares the accepted contract, fix the shared function once instead of guarding each caller (`principle-fix-root-causes`).
+2. When the requirement is ambiguous or incomplete, name the facts you need, ask for them, and plan no work that depends on an unconfirmed answer. You may name the options you see; the user chooses. Never fill a missing requirement with your own assumption (`principle-never-block-on-the-human`).
+3. Before executing, state a minimal plan: the goal; the non-goals, including what is explicitly out of scope; the acceptance criteria; and what stays untouched (`principle-define-done`).
+4. Default to one agent. Split off only independent subtasks, and only when splitting materially helps (`principle-guard-the-context-window`).
 
 ## Failure Modes
 
-Each ends in work larger than the requirement:
-
-1. You fixed the surface without understanding the intent.
-2. Instead of one clean root-cause fix, you piled on patches, compatibility layers, dual implementations, and copies.
-3. You over-designed for rare cases, making everyday maintenance expensive.
-4. You started from a wrong premise.
-5. You used search or guesswork where you should have read the code directly.
-6. You used "add tests" as cover to expand scope, add abstractions, or look thorough.
+Each ends in work larger than the requirement: fixing the surface without the intent; piling patches, compatibility layers, dual implementations, or copies on a problem one root-cause fix would solve; over-designing for rare cases; starting from a wrong premise; guessing or searching where you should have read the code directly; using "add tests" as cover to expand scope, add abstractions, or look thorough.
 
 ## Action Boundaries
 
-1. State the Workflow step 3 plan before executing; everything below depends on that explicit boundary. Wait for the user's agreement only where the requirement is ambiguous or a material choice is open.
-2. Get user confirmation before any irreversible operation. Losing uncommitted work counts as irreversible.
+1. State the Workflow step 3 plan before executing; everything below depends on that boundary. Wait for agreement only where the requirement is ambiguous or a material choice is open.
+2. Get user confirmation before any irreversible operation. Losing uncommitted work counts as irreversible (`principle-preserve-unrelated-work`).
 3. Execute these reversible operations without asking:
    - `git revert`, and branch switches that carry your changes across;
    - `git restore` **only** when the target has no uncommitted changes you would lose;
    - moving files into a backup directory inside the repository, once you have confirmed the destination path does not exist;
    - test runs, diffs, plan generation, and read-only analysis.
 4. Stop and rewrite a smaller plan when you catch yourself:
-   - adding abstractions, frameworks, or configuration layers the task does not need;
-   - designing ahead for possible future use;
+   - adding abstractions, frameworks, or configuration layers the task does not need (`principle-subtract-before-you-add`);
+   - designing ahead for possible future use (`principle-foundational-thinking`);
    - stacking constraints to satisfy existing constraints;
-   - touching many unrelated files;
-   - creating a second implementation to keep old logic alive.
+   - touching many unrelated files (`principle-preserve-unrelated-work`);
+   - creating a second implementation to keep old logic alive (`principle-migrate-callers-then-delete-legacy-apis`).
 5. A request for extra mechanism is not by itself an accepted requirement. When the user asks for work no accepted behaviour needs, leave it out of the plan, name it as a non-goal, and say why. Ask the user to raise it as a separate requirement if they still want it.
 
 ## Testing
@@ -71,7 +60,7 @@ Test code longer or more complex than the implementation signals overengineering
 
 ## Code Change Principles
 
-- Every change must leave tests, type checks, and static analysis passing, including any applicable strict mode such as TypeScript strict mode. Report any failure you cannot fix rather than working around it.
+- Every change must leave tests, type checks, and static analysis passing, including any applicable strict mode such as TypeScript strict mode. Report any failure you cannot fix rather than working around it (`principle-never-weaken-a-check`, `principle-gaps-are-not-passes`).
 - After every green, assess refactoring; refactor only when it adds value now.
 - Follow the codebase's existing patterns and conventions.
 - Keep changes small and incremental.
@@ -79,13 +68,12 @@ Test code longer or more complex than the implementation signals overengineering
 
 ## Documentation
 
-At the end of every significant change, ask: **"What do I wish I'd known at the start?"**
+At the end of every significant change, ask: **"What do I wish I'd known at the start?"** Correct CLAUDE.md and AGENTS.md when your change makes them wrong. `core:learn` owns the procedure for deciding whether to record an answer and how (`principle-encode-lessons-in-structure`). Whenever you write or propose a rule:
 
-Record the answer when it would save a future developer more than 30 minutes, prevent a class of bugs, or reveal something the code does not show: a non-obvious constraint, an architectural trade-off, a domain rule, an edge case, or a tool setup gotcha. Record nothing an existing rule already covers. Correct CLAUDE.md and AGENTS.md when your change makes them wrong.
-
-Write the reusable rule, not the incident that revealed it: the action and the condition that makes it necessary. When the change fixed a fault, write the rule so a reader can detect the fault and follow the approved repair. In a repository instruction file such as CLAUDE.md or AGENTS.md, amend the rule that already owns the subject if one exists; otherwise add one imperative sentence or bullet in the section that owns the subject, in that file's voice. Add a heading or code example only when a reader cannot apply the rule without it; for an architectural trade-off, name the rejected alternative instead.
-
-Decline a template, a Context/Issue/Solution breakdown, a retrospective, or a verification checklist in that file, however the user asks, with this reason: the instruction file carries the rule alone. Put your reasoning in your reply, not in the file. When you propose the text rather than apply it, say the files stay unchanged. `core:learn` sets out this procedure in full.
+- Write the reusable rule, not the incident that revealed it: the action and the condition that makes it necessary. For a fixed fault, write it so a reader can detect the fault and follow the approved repair.
+- Amend the rule that already owns the subject; otherwise add one imperative sentence or bullet in the section that owns it, in that file's voice. Add a heading or code example only when a reader cannot apply the rule without it.
+- Decline a template, a Context/Issue/Solution breakdown, a retrospective, or a verification checklist in the instruction file, however the user asks, with this reason: the instruction file carries the rule alone, and a reader can apply it without them. Put your reasoning in your reply, not in the file.
+- When you propose the text rather than apply it, say the files stay unchanged.
 
 ## Communication
 

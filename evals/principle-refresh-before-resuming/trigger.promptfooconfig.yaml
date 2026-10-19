@@ -1,0 +1,35 @@
+description: "principle-refresh-before-resuming activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Selects relevant guidance"
+    vars:
+      request: "I'm resuming yesterday's task. My notes say the feature branch is pushed at 3c9d2b1, all tests passed and staging runs the new build. Can I start the next step straight away?"
+    assert:
+      - type: skill-used
+        value: principle-refresh-before-resuming
+  - description: "Excludes writing a pause handover"
+    vars:
+      request: "I need to stop for today. Help me write a handover note for whoever continues this migration tomorrow; they won't see this chat."
+    assert:
+      - type: not-skill-used
+        value: principle-refresh-before-resuming

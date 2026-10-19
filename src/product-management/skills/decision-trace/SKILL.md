@@ -15,7 +15,7 @@ Rewrite the claimed decision as one or more exact behaviors without strengthenin
 
 ## 2. Classify the source record
 
-Read the relevant primary-source span from the first claim through its latest qualification, objection, resolution, or superseding statement. Quote only decisive words, with speaker, date, and precise locator. Label each non-quote as paraphrase or inference.
+Read the relevant primary-source span from the first claim through its latest qualification, objection, resolution, or superseding statement. Quote only decisive words, with speaker, date, and precise locator. Label each non-quote as paraphrase or inference (`principle-label-the-evidence`).
 
 Classify each claim:
 
@@ -26,7 +26,7 @@ Classify each claim:
 | `disagreement` | Incompatible positions remain unresolved |
 | `unknown` | Source, context, attribution, authority, or resolution is insufficient |
 
-Prefer a later explicit resolution for its stated scope; preserve the chronology. Rationale supports a classification but does not prove a decision; silence and missing records remain `unknown`.
+Prefer a later explicit resolution for its stated scope; preserve the chronology (`principle-rank-sources-by-authority`). Rationale supports a classification but does not prove a decision; silence and missing records remain `unknown`.
 
 Grade confidence `high`, `medium`, or `low` in the classification—not in the claimed decision—using source directness, attribution, and relevant-context completeness. Name every reason the grade is below `high`.
 
@@ -68,7 +68,7 @@ When no authoritative downstream requirement exists, report the missing handoff 
 
 ## 5. Return the trace
 
-Lead with the source classification, confidence, latest traced artifact, and cutoff. Then provide:
+Lead with the source classification, confidence, latest traced artifact, and cutoff (`principle-lead-with-the-answer`). Then provide:
 
 1. **Source record:** claim, classification, exact evidence, locator, and counterevidence.
 2. **Delivery lineage:** each artifact and the grade of every expected link.

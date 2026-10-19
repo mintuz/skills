@@ -1,0 +1,62 @@
+description: "principle-earn-every-element behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Expose only options a consumer needs"
+    vars:
+      skill: file://../../src/principle/skills/principle-earn-every-element/SKILL.md
+      scenario: "Design the options object for a new public upload(file, options) function in our storage library. Known consumer needs: callers must be able to cancel an upload, one consumer has asked for progress reporting, and all consumers rely on typed errors. Internally the implementation already has chunk size, worker count, retry strategy, buffer policy and hash algorithm settings. Propose the public options and how to check them."
+      rubric: "Exposes only options tied to a stated consumer need (cancellation, progress), each with its purpose; keeps internal tuning settings internal rather than exporting them as speculative options, or lists any as an open question without inventing a need; preserves typed errors; checks representative consumer calls, cancellation and failure."
+  - description: "Cut the panel before polishing it"
+    vars:
+      skill: file://../../src/principle/skills/principle-earn-every-element/SKILL.md
+      scenario: "Our podcast app's first release needs a Settings screen. Users have asked for two things: changing playback speed, and downloading episodes only on Wi-Fi. Design the screen, including its controls and visual polish."
+      rubric: "Each proposed control states the user need it serves; the screen contains the playback-speed and Wi-Fi-only-download controls, and any other control is cut, deferred or listed as an open question rather than added without a stated need; reaches that minimal set before spending effort on polish such as animations or custom styling."
+  - description: "A section needs a reader question"
+    vars:
+      skill: file://../../src/principle/skills/principle-earn-every-element/SKILL.md
+      scenario: "Write the README outline for an internal command-line tool used by three teammates. It has one command, sync-fixtures, which needs an AWS profile and copies test fixtures from S3 into the repo. Give the section headings and one line on each."
+      rubric: "Every section answers a question this reader has (for example what it does, prerequisites such as the AWS profile, how to run sync-fixtures, troubleshooting); omits boilerplate with no reader need here, such as badges, contributing guidelines, licence, roadmap, changelog or FAQ, rather than padding to a generic README template; each heading's line states its purpose."

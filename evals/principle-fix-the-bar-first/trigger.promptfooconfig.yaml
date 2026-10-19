@@ -1,0 +1,35 @@
+description: "principle-fix-the-bar-first activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Applies before comparing candidates"
+    vars:
+      request: "We need to pick one of three logging libraries for our service. Set up the comparison."
+    assert:
+      - type: skill-used
+        value: principle-fix-the-bar-first
+  - description: "Leaves result verification to its owner"
+    vars:
+      request: "I fixed the login redirect bug. Check that it actually works on the staging build."
+    assert:
+      - type: not-skill-used
+        value: principle-fix-the-bar-first

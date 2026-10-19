@@ -21,9 +21,9 @@ description: WHEN building or changing React components, pages, hooks, effects, 
 
 **Boundaries.** A feature imports from shared code only, never from another feature. Do not disable the boundary lint rule. When two features need one component, move it to `src/components/`. A shared component receives its data through props and does not import a feature API hook. The API module stays in the feature that owns the endpoint. Each feature that renders the shared component supplies that data itself: from its own API response, or through a feature-local component that calls the feature's own API hook. Alternatively, the app-level page composes the two features. See [project-structure.md](./references/project-structure.md).
 
-**URL state.** Filters, search terms, and page numbers live in the URL search params. The URL gives shareable links and browser back and forward history for free; a store does not. Read and update the params through the router, with no `useState` copy to keep in sync. See [state-management.md](./references/state-management.md).
+**URL state.** Filters, search terms, and page numbers live in the URL search params. The URL gives shareable links and browser back and forward history for free; a store does not. Read and update the params through the router, with no `useState` copy to keep in sync (`principle-derive-from-one-owner`). See [state-management.md](./references/state-management.md).
 
-**Dependencies.** The decision trees below name preferred libraries. Use a library only when the project already has it. When a task forbids new dependencies, use the built-in hook or browser API.
+**Dependencies.** The decision trees below name preferred libraries. Use a library only when the project already has it. When a task forbids new dependencies, use the built-in hook or browser API (`principle-reuse-before-building`).
 
 ## Guides
 
@@ -36,8 +36,9 @@ description: WHEN building or changing React components, pages, hooks, effects, 
 | [api-layer.md](./references/api-layer.md)                     | API client, request structure (schema, fetcher, hook), error handling (interceptors, boundaries), security (auth, sanitization, authorization) |
 | [performance.md](./references/performance.md)                 | Code splitting, state optimisation, children optimisation, styling performance, images                      |
 | [useeffect.md](./references/useeffect.md)                     | When not to use useEffect (most cases), when it fits (external systems), dependency arrays, alternatives    |
-| [testing-strategy.md](./references/testing-strategy.md)       | Testing pyramid (prioritise integration over unit), what to test per level (unit, integration, E2E), querying by accessible names |
 | [project-standards.md](./references/project-standards.md)     | Required tooling (ESLint, Prettier, TypeScript, Husky), pre-commit hooks                                    |
+
+Test code, including how to allocate tests across unit, integration, and E2E levels, belongs to the `react-testing` skill.
 
 ## Decision Trees
 

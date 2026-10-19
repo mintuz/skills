@@ -16,13 +16,13 @@ Decline these requests and name the correct tool instead of writing the test:
 - **End-to-end and cross-page journeys.** Cross-document navigation, redirects, real servers, downloads, extra browser tabs, and real cookie behaviour such as `HttpOnly`, `Secure`, and `SameSite` need Playwright or Cypress. jsdom does not navigate between documents, so a jsdom version of such a journey proves nothing. jsdom does hold a URL and a cookie jar, so a client-side URL or `document.cookie` check inside one document is still fair game.
 - **Visual appearance.** Computed layout, real fonts, screenshots, and visual-regression diffs need a real browser. jsdom does not lay out or paint, so it cannot report a size, a position, or a rendered colour.
 
-State the boundary, name the replacement tool, and offer the part of the request that fits in the DOM, if any.
+State the boundary, name the replacement tool, and offer the part of the request that fits in the DOM, if any (`principle-state-the-scope`).
 
 `@testing-library/dom` exports no `render`; mount the markup yourself. When a framework wrapper supplies `render`, this skill still governs the queries and the interactions; load `react-testing` for the React-specific parts.
 
 ## Core Philosophy
 
-**Test behaviour users see, not implementation details.** Implementation-coupled tests break on refactor (false negatives); shallow tests pass while bugs exist (false positives).
+**Test behaviour users see, not implementation details.** Implementation-coupled tests break on refactor, a false negative; shallow tests pass while bugs exist, a false positive (`principle-test-behavior-not-implementation`).
 
 The UI has two users: **end-users**, who interact through the DOM (clicks, typing, reading text), and **developers**, who refactor the implementation. Kent C. Dodds: "The more your tests resemble the way your software is used, the more confidence they can give you."
 

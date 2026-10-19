@@ -16,3 +16,15 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 Context size: 213 upstream words → 159 port words (whitespace count, including frontmatter).
 
 Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+
+## 19 October 2026: shared-decision rule from principle-laziness-protocol
+
+Change: added "For a shared decision, cover allowed and denied outcomes and each intentional caller difference." (moved from the retired `principle-laziness-protocol` step 5), a `Distinct from:` line and a `Done:` line. New case "A shared decision covers allowed, denied and caller differences" carries the laziness case "One decision owner beats plumbing" (scenario plus "and how to test it"; rubric limited to the testing half). Astra Medium subject and judge; no provider errors.
+
+| Stage | Result | Evidence |
+| --- | --- | --- |
+| red (pre-change HEAD skill, new case, `--repeat 3`) | 0/3 passed | eval-lIe-2026-10-19T11:12:59 |
+| green (edited skill, new case, `--repeat 3`) | 3/3 passed | eval-Qqv-2026-10-19T11:13:31 |
+| compare (`pnpm eval:skills`) | treatment 3/3; baseline 1/3 (failed the choreography case and the new case) | eval-MTN-2026-10-19T11:10:01 |
+
+Description unchanged, so the trigger suite was not rerun. The JSON evidence files above predate this change.

@@ -16,3 +16,15 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 Context size: 280 upstream words → 159 port words (whitespace count, including frontmatter).
 
 Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+
+## Narrowing, 19 October 2026
+
+Baseline inspection, dirty-state preservation and the no-automatic-rebase, stash or reset rule moved to `principle-update-the-base-deliberately`, which now carries the "dirty shared branch" serializer case. This suite replaces it with "A failed unit blocks the work that depends on it". The skill now requires each unit's check to pass, or its failure to be resolved or rolled back, before dependent work, and gains `Distinct from:` and `Done:` lines. Description adds "NOT base updates".
+
+| Stage | Result | Eval ID |
+| --- | --- | --- |
+| treatment | 1/2; failed-unit case missed a before-change check per format unit; 0 errors | eval-jdC-2026-10-19T10:57:05 |
+| treatment after fix (unit bracket made explicit) | 2/2; 0 errors | eval-nGt-2026-10-19T10:58:17 |
+| trigger (description changed) | 2/2; 0 errors | eval-NOL-2026-10-19T10:58:52 |
+
+Context size: 159 → 195 words (whitespace count, including frontmatter).

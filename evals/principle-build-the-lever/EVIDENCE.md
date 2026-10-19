@@ -9,3 +9,7 @@ These are instruction-quality scenarios, not executed product behavior. Trigger 
 Strict RED/gain limits remain in the JSON. The user accepted behavior-preserving ports with explicit evidence limits on 13 October 2026; that exception does not invent a failed pre-change test or a baseline gain.
 
 [Principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md) summarizes loader resolution, representative hypothetical behavior, and the two flagged trigger results. Most processes batched twelve explicitly named skills; final laziness replays used fresh single-skill processes.
+
+## Distinct-from line — 19 October 2026
+
+Added a `principle-reuse-before-building` reference to step 1 and a `Distinct from:` line; description unchanged, so the trigger suite was not rerun. `pnpm test:skills` eval-sCv-2026-10-19T11:00:56: treatment 2/2, 0 errors (Astra Medium, one trial per case).

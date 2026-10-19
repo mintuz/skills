@@ -11,7 +11,7 @@ description: WHEN working in TDD Red-Green-Refactor; NOT ad-hoc coding; write te
 
 This is non-negotiable: production code that adds or changes behaviour without a failing test demanding it is not TDD. Refactoring is the one exception: it changes structure while every test stays green, so it demands no new failing test.
 
-Only a test run is evidence. A compiling build, a rendering page, a type check, or a manual inspection does not prove behaviour. Code without a test run behind it is ad-hoc coding, however well it works. At every transition, report what you ran, the result, and why it counts.
+Only a test run is evidence. A compiling build, a rendering page, a type check, or a manual inspection does not prove behaviour. Code without a test run behind it is ad-hoc coding, however well it works. At every transition, report what you ran, the result, and why it counts (`principle-prove-it-works`).
 
 ## The Sacred Cycle: Red → Green → Refactor
 
@@ -28,11 +28,11 @@ Never duplicate an existing test.
 **Rules:**
 
 - An unexpected pass is a stop condition. Do not add or adapt the implementation. Inspect the production code and name the reason for the pass: the behaviour already exists, the test is ineffective, or your own production edit is already in the working tree. Strengthen an ineffective test and rerun it. Stop the slice when the behaviour already exists.
-- A pass caused by your own production edit is a false RED, not evidence. Reverse only your own edit, keep the test, and rerun it. Never revert, stash, or reset work you did not write.
+- A pass caused by your own production edit is a false RED, not evidence. Reverse only your own edit, keep the test, and rerun it. Never revert, stash, or reset work you did not write (`principle-preserve-unrelated-work`).
 - Run the narrowest scope that exercises the new test, then confirm the failure is the one you intended. A broad run buries that failure in unrelated output.
 - Start with the simplest behaviour.
 - Test ONE thing at a time. Write the next test only after the current one is green. Record the behaviours still to come as a list or as empty placeholders, never as further written tests.
-- Test business behaviour, not implementation.
+- Test business behaviour, not implementation (`principle-test-behavior-not-implementation`).
 - Name tests to document intent.
 - Use factory functions for test data.
 
@@ -42,22 +42,18 @@ Write the **minimum** code to make the current test pass. Nothing more.
 
 **Rules:**
 
-- No "just in case" logic or speculative features.
+- No "just in case" logic or speculative features (`principle-foundational-thinking`).
 - If you are writing more than the test needs, STOP and question why.
-- After focused GREEN, run the relevant existing regression suite as a distinct check before declaring the slice safe.
+- After focused GREEN, run the relevant existing regression suite as a distinct check before declaring the slice safe (`principle-scale-verification`).
 
 ### 3. REFACTOR - Assess and Improve
 
-After every GREEN, assess whether refactoring would add value: once per behaviour, not once after a batch.
+After every GREEN, assess whether refactoring would add value: once per behaviour, not once after a batch. If the code is already clean, move on. The `refactoring` skill owns the full procedure; these rules apply in every cycle:
 
-**Rules:**
-
-- Secure a reversible GREEN baseline before you refactor. Commit the green code when you are allowed to commit; when the user forbids a commit, keep the green state recoverable another way. Refactor in small reversible steps. Never refactor code you cannot restore.
-- Refactor only code that green tests already cover. To refactor untested code, first write a characterisation test: run the code, record the actual output it produces today, and rerun the test to green. Never change production code to satisfy that first expectation. Without that green characterisation test, leave the code alone, whether or not it looks trivial.
-- Keep external APIs unchanged.
-- Keep all tests passing.
+- Secure a reversible GREEN baseline first. Commit the green code when you are allowed to commit; when the user forbids a commit, keep the green state recoverable another way. Never refactor code you cannot restore (`principle-capture-the-baseline`).
+- Refactor only code that green tests already cover. For untested code, first write a characterisation test that records the output the code actually produces today and passes against unchanged production code. Without it, leave the code alone, whether or not it looks trivial.
+- Keep external APIs unchanged and all tests passing.
 - Keep the refactor separate from the behaviour change: a separate commit, or a separate reviewable step when you cannot commit.
-- If the code is already clean, move on.
 
 ## Guides
 
@@ -90,16 +86,6 @@ Does the test verify a business outcome?
 │   │   └── No → Refactor to use factories
 │   └── No → Rewrite to avoid internals
 └── No → Rewrite to focus on behavior
-```
-
-### Should I refactor?
-
-```
-Are all tests green?
-├── Yes → Is the code already clean?
-│   ├── Yes → Move on to the next test
-│   └── No → Secure a reversible baseline, then refactor
-└── No → Make tests pass first
 ```
 
 ### How much code should I write?

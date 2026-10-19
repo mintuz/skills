@@ -5,11 +5,11 @@ description: WHEN a user asks for a Gauntlet Loop or relentless improvement of a
 
 # Gauntlet Loop
 
-Give a lead agent the destination and bar. Let it choose the route. Keep building and judging separate.
+Give a lead agent the destination and bar. Let it choose the route. Keep building and judging separate (`principle-judge-with-fresh-eyes`).
 
 ## 1. Set the bar
 
-State the goal as an observable outcome, preserving the user's constraints. Use a supplied reference when it is inspectable; otherwise propose the strongest concrete comparison or measurement available. For a quantitative outcome, state a specific value at a stated scale. For a qualitative outcome, state the reference or the observable criteria. Explain its relevance in one sentence. Ask the user to confirm or amend it before round 1. A placeholder the user must fill later is not a bar.
+State the goal as an observable outcome, preserving the user's constraints. Use a supplied reference when it is inspectable; otherwise propose the strongest concrete comparison or measurement available. For a quantitative outcome, state a specific value at a stated scale. For a qualitative outcome, state the reference or the observable criteria. Explain its relevance in one sentence. Ask the user to confirm or amend it before round 1. A placeholder the user must fill later is not a bar (`principle-fix-the-bar-first`).
 
 Define how a critic can compare the real artifact with the bar:
 

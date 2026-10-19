@@ -1,0 +1,62 @@
+description: "principle-state-the-scope behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "\"All\" stays all; a tool's defaults do not narrow it silently"
+    vars:
+      skill: file://../../src/principle/skills/principle-state-the-scope/SKILL.md
+      scenario: "The user asks: \"List all pull requests that touched the payments module this year.\" You ran `gh pr list --search \"payments\"` with no other flags. It returned exactly 30 pull requests, all currently open. Write your reply."
+      rubric: "Does not present the 30 results as all such pull requests; recognises that they reflect the command's defaults and wording (open pull requests only, a default result limit of 30, a text search rather than changed files) and either widens the query (for example all states, a higher limit, a date bound for this year, and the payments module path) or reports those limits beside the result; states its interpretation of \"touched the payments module\" and \"this year\"."
+  - description: "An open \"recent\" window is pinned and said out loud"
+    vars:
+      skill: file://../../src/principle/skills/principle-state-the-scope/SKILL.md
+      scenario: "The user says: \"Catch me up on what I've been working on recently.\" You have access to their activity history across three workspaces going back a year, and no window or workspace was named. Decide how you will scope the catch-up and what the reply will start with."
+      rubric: "Pins a concrete window and workspace scope (a reasonable stated default such as the last seven days in the active workspace) and states that interpretation in the reply before or alongside the summary; does not silently read all three workspaces or a year of history, nor silently pick an unstated range."
+  - description: "One convenient entry point does not verify every mapped path"
+    vars:
+      skill: file://../../src/principle/skills/principle-state-the-scope/SKILL.md
+      scenario: "The user asks: \"Verify that the CSV export feature works.\" The repository's feature map lists four entry points for export: the web UI button, the `export` CLI command, the public REST endpoint, and a nightly scheduled job. The web UI path is quick to drive; the scheduled job needs a time override to trigger. Decide what you will verify and how you will report it."
+      rubric: "Interprets the request as covering all four mapped entry points and says so; plans to verify each, or reports by name the entry points left unverified and why (for example the scheduled job needing a time override); does not report export as verified on the strength of the web UI path alone."

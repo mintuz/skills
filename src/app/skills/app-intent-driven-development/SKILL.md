@@ -12,7 +12,7 @@ Design features as App Intents first, then reuse those intents across Shortcuts,
 An action earns an App Intent when it needs a system surface, e.g. Siri, Shortcuts, App Shortcuts, Spotlight, widgets, Controls, the Action button, Focus filters, Live Activities (an open set).
 
 - The UI framework does not decide: a UIKit app can adopt App Intents, and a SwiftUI app can hold actions that stay inside one screen. A refusal is a product decision about surfaces, not a limit of the UI framework.
-- Keep an action with no system surface in the shared domain service the screen already calls; do not add an intent for consistency alone.
+- Keep an action with no system surface in the shared domain service the screen already calls; do not add an intent for consistency alone (`principle-foundational-thinking`).
 - An unused intent still costs: wider discoverability in system surfaces, App Intents metadata and Shortcuts cache upkeep, and system-facing verification with no user benefit.
 - When a system surface becomes a requirement, extract the intent around the same, unchanged service.
 - A scope decision is a deliverable: record the missing surface, the cost the refusal avoids, and the condition that reverses the decision.
@@ -20,7 +20,7 @@ An action earns an App Intent when it needs a system surface, e.g. Siri, Shortcu
 ## Core Ideas
 
 - **Entities first**: model the data users act on (events, categories, records) as `AppEntity` boundary types so intents, widgets, and the app use the same identifiers and display language.
-- **Intent-first feature**: build the App Intent + entity/query path before UI; SwiftUI screens call the same action path instead of duplicating service code.
+- **Intent-first feature**: build the App Intent + entity/query path before UI; SwiftUI screens call the same action path instead of duplicating service code (`principle-reuse-before-building`).
 - **Single action, single intent**: keep intents focused; avoid mega-intents, which are hard to compose in Shortcuts.
 - **Flat entity graph**: keep entities as serializable snapshots (ids, primitive fields, display strings, icons); avoid nesting one `AppEntity` inside another.
 - **Context-scoped choices**: when an enum or selected run/profile determines valid values, build those choices from that context; never let Shortcuts offer every historical record by accident.
@@ -71,13 +71,13 @@ struct TaskQuery: EntityQuery {
 
 ## Entity Design Rules
 
-- Treat `AppEntity` as a Shortcuts/system boundary, not the real model object. When the app needs a SwiftData model, resolve the entity by stable `id` in the current `ModelContext`.
+- Treat `AppEntity` as a Shortcuts/system boundary, not the real model object. When the app needs a SwiftData model, resolve the entity by stable `id` in the current `ModelContext` (`principle-hide-representations`).
 - Prefer primitive values, dates, ids, and display strings on entities; use an entity-typed property only when the system needs that relationship. To refer to another model, store `profileID` and `profileName`, not `profile: ProfileEntity`.
 - Start with plain `EntityQuery`. Add `EntityStringQuery` only when search is required, then verify generated metadata.
 - Keep `suggestedEntities()` conservative: for child values such as laps/results, prefer active-run/current-profile suggestions over global history.
 - Entity IDs need not be UUIDs. Use a `String` id when the selectable thing can be a not-yet-persisted domain candidate, such as a `"final"` lap.
 - Use an identifier stable across launches and never reused for a different record. Never derive it from an array index, row position, or display name: a saved shortcut stores the identifier and would resolve to whatever record later takes that place.
-- From `entities(for:)`, return only records that still exist; omit an identifier you cannot resolve and never substitute a nearby record. The system then treats the value as unavailable, and the intent can report the missing item or prompt again.
+- From `entities(for:)`, return only records that still exist; omit an identifier you cannot resolve and never substitute a nearby record. The system then treats the value as unavailable, and the intent can report the missing item or prompt again (`principle-parse-at-the-boundary`).
 - Keep entity display independent of app-only formatting state; Shortcuts may render it without your SwiftUI environment.
 
 ## Intent Pattern
@@ -193,14 +193,14 @@ struct EventRow: View {
 }
 ```
 
-- `callAsFunction(donate:)` resolves parameters, runs `perform()`, and returns the result value, so a row that owns progress and errors keeps the single action path:
+- `callAsFunction(donate:)` resolves parameters, runs `perform()`, and returns the result value, so a row that owns progress and errors keeps the single action path. Hold the `Task` in `@State`: ignore taps while it runs, cancel it when the row disappears, and publish no error after cancellation (`principle-narrow-state-lifetime`):
 
 ```swift
 import AppIntents
 import SwiftUI
 
 struct EventRow: View {
-    @State private var isWorking = false
+    @State private var undoTask: Task<Void, Never>?
     @State private var error: Error?
 
     let event: EventEntity
@@ -210,24 +210,25 @@ struct EventRow: View {
             Text(event.name)
             Spacer()
             Button {
-                guard !isWorking else { return }
-                Task {
-                    isWorking = true
-                    defer { isWorking = false }
+                guard undoTask == nil else { return } // one undo in flight
+                undoTask = Task {
+                    defer { undoTask = nil }
                     do {
                         _ = try await UndoLastEventOccuranceIntent(event: event)()
                     } catch {
-                        self.error = error
+                        // Cancellation is not a failure: show no alert for it.
+                        if !Task.isCancelled { self.error = error }
                     }
                 }
             } label: {
-                if isWorking {
+                if undoTask != nil {
                     ProgressView()
                 } else {
                     Label("Undo", systemImage: "arrow.uturn.backward")
                 }
             }
         }
+        .onDisappear { undoTask?.cancel() }
         .alert("Undo failed", isPresented: .init(
             get: { error != nil },
             set: { if !$0 { error = nil } }
@@ -282,7 +283,7 @@ struct TimelineShortcuts: AppShortcutsProvider {
 
 ## Metadata And Cache Checks
 
-Compilation is not enough; verify the system-facing metadata.
+Compilation is not enough; verify the system-facing metadata (`principle-prove-it-works`).
 
 - Run an `xcodebuild build` for the app target and confirm App Intents metadata extraction succeeds.
 - When Shortcuts says an entity is missing, inspect generated or installed `Metadata.appintents`/`extract.actionsdata`: the entity should appear under `entities`, and the parameter should point at that entity type.

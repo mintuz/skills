@@ -19,3 +19,9 @@ Context size: 209 upstream words → 161 port words (whitespace count, including
 The first hypothetical evaluation incorrectly required executed work. That grading defect is retained separately in `invalid-grading-evidence.json`, excluded from RED, and corrected before the recorded RED attempt.
 
 Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+
+## Narrowing, 2026-10-19
+
+Evidence levels moved to `principle-label-the-evidence`, missing-coverage reporting to `principle-gaps-are-not-passes`, and "add a script only when reuse or reliability earns it" to `principle-build-the-lever` (already carried by its steps 1 and 4 and its "Existing query already proves the job" case). The description now also triggers on a failing check. "Match proof to artifact identity" dropped its "reports evidence by level" clause; that obligation is tested by label-the-evidence's device case.
+
+Astra Medium, one trial, no provider errors. Treatment `eval-Iqj-2026-10-19T11:04:41`: 2/2. Trigger `eval-gII-2026-10-19T11:05:06`: 2/2.

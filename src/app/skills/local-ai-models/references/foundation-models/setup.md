@@ -102,17 +102,23 @@ let session = LanguageModelSession()
 
 ## Complete Setup Example
 
+`ChatService` is the session's single-flight owner: every session call runs inside its one owned task, so `send` is a client of `sendStreaming` rather than a second path to the session. Add transcript commit from [chat-patterns.md](chat-patterns.md) Pattern 5.
+
 ```swift
 import SwiftUI
 import FoundationModels
 
 @Observable
-class ChatService {
+@MainActor
+final class ChatService {
     private var session: LanguageModelSession?
+    /// The owned generation task; non-nil while the session is in use.
+    private var currentTask: Task<Void, Never>?
     var isAvailable = false
     var isReady: Bool {
         isAvailable && session != nil
     }
+    var isResponding: Bool { currentTask != nil }
 
     func initialize() async {
         // Check availability
@@ -127,26 +133,32 @@ class ChatService {
         session = LanguageModelSession()
     }
 
+    /// Waits for the whole reply through the same single-flight path.
     func send(_ message: String) async throws -> String {
-        guard let session else {
-            throw ChatError.sessionNotInitialized
+        var reply = ""
+        for try await content in sendStreaming(message) {
+            reply = content
         }
-
-        let response = try await session.respond(to: message)
-        return response.content
+        return reply
     }
 
+    /// The only path to the session. Single-flight: a send while one runs is rejected.
     func sendStreaming(_ message: String) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
-            // Single-flight: no session, or the session is already responding.
-            guard let session, !session.isResponding else {
+            guard let session else {
                 continuation.finish(throwing: ChatError.sessionNotInitialized)
+                return
+            }
+            guard currentTask == nil, !session.isResponding else {
+                continuation.finish(throwing: ChatError.requestInProgress)
                 return
             }
 
             let task = Task {
+                defer { currentTask = nil }
                 do {
                     for try await snapshot in session.streamResponse(to: message) {
+                        try Task.checkCancellation()
                         continuation.yield(snapshot.content)
                     }
                     continuation.finish()
@@ -154,9 +166,16 @@ class ChatService {
                     continuation.finish(throwing: error)
                 }
             }
-            // Consumer teardown cancels the producer task.
+            currentTask = task
+            // Consumer teardown cancels the owned task.
             continuation.onTermination = { _ in task.cancel() }
         }
+    }
+
+    /// Stop and teardown: cancel the owned task and await it before the next send.
+    func stop() async {
+        currentTask?.cancel()
+        await currentTask?.value
     }
 }
 
@@ -173,6 +192,9 @@ struct ChatApp: View {
         }
         .task {
             await chatService.initialize()
+        }
+        .onDisappear {
+            Task { await chatService.stop() }
         }
     }
 }

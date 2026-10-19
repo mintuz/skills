@@ -9,3 +9,15 @@ These are instruction-quality scenarios, not executed product behavior. Trigger 
 Strict RED/gain limits remain in the JSON. The user accepted behavior-preserving ports with explicit evidence limits on 13 October 2026; that exception does not invent a failed pre-change test or a baseline gain.
 
 [Principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md) summarizes loader resolution, representative hypothetical behavior, and the two flagged trigger results. Most processes batched twelve explicitly named skills; final laziness replays used fresh single-skill processes.
+
+## Narrowing, 2026-10-19
+
+Restructured into three measurement classes (deterministic; experimental or evaluation; causal speed or capacity with a measured limiter) and pointed to `benchmark-checklist` for the benchmark procedure. Added case "An evaluation result needs repetitions, not a profiler" for the evaluation class. Description unchanged, so triggers were not rerun.
+
+Astra Medium, one trial, no provider errors. Comparison `eval-jyP-2026-10-19T11:05:32`:
+
+| Case | Baseline | Treatment |
+| --- | --- | --- |
+| A deterministic count needs provenance not a profile | fail | pass |
+| A speedup may be skipped work | fail | pass |
+| An evaluation result needs repetitions, not a profiler | pass | pass |

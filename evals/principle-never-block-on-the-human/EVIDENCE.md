@@ -10,6 +10,7 @@ The pre-change fixture is the pinned upstream skill in `upstream-before.md`. Cop
 | green | 2/2 passed; 0 errors | [eval-k8M-2026-10-13T20:38:17](green-evidence.json) |
 | compare | 4/4 passed; 0 errors; 0 improved, 0 regressed case scores versus no-skill | [eval-9FJ-2026-10-13T20:46:31](compare-evidence.json) |
 | trigger | 2/2 passed; 0 errors | [eval-VUH-2026-10-13T20:55:36](trigger-evidence.json) |
+| rerun after `Distinct from:` line (19 October 2026) | 2/2 passed; 0 errors | eval-uEe-2026-10-19T10:44:05 (not exported) |
 
 Configuration validation passed for the main and trigger configs. Trigger workspaces are disposable copies made by the repository runner. A skill-file read is activation evidence, not proof of correct application; exclusion is judged on the response.
 

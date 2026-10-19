@@ -54,3 +54,8 @@ tests:
       skill: file://../../src/principle/skills/principle-subtract-before-you-add/SKILL.md
       scenario: "A settings parser has two validators: one validates untrusted imported JSON and one validates the internal representation after a mutable plugin hook. Tests cover both malformed JSON and hook corruption. A wrapper reference file only points to the current parser doc and has no unique content; one maintained index links to it. Which subtraction is justified?"
       rubric: "Recognizes both validators protect distinct trust/invalidation points and keeps those behaviors unless equivalent protection is proven; removes the content-free wrapper only with index references repaired; retains negative-path tests; does not equate two validators with redundant validation or grow speculative checks."
+  - description: "Smallest coherent change beats smallest diff"
+    vars:
+      skill: file://../../src/principle/skills/principle-subtract-before-you-add/SKILL.md
+      scenario: "A bug fix can remove six lines but silently drops cancellation support, or change twenty lines preserving cancellation with a required regression test. The user wants the smallest correct fix and repository rules require that test. Choose and justify."
+      rubric: "Chooses the smallest change that keeps supported cancellation and the required test, not the raw minimum line count; explains that the shorter patch shifts cost by dropping a guarantee; avoids unrelated cleanup or new abstractions."

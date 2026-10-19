@@ -21,7 +21,7 @@ Each of these is a lifecycle already modelled by hand:
 - a `pointerdown`, `dragstart`, or gesture handler that binds listeners to the document and must unbind them;
 - handling for a response that arrives after cancel, replacement, or unmount.
 
-Any one of them leads to step 1, however small the request and whether or not the file imports `xstate`. When the code already exists, name each defect it has today and the wrong behaviour a user would see before proposing the machine that removes it.
+Any one of them leads to step 1, however small the request and whether or not the file imports `xstate`. When the code already exists, name each defect it has today and the wrong behaviour a user would see before proposing the machine that removes it (`principle-capture-the-baseline`).
 
 For a visualisation-only request, inspect the current machine source and go to step 6 instead.
 
@@ -44,7 +44,7 @@ Read [modelling.md](references/modelling.md) before creating or changing a machi
 
 Before creating the file, find which layer owns machines: architecture tests, import-boundary rules such as `eslint-plugin-boundaries` or `dependency-cruiser`, `CLAUDE.md`, architecture decision records, and the directory holding existing machines. A correct machine in a forbidden directory fails CI.
 
-**Complete when:** the machine sits in the layer the repository's own rules assign to machines, mutually exclusive meanings are states, independent concerns are parallel only when they have independent lifecycles, and each transition sits at the narrowest state that owns it.
+**Complete when:** the machine sits in the layer the repository's own rules assign to machines, mutually exclusive meanings are states, independent concerns are parallel only when they have independent lifecycles, and each transition sits at the narrowest state that owns it (`principle-model-the-domain`).
 
 ## 3. Own effects and convergence
 
@@ -58,11 +58,11 @@ Read [react.md](references/react.md) for any `@xstate/react` surface. Let the ro
 
 Run both step 1 tests over every `useState` you write or keep, and state the verdict in your reply so the user can overrule it. Where the tests are decisive, act and report the call in one line: *"`isSubmitting` is set by the request, so it moved into the machine as `submitting`."* Where the call is genuinely close (a real but small lifecycle, or a machine the repository's layer rules would push far from its component), ask the user before building: name the state, name the phase that makes it a lifecycle, and ask whether it belongs in the machine.
 
-**Complete when:** every retained `useState` holds a value one event sets completely, no React state duplicates a fact an external answer owns, actor-derived status and permissions have one pure derivation, and each component subscribes only to values it renders or uses.
+**Complete when:** every retained `useState` holds a value one event sets completely, no React state duplicates a fact an external answer owns, actor-derived status and permissions have one pure derivation, and each component subscribes only to values it renders or uses (`principle-derive-from-one-owner`).
 
 ## 5. Prove behaviour through actors
 
-Read [testing.md](references/testing.md) before writing or reviewing tests. Drive real actors with typed public events and fake ports; cover positive behaviour, negative space, stale identities, retries, cancellation, convergence, and teardown.
+Read [testing.md](references/testing.md) before writing or reviewing tests. Drive real actors with typed public events and fake ports; cover positive behaviour, negative space, stale identities, retries, cancellation, convergence, and teardown (`principle-test-behavior-not-implementation`).
 
 **Complete when:** tests observe public actor behaviour, exactly-once cleanup is demonstrated, `sendParent` behaviour is exercised through a listening parent, and any model-based graph coverage is justified by chart complexity.
 

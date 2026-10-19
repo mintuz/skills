@@ -1,0 +1,57 @@
+description: "principle-hide-representations behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Consumers should not depend on storage rows"
+    vars:
+      skill: file://../../src/principle/skills/principle-hide-representations/SKILL.md
+      scenario: "Rename the users.full_name column to display_name. The users repository returns Prisma User rows (snake_case fields, including password_hash and stripe_customer_id). REST controllers send them with res.json(user), a React admin page reads user.full_name, and an email worker reads user.full_name and user.stripe_customer_id. Plan the change with minimal churn."
+      rubric: "Introduces a domain User type and maps from the Prisma row inside the repository, so controllers, the admin page and the worker stop depending on Prisma field names and responses no longer carry password_hash or other storage-only fields; the rename then touches only the repository mapping; does not re-export the ORM type through the public surface; checks consumers against the domain type."
+  - description: "Special policy belongs at the edge"
+    vars:
+      skill: file://../../src/principle/skills/principle-hide-representations/SKILL.md
+      scenario: "A shared HTTP retry client used by twelve integrations contains `if (host === 'api.acme.com') { maxAttempts = 8; honour Retry-After }`. Partner Globex now needs a 30-second backoff cap. Make the smallest change and say how to check it."
+      rubric: "Keeps the shared retry client general with no partner-specific hosts or branches, rather than adding a Globex branch beside Acme's; moves Acme's and Globex's policies into their own integration adapters as passed retry policy or configuration; preserves Acme's current behaviour; names checks that each partner's policy holds and that the shared client contains no partner-specific branch."

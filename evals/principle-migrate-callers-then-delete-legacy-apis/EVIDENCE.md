@@ -17,3 +17,11 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 Context size: 170 upstream words → 144 port words (whitespace count, including frontmatter).
 
 Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+
+## 19 October 2026: kept, received a rule
+
+Received "remove transitional and obsolete paths once their consumers and guarantees are covered" from `principle-outcome-oriented-execution`, plus a thesis, `Distinct from` and `Done` lines. New case "Transitional paths go once consumers and guarantees are covered" recreates the clause dropped from the outcome-oriented-execution suite. Description unchanged. Earlier JSON evidence predates this change.
+
+- `pnpm test:skills` `eval-LrT-2026-10-19T11:08:08`: 2/3; new case failed only on a rubric demand for a "named" owner the scenario cannot supply. Rubric changed to "an owner and a removal condition".
+- `pnpm eval:skills` `eval-BDc-2026-10-19T11:10:48`: baseline 2/3 (new case failed: kept covered paths until finance migrated, no consumer-build check); treatment 2/3 (new case omitted the consumer-build check). Skill text then tied the generated-artifact, consumer-build and reference checks to each deletion.
+- `pnpm test:skills` `eval-KdB-2026-10-19T11:12:48`: treatment 3/3. No provider errors.

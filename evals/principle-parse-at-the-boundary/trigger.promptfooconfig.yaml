@@ -1,0 +1,35 @@
+description: "principle-parse-at-the-boundary activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "Our webhook handler JSON.parses the body and casts it to Order, and a nightly job reloads Orders saved by last year's release. Where should validation live, and which internal checks can we drop?"
+    assert:
+      - type: skill-used
+        value: principle-parse-at-the-boundary
+  - description: Excludes a concurrent-writer question
+    vars:
+      request: "Two workers rewrite the same state.json and lose each other's updates. Should we separate ownership or add a lock?"
+    assert:
+      - type: not-skill-used
+        value: principle-parse-at-the-boundary

@@ -4,7 +4,7 @@
 
 Create one route- or feature-owned actor per mounted journey, started at mount and stopped at unmount. That actor owns its child actors, commands, resources, retries, and convergence with external truth.
 
-Split child actors by cohesive capability and lifetime, not by technical layer. Keep pure parsing, projection, and transformation as ordinary functions. Add shared wrappers only after repeated use proves a stable abstraction.
+Split child actors by cohesive capability and lifetime, not by technical layer. Add shared wrappers only after repeated use proves a stable abstraction. Keep pure parsing, projection, and transformation as ordinary functions (`principle-keep-the-core-pure`).
 
 ## Use typed factories and boundaries
 

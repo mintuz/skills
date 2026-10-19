@@ -42,7 +42,10 @@ the watched branch, re-run CI runs, and apply the label the user approves.
 Reserve for explicit user direction: merging the PR yourself, history
 rewrites or force-pushes, product behaviour changes beyond what the failing
 check requires, and any push to the base branch or another lane's branch—a
-red there is reported, never patched uninvited.
+red there is reported, never patched uninvited (`principle-stay-in-scope`).
+A calling workflow may narrow this repair authority (for example, `ship-pr`
+allows only mechanical, intent-preserving repairs); follow the narrower grant
+and return what it reserves to the caller. No caller widens it.
 
 Never post PR or issue comments about the loop's own activity (rounds fixed,
 retries, status); to the reviewer that is noise. The commit history and this
@@ -200,8 +203,8 @@ Invent no other work; the loop's scope is this branch's green.
 
 Report every transition unprompted: new red (with check names, class, and
 strike/attempt count), fix pushed (with the new head SHA), green, held,
-merged. If the user has to ask "how's it looking" or "is it still failing",
-reporting has already failed.
+merged (`principle-report-every-transition`). If the user has to ask "how's
+it looking" or "is it still failing", reporting has already failed.
 
 Terminal states:
 

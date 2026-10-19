@@ -83,6 +83,19 @@ render(<MyComponent />);
 expect(screen.getByRole('dialog')).toBeInTheDocument(); // What user sees
 ```
 
+❌ **WRONG - Querying the DOM structure**
+```tsx
+const { container } = render(<LoginForm />);
+const input = container.querySelector('input[name="email"]');
+```
+
+✅ **CORRECT - Query by accessible name, interact like a user**
+```tsx
+const user = userEvent.setup();
+render(<LoginForm />);
+await user.type(screen.getByLabelText('Email'), 'test@example.com');
+```
+
 ## 5. Shallow rendering
 
 ❌ **WRONG - Shallow rendering**

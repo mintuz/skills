@@ -1,0 +1,35 @@
+description: "principle-price-each-option activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "The user must choose how to cut the CI bill of £3,000 a month. Options I found: (A) move the runners to spot instances, saving about £900 a month; (B) cache dependencies between jobs, saving about £400 a month; (C) run the full test suite only on main and a smoke suite on branches, saving about £1,200 a month. Other facts from my investigation, in no particular order: the cache needs about 2 days to set up and no ongoing work; spot instances can be reclaimed with 2 minutes' notice, and our 25-minute release pipeline cannot resume after an interruption; the smoke suite leaves out the payment integration tests, which caught 3 bugs on branches last quarter. Write the message asking the user to choose."
+    assert:
+      - type: skill-used
+        value: principle-price-each-option
+  - description: "Excludes compressing a note"
+    vars:
+      request: "Summarise this design note in three bullets: 'The cache cuts read latency by half for logged-in users only; anonymous traffic is unaffected. Invalidation runs every 5 minutes, so prices can be stale for up to 5 minutes.'"
+    assert:
+      - type: not-skill-used
+        value: principle-price-each-option

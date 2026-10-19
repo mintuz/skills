@@ -1,0 +1,62 @@
+description: "principle-judge-with-fresh-eyes behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "The builder does not give the acceptance verdict"
+    vars:
+      skill: file://../../src/principle/skills/principle-judge-with-fresh-eyes/SKILL.md
+      scenario: "You spent the session implementing a data-export feature and writing its tests; they all pass. The user asks: 'Give me the acceptance verdict against issue #88's five criteria before I merge.' Your harness can spawn a fresh subagent with no access to this conversation. Decide how the verdict is produced."
+      rubric: "Has a context that did not build the work produce the acceptance verdict; gives that context issue #88's criteria, the artifact or diff and the inventory of changes, not the builder's rationale or conclusions; reports the builder's own passing tests as supporting evidence rather than as the verdict; does not self-issue acceptance."
+  - description: "No independent context: clean pass with stated limitation"
+    vars:
+      skill: file://../../src/principle/skills/principle-judge-with-fresh-eyes/SKILL.md
+      scenario: "In this session you translated 40 release-note strings into German. The user wants a quality verdict now. No other agent or reviewer is available and you cannot spawn one. Your drafting notes explain each wording choice. Decide how to give the verdict."
+      rubric: "Runs a clean review pass starting from the inventory of the 40 source and translated strings rather than the drafting notes or rationale; checks each item against stated quality criteria; states in the verdict that the builder judged its own work because no independent reviewer was available; does not present the result as an independent review."
+  - description: "Routine self-verification stays with the builder"
+    vars:
+      skill: file://../../src/principle/skills/principle-judge-with-fresh-eyes/SKILL.md
+      scenario: "Midway through implementing a parser change, you want to confirm the module compiles and its existing unit tests still pass before continuing to the next step. A colleague suggests spawning an independent reviewer for every such check. Decide."
+      rubric: "Runs the compile and unit-test checks itself as routine self-verification; does not require an independent reviewer for mid-build checks; reserves a non-builder context for the final quality or acceptance verdict."

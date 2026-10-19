@@ -9,7 +9,7 @@ Turn the right source record into a shareable brief without promoting discussion
 
 ## 1. Resolve the source
 
-Interpret “current,” “latest,” dates, titles, and attendee names literally. Enumerate plausible meetings. When more than one matches, state the selection rule and name each rejected candidate. Verify the selected meeting's ID, title, time, attendees, and state before reading its transcript, summary, notes, and stored action points. Prefer the primary transcript or notes over a previous summary.
+Interpret “current,” “latest,” dates, titles, and attendee names literally. Enumerate plausible meetings. When more than one matches, state the selection rule and name each rejected candidate. Verify the selected meeting's ID, title, time, attendees, and state before reading its transcript, summary, notes, and stored action points. Prefer the primary transcript or notes over a previous summary (`principle-rank-sources-by-authority`).
 
 Set an evidence cutoff for every brief:
 
@@ -39,7 +39,7 @@ Date rule:
 - When it does not, keep the phrase and mark the date `unresolved`.
 - When no date is given, record `not stated`.
 
-Attach the speaker or source, timestamp or precise locator, and confidence to each decision and action. Label commitments you extracted `transcript-derived` when the meeting system did not store them as action points. Preserve disagreement and ambiguous ownership as uncertainty. When a later explicit commitment resolves an earlier ambiguity, list the action once under its resolved owner and cite both locators.
+Attach the speaker or source, timestamp or precise locator, and confidence to each decision and action. Label commitments you extracted `transcript-derived` when the meeting system did not store them as action points (`principle-label-the-evidence`). Preserve disagreement and ambiguous ownership as uncertainty. When a later explicit commitment resolves an earlier ambiguity, list the action once under its resolved owner and cite both locators.
 
 Sensitive content (personnel, health, legal, security, or compensation) stays out of a shareable brief unless it is material to an in-scope decision, action, open question, or risk; then paraphrase only the minimum the reader needs. An explicit request to keep content out of the record overrides materiality: keep only the operational fact that other evidence supports. When you withhold content, or a participant asks to keep it out of the record, state in Limits that content was withheld and cite the request's locator. Do not describe the withheld content or name its category.
 
@@ -58,9 +58,9 @@ Sensitive content (personnel, health, legal, security, or compensation) stays ou
 
 ## 4. Verify and deliver
 
-Compare the brief with the evidence ledger. Remove any unsupported decision, invented rationale, inferred owner, or fabricated deadline. Check that live summaries carry their watermark and that concise wording keeps meaningful disagreement and uncertainty.
+Compare the brief with the evidence ledger. Remove any unsupported decision, invented rationale, inferred owner, or fabricated deadline. Check that live summaries carry their watermark and that concise wording keeps meaningful disagreement and uncertainty (`principle-preserve-meaning`).
 
-Lead with the outcome, decisions, and next actions. Keep provenance compact but sufficient to return to the source.
+Lead with the outcome, decisions, and next actions (`principle-lead-with-the-answer`). Keep provenance compact but sufficient to return to the source.
 
 When downstream tracing is requested, hand the selected decision and its source locator to `decision-trace`. Do not extend the brief with PRD or specification drafting; tell the user that drafting belongs to the product-management workflow.
 

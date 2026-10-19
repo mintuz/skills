@@ -1,0 +1,62 @@
+description: "principle-gaps-are-not-passes behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Every gap is named, even in one line"
+    vars:
+      skill: file://../../src/principle/skills/principle-gaps-are-not-passes/SKILL.md
+      scenario: "Nightly verification for build 7.4.0 ran these required jobs: lint passed; unit passed; integration ran 3 of 5 shards and the other 2 were cancelled when the runners were reclaimed; Android UI tests were skipped because the emulator image failed to download; the licence check returned an empty report because its cache was cold; the load test is still queued. Post the one-line result to the release channel."
+      rubric: "Does not report the build as passing, green or verified; gives a not-verified or inconclusive result; names every gap rather than a generic 'some checks incomplete': the 2 cancelled integration shards, the skipped Android UI tests, the empty licence report and the still-queued load test."
+  - description: "A relayed verdict is only as good as its recorded evidence"
+    vars:
+      skill: file://../../src/principle/skills/principle-gaps-are-not-passes/SKILL.md
+      scenario: "You delegated a licence audit of five packages (`core`, `cli`, `web`, `sdk`, `docs`) to a worker and required it to record the commit it audited for each package. The worker returned: 'VERIFIED: all 5 packages are licence-clean.' Its evidence table lists `core@91ac2e`, `cli@4f07bd` and `web@c1d9a0`, and has no rows for `sdk` or `docs`. Forward the result to the compliance lead in one line."
+      rubric: "Does not forward 'verified' or 'all 5 clean' as the result; credits only core, cli and web as checked; reports sdk and docs as gaps because the worker recorded no audited commit or evidence for them; gives a not-verified or inconclusive overall result."
+  - description: "Quarantined tests on the changed path are a gap"
+    vars:
+      skill: file://../../src/principle/skills/principle-gaps-are-not-passes/SKILL.md
+      scenario: "A PR changes how refunds are rounded in `billing/refund.ts`. CI is green: 412 passed, 0 failed, 3 skipped. The three skipped tests are `refund rounds half-up`, `refund partial line items` and `refund currency minor units`, all tagged `@quarantined` last month for flakiness. The author asks you for the one-line 'Verification' entry for the PR description."
+      rubric: "Does not write that the change is verified or that CI proves the refund change; identifies that the three skipped quarantined tests cover the changed refund rounding path and reports them as a gap; gives a not-verified or inconclusive verification line for the refund behaviour while crediting the 412 passes only for what they cover."

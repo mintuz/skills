@@ -314,7 +314,7 @@ The sync tool preserves all skill features:
 
 ## Skill inventory
 
-Both scripts read `.claude-plugin/marketplace.json`; [the repository README](../README.md) describes the inventory. The `principle` plugin groups 24 independent `principle-*` skills. Leave `--prefix` off to retain those names. The copier and zip packager preserve reference files. They also copy [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) into each bundle whose name is listed in that file, which is how the 31 pstack adaptations keep the upstream MIT notice. Other skills are copied as they are. The repository root `LICENSE` stays at the root.
+Both scripts read `.claude-plugin/marketplace.json`; [the repository README](../README.md) describes the inventory. The `principle` plugin groups 54 independent `principle-*` skills. Leave `--prefix` off to retain those names. The copier and zip packager preserve reference files. They also copy [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) into each bundle whose name is listed in that file, which is how the 54 pstack adaptations keep the upstream MIT notice. Other skills are copied as they are. The repository root `LICENSE` stays at the root.
 
 The same flat bundles can be used by other compatible loaders, including OMP. Install into a directory the target harness actually discovers and verify activation there. Do not install competing copies of the same skill name.
 

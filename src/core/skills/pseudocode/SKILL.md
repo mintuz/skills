@@ -7,7 +7,7 @@ description: WHEN rendering pseudocode of how code composes—module boundaries,
 
 Code has a **waterline**. Above it sits the **shape**: modules and their boundaries, types, signatures, the values that cross each boundary, and the order calls happen in. Below it sits syntax and the statements inside a body.
 
-Render the shape and collapse everything below the waterline to intent. Only bodies are pseudo: read every name, type, and path from the source and cite it, or mark it `[NEW]`. Run read-only: the render is the deliverable, not the edit. When the request also asks for a review verdict, a diagram, or the change itself, state plainly that the render carries none of them, leave that work to its owning workflow, and return the render.
+Render the shape and collapse everything below the waterline to intent. Only bodies are pseudo: read every name, type, and path from the source and cite it, or mark it `[NEW]` (`principle-observe-dont-infer`). Run read-only: the render is the deliverable, not the edit (`principle-investigate-read-only`). When the request also asks for a review verdict, a diagram, or the change itself, state plainly that the render carries none of them, leave that work to its owning workflow, and return the render.
 
 ## 1. Frame the render
 
@@ -21,7 +21,7 @@ Classify each entry point `existing` or `[NEW]`. For a `[NEW]` render, resolve t
 
 Follow every call from each entry point, opening each file on the path. For every function reached, record its declaration file and line, its signature as written, the effects it causes, and each call's call-site line.
 
-Expand a path until it reaches a boundary crossing, a pure leaf, the frame edge, a function already recorded, or an unresolved call: dispatch through a registry, table, or interface that nothing in the evidence binds to a target. A path ends nowhere else. Record an unresolved call as unresolved and name the evidence that would resolve it using source identifiers, not a general category: the binding, registration, or configuration call that would attach a target, plus the target where the evidence identifies one.
+Expand a path until it reaches a boundary crossing, a pure leaf, the frame edge, a function already recorded, or an unresolved call: dispatch through a registry, table, or interface that nothing in the evidence binds to a target. A path ends nowhere else. Record an unresolved call as unresolved and name the evidence that would resolve it using source identifiers, not a general category: the binding, registration, or configuration call that would attach a target, plus the target where the evidence identifies one (`principle-observe-dont-infer`).
 
 For a `[NEW]` render, read the surrounding modules the change attaches to with the same rigour; derive parts that do not exist yet from the requirement and mark them. Mark `[NEW]` at every level it applies to: the route, the module, the type, each field the requirement adds, the signature, and the edge.
 
@@ -83,8 +83,8 @@ A function already drawn in the same graph appears as `→ Name (above)` in plac
 
 Lead with the entry points, the frame edge, and the wirings drawn. Then give the types, the boundary table, the signatures, and the call graphs.
 
-Close with what the shape shows, stated as facts visible in the render, not judgements: dependency cycles, dependencies pointing against the module layering, argument counts, functions reached from many callers, boundary crossings on the primary path, and paths no wiring covers. Name what stayed unread and why.
+Close with what the shape shows, stated as facts visible in the render, not judgements: dependency cycles, dependencies pointing against the module layering, argument counts, functions reached from many callers, boundary crossings on the primary path, and paths no wiring covers (`principle-label-the-evidence`). Name what stayed unread and why (`principle-gaps-are-not-passes`).
 
-When the render plans work about to be done, offer to save it so the implementation can be checked against it. Write the file only when the user asks.
+When the render plans work about to be done, offer to save it so the implementation can be checked against it. Write the file only when the user asks (`principle-stay-in-scope`).
 
-**Complete when:** every citation resolves, every observation points at an element of the render, and every gap names what would close it.
+**Complete when:** every citation resolves, every observation points at an element of the render, and every gap names what would close it (`principle-define-done`).

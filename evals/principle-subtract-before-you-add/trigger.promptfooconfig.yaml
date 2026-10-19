@@ -22,7 +22,7 @@ providers:
 tests:
   - description: Applies to the principle decision
     vars:
-      request: "Before adding a second retry mechanism, check whether existing behavior can be reused and redundant pieces removed."
+      request: "I'm about to add a new validator layer and a second retry queue to our import service. The service already has older validators and a queue whose callers I haven't checked. Plan the change."
     assert:
       - type: skill-used
         value: principle-subtract-before-you-add
@@ -50,3 +50,9 @@ tests:
                 apps: false
                 plugins: false
                 skill_search: false
+  - description: Leaves a hard-to-trace path with no addition to its owner
+    vars:
+      request: "A request value in our service passes through five wrapper functions and a mutable context object before it reaches the handler. Nothing new is being added; I just want the path easier to trace. What should I do?"
+    assert:
+      - type: not-skill-used
+        value: principle-subtract-before-you-add

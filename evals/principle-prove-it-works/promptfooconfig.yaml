@@ -48,7 +48,7 @@ tests:
     vars:
       skill: file://../../src/principle/skills/principle-prove-it-works/SKILL.md
       scenario: "A pull request changes a Save button. Build and unit tests pass on commit A. The screenshot is from yesterday on commit B; simulator automation tapped a button but never checked persisted data. The claimed result is that commit A saves a note and restores it after relaunch on a physical phone. You have no physical phone available. Give the verdict and next evidence."
-      rubric: "Does not use stale screenshot, build, unit tests or tap telemetry as proof of persistence or physical-device behavior; binds checks to commit A, installed build and relevant environment; proposes observing saved content after relaunch on available simulator while recording device coverage unavailable; reports evidence by level and leaves the physical-phone claim unverified."
+      rubric: "Does not use stale screenshot, build, unit tests or tap telemetry as proof of persistence or physical-device behavior; binds checks to commit A, installed build and relevant environment; proposes observing saved content after relaunch on available simulator while recording device coverage unavailable; leaves the physical-phone claim unverified."
   - description: "Failed observation is one hypothesis"
     vars:
       skill: file://../../src/principle/skills/principle-prove-it-works/SKILL.md

@@ -7,10 +7,12 @@ Divide state by usage, not into one global store:
 | State Type         | Description                     | Solution                 |
 | ------------------ | ------------------------------- | ------------------------ |
 | Component State    | Local to one component          | `useState`, `useReducer` |
-| Application State  | Global UI state (modals, theme) | XState, Zustand, Context |
+| Application State  | Global UI state (modals, theme) | Zustand, Context         |
 | Server Cache State | Data from API responses         | TanStack Query           |
 | Form State         | User inputs and validation      | React Hook Form          |
 | URL State          | Filters, search terms, page numbers | URL search params via the router |
+
+A value one event sets completely, such as a theme or a modal's open flag, is plain state. State that changes in response to an external answer or an interruptible interaction (async submit, retries, cancellation, polling, optimistic updates, a drag) is a lifecycle: model it with the `xstate` skill.
 
 ## Component State
 

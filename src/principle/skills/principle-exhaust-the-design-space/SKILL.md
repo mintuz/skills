@@ -14,4 +14,6 @@ Explore the uncertainty that could change the decision, rather than enumerating 
 
 A supplied, accepted label or styling change can proceed directly with proportional verification. Prototype permission authorizes exploration, not production replacement.
 
+Distinct from: `principle-redesign-from-first-principles` (a new requirement challenges an existing design), `principle-experience-first` (journey or scope trade-offs grounded in the observed product), `principle-fix-the-bar-first` (fixing selection criteria before evaluating candidates).
+
 Done: the choice has a defensible comparison, or existing evidence makes alternatives unnecessary. Label prototype findings separately from implemented or runtime-proven behavior.

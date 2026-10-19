@@ -16,3 +16,14 @@ Configuration validation passed for the main and trigger configs. Trigger worksp
 Context size: 132 upstream words → 152 port words (whitespace count, including frontmatter).
 
 Native Claude and OMP both resolved the named skill through their loaders and returned content matching the frozen source. One representative hypothetical case per host was manually reviewed. See [principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md); each fresh process batched twelve skills. This is explicit invocation, not unprompted activation or product-runtime proof.
+
+## Narrowing — 19 October 2026
+
+Narrowed per the micro-principle plan: trigger is now "about to add a mechanism, owner, queue, validator or abstraction"; the existing-mechanism search moved to `principle-reuse-before-building` (a pointer remains in step 1); absorbed `principle-laziness-protocol` steps 2 (deletion, direct change, no unrelated cleanup or speculative layers) and 4 (smallest coherent change; more lines can be less work). Added the retired laziness case "Smallest coherent change beats smallest diff" (required-test clause moved to `principle-scale-verification`). Trigger suite: positive request rewritten for the narrowed trigger; added a `not-skill-used` case owned by `principle-minimize-reader-load`.
+
+| Run | Result |
+| --- | --- |
+| compare eval-gOM-2026-10-19T10:58:42 | treatment 3/3, baseline 3/3, 0 errors (no baseline gap on these scenarios) |
+| trigger eval-Qvj-2026-10-19T11:00:10 | 3/3, 0 errors |
+
+Astra Medium, one trial per case.

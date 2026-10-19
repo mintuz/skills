@@ -49,7 +49,7 @@ tests:
     vars:
       skill: file://../../src/principle/skills/principle-foundational-thinking/SKILL.md
       scenario: "Implement a bounded per-user draft cache. Existing CI and test infrastructure work. A proposed scaffold adds a generic event bus, a future multi-region adapter and new test runner. Two concurrent requests can update the same draft. Describe the design order."
-      rubric: "Starts with essential draft identity/state, access paths, lifetime and ownership; explicitly preserves atomic update/conflict semantics for shared draft invariants; reuses working infrastructure and rejects speculative scaffolding; sequences a coherent testable increment rather than spreading special-case caller coordination."
+      rubric: "Starts with essential draft identity/state, access paths, lifetime and ownership; rejects the event bus, multi-region adapter and replacement test runner because no present requirement uses them; sequences a coherent testable increment rather than spreading special-case caller coordination."
   - description: "Similar lines need not share an abstraction"
     vars:
       skill: file://../../src/principle/skills/principle-foundational-thinking/SKILL.md

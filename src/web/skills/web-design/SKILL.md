@@ -13,7 +13,7 @@ Aim for clear hierarchy, generous spacing, and restrained styling.
 - When a request conflicts with legibility or access, keep its intent: name each part you refuse, give the reason, and state the substitute treatment that delivers the same intent.
 - Choose and name the values that are yours to choose: sizes, weights, spacing, radii, and breakpoints. A value you select is a decision, not an invention, so state it instead of deferring it to later testing.
 - Never invent a product or brand fact, such as a brand colour, a surface colour, a price, or a measured result.
-- When a decision needs a fact you were not given: name each blocking fact, state the constraint it must satisfy, give the decision as a condition, and say what to change if the condition fails. Never certify a result you cannot measure.
+- When a decision needs a fact you were not given: name each blocking fact, state the constraint it must satisfy, give the decision as a condition, and say what to change if the condition fails. Never certify a result you cannot measure (`principle-never-block-on-the-human`, `principle-gaps-are-not-passes`).
 
 ## Visual Hierarchy & Focus
 
@@ -34,16 +34,7 @@ Aim for clear hierarchy, generous spacing, and restrained styling.
 
 - Use one font family; create contrast with weight, size, and letter-spacing.
 - Name the concrete sizes and line heights you choose (e.g. `32/40`, `24/32`, `18/28`, `16/24`, `14/20`) and reuse them; never refer to “a small type scale” without its values.
-- Letter-space uppercase labels; de-emphasise metadata with colour, not excessive shrinking.
-
-```css
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 12px;
-  color: #6c7280;
-}
-```
+- Letter-space uppercase labels (about 0.08em); de-emphasise metadata with colour, not excessive shrinking.
 
 ## Colour & Contrast
 
@@ -75,12 +66,12 @@ Aim for clear hierarchy, generous spacing, and restrained styling.
 ## Compositional Polish
 
 - Keep gaps, radii, shadows, and border colours consistent across the entire UI.
-- Replace visual clutter (dividers, lines, boxes) with spacing and alignment; let one strong anchor (title or primary action) lead.
+- Replace visual clutter (dividers, lines, boxes) with spacing and alignment; let one strong anchor (title or primary action) lead (`principle-earn-every-element`).
 - Put a dark or light overlay behind text on images to keep it legible.
 
 ## Delivery Check
 
-Before replying, confirm:
+Before replying, confirm (`principle-define-done`):
 
 - A primary action that is not itself destructive stays visually distinct from red error or destructive meaning.
 - Every applicable state of each control pattern has its visible treatment specified.

@@ -48,7 +48,7 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
 
 - Use `CODE_SIGNING_ALLOWED=NO` for simulator builds.
 - Pin the destination as `platform=iOS Simulator,id=<udid>`.
-- When only one target matters, scope the test run with `-only-testing:<TestTarget>`.
+- When one target or test matters, scope the run with `-only-testing:<TestTarget>[/<Suite>/<test>]`; preserve the log.
 - Never wait with a chained foreground `sleep`; the harness blocks it.
 - Wait on the kept handle with the harness's blocking wait (`Monitor`, or the task-output
   wait), or for the `.status` file with the loop above. Read the exit status first, then the
@@ -59,34 +59,47 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
 
 - Swift Testing does NOT emit XCTest's `Test Case ... passed` lines.
 - `Executed 0 tests, with 0 failures` is the empty XCTest summary; it proves nothing.
-- The real verdict is `✔ Test run with N tests in M suites passed` plus
-  `** TEST SUCCEEDED **`, with N greater than zero; a pattern that also matches zero proves
-  nothing.
+- Always pass `-resultBundlePath` with a new path per attempt; `xcodebuild` fails when the
+  path already exists.
+- Read the verdict from that fresh bundle with
+  `xcrun xcresulttool get test-results summary --path <bundle>`. A pass needs the expected
+  non-zero test count there, no failure or crash there, `** TEST SUCCEEDED **`, and a zero
+  exit status (`principle-prove-it-works`).
+- The log's `✔ Test run with N tests in M suites passed`, with N greater than zero,
+  corroborates that count; a pattern that also matches zero proves nothing. A filtered or
+  `-quiet` log can omit the line, so never treat its absence alone as the verdict.
+- Take the expected test count from the target's tests or test plan, never from the run you
+  are judging.
+- A run that executed zero tests is not a pass, whatever its exit status
+  (`principle-gaps-are-not-passes`). Suspect the selection before the code: confirm
+  `-only-testing` still names the current suite and test after any rename, and that the
+  target belongs to the test plan.
 - Grep once with the full set of terminal markers: `\*\* BUILD SUCCEEDED \*\*`,
   `\*\* BUILD FAILED \*\*`, `\*\* TEST SUCCEEDED \*\*`, `\*\* TEST FAILED \*\*`,
   `Testing failed:`, and `^error:`. Judge the marker together with the exit status.
 - To confirm which suites ran, match both spellings: XCTest prints `Test Suite '.*' started`,
   and Swift Testing prints a `Suite .* started` record. Match them case-sensitively as printed.
-- Always pass `-resultBundlePath` with a new path per attempt; `xcodebuild` fails when the
-  path already exists.
-- On failure, read `xcrun xcresulttool get test-results summary --path <bundle>` for the
-  structured crash reason, such as `Test crashed with signal abrt`. The log may repeat it as
-  an underlying error, but the bundle is the reliable source. Do not re-run blind.
+- On failure, read the bundle summary for the structured crash reason, such as
+  `Test crashed with signal abrt`; it may appear only there. The log may repeat it as an
+  underlying error, but the bundle is the reliable source. Do not re-run blind.
 - Treat `The test runner hung before establishing connection` and diagnostic-collection
   timeouts as a suspected environmental fault, not a proven diagnosis. Shut down only the
   pinned simulator (`xcrun simctl shutdown <udid>`), then retry once with a new
   result-bundle path. Use `xcrun simctl shutdown all` only when the user says the whole
-  device set is disposable.
+  device set is disposable (`principle-clean-up-what-you-started`).
 - Pass `TEST_RUNNER_<NAME>=<value>` on the `xcodebuild test` command; Xcode strips the
   prefix and gives the variable to the test runner process. A UI test target's app under test
   does not receive it; set `XCUIApplication.launchEnvironment` for that case.
-- `test-without-building` reuses the earlier product and can report a success that excludes
-  your latest source change; rebuild with `xcodebuild test` before you trust a pass.
+- `test-without-building` runs the product and `.xctestrun` file an earlier build produced,
+  so it can report a success that excludes your latest source change. Rebuild with
+  `xcodebuild test` before you trust a pass, and whenever that product is the suspect.
+- A test-bundle load error names the missing library, not the cause. When a load failure
+  survives the rebuild, inspect the framework's embedding and runpath settings as candidates.
 
 ## 4. Install, Launch, and Drive
 
 - Install the build you just made before launching. Never launch whatever is already on the
-  device: it can come from another branch.
+  device: it can come from another branch (`principle-prove-it-works`).
 - `simctl install` needs a booted device. Boot the pinned device with
   `xcrun simctl bootstatus <udid> -b`, which boots it if shut down and waits for the boot to
   finish. Do not call `xcrun simctl boot` first: it fails on a running device.
@@ -116,11 +129,12 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
 - A freshly erased simulator posts a system banner soon after boot. Wait for the boot with
   `xcrun simctl bootstatus <udid> -b`, then read the accessibility hierarchy and confirm no
   system alert covers the view. Capture only after that check passes; a fixed short delay is
-  not evidence.
+  not evidence (`principle-observe-dont-infer`).
 
 ## 6. Cadence
 
-- Compile after the domain layer and again after the first view, not once at the end.
+- Compile after the domain layer and again after the first view, not once at the end
+  (`principle-sequence-verifiable-units`).
 - Run the test suite once, early, before you declare a change done.
 
 ## Related Skills

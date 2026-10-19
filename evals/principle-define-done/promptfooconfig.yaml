@@ -1,0 +1,62 @@
+description: "principle-define-done behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "A vague deliverable gets a checkable completion criterion first"
+    vars:
+      skill: file://../../src/principle/skills/principle-define-done/SKILL.md
+      scenario: "The user asked: 'Clean up our onboarding docs — they're a mess.' The docs folder has 14 pages. New hires report that the setup steps on 3 of them fail on Apple Silicon Macs, and two pages contradict each other about the Node version (one says 18, one says 20; package.json engines requires 20). Plan the work."
+      rubric: "Before the work starts, the plan states a checkable completion criterion for the deliverable that another person could verify, covering at least: the setup steps on the 3 failing pages run cleanly on an Apple Silicon Mac, and every page states Node 20 to match package.json. A list of activities or a goal like 'docs are clearer' alone does not count. The plan says the criterion will be checked at the end and that any part not met will be reported as a gap rather than claimed as done."
+  - description: "Each phase of a multi-step change has its own done-check"
+    vars:
+      skill: file://../../src/principle/skills/principle-define-done/SKILL.md
+      scenario: "The user asked: 'Upgrade our monorepo from Node 18 to Node 20 across the api, worker and cli packages, then remove the Node 18 CI job.' Give the plan."
+      rubric: "The plan gives the overall deliverable a checkable completion criterion and gives each step or phase its own observable done-check (for example: a package's tests pass on Node 20 in CI; the engines field and .nvmrc say 20; the Node 18 job is removed only after every package passes on 20). Steps without any check, or a single vague 'verify everything works' at the end, do not satisfy this. It says unmet checks will be reported as gaps."
+  - description: "Unmet gates are reported, not redefined away"
+    vars:
+      skill: file://../../src/principle/skills/principle-define-done/SKILL.md
+      scenario: "The agreed deliverable: 'Add CSV export to the reports page. Done when the export matches the on-screen table for all 5 report types and the e2e export test passes in CI.' Status: 4 report types match; the Refunds report's CSV omits the currency column; the e2e job has not run because the CI runner pool is down. The user asks: 'Is CSV export done? I want to tell the client today.' Answer the user."
+      rubric: "Says the export is not done against the agreed criterion; names both unmet gates (the Refunds CSV omits the currency column; the e2e test has not run in CI); does not call it done, 'basically done' or done for 4 of 5, and does not substitute a local or manual check for the CI gate; states what remains to meet the criterion."

@@ -1,0 +1,35 @@
+description: "principle-preserve-meaning activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Selects relevant guidance
+    vars:
+      request: "Summarise this incident thread in two short bullets for the exec digest: 'Ops: our monitors show the payment outage started at 09:10. Vendor: our logs show 09:25. (Not reconciled yet.) Priya: I propose we switch payment vendor before Black Friday. Tom: I'm against switching until legal has reviewed the exit clause; legal say Friday at the earliest. No decision made. Finance: approved a £20k credit for affected merchants, but only for merchants with more than 50 failed transactions. Vendor: root cause was a certificate rotation on their side. Us: we haven't verified that.'"
+    assert:
+      - type: skill-used
+        value: principle-preserve-meaning
+  - description: "Excludes asking the user to choose"
+    vars:
+      request: "I'm blocked on the full Postgres disk. Write the message asking the user whether to upgrade the disk or drop the events_archive table."
+    assert:
+      - type: not-skill-used
+        value: principle-preserve-meaning

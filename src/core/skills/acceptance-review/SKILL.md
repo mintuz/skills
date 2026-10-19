@@ -5,7 +5,7 @@ description: WHEN deciding whether a PR, branch, diff, or current code satisfies
 
 # Acceptance Review
 
-Treat the authoritative requirement as an acceptance contract and the implementation as its proof. Review read-only. When fixes are also requested, finish the verdict before handing its gaps to an implementation workflow.
+Treat the authoritative requirement as an acceptance contract and the implementation as its proof. Review read-only (`principle-investigate-read-only`). When fixes are also requested, finish the verdict before handing its gaps to an implementation workflow.
 
 ## 1. Build the contract
 
@@ -19,7 +19,7 @@ Never select one of two competing unresolved policies as the authority, and neve
 - Every candidate produces the same status: record the conflict and report that status.
 - No handoff available: also name the lineage or supersession evidence that would resolve the conflict.
 
-When no authoritative issue, specification, or decision record is supplied, stop, say no acceptance decision is possible without it, and request one. Never build the contract from the diff, the pull request description, or the review request. Route a general code-quality request to a general code review.
+When no authoritative issue, specification, or decision record is supplied, stop, say no acceptance decision is possible without it, and request one. Never build the contract from the diff, the pull request description, or the review request (`principle-fix-the-bar-first`). Route a general code-quality request to a general code review.
 
 **Complete when:** the authoritative contract and implementation subject are explicit, every in-scope normative statement maps exactly once, and every ambiguity and exclusion is recorded.
 

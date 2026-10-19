@@ -1,0 +1,35 @@
+description: "principle-earn-every-element activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Selects relevant guidance"
+    vars:
+      request: "I'm adding a settings sheet to our app. The draft has twelve toggles and a 'More options' section. Help me decide what goes in it."
+    assert:
+      - type: skill-used
+        value: principle-earn-every-element
+  - description: "Leaves journey observation to its owner"
+    vars:
+      request: "Our checkout sometimes loses the basket after a payment error. The app is runnable. Walk through the real journey and its loading, error and retry states before proposing changes."
+    assert:
+      - type: not-skill-used
+        value: principle-earn-every-element

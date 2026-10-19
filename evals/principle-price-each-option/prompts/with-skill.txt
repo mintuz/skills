@@ -1,0 +1,8 @@
+This is a read-only scenario evaluation. Do not call tools. Apply the skill below using only facts supplied in the scenario; do not claim actions were executed. Give a concise decision and next steps.
+
+<skill>
+{{skill}}
+</skill>
+
+Scenario:
+{{scenario}}

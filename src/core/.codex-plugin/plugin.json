@@ -1,6 +1,6 @@
 {
   "name": "core",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Core skills and tools that aid software development workflows.",
   "author": { "name": "Adam Bulmer", "email": "[email protected]" },
   "repository": "https://github.com/mintuz/skills",

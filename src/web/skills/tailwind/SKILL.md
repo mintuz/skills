@@ -119,7 +119,7 @@ under `theme.extend` in `tailwind.config.*`, and set `content` and `darkMode`
 there. See [setup.md](references/setup.md).
 
 Do not add a config file, content glob, PostCSS setup, or dependency unless the
-observed project requires it.
+observed project requires it (`principle-foundational-thinking`).
 
 ## Quick Decision Trees
 
@@ -152,16 +152,17 @@ value. Still name it as missing, in one line.
 A missing value alone does not justify withholding the patch. When the patch
 stays valid with a clearly marked placeholder, deliver it with the open question
 beside it. When it cannot be valid without the value, describe the change and
-ask for the value.
+ask for the value (`principle-never-block-on-the-human`).
 
 ## Dependencies
 
-Reuse the installed integration and helpers. Add a package only when the
-requested feature requires it and the repository has no native equivalent, or
-when the requester names that package and accepts the dependency. When a
-request names an uninstalled package and also forbids new dependencies, do not
-silently pick one side: state the conflict, give the dependency-free
-equivalent, and let the requester choose.
+Reuse the installed integration and helpers (`principle-reuse-before-building`).
+Add a package only when the requested feature requires it and the repository
+has no native equivalent, or when the requester names that package and accepts
+the dependency. When a request names an uninstalled package and also forbids
+new dependencies, do not silently pick one side: state the conflict, give the
+dependency-free equivalent, and let the requester choose
+(`principle-price-each-option`).
 
 ## Resources
 

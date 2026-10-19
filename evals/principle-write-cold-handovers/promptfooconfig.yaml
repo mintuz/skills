@@ -1,0 +1,62 @@
+description: "principle-write-cold-handovers behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Handover must preserve the decision boundary"
+    vars:
+      skill: file://../../src/principle/skills/principle-write-cold-handovers/SKILL.md
+      scenario: "An investigation is at the context limit after ruling out two hypotheses. A third needs a device run unavailable now. A summary draft says Fixed; all checks passed, while only static checks ran. Repair the handover strategy."
+      rubric: "Separates observed static evidence from unavailable device proof; records rejected hypotheses and why, remaining hypothesis and precise next discriminating check; preserves authorization/scope and relevant paths or commands; saves the handover durably before continuity is lost; avoids false completion."
+  - description: "Pause note must survive a reader with no shared history"
+    vars:
+      skill: file://../../src/principle/skills/principle-write-cold-handovers/SKILL.md
+      scenario: "You must stop mid-debugging; a fresh agent with no access to this conversation resumes tomorrow. Facts: branch fix/upload-retry at commit 4f2c9e1 plus an uncommitted edit to src/upload/retry.ts; the user authorised fixing upload retries only; 'clock skew' was ruled out because client and server timestamps matched within 2 ms; 'proxy buffering' was ruled out by reproducing with the proxy bypassed; Sam's theory, still open, is that the retry counter is not reset after a 409; `pnpm test upload` passed (unit tests only); the iOS device repro has not run because no device was available. Your draft note: 'Ruled out the first two ideas, Sam's theory next, tests green, nearly fixed - see above.' Write the note you will leave."
+      rubric: "Replaces every shorthand that depends on this conversation ('first two ideas', 'Sam's theory', 'see above') with the concrete hypotheses, why each was rejected, and the open hypothesis stated in full; names branch, commit and the uncommitted file; states the accepted scope; reports the exact check run and its outcome as unit-only, with the device repro unrun, and drops 'tests green, nearly fixed' as a completion claim; names one concrete next executable step; invents no facts."
+  - description: "Delegated brief must stand alone"
+    vars:
+      skill: file://../../src/principle/skills/principle-write-cold-handovers/SKILL.md
+      scenario: "You will hand a verification job to a fresh worker that can read the repository but not this conversation. Known facts: the candidate fix is commit a1b2c3d on branch perf/list-render; the comparison base is main at 9e8f7a6; the benchmark command is `pnpm bench list`; earlier runs with fewer than five samples were too noisy to trust; the worker may run benchmarks but must not push or edit code. Your draft brief: 'Check whether my fix made the list faster, same as last time, and let me know.' Write the brief you will send."
+      rubric: "The brief names the goal, both exact commits and the branch, the benchmark command and a sample count of at least five, the read-only scope (no push or edits), how to judge faster versus noise, and what to report back including the commits and method used; it removes 'same as last time' by stating that method inline; invents no facts beyond the scenario."

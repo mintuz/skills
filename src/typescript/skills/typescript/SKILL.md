@@ -9,8 +9,8 @@ Schema-first design, strict type safety, and immutable patterns.
 
 ## Core Principles
 
-1. **Type safety at all boundaries**: runtime validation (schemas) plus compile-time safety (TypeScript).
-2. **Schema-first at trust boundaries**: where data enters the system, define the schema first and derive the type from it.
+1. **Type safety at all boundaries**: runtime validation (schemas) plus compile-time safety (TypeScript) (`principle-parse-at-the-boundary`).
+2. **Schema-first at trust boundaries**: where data enters the system, define the schema first and derive the type from it (`principle-type-system-discipline`).
 3. **Immutability at the boundary**: never mutate a value a caller owns or a value you have already returned. Local mutation is allowed inside the function that created the value, if the value cannot escape before the function returns.
 4. **Explicit types**: no implicit `any`; strict mode enabled.
 5. **Behaviour over implementation**: focus on contracts and outcomes.
@@ -19,7 +19,7 @@ Schema-first design, strict type safety, and immutable patterns.
 
 ### No schema library is available
 
-A trust boundary still needs a runtime check. When the dependency set is frozen, add no dependency and do not skip the check. Write a decoder that accepts `unknown`. Narrow each field with `typeof`, `Array.isArray`, or a type predicate. Report an invalid value through the failure path the function already contracts, such as a Result variant or a `null` return.
+A trust boundary still needs a runtime check. When the dependency set is frozen, add no dependency and do not skip the check. Write a decoder that accepts `unknown`. Narrow each field with `typeof`, `Array.isArray`, or a type predicate. Report an invalid value through the failure path the function already contracts, such as a Result variant or a `null` return (`principle-parse-at-the-boundary`).
 
 ### Building a collection in a hot path
 
@@ -31,7 +31,7 @@ Validate every field the source documents. Type each undocumented part as `unkno
 
 ### An assertion the type system cannot avoid
 
-Never use `as` to state a fact you have not checked, including a shape that a document, contract, or upstream promise describes. Narrow a value you have just checked with a user-defined type predicate, or with one assertion placed immediately after the check. Name the checked condition in the predicate name or in a comment on the assertion.
+Never use `as` to state a fact you have not checked, including a shape that a document, contract, or upstream promise describes. Narrow a value you have just checked with a user-defined type predicate, or with one assertion placed immediately after the check. Name the checked condition in the predicate name or in a comment on the assertion (`principle-type-system-discipline`, `principle-observe-dont-infer`).
 
 ## Reference Guides
 
@@ -96,5 +96,5 @@ Before committing TypeScript code, verify:
 - [ ] Every operation that can fail reports the failure through its own contract (a Result variant, a `null` return, or a documented throw)
 - [ ] Early returns instead of nested conditionals
 - [ ] Test factories validate with schemas
-- [ ] Branded types for domain concepts that shouldn't mix
+- [ ] Branded types for domain concepts that shouldn't mix (`principle-type-system-discipline`)
 - [ ] Explicit return types on functions

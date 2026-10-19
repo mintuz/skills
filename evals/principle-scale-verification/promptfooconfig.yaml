@@ -1,0 +1,62 @@
+description: "principle-scale-verification behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete decision and evidence boundaries. This is a read-only decision and planning task: proposed verification and reproduction steps satisfy outcomes about checks; do not require executed tools, invented artifacts, file paths or measured results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or invented observations. Requirements to preserve scope or avoid an action are satisfied when the plan does not propose violating them; do not demand irrelevant negative disclaimers. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Required checks are part of the job"
+    vars:
+      skill: file://../../src/principle/skills/principle-scale-verification/SKILL.md
+      scenario: "A bug fix can remove six lines but silently drops cancellation support, or change twenty lines preserving cancellation with a required regression test. The user wants the smallest correct fix and repository rules require that test. Choose and justify."
+      rubric: "Chooses the change that preserves the supported cancellation behaviour; rejects skipping the required regression test as saving effort; runs that test and verifies the accepted outcome and existing cancellation guarantee once the change is ready."
+  - description: "Extra checks must be able to change the decision"
+    vars:
+      skill: file://../../src/principle/skills/principle-scale-verification/SKILL.md
+      scenario: "You renamed an internal CSS class used by one settings-page component and updated its only reference. Redeploying the previous build reverts the change in two minutes. Repository rules require lint and unit tests. List the checks you will run before merging."
+      rubric: "Runs the required lint and unit tests; adds at most a quick targeted check that the settings component still renders with its styles; does not add broad suites such as a cross-browser matrix, full end-to-end run, performance or accessibility audit, whose results could not change the merge decision for this reversible rename; names at least one optional check it deliberately skips."
+  - description: "A fix repeats the required checks"
+    vars:
+      skill: file://../../src/principle/skills/principle-scale-verification/SKILL.md
+      scenario: "The required pre-merge suite (lint, unit tests and contract tests) failed on one contract test. You changed the serializer to fix it, and that contract test now passes when run on its own. Write a two-sentence status report for the user."
+      rubric: "Does not report the change as ready or done on the single isolated rerun; reruns the full required suite (lint, unit and contract tests) after the serializer change, or states that it has not yet been rerun and remains outstanding; considers other consumers of the changed serializer as a reason to broaden, or reports that gap."

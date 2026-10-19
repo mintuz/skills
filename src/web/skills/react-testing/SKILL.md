@@ -5,19 +5,18 @@ description: WHEN testing React components/hooks/context with React Testing Libr
 
 # React Testing Library
 
-React-specific testing patterns. For general DOM testing patterns (queries, userEvent, async, accessibility), load the `frontend-testing` skill. For the TDD workflow, load the `tdd` skill.
+React-specific testing patterns. For the general DOM rules (query priority, accessible names, `userEvent`, async and absence assertions), load the `frontend-testing` skill. For the TDD workflow, load the `tdd` skill.
 
 ## Core Principles
 
 **React components are functions.** Test them as inputs (props) → output (rendered DOM).
 
-**Test behaviour, not implementation:**
+**Test behaviour, not implementation** (`principle-test-behavior-not-implementation`):
 
-- ✅ Test what users see and do, through public APIs (props, rendered output)
-- ✅ Query by accessible role, label, or visible text
-- ✅ Add `{ name }` to `getByRole` only where the element has an accessible name: content gives one to a `button`, a `link`, or a `heading`, and `aria-label` or `aria-labelledby` gives one to an element whose role accepts an author-supplied name; a plain `<li>` takes no name from its text, so query it by that text
+- ✅ Test what users see and do, through public APIs (props, rendered output), queried by accessible role, label, or visible text
+- ✅ Add `{ name }` to `getByRole` only where the element has an accessible name: content names a `button`, a `link`, or a `heading`; `aria-label` or `aria-labelledby` names an element whose role accepts an author-supplied name; a plain `<li>` takes no name from its text, so query it by that text
 - ❌ Don't test component state or component methods
-- ❌ Don't assert on a class name, a test id, or a handler name while accessible output proves the same behaviour; those names change without changing what a user experiences
+- ❌ Don't assert on a class name, a test id, or a handler name while accessible output proves the same behaviour
 - ❌ Don't use shallow rendering
 
 **Modern RTL wraps and cleans up for you:**
@@ -34,9 +33,19 @@ Decline a request that crosses a system the test does not render: a real network
 
 1. Name the request as end-to-end work.
 2. Recommend a browser-driven tool, such as Playwright or Cypress, for the journey.
-3. Name each slice React Testing Library can still cover with the network boundary mocked, by its component and the behaviour you would assert.
+3. Name each slice React Testing Library can still cover with the network boundary mocked, by its component and the behaviour you would assert (`principle-state-the-scope`).
 
 Do not offer a test that fakes those external systems as an equivalent substitute for the journey.
+
+## Test Allocation
+
+Prioritise integration tests over unit tests:
+
+| Level | What to test | How many | Tools |
+| --- | --- | --- | --- |
+| Unit | Shared utilities, complex pure functions | Shared utilities only | Vitest |
+| Integration | Features, user flows, component interactions | Most tests | Vitest + Testing Library |
+| E2E | Critical user journeys | Few, critical paths only | Playwright |
 
 ## Asynchronous Assertions
 
@@ -57,7 +66,7 @@ When a provider prop must change, render a small consumer component with `render
 
 ## Missing Facts
 
-Write every assertion the supplied facts support, and keep that runnable test in your answer. When one expected outcome is undefined, name the minimum contract an assertion needs: how the code signals the outcome, and how a test can observe it (its role, its text, or the callback it fires). Leave only that path as a `test.todo` stating what you need. Do not invent copy, a role, or a test id and assert it as though the packet supplied it. Do not delete the supported assertions because one path is undefined.
+Write every assertion the supplied facts support, and keep that runnable test in your answer. When one expected outcome is undefined, name the minimum contract an assertion needs: how the code signals the outcome, and how a test can observe it (its role, its text, or the callback it fires). Leave only that path as a `test.todo` stating what you need (`principle-never-block-on-the-human`). Do not invent copy, a role, or a test id and assert it as though the packet supplied it. Do not delete the supported assertions because one path is undefined.
 
 ## Guides
 

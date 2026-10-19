@@ -52,5 +52,5 @@ tests:
   - description: "Finish the outcome with phase gates"
     vars:
       skill: file://../../src/principle/skills/principle-outcome-oriented-execution/SKILL.md
-      scenario: "An isolated migration replaces a private queue implementation. The accepted outcome preserves ordering, cancellation and retry limits. The initial compile test passes, but a mid-migration cancellation test fails and old queue deletion remains. The final code is not yet run. Assess whether to stop or continue and define completion."
-      rubric: "Continues toward the accepted ordering/cancellation/retry outcome rather than declaring done at compilation; investigates the failed phase check before depending on it; removes obsolete queue code once consumers and guarantees are proven; distinguishes temporary isolated breakage from accepted final behavior; names relevant final checks and rollback without claiming unrun results."
+      scenario: "An isolated migration replaces a private queue implementation. The accepted outcome preserves ordering, cancellation and retry limits. The initial compile test passes, but a mid-migration cancellation test fails. The final code is not yet run. Assess whether to stop or continue and define completion."
+      rubric: "Continues toward the accepted ordering/cancellation/retry outcome rather than declaring done at compilation; investigates the failed phase check before depending on it; distinguishes temporary isolated breakage from accepted final behavior; names relevant final checks and rollback without claiming unrun results."

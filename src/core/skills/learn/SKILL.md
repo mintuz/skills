@@ -68,7 +68,7 @@ paths, module names, symbol names, commands, values, owners, or examples.
 
 Never write credentials, personal or customer data, or internal hostnames and
 addresses, even when the user asks for them. Name the owning secret manager or
-environment manager instead of a live value.
+environment manager instead of a live value (`principle-keep-secrets-out`).
 
 For every security bypass the source supplies, make the prohibition unambiguous:
 

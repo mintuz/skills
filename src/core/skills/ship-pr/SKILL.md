@@ -27,10 +27,11 @@ On Forgejo or Gitea, decide the gates from these responses. A review gate is ope
 
 - Load `core:commit-messages` before assessing commit boundaries or writing any commit message.
 - Load `core:pr` before drafting the reviewer-first title and body or creating the pull request.
+- Load `core:babysit` before step 4; it runs the red-check repair loop under the contract there.
 
 ## Authority
 
-Treat invocation as authorisation to commit the in-scope changes, push their branch, and create or update their pull request. Treat the user as merge owner. Reserve substantial behavioural changes, ambiguous conflict choices, shared-history rewrites, and merging the pull request for explicit user direction.
+Treat invocation as authorisation to commit the in-scope changes, push their branch, and create or update their pull request. Treat the user as merge owner. Reserve substantial behavioural changes, ambiguous conflict choices, shared-history rewrites, and merging the pull request for explicit user direction (`principle-stay-in-scope`).
 
 ## 1. Establish the ship set
 
@@ -58,14 +59,19 @@ After the initial push and every later push, run a **head checkpoint**. Require 
 
 ## 4. Escort until merge
 
-Enter a persistent polling loop with bounded waits, using `gh pr view`, `gh pr checks`, and `gh run view --log-failed` (or the `tea api` calls above) as needed. On each cycle, check the PR state, merged state (`mergedAt` on GitHub), head SHA, mergeability, review decision, and every required status check. Use the available recurring monitor or wait mechanism; otherwise poll about every 30–60 seconds. While actively waiting, share concise status updates at least every 60 seconds.
+Enter a persistent polling loop with bounded waits, using `gh pr view` and `gh pr checks` (or the `tea api` calls above) as needed. On each cycle, check the PR state, merged state (`mergedAt` on GitHub), head SHA, mergeability, review decision, and every required status check. Use the available recurring monitor or wait mechanism; otherwise poll about every 30–60 seconds. While actively waiting, share concise status updates at least every 60 seconds.
+
+Delegate red checks to `core:babysit` (its steps 3–6: watch, classify, fix and re-arm, use the wait) under this contract:
+
+- **Narrower repair authority:** babysit applies only **minor** repairs as defined below. Every substantial failure, and babysit's attempt or strike bound, returns here for the user's direction. Babysit's own reservations (merge, history rewrite, base-branch push) still hold.
+- **This skill's terminal state:** babysit's stops (green, bound hit, watch window expired) hand control back to this loop, which ends only as **Complete only when** below states.
 
 React to each observation:
 
 | Observation | Action |
 | --- | --- |
 | Checks pending | Keep polling the same head SHA. |
-| Minor CI failure | Reproduce it locally, apply the smallest mechanical fix, run the failing check plus relevant tests, commit with `core:commit-messages`, push, and restart the loop on the new SHA. |
+| Minor CI failure | Through babysit: reproduce it locally, apply the smallest mechanical fix, run the failing check plus relevant tests, commit with `core:commit-messages`, push, run the head checkpoint, and restart the loop on the new SHA. |
 | Substantial CI failure | Report the failing job, root-cause evidence, and resolution options with tradeoffs; await direction, then resume the loop. |
 | Minor merge conflict | Fetch the base, inspect both intents, update the feature branch by repository policy (merge the base when no policy exists), resolve only the unambiguous hunks, run relevant checks, commit with `core:commit-messages`, push, and restart the loop. |
 | Substantial merge conflict | Keep the branch recoverable; report each conflicting intent with its file and symbol, and concrete resolution options, each with its tradeoff; await direction, then resume the loop. |

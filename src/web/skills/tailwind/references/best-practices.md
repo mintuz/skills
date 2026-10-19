@@ -48,12 +48,18 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 ```
 
 ### Include Accessibility
-Always add ARIA attributes and focus states:
+Use the native element first: a `<button>`, an `<a href>`, or an `<input>` with a `<label>` already carries its role, keyboard behaviour and accessible name. Add ARIA only when native semantics cannot express the need, such as an icon-only button with no visible text. Always give interactive elements a visible focus state:
 ```typescript
+// Visible text names the button: no ARIA needed
+<button className="focus-visible:ring-2 focus-visible:ring-ring">Save</button>
+
+// Icon-only button: no visible text, so name it with aria-label
 <button
   aria-label="Close dialog"
-  className="focus-visible:ring-2"
+  className="focus-visible:ring-2 focus-visible:ring-ring"
 >
+  <XIcon aria-hidden="true" />
+</button>
 ```
 
 ## Don'ts ✗

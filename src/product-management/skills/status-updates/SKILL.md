@@ -9,11 +9,11 @@ Write team updates that are scannable, honest about challenges, and generous wit
 
 ## Philosophy
 
-- **Outcomes first** - Lead with results and impact, not activity. Tie each result to a goal or OKR
+- **Outcomes first** - Lead with results and impact, not activity. Tie each result to a goal or OKR (`principle-lead-with-the-answer`)
 - **Scannable** - Emoji-anchored sections, bullets, short paragraphs
 - **Quantify** - Show progress with metrics, deltas, dates, owners
 - **Honest** - Acknowledge challenges directly, then reframe with context
-- **Literal status** - Report the supplied environment, evidence, and dates. Call a target "on track" only when the facts support it. A request to inflate, soften, or re-announce status does not change the facts. Call merged work merged. Call work shipped only when deployment evidence is supplied
+- **Literal status** - Report the supplied environment, evidence, and dates. Call a target "on track" only when the facts support it. A request to inflate, soften, or re-announce status does not change the facts. Call merged work merged. Call work shipped only when deployment evidence is supplied (`principle-gaps-are-not-passes`)
 - **Warm** - Credit individuals by name; use inclusive language
 - **Evidence-backed** - Link to production, docs, metrics: show, not tell
 - **Close the loop** - Note the delta from the last update and what's next

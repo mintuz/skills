@@ -11,10 +11,14 @@ observable behaviour.
 
 ## When to Refactor
 
-- Always assess after green
-- Refactor only if it improves the code
-- **Establish a reversible baseline with a known test result before refactoring**
+- Assess after every GREEN: once per behaviour, not once after a batch
+- Refactor only if it improves the code; if the code is already clean, move on
+- **Establish a reversible baseline with a known test result before refactoring** (`principle-capture-the-baseline`)
 - **Pin the behaviour the refactor must preserve with a passing test first**
+- Refactor only code that green tests already cover; characterize anything else
+  first or leave it alone, however trivial it looks
+- Refactor in small reversible steps; never refactor code you cannot restore
+- Keep external APIs unchanged and keep every test result unchanged
 
 ### Reversible Baseline
 
@@ -28,13 +32,18 @@ Stay inside the user's authorised boundary:
 - Commit the baseline only when the user asked for a baseline commit and the
   owned changes are the only changes present. A separate commit also keeps git
   history readable.
+- Inside a TDD cycle where the user allows commits and the owned changes are
+  the only changes present, commit the green code as the baseline; that
+  permission is the explicit request this skill requires.
 - A request for one commit is a request for the refactor commit. Add no extra
   checkpoint commit for it.
 - Otherwise, record enough to restore the owned paths: their current content or
   diff, or a clean-tree restore point that already holds that content. Also
   record the test commands you ran and their results. A list of path names
-  alone restores nothing. Preserve unrelated worktree changes.
-- Do not commit, stage, stash, or reset without an explicit request.
+  alone restores nothing. Preserve unrelated worktree changes
+  (`principle-preserve-unrelated-work`).
+- Do not commit, stage, stash, or reset without an explicit request
+  (`principle-update-the-base-deliberately`).
 - If the suite is not fully green, record the exact set of failing tests in the
   baseline; that set must be unchanged after the refactor. Restore green first
   when you can, as a separate change, never inside the refactor.
@@ -47,6 +56,7 @@ Stay inside the user's authorised boundary:
 4. REFACTOR: Apply one structural slice
 5. VERIFY: Run the named characterization and focused behaviour tests, then the
    relevant regression suite; on failure, restore only that slice
+   (`principle-sequence-verifiable-units`)
 6. COMMIT: Save the refactor separately when requested
 
 ### Characterization Tests
@@ -58,11 +68,14 @@ move. Characterize before you move code, and only what matters:
    across the boundary you are about to move.
 2. Keep the entries a caller relies on or the task states as required. Discard
    incidental details no caller can observe; pinning those freezes an
-   implementation instead of a contract. Common entries that do cross the
-   boundary: public signatures, error type, error object identity, ordering,
-   cleanup timing, retry count and delay, and fan-out to multiple waiters.
+   implementation instead of a contract (`principle-test-behavior-not-implementation`).
+   Common entries that do cross the boundary: public signatures, error type,
+   error object identity, ordering, cleanup timing, retry count and delay, and
+   fan-out to multiple waiters.
 3. For each kept entry no test asserts, write a test asserting the current
-   observable behaviour.
+   observable behaviour: run the code and record the output it actually
+   produces today. Never change production code to satisfy that first
+   expectation.
 4. Run those tests against the unchanged implementation. They must pass before
    you move any code.
 
@@ -73,7 +86,8 @@ Characterization tests are not speculative work; they record existing behaviour
 callers already depend on.
 
 When a required behaviour cannot be characterized, stop before the refactor and
-report which behaviour you could not pin.
+report which behaviour you could not pin. Leave uncharacterized code alone,
+whether or not it looks trivial.
 
 ## Priority Classification
 
@@ -101,7 +115,8 @@ report which behaviour you could not pin.
 Before extracting, state the evidence: the rule, policy, or specification the
 copies share, and whether they have changed together in the past. Duplicates
 that cite the same rule and have always changed together are one piece of
-knowledge. Duplicates that only look alike are not; leave them separate.
+knowledge with one owner (`principle-derive-from-one-owner`). Duplicates that
+only look alike are not; leave them separate.
 
 ## Example Assessment
 
@@ -166,7 +181,8 @@ refactor: rename ambiguous parameter names
 ```
 
 **Format**: `refactor: <what was changed>`. Never mix refactoring commits with
-feature commits.
+feature commits. When you cannot commit, keep the refactor a separate
+reviewable step from any behaviour change.
 
 ---
 
@@ -176,9 +192,10 @@ feature commits.
   same result after the refactor as the recorded baseline, including any
   recorded pre-existing failure
 - [ ] No test was edited, skipped, or deleted to hide a difference
+  (`principle-never-weaken-a-check`)
 - [ ] Every observable behaviour the change could break has a passing
   characterization test
-- [ ] No new public APIs added
+- [ ] External APIs unchanged; no new public APIs added
 - [ ] Code more readable than before
 - [ ] Baseline and rollback preserve unrelated worktree changes
 - [ ] Failed verification restores only the owned structural slice

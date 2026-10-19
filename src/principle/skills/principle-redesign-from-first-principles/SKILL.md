@@ -12,3 +12,7 @@ Compare that design with the current system. Choose the smallest coherent evolut
 Carry the accepted design through affected types, validation, consumers, examples and documentation. Avoid a local flag or special case that leaves conflicting assumptions elsewhere.
 
 Deliver authorized changes in bounded, verifiable slices with migration and rollback where needed. For an exploratory question, present the design, tradeoffs and next reviewable step. Verify the changed behavior before claiming the redesign is delivered.
+
+Distinct from: `principle-exhaust-the-design-space` (a novel choice with material uncertainty), `principle-migrate-callers-then-delete-legacy-apis` (replacing an API), `principle-foundational-thinking` (adding infrastructure for later).
+
+Done: the smallest coherent evolution is chosen and carried through every affected type, validation path, consumer, example and document, and the changed behaviour is verified before the redesign is called delivered.

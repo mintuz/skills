@@ -31,12 +31,12 @@ Keep the wrapped code's state where it already lives. Pass the SwiftUI side's va
 
 ## Typical Flow
 
-1. Give every mutable value and dependency one owner and lifetime (`references/state-management.md`).
+1. Give every mutable value and dependency one owner and lifetime (`references/state-management.md`, `principle-derive-from-one-owner`).
    - Keep a value in `@State` in the view that uses it.
    - Lift it to the nearest common ancestor when sibling views read it. Pass it down as an argument or a `@Binding`.
-   - Move it into a shared `@Observable` service only when it must outlive that ancestor, when it is domain state that unrelated features read, or when passing it down would thread it through views that do not use it. A value in a service takes the service's lifetime, so it stays set after the screen closes.
+   - Move it into a shared `@Observable` service only when it must outlive that ancestor, when it is domain state that unrelated features read, or when passing it down would thread it through views that do not use it. A value in a service takes the service's lifetime, so it stays set after the screen closes (`principle-narrow-state-lifetime`).
    - Retain each shared service once with `@State`. Inject each service separately through the environment. Mutate shared state through actions on the service.
-2. Keep views declarative; put business logic in injected services (`references/observable-patterns.md`).
+2. Keep views declarative; put business logic in injected services (`references/observable-patterns.md`, `principle-keep-the-core-pure`).
 3. Give every async path one owner and one lifetime (`references/async-patterns.md`).
    - Use `.task` for work that starts with the view.
    - Use `.task(id:)` for work that must restart when an input changes. SwiftUI cancels the running task when that identity changes and when the view disappears. Put any debounce inside the task.

@@ -14,4 +14,6 @@ Repeated failures can implicate the assumption every fix kept intact.
 
 For a suspected saturated pool, compare acquisition wait and utilization with downstream service or client time. Low pool wait while another stage dominates rejects the pool-bottleneck hypothesis; evenly distributed workers alone does not.
 
+Distinct from: `principle-fix-root-causes` (a reproducible defect before repeated fixes have failed), `principle-prove-it-works` (a single check fails: test the observation method and the system), `principle-redesign-from-first-principles` (a new requirement challenges an existing design; this principle questions a fact the current design assumes).
+
 Done: the premise is supported, rejected or explicitly unresolved by a discriminating observation, and the next action follows that result.

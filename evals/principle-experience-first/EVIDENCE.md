@@ -9,3 +9,7 @@ These are instruction-quality scenarios, not executed product behavior. Trigger 
 Strict RED/gain limits remain in the JSON. The user accepted behavior-preserving ports with explicit evidence limits on 13 October 2026; that exception does not invent a failed pre-change test or a baseline gain.
 
 [Principle validation](../../reports/skill-audit-2026-10-13/principle-validation.md) summarizes loader resolution, representative hypothetical behavior, and the two flagged trigger results. Most processes batched twelve explicitly named skills; final laziness replays used fresh single-skill processes.
+
+## Rerun, 19 October 2026
+
+Removed "Justify each control or option by a user need." (now carried by `principle-earn-every-element`) and added a Distinct-from line. The "A library consumer is a user" rubric dropped its "justifies exposed options by real consumer needs" clause, which moved with the rule to `evals/principle-earn-every-element`. Description unchanged, so triggers were not rerun. Treatment-only `pnpm test:skills` (Astra Medium, one trial per case), eval `eval-ups-2026-10-19T10:52:35`: "Observe actual states before polishing" PASS; "A library consumer is a user" PASS. Provider errors: 0. `validation-summary.json` source hashes predate this edit.
