@@ -30,7 +30,7 @@ The scripts are in `scripts/` beside this file. Run each one as `bash <absolute 
 - **Scope.** Keep existing functionality. Report each feature built outside the spec, and each test, check or behaviour removed without approval (principle-stay-in-scope, principle-preserve-unrelated-work). To find the candidates, run `scripts/scope-diff.sh <base>` on the branch. It lists deleted tests, fewer test cases, skipped tests, suppressed checks, changed check configuration and removed exports. Classify each item that it lists as approved by the spec or the user, or as a removal without approval.
 - **Evidence.** Use the repository, its PR, its spec and the request as the evidence for project rules. Skills installed in the user's dotfiles are third-party tools, not project conventions.
 - **Second opinion.** Before a review verdict, or a "done" claim on non-trivial work, run `double-check` with a model from a different provider. When the host offers Astra and Fable agents, give both the same brief for a hard root cause, and reconcile their findings.
-- **Measurement.** Performance work starts with a baseline and ends with the same scenario measured again (principle-capture-the-baseline, `benchmark-checklist`, principle-explain-the-number).
+- **Measurement.** Run performance work, including a performance user story inside Implement, through the Perf playbook (`playbooks/perf.md`).
 - **Proof.** Prove each change on the real surface before you claim success (principle-prove-it-works). For a UI change, capture a screenshot or a recording, and add it to the PR description.
 - **Lessons.** When the user corrects the same mistake twice, use `correct`. To keep a durable project fact, use `learn`.
 
@@ -103,4 +103,5 @@ Match the task to a playbook and open its file. Start a todo list whose first it
 - **Bug fix** (`playbooks/bug-fix.md`). A reported defect, often with a screenshot or a recording.
 - **Investigate** (`playbooks/investigate.md`). How, why, explain, blast radius or "are you sure?". The deliverable is an answer, not a change.
 - **Rethink** (`playbooks/rethink.md`). A system redesigned from first principles, with fewer tools and moving parts.
+- **Perf** (`playbooks/perf.md`). Make something faster, or run a performance experiment for a report, against a measured baseline.
 - **Ship.** Every playbook that changes code ends here. Use `ship-pr` to commit, push and raise the PR, then drive CI to green with `babysit`. Add the auto-merge label, or merge, only when the user asks; then monitor until merged and stop.
