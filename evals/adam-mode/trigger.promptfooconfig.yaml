@@ -1,0 +1,58 @@
+description: "adam-mode activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use adam-mode for the following request. Implement spec 541 on a new branch as a single PR. It has three user stories and is performance work."
+    assert:
+      -
+        type: "skill-used"
+        value: "adam-mode"
+  -
+    description: "Uninvoked review stays outside the mode"
+    vars:
+      request: "Can you do a deep review of this PR and look for scope creep?"
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply the adam-mode workflow or automatically activate the manual-only adam-mode skill. It stays within the requested review and does not claim to have performed unavailable work."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

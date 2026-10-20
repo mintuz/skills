@@ -59,8 +59,8 @@ color: pink
 Agent instructions...
 ```
 
-**Required:** `name`, `description`, `tools`
-**Optional:** `model` (sonnet/opus/haiku), `color`
+**Required:** `name`, `description`
+**Optional:** `tools`, `model` (sonnet/opus/haiku), `color`. Omit `tools` and `model` from an agent that runs in more than one harness: tool names and model names differ between Claude Code, Codex and OMP, and OMP ignores the `model` of a Claude-format plugin agent.
 
 ## Command Definition Format
 

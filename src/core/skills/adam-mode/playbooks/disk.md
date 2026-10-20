@@ -1,0 +1,16 @@
+# Disk
+
+The disk fills up, or the user asks you to remove worktrees, clones or build caches. This playbook deletes user state that no code review checks, so its gates are the review. Keep the main checkout of each repository.
+
+1. **Snapshot.** Record `df -h` for the full disk before you change anything (principle-capture-the-baseline).
+2. **Audit.** For each repository, run `scripts/worktree-audit.sh [-b <base>] <repo-path>` (principle-build-the-lever). It lists every worktree that git knows, wherever a host put it, for example `~/.herdr/worktrees`, `.claude/worktrees` or `~/.codex/worktrees`. Use these paths only; a hand-typed path misses worktrees. When PRs target a branch other than the remote HEAD, pass that branch with `-b`. To find a second full clone of a repository, compare `git remote get-url origin` across the user's project folders. Done when each worktree has a row and a size.
+3. **Ask which sessions are active.** The bucket is advice, not permission. Ask the user which agent sessions are still active and which worktrees they use, then cross-check each candidate against the answer. The user's active set wins over the bucket. Keep each `in-use?` worktree until the user releases it.
+4. **Pause on uncommitted work.** For each worktree with `tracked` above 0, show `git -C <path> diff`, and get the user's decision on that worktree before you remove it. A removed worktree keeps its commits on its branch; its uncommitted changes are lost. For a `review` worktree, name its untracked files and its unmerged commits. A request to delete every worktree, even one that says "do not ask", is not a decision on uncommitted or active work. Remove the `safe` worktrees, then list the others with their evidence, and ask one question that gets a decision on each.
+5. **Remove the confirmed set.** The request to free space covers each `safe` worktree that the user did not name as active; every other removal needs the user's decision on that worktree.
+   - For a worktree whose owner is `adam-mode:<run>/<unit>`, run `scripts/worktree.sh cleanup <run-id> <base>` in its repository. It removes only units whose work is on the base. For a unit that the user agrees to drop, run `scripts/worktree.sh abandon <run-id> <unit>`, and keep the recovery command that it prints. The script refuses uncommitted changes, so first save agreed changes with `git -C <path> stash push --include-untracked`.
+   - For each other worktree, run `git worktree remove <path>`, then `git worktree prune` in that repository. Add `--force` only when the user agreed to drop its untracked files.
+   - Keep the branches. A local branch that was never pushed is the only copy of its commits.
+
+   Done when a second audit no longer lists the removed paths.
+6. **Other reclaimers.** Measure each candidate with `du -sh`, and remove it only after the user agrees. On macOS, the usual candidates are Xcode DerivedData (`~/Library/Developer/Xcode/DerivedData`), unavailable simulators (`xcrun simctl delete unavailable`) and package caches (for example `pnpm store prune` or `brew cleanup`). Say which ones the next build fills again.
+7. **Report.** Give `df -h` before and after and the space reclaimed. List each worktree removed, each recovery command, and a one-line reason for each worktree kept: uncommitted work, an active session, unmerged commits or the user's choice.

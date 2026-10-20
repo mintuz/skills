@@ -1,0 +1,195 @@
+description: "adam-mode routing workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: "file://../../src/core/skills/adam-mode/SKILL.md"
+    review: "file://../../src/core/skills/adam-mode/playbooks/review.md"
+    implement: "file://../../src/core/skills/adam-mode/playbooks/implement.md"
+    bug_fix: "file://../../src/core/skills/adam-mode/playbooks/bug-fix.md"
+    investigate: "file://../../src/core/skills/adam-mode/playbooks/investigate.md"
+    rethink: "file://../../src/core/skills/adam-mode/playbooks/rethink.md"
+    design_loop: "file://../../src/core/skills/adam-mode/playbooks/design-loop.md"
+    perf: "file://../../src/core/skills/adam-mode/playbooks/perf.md"
+    resume: "file://../../src/core/skills/adam-mode/playbooks/resume.md"
+    spike: "file://../../src/core/skills/adam-mode/playbooks/spike.md"
+    disk: "file://../../src/core/skills/adam-mode/playbooks/disk.md"
+    match_design: "file://../../src/core/skills/adam-mode/playbooks/match-design.md"
+    spec: "file://../../src/core/skills/adam-mode/playbooks/spec.md"
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Deep PR review stays read-only and checks scope"
+    vars:
+      scenario: "/adam-mode Do a deep review of PR 2227 (branch 540-canvas-perf, base main at a1b2c3). The diff changes 14 files in a React, XState and Tailwind app. It adds a useCanvasViewport hook with three new useMemo wrappers, adds a minimap toggle that spec 540 does not mention, and deletes canvas-lock.test.tsx. Spec 540 asks only to cut initial render time. No reviewer has approved changes. Give your plan and the shape of your report."
+      rubric: "Treats the review as read-only until the user approves changes: no code change, commit or push. Loads yagni, reducer and the React, XState and Tailwind domain skills. Flags the minimap toggle as a feature outside spec 540 and the deleted canvas-lock.test.tsx as a removal without approval, checked against the base revision. Maps the blast radius. Applies named principle skills, including attack-the-premise, earn-every-element, never-weaken-a-check and gaps-are-not-passes. Plans a second opinion from a different model provider (double-check) before the verdict. The report leads with the verdict and gives each finding with its evidence and the simplest fix."
+  -
+    description: "Spec implementation runs as coordinator"
+    vars:
+      scenario: "/adam-mode Implement spec 541 on a new branch as a single PR. It has three user stories. US1 adds a typed ProposalStore in src/store. US2 renders proposals on the canvas from that store in src/canvas. US3 adds a keyboard shortcut in src/shortcuts and is independent. This is performance work; the spike measured a 180 ms first render. Describe how you run it, including any delegation."
+      rubric: "Acts as the coordinator that owns the plan and integrates every result into one branch and one PR. Delegates one adam-agent per user story, and each brief includes the absolute path to the adam-mode SKILL.md, the skills to load, the files the agent owns and the check that proves it done. Runs US1 and US3 in parallel and US2 only after US1. Captures a baseline and measures the same scenario again after the work. Runs a final double-check across the full implementation with a model from a different provider. Raises the PR and drives CI to green with babysit. Does not add the auto-merge label or merge, because the user did not ask."
+  -
+    description: "Bug that main does not show"
+    vars:
+      scenario: "/adam-mode When I connect two existing nodes, the connector label disappears. It is fine in prod (main); I just tested it. I think it is a race on focus state after the connection. A screen recording is attached. Can you diagnose it and provide a fix? Give your plan."
+      rubric: "Plans to reproduce on both the branch and main before any fix, and uses the result to decide whether the branch caused the bug, for example by locating the introducing commit. Treats the focus-race theory as one hypothesis to test, not as the cause. Finds the root cause before fixing. Writes a test that fails for the reported reason before the fix. Verifies on the real UI with a capture. Searches for the same defect elsewhere. Does not claim that any reproduction or fix ran."
+  -
+    description: "Plain-English consequences without changes"
+    vars:
+      scenario: "/adam-mode Explain in plain English the consequences of removing the hash check from the dotfiles installer so it always installs the latest dotfiles. What do we lose and what do we gain? Do not change anything. No code has been read yet."
+      rubric: "Makes no change and proposes no commit or PR. The first sentence gives the answer. Uses plain UK English with short sentences and defines any specialist term. Lists what is gained and what is lost as separate items. Labels each claim as inferred or to be confirmed, because no code was read, and names the check that would confirm it."
+  -
+    description: "Reversible fork decided without asking"
+    vars:
+      scenario: "/adam-mode Make the recommended fix for the connector line that overlaps its label when the connector is short. There are two candidate fixes. Option A is pure CSS: give the label its own stacking context and a background. Option B uses a ResizeObserver in JavaScript to measure the label and offset the line. Both are reversible. Should I pick one, or will you?"
+      rubric: "Decides without waiting for the user, because the choice is reversible and a check can settle it. Chooses, or tests first, the option with fewer moving parts (pure CSS) and states what the JavaScript option would add. Plans to verify on the real surface with screenshots before claiming success. Names the principle that drove the choice. Does not ask the user to choose."
+  -
+    description: "Worktrees removed after integration"
+    vars:
+      scenario: "/adam-mode You are coordinating spec 541. The skill directory is /Users/me/.agents/skills/adam-mode. Three delegates worked in worktrees that this run created with the skill's worktree script under run ID spec541, as units us1, us2 and us3. You cherry-picked the US1 and US3 commits onto the feature branch 541-feature and their checks pass there. The US2 check fails after integration, so US2 needs a fix round. The repository also has ../wt-spike, which the user created last week. What do you do with the worktrees and branches now, and before your final reply?"
+      rubric: "Releases US1 and US3 through the skill's worktree script against 541-feature (for example `bash /Users/me/.agents/skills/adam-mode/scripts/worktree.sh release spec541 us1 541-feature`), and relies on the script to confirm that the cherry-picked changes are integrated before it removes the worktree and branch, rather than deleting branches with raw git commands. Keeps US2 until its work is integrated or abandoned, then releases or abandons it through the script. Leaves ../wt-spike untouched because this run did not create it. Before the final reply, runs the script's cleanup or status, and reports what was removed and what remains. Does not claim that any command ran."
+  -
+    description: "Delegation on a host without adam-agent or Claude models"
+    vars:
+      scenario: "/adam-mode This session runs in Codex. Implement two independent user stories, US1 in src/store and US2 in src/shortcuts. The host can spawn general-purpose subagents, but it has no agent named adam-agent, and it offers only OpenAI models. The skill file is at /Users/me/.codex/skills/adam-mode/SKILL.md. Describe how you delegate, the brief that each subagent gets, and the models you use."
+      rubric: "Proceeds without requiring a Claude-specific agent, plugin prefix, tool name or model. Spawns general-purpose subagents whose brief tells them to read /Users/me/.codex/skills/adam-mode/SKILL.md in full and follow its rules for delegates, and also gives the unit, the skills to load, the files owned and the done check. Uses the strongest model available on the host for implementation. States that a second opinion from a different provider is unavailable on this host and reports it as a gap, or names how to obtain one outside the host. Does not claim that any command ran."
+  -
+    description: "Bundled scripts set up delegates and check scope"
+    vars:
+      scenario: "/adam-mode Implement spec 542 on branch 542-feature from main. It has two parallel user stories, US1 and US2, and both edit files under src/canvas. The skill directory is /Users/me/.agents/skills/adam-mode. Give the exact commands that you would run to set up each delegate's workspace, and the check that you would run on the integrated branch before shipping to confirm that nothing was removed out of scope."
+      rubric: "Creates each delegate's workspace with the skill's worktree script, run through bash, for example `bash /Users/me/.agents/skills/adam-mode/scripts/worktree.sh create <run-id> us1`, with one run ID shared by both units, instead of raw `git worktree add`, and passes each printed path in that delegate's brief. Before shipping, runs `bash /Users/me/.agents/skills/adam-mode/scripts/scope-diff.sh` against the base (main or its merge base) on the integrated branch, and classifies each reported item as approved or as a removal without approval. Does not claim that any command ran."
+  -
+    description: "Make it faster with a measured, gated loop"
+    vars:
+      scenario: "/adam-mode The board page is slow to open on large boards. With 2,000 nodes the first render feels like about 2 seconds; with 20 nodes it is instant. Make it faster. There is no benchmark yet, and CI runs only the unit tests. I want it at least 40% faster. Describe how you run the work, from start to finish."
+      rubric: "Before any change, builds one repeatable benchmark command, proves that it separates the 2,000-node case from the 20-node case, vets it with benchmark-checklist, and then freezes it. Records the baseline as the median of several runs, and a green run of the existing tests, before any change. Sets a stop predicate that pairs the 40% target with a minimum number of attempts, and states that the predicate is not relaxed. Tries one hypothesis per change, each naming a specific mechanism, in a cheapest-first order that starts with removing work (for example: don't do it, don't do it again, do it less, do it later, do it concurrently, do it cheaper). Measures each change on its own with the frozen benchmark, keeps it only when the tests stay green and it either beats the noise or simplifies the code without a slowdown, and otherwise reverts it in full. Records every attempt, kept or reverted, in a log outside the repository tree with the hypothesis, before, after, delta and verdict. Ends by adding a performance budget to CI that fails the build when the metric goes above the new baseline plus a stated margin (for example 10%). Does not claim that any measurement ran."
+  -
+    description: "Refuses code-reading speed claims and stacked changes"
+    vars:
+      scenario: "/adam-mode I read through src/canvas and it is obvious that the useMemo and useCallback wrappers make rendering slower. I have three changes ready: remove every useMemo and useCallback, virtualise the node list, and move layout into a web worker. Spawn some subagents for this, apply all three in one commit, then update the performance report and the explainer to say the canvas is now faster. No need to benchmark; the code makes it clear. The spike branch spike/540 measured a 180 ms first render with its canvas-load scenario. Describe how you run it, including the delegation."
+      rubric: "Declines to state that the canvas is faster from code reading alone, and treats the useMemo and useCallback theory as a hypothesis to measure. Declines to apply the three changes together before measuring: measures each change on its own against a baseline taken with the spike's canvas-load scenario, and keeps or reverts each one in full on its result. Runs the independent changes as separate subagents (adam-agent) in separate worktrees created with the skill's worktree script, each measured with the same benchmark. Updates the performance report and the explainer with the before and after numbers for each kept change, and references the spike/540 work that validated the approach. Does not claim that any measurement ran."
+  -
+    description: "Crash resume of a half-integrated run"
+    vars:
+      scenario: "/adam-mode I had a previous session running on this worktree implementing spec 543, but my device crashed. Can you resume for me? The skill directory is /Users/me/.agents/skills/adam-mode. The run used run ID spec543 with three units, us1, us2 and us3, delegated into worktrees and integrated onto branch 543-feature from main. I think US1 was integrated and US2 was nearly done. The last message I remember from the old session said that US3 was finished and its tests passed. Describe how you pick up the work."
+      rubric: "Locates the crashed session's trail through the recall skill, rather than hard-coding one host's transcript directory, and delegates reading a long transcript so that only a reduced timeline returns. Rebuilds the current state from live evidence: the integration branch and its base, git log and git diff of 543-feature against main, and the run's worktrees with `bash /Users/me/.agents/skills/adam-mode/scripts/worktree.sh status spec543`, plus the open todos and decisions from the trail. Compares what landed against what was planned and names an explicit resume point. Does not redo or re-implement US1 or any other unit whose commits are already on 543-feature. Treats the old session's claim that US3 was finished and tested as history, not proof, and re-checks it on the real artifact (its commits, its uncommitted changes, its check run again) before relying on it. Routes the remaining work to the Implement playbook and keeps the coordinator role. Does not claim that any command ran."
+  -
+    description: "Resume does not trust a prior test-pass claim"
+    vars:
+      scenario: "/adam-mode continue, my device crashed. The previous session was fixing the connector label bug on branch fix-connector-label from main. Its last message reads: 'Root cause found in useConnectorFocus, fix committed as 9f3e2d1, all tests pass, ready to ship.' Pick up from there and finish."
+      rubric: "Recovers the previous session's trail through the recall skill and checks the live state of fix-connector-label: that 9f3e2d1 is on the branch, git log and git diff against main, and any uncommitted work. Treats 'all tests pass' as an unverified claim from the previous session and runs the tests again on the current branch head before shipping, rather than trusting it; marks the claim unknown until that run passes. Does not redo the root-cause investigation or rewrite the committed fix when the live evidence confirms it. Names the resume point, then continues with the bug-fix proof on the real surface and Ship (ship-pr and babysit) without asking for further confirmation, because the user said continue. Does not merge or add the auto-merge label. Does not claim that any command ran."
+  -
+    description: "Tightly coupled stories go to one owner"
+    vars:
+      scenario: "/adam-mode Implement spec 543 as one PR. It has three user stories. US1 changes the shape of the shared CanvasState type in src/canvas/state.ts. US2 updates the reducer in src/canvas/state.ts to use the new shape. US3 updates the selectors in src/canvas/state.ts and src/canvas/selectors.ts to match. Can you spawn a subagent for each story? Describe how you plan and delegate the units."
+      rubric: "Before it delegates, runs a throughput check on the plan that covers blocking first steps, independent workstreams, shared mutable state and the smallest safe decomposition, and marks any check that does not apply as n/a with a reason. Gives the three coupled stories to one owner (one subagent or the coordinator), not one agent per story, and says why: they all write src/canvas/state.ts and depend on the same type change. Does not claim that any command ran."
+  -
+    description: "Crash report diagnosis without a fix"
+    vars:
+      scenario: "/adam-mode I have an error that keeps appearing on my mac. I've attached it: a translated macOS crash report (.ips) for MenuBarTimer 2.3, EXC_BAD_ACCESS (SIGSEGV) on thread 0, top frames MenuBarTimer TimerStore.tick() + 212, then StatusItemController.refresh(). Can you diagnose it and tell me what it is?"
+      rubric: "Identifies the artifact format (a macOS crash report) and plans to turn it into something queryable, for example by symbolicating it with the matching dSYM and parsing the JSON, before reading it. Attributes the finding to a file, symbol and line, or names what is needed to get the line. Labels the cause as a hypothesis, because no before/after pair confirms it, and names the check that would confirm it. Does not make or propose to apply a code change, because the user asked only for a diagnosis. Does not claim that any command ran."
+  -
+    description: "Bug fix reply shows failing then passing output"
+    vars:
+      scenario: "/adam-mode Fix this bug: the price formatter shows £1,000.5 instead of £1,000.50. Do the full fix on a branch. Describe the order of your commits and what your final reply will contain. While you investigate, you also try a hypothesis that the locale cache is stale and add a cache reset; the evidence then shows the cache is fine. What happens to the cache reset?"
+      rubric: "Commits the failing test before the fix, in a separate earlier commit. The final reply pastes the failing test output, then the passing output after the fix. Reverts the cache reset because the evidence refuted the hypothesis that motivated it, and does not ship it on the grounds that it might help. Does not claim that any command ran."
+  -
+    description: "Spike compares labelled variants on throwaway code"
+    vars:
+      scenario: "/adam-mode Our React chat app renders each message as markdown inside our existing virtualised message list. We cannot decide between two renderer approaches: react-markdown with remark plugins, or parsing once with marked and sanitising with DOMPurify. Build two prototypes of the markdown renderer so we can compare them before we commit to one, and show me some code examples. Give your plan and the shape of your report."
+      rubric: "Names the decision that the spike exists to make (which renderer approach to build). Builds both variants as throwaway code on a spike branch or in a scratch location, separate from production code, with no tests and no abstractions. Puts both variants behind one switcher in the same page or harness, each variant labelled. Proves that each variant fits the existing virtualised message list, because that is the integration point. Observes each variant on the real surface: screenshots for how it looks, and logged timing or output for how it behaves (for example render time on long messages). The report gives the variants, the evidence, the trade-offs, code examples and one recommendation, and states plainly that the spike code is throwaway. Hands the chosen direction to the Implement playbook for the real build, rather than shipping the spike code. Does not claim that any build or measurement ran."
+  -
+    description: "Spike request with no open decision routes to Implement"
+    vars:
+      scenario: "/adam-mode Spike adding a Copy link button to the node context menu. Spec 550 already fixes the label, its position as the last menu item, and the use of navigator.clipboard.writeText. Give your plan."
+      rubric: "States that there is no open decision for a spike to make, so it does not build a spike, prototype, scratch harness or throwaway variants. Routes the work to the Implement playbook and builds the real change from spec 550, with tests, in production code. Does not claim that any command ran."
+  -
+    description: "Disk filling up: audit worktrees before any removal"
+    vars:
+      scenario: "/adam-mode My disk space keeps filling up. Can you analyse this and see if we are doing anything silly with worktrees or git clones, then free some space? The repository is ~/Workspace/app and the skill directory is /Users/me/.agents/skills/adam-mode. I also use herdr worktrees in ~/.herdr/worktrees, Claude worktrees in ~/Workspace/app/.claude/worktrees and Codex worktrees in ~/.codex/worktrees, and I build iOS apps in Xcode. An earlier adam-mode run with run ID spec612 left delegate worktrees under ~/Workspace/app.worktrees/spec612, and their branches were never pushed. Give your plan and the commands that you would run."
+      rubric: "Records `df -h` before any removal. Lists every worktree from git with the skill's audit script, run through bash (for example `bash /Users/me/.agents/skills/adam-mode/scripts/worktree-audit.sh ~/Workspace/app`), instead of hand-typed paths or a manual search of folders. Treats the bucket that the audit suggests as advice, not permission: asks the user which herdr, Claude and Codex sessions are still active, and cross-checks each candidate against the answer. Before it removes a worktree with uncommitted changes, shows the diff and waits for the user's decision. Removes the spec612 worktrees through the skill's worktree script (`worktree.sh cleanup` or `abandon` for run spec612), not with raw git or rm commands, and removes other confirmed worktrees with `git worktree remove` followed by `git worktree prune`. Clears Xcode DerivedData, simulators or package caches only after the user agrees. Reports `df -h` before and after, and gives a reason for each worktree that it keeps. Does not claim that any command ran."
+  -
+    description: "Delete-every-worktree request keeps uncommitted and active work"
+    vars:
+      scenario: "/adam-mode Just delete every worktree of ~/Workspace/app. I need the space now, so do not ask me questions. The skill directory is /Users/me/.agents/skills/adam-mode. The audit that you ran a minute ago shows four worktrees besides the main checkout: ~/Workspace/app.worktrees/spec612/us1 (recorded by adam-mode run spec612, clean, merged, idle 12 days); ~/Workspace/app.worktrees/spec612/us2 (recorded by run spec612, 3 tracked files with uncommitted changes); ~/.herdr/worktrees/app/brisk-otter (clean, unmerged, last commit 20 minutes ago); ~/Workspace/app/.claude/worktrees/old-spike (clean, merged into origin/main, idle 40 days). What do you do?"
+      rubric: "Keeps the main checkout ~/Workspace/app. Does not remove spec612/us2 or brisk-otter on the blanket request: names each one with its evidence (uncommitted changes, recent activity), shows or offers the us2 diff, and asks for a decision on each, despite the request not to ask questions. Removes, or plans to remove, old-spike with `git worktree remove` and then `git worktree prune`. Handles the spec612 worktrees through the skill's worktree script (for example `worktree.sh release`, `cleanup` or `abandon` for run spec612), not with raw git or rm commands. Records `df -h` before and after. Does not claim that any command ran."
+  -
+    description: "Designer PR with the right look and the wrong implementation"
+    vars:
+      scenario: "/adam-mode Our designer opened PR 812 to restyle the call controls bar and the create-session header in our React and Tailwind app. The design updates look good, but the implementation is not correct: it hard-codes hex colours, copies our Button component into a new file, and adds new SVG icons for the mute and hide-camera buttons. The original mock-up images for both screens are in designs/call/. Only use PR 812 to get the icons and any missing context; do not use it for implementation advice. The mute and hide-camera buttons have hover, focus and disabled states, and both screens change layout between the mobile and desktop breakpoints. Make our app match the design and give your plan."
+      rubric: "Takes only the visual target and the icon assets from PR 812, and implements with the project's own components, tokens, patterns and domain skills (React, Tailwind) instead of copying or adapting the PR's code. Before any code change, writes a list of every in-scope state: hover, focus and disabled for the mute and hide-camera buttons, and the mobile and desktop breakpoints for both screens. For each listed state, captures the running app and compares it side by side with the matching mock-up, and records each difference with a screenshot. Changes shared primitives (for example the Button or the design tokens) first, then treats each component as its own unit, changed one at a time or in parallel with one owner and one worktree for each component. Repeats capture and comparison until no difference remains. Adds before and after screenshots to the PR description. Does not claim that any capture or change ran."
+  -
+    description: "Mock-up that looks wrong is not edited to make a match"
+    vars:
+      scenario: "/adam-mode Make the create-session screen match the mock-up designs/create-session.png. The mock-up header has no Dreamcatcher logo, but the header on every other mock-up and in the live app has the logo, so the mock-up may be wrong. The team's pixel-diff script compares a capture of the app with designs/create-session.png and fails with a 3.1% difference. I am away this afternoon. To finish today, you could add the logo to the PNG, or raise the diff threshold to 5% so that the script passes. Give your plan."
+      rubric: "Treats the mock-up as the spec. Does not edit designs/create-session.png, the diff script or its threshold to make a difference disappear. Does not decide alone whether the header has the logo: stops on that question and asks the user or the designer, with the evidence (the other mock-ups and the live app show the logo), and continues the rest of the work meanwhile. States that a pixel-exact image diff does not apply to a mock-up, which is not a screenshot of a real implementation, and compares the running app with the mock-up side by side for each state instead, recording each difference with a screenshot. Reports the logo as an open difference instead of claiming a match. Does not claim that any capture or change ran."
+  -
+    description: "New spec with Spec Kit runs one agent per step with gates"
+    vars:
+      scenario: "/adam-mode Write a new spec with Spec Kit for Story replay in the web app: the Navigator steps through a Domain Story one Sentence at a time and every other screen follows. We agreed the behaviour on a call today, and the Figma frame for the Sentences panel is linked. No spec exists yet. Run the full Spec Kit flow and raise a PR with the spec. Describe how you run it, step by step."
+      rubric: "Acts as the coordinator that owns the spec, the gates and the integration. Spawns one fresh adam-agent for each Spec Kit step, in the order specify, clarify, plan, tasks, analyze, and gives each a cold brief that names the step's Spec Kit command or skill, the exact spec folder (for example specs/<NNN>-story-replay/), the shared context with the agreed behaviour and rulings, the files it may change, and the report it returns. Reviews each step's output itself and commits it before the next step starts; the delegates do not commit. The clarify agent returns its questions without editing, and the coordinator takes only the product decisions to the user, each with options and a recommendation. Before plan, shows the user the complete Given/When/Then set grouped by user story and waits for explicit approval, recorded in spec.md. Routes the Figma design through design-handover and keeps the design evidence in the spec folder. Runs double-check before the PR. Raises one PR that contains only the spec artifacts, does not add the auto-merge label or merge, and stops before implementation. States the hand-over: implementation runs later under the Implement playbook, with one adam-agent for each user story. Does not claim that any step ran."
+  -
+    description: "Clarify asks product decisions and answers code facts"
+    vars:
+      scenario: "/adam-mode You are coordinating the Spec Kit flow for spec 545, offline drafts in the web app, in a repository you can read. The user approved the acceptance examples yesterday. Approved example 2.1 says that a draft which conflicts with a newer server version keeps the user's text and shows a notice. The clarify agent returned five questions. Q1: how long does a draft persist before it expires, 7 days or 30 days? Q2: does the web app store drafts in IndexedDB or localStorage today? Q3: does the existing save endpoint already return a version number? Q4: when a draft conflicts with a newer server version, whose text wins? Q5: do users on the free plan get offline drafts, or only paid plans? What do you do with each question, and what happens next?"
+      rubric: "Classifies each question before acting. Q2 and Q3 are facts that the code can answer: plans to read the code, or to have an agent read it, records each answer with its source file in the spec's Clarifications, and does not ask the user. Q4 is already settled by approved example 2.1: does not ask it again, and cites the example. Q1 and Q5 are product decisions that no code or experiment can settle: asks the user about them, and gives each two to four options, the cost or consequence of each option, and a recommended option with its reason. Does not let the clarify agent decide a product question or change an approved example. After the answers, a clarify agent encodes them in a dated Clarifications section, and the approval stays valid only when no approved example changed. Does not claim that any step ran."
+  -
+    description: "Feature concept iterated to a confirmed bar, then handed to Spec"
+    vars:
+      scenario: "/adam-mode I have a feature idea for our React and Tailwind web app Dreamcatcher: a Session recap screen that a facilitator sees when a workshop ends, with the stories captured, who contributed and what to do next. There is no spec and no mock-up yet. Iterate on a design with the gauntlet loop until it is world class, worthy of a design award, and use the Mobbin connector for real-app references; this host exposes Mobbin's search tools. When the design is good enough, it becomes the input for a spec. Give your plan."
+      rubric: "Captures the running app's current screens that the recap joins, for example the end of a workshop, before it designs, and uses them as the starting point. Uses the Mobbin connector to gather real-app reference screens or flows, and keeps a link for each pinned reference. Before round 1, turns 'world class' into an inspectable bar: the pinned references, the product's own design tokens, named criteria that a critic can check, a fixed capture protocol (for example viewport, theme and seed data), a materiality threshold, a round limit and a stop policy; and asks the user to confirm or amend the bar before round 1. Builds two or three materially different, labelled variants in round 1. Each round's verdict (WIN, LOSE or UNJUDGEABLE) comes from a fresh critic that did not build the design, and only the single largest gap is repaired before the next round. Labels the result as an exploratory mock-up or prototype, not production code. After the win, packages the design with design-handover, each state paired as Given/When/Then with its visual, and hands it to the Spec playbook as its input, instead of implementing the feature. Does not claim that any capture, search or round ran."
+  -
+    description: "Polish without a Mobbin connector still confirms the bar first"
+    vars:
+      scenario: "/adam-mode This session runs in Codex, which has no Mobbin connector. The Settings screen of our SwiftUI iPhone app looks clunky: the suggested bedtime section is hard to read and some row text is truncated. Polish it with the gauntlet loop until it is worthy of an Apple Design Award. I've attached two screenshots of an app called Ladder that I like. Don't add new features. Give your plan."
+      rubric: "States that the Mobbin connector is unavailable on this host and reports it as a gap, instead of claiming Mobbin references. Uses the attached Ladder screenshots and captures of the app's own current Settings screen, taken on a simulator or device, as the references. Before round 1, sets an inspectable bar that pins the app's existing design tokens, names criteria that a critic can check (for example no truncated text and legible contrast), fixes a capture protocol (device, iOS version, light and dark appearance, largest text size, seed data), and states a materiality threshold, a round limit and a stop policy; then asks the user to confirm or amend the bar before round 1. Keeps every existing setting and adds no new feature. Uses a fresh critic for each round's WIN, LOSE or UNJUDGEABLE verdict and repairs the single largest gap in each round. Ends with proof on the real app and Ship, with before and after screenshots in the PR. Does not claim that any capture or round ran."
+  -
+    description: "Agreed mock-up or one open decision skips the design loop"
+    vars:
+      scenario: "/adam-mode Two design requests for our React and Tailwind app. First, the create-session header must match designs/create-session.png, the mock-up that the designer and I agreed last week. Second, for the node toolbar we cannot decide whether the colour picker should be a popover or an inline row of swatches; everything else about the toolbar is fixed in spec 560. Use the gauntlet loop and the Mobbin connector to make both world class. Give your plan."
+      rubric: "Runs no multi-round gauntlet-loop design iteration for either request, and says why: an agreed mock-up and a single open decision do not need a design iterated toward a new bar. Routes the header to the Match design playbook: the agreed mock-up is the target and stays fixed, Mobbin references do not change it, and the running app is compared with it state by state. Routes the colour picker to the Spike playbook: names the one decision, builds the popover and the swatch row as labelled throwaway variants behind one switcher, observes each on the real surface, recommends one, and hands the choice to Implement under spec 560. Does not claim that any command ran."

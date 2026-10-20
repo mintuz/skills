@@ -78,6 +78,7 @@ Use one authoritative distribution per skill name. Run `omp --help` for the inst
 | `benchmark-checklist`       | Check measurement correctness, repeatability and interpretation                                           |
 | `correct`                   | Turn recurring enforceable mistakes into verified structural guards                                       |
 | `recall`                    | Recover bounded past context and reconcile it with current evidence                                       |
+| `adam-mode`                 | Manual-only. Route a task to Adam's playbooks, principles and skills, and delegate through `adam-agent`   |
 
 ### Web
 
@@ -203,6 +204,7 @@ Each is an independent skill under `src/principle/skills/`, with its full `princ
 
 | Agent                 | Plugin | Description                                                                                          |
 | --------------------- | ------ | ---------------------------------------------------------------------------------------------------- |
+| `adam-agent`          | core   | Delegate for an `/adam-mode` run that reads the `adam-mode` skill in full before any work            |
 | `code-reviewer`       | web    | Expert code review specialist focusing on quality, security, performance, and maintainability        |
 | `refactorer`          | web    | Refactoring coach to guide code improvement decisions and assess opportunities after tests pass      |
 | `senior-web-engineer` | web    | Expert UI engineer for building robust, scalable React components with focus on standards compliance |
@@ -274,7 +276,7 @@ See [scripts/README.md](scripts/README.md) for more options including custom out
 
 ## Credits
 
-- Lauren Tan, for the 54 skills (7 core workflows and 47 principles) adapted from [pstack](https://github.com/cursor/plugins/tree/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454/pstack/skills). The MIT license is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- Lauren Tan, for the 54 skills (7 core workflows and 47 principles) adapted from [pstack](https://github.com/cursor/plugins/tree/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454/pstack/skills), and for the `poteto-mode` skill and `poteto-agent` subagent on which `adam-mode` and `adam-agent` are modelled. The MIT license is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - [City Paul's dotfiles](https://github.com/citypaul/.dotfiles/tree/main/claude/.claude)
 - [Lee Cheneler's dotfiles](https://github.com/LeeCheneler/dotfiles)
 - [Thomas Ricouard's Skills](https://github.com/Dimillian/Skills)

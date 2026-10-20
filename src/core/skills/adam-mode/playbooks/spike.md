@@ -1,0 +1,12 @@
+# Spike
+
+A spike is throwaway code that settles one design decision: which layout, interaction, library, algorithm or approach to build. Use it when the user asks to spike, prototype or compare approaches, or when a "which approach" fork needs an experiment before the build. The output is a decision and its evidence, not shippable code. In a spike, speed beats polish, and the rigour goes into the comparison.
+
+1. **Name the decision.** Write the one question that the spike answers, for example "react-markdown, or marked with DOMPurify?". If the spec or the request already fixes the approach, there is no decision: do not spike. Tell the user why, and run Implement.
+2. **Start from the existing evidence.** When the user names a spike branch, a findings branch or a report, read it first and continue on that branch.
+3. **Find the integration point.** When the result must fit existing behaviour, for example an existing layout algorithm or a virtualised list, name that behaviour. Run each variant inside it, not beside it, so that the evidence proves the fit.
+4. **Isolate the throwaway code.** Build on a spike branch or in a scratch folder, separate from production code. Use the lightest stack that shows the idea. Write no tests and no abstractions.
+5. **Build labelled variants behind one switcher.** When you compare approaches, build each one as a variant behind one switcher, for example buttons or a query parameter, and label each variant on screen (principle-exhaust-the-design-space). Add a simpler variant that the user did not ask for when one exists, for example pure CSS before JavaScript.
+6. **Observe each variant on the real surface.** For a visual decision, capture a screenshot of each variant. For a behavioural or timing decision, log the timing or the output of each variant on the same input. The observation is the test (principle-observe-dont-infer).
+7. **Recommend one direction.** Report the variants, the evidence, the trade-offs, short code examples of each variant at the integration point, and one recommendation with what the user gains and loses. State plainly that the spike code is throwaway, and give the spike branch or scratch path.
+8. **Hand the direction to Implement.** After the user chooses, update the spike branch to show the chosen approach. Name the Implement playbook as the next step in the reply. Implement builds the real change in production code, with tests. When a spec comes first, feed the decision into the spec and its user stories, then run Implement on that spec. Do not ship the spike code.
