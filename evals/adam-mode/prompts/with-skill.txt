@@ -24,6 +24,10 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 {{rethink}}
 </playbook>
 
+<playbook path="playbooks/design-loop.md">
+{{design_loop}}
+</playbook>
+
 <playbook path="playbooks/perf.md">
 {{perf}}
 </playbook>
