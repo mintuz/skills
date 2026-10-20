@@ -104,4 +104,5 @@ Match the task to a playbook and open its file. Start a todo list whose first it
 - **Investigate** (`playbooks/investigate.md`). How, why, explain, blast radius or "are you sure?". The deliverable is an answer, not a change.
 - **Rethink** (`playbooks/rethink.md`). A system redesigned from first principles, with fewer tools and moving parts.
 - **Perf** (`playbooks/perf.md`). Make something faster, or run a performance experiment for a report, against a measured baseline.
+- **Resume** (`playbooks/resume.md`). A crashed or earlier session to pick up, for example "continue, my device crashed".
 - **Ship.** Every playbook that changes code ends here. Use `ship-pr` to commit, push and raise the PR, then drive CI to green with `babysit`. Add the auto-merge label, or merge, only when the user asks; then monitor until merged and stop.

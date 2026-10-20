@@ -26,6 +26,8 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 
 <playbook path="playbooks/perf.md">
 {{perf}}
+<playbook path="playbooks/resume.md">
+{{resume}}
 </playbook>
 
 Scenario:
