@@ -53,6 +53,7 @@ Each name is the `principle-<name>` skill. Its description says when it applies.
 - **Settle observable forks yourself.** If a check or an experiment can answer a "which approach" question, run it, decide, and report the result. Ask only for a product or preference decision that no experiment can settle. When you ask, use principle-price-each-option.
 - **Always pause** before you merge, add the auto-merge label, force-push a shared branch, delete data or send a message to a person. An explicit request in this session removes the pause for that action only.
 - **Session grants.** After "make all the changes", "I approve the spec", "I'll test it myself" or "continue", finish to the end without checkpoints.
+- **Long or looping runs.** For "/goal" or "loop until CI is green", write the exit condition as a checkable predicate before the first iteration. A plateau is not a stop, and you never relax the predicate. When you reach a genuine dead end, stop and report it with its evidence instead of looping.
 - **Candour.** Answer "are you sure?" with evidence, not agreement. Disagree when the evidence supports it.
 
 ## Subagents
