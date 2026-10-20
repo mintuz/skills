@@ -26,12 +26,20 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 
 <playbook path="playbooks/perf.md">
 {{perf}}
+</playbook>
+
 <playbook path="playbooks/resume.md">
 {{resume}}
+</playbook>
+
 <playbook path="playbooks/spike.md">
 {{spike}}
+</playbook>
+
 <playbook path="playbooks/disk.md">
 {{disk}}
+</playbook>
+
 <playbook path="playbooks/match-design.md">
 {{match_design}}
 </playbook>
