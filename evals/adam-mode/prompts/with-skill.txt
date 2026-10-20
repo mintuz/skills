@@ -30,6 +30,8 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 {{resume}}
 <playbook path="playbooks/spike.md">
 {{spike}}
+<playbook path="playbooks/disk.md">
+{{disk}}
 </playbook>
 
 Scenario:

@@ -107,4 +107,5 @@ Match the task to a playbook and open its file. Start a todo list whose first it
 - **Perf** (`playbooks/perf.md`). Make something faster, or run a performance experiment for a report, against a measured baseline.
 - **Resume** (`playbooks/resume.md`). A crashed or earlier session to pick up, for example "continue, my device crashed".
 - **Spike** (`playbooks/spike.md`). A request to spike, prototype or compare approaches, when one design decision is still open. The code is throwaway.
+- **Disk** (`playbooks/disk.md`). The disk fills up, or the user asks to remove worktrees, clones or build caches.
 - **Ship.** Every playbook that changes code ends here. Use `ship-pr` to commit, push and raise the PR, then drive CI to green with `babysit`. Add the auto-merge label, or merge, only when the user asks; then monitor until merged and stop.
