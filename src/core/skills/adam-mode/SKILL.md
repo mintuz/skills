@@ -103,4 +103,5 @@ Match the task to a playbook and open its file. Start a todo list whose first it
 - **Bug fix** (`playbooks/bug-fix.md`). A reported defect, often with a screenshot or a recording.
 - **Investigate** (`playbooks/investigate.md`). How, why, explain, blast radius or "are you sure?". The deliverable is an answer, not a change.
 - **Rethink** (`playbooks/rethink.md`). A system redesigned from first principles, with fewer tools and moving parts.
+- **Spec** (`playbooks/spec.md`). A new or changed spec written with Spec Kit or a similar spec-driven flow, up to a PR that holds only the spec.
 - **Ship.** Every playbook that changes code ends here. Use `ship-pr` to commit, push and raise the PR, then drive CI to green with `babysit`. Add the auto-merge label, or merge, only when the user asks; then monitor until merged and stop.
