@@ -108,4 +108,5 @@ Match the task to a playbook and open its file. Start a todo list whose first it
 - **Resume** (`playbooks/resume.md`). A crashed or earlier session to pick up, for example "continue, my device crashed".
 - **Spike** (`playbooks/spike.md`). A request to spike, prototype or compare approaches, when one design decision is still open. The code is throwaway.
 - **Disk** (`playbooks/disk.md`). The disk fills up, or the user asks to remove worktrees, clones or build caches.
+- **Match design** (`playbooks/match-design.md`). An implementation made to match mock-up images, a design export or a designer's PR.
 - **Ship.** Every playbook that changes code ends here. Use `ship-pr` to commit, push and raise the PR, then drive CI to green with `babysit`. Add the auto-merge label, or merge, only when the user asks; then monitor until merged and stop.
