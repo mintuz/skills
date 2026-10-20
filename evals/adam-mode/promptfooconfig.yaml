@@ -32,6 +32,7 @@ defaultTest:
     bug_fix: "file://../../src/core/skills/adam-mode/playbooks/bug-fix.md"
     investigate: "file://../../src/core/skills/adam-mode/playbooks/investigate.md"
     rethink: "file://../../src/core/skills/adam-mode/playbooks/rethink.md"
+    resume: "file://../../src/core/skills/adam-mode/playbooks/resume.md"
   assert:
     -
       type: "agent-rubric"
@@ -96,3 +97,13 @@ tests:
     vars:
       scenario: "/adam-mode Implement spec 542 on branch 542-feature from main. It has two parallel user stories, US1 and US2, and both edit files under src/canvas. The skill directory is /Users/me/.agents/skills/adam-mode. Give the exact commands that you would run to set up each delegate's workspace, and the check that you would run on the integrated branch before shipping to confirm that nothing was removed out of scope."
       rubric: "Creates each delegate's workspace with the skill's worktree script, run through bash, for example `bash /Users/me/.agents/skills/adam-mode/scripts/worktree.sh create <run-id> us1`, with one run ID shared by both units, instead of raw `git worktree add`, and passes each printed path in that delegate's brief. Before shipping, runs `bash /Users/me/.agents/skills/adam-mode/scripts/scope-diff.sh` against the base (main or its merge base) on the integrated branch, and classifies each reported item as approved or as a removal without approval. Does not claim that any command ran."
+  -
+    description: "Crash resume of a half-integrated run"
+    vars:
+      scenario: "/adam-mode I had a previous session running on this worktree implementing spec 543, but my device crashed. Can you resume for me? The skill directory is /Users/me/.agents/skills/adam-mode. The run used run ID spec543 with three units, us1, us2 and us3, delegated into worktrees and integrated onto branch 543-feature from main. I think US1 was integrated and US2 was nearly done. The last message I remember from the old session said that US3 was finished and its tests passed. Describe how you pick up the work."
+      rubric: "Locates the crashed session's trail through the recall skill, rather than hard-coding one host's transcript directory, and delegates reading a long transcript so that only a reduced timeline returns. Rebuilds the current state from live evidence: the integration branch and its base, git log and git diff of 543-feature against main, and the run's worktrees with `bash /Users/me/.agents/skills/adam-mode/scripts/worktree.sh status spec543`, plus the open todos and decisions from the trail. Compares what landed against what was planned and names an explicit resume point. Does not redo or re-implement US1 or any other unit whose commits are already on 543-feature. Treats the old session's claim that US3 was finished and tested as history, not proof, and re-checks it on the real artifact (its commits, its uncommitted changes, its check run again) before relying on it. Routes the remaining work to the Implement playbook and keeps the coordinator role. Does not claim that any command ran."
+  -
+    description: "Resume does not trust a prior test-pass claim"
+    vars:
+      scenario: "/adam-mode continue, my device crashed. The previous session was fixing the connector label bug on branch fix-connector-label from main. Its last message reads: 'Root cause found in useConnectorFocus, fix committed as 9f3e2d1, all tests pass, ready to ship.' Pick up from there and finish."
+      rubric: "Recovers the previous session's trail through the recall skill and checks the live state of fix-connector-label: that 9f3e2d1 is on the branch, git log and git diff against main, and any uncommitted work. Treats 'all tests pass' as an unverified claim from the previous session and runs the tests again on the current branch head before shipping, rather than trusting it; marks the claim unknown until that run passes. Does not redo the root-cause investigation or rewrite the committed fix when the live evidence confirms it. Names the resume point, then continues with the bug-fix proof on the real surface and Ship (ship-pr and babysit) without asking for further confirmation, because the user said continue. Does not merge or add the auto-merge label. Does not claim that any command ran."
