@@ -44,5 +44,9 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 {{match_design}}
 </playbook>
 
+<playbook path="playbooks/spec.md">
+{{spec}}
+</playbook>
+
 Scenario:
 {{scenario}}
