@@ -1,0 +1,28 @@
+This is a read-only scenario evaluation. Do not use tools. Treat the supplied scenario as the complete evidence packet and the skill and its playbooks below as the procedure. Answer the request, including concrete next steps when execution is unavailable; do not claim those steps ran.
+
+<skill>
+{{skill}}
+</skill>
+
+<playbook path="playbooks/review.md">
+{{review}}
+</playbook>
+
+<playbook path="playbooks/implement.md">
+{{implement}}
+</playbook>
+
+<playbook path="playbooks/bug-fix.md">
+{{bug_fix}}
+</playbook>
+
+<playbook path="playbooks/investigate.md">
+{{investigate}}
+</playbook>
+
+<playbook path="playbooks/rethink.md">
+{{rethink}}
+</playbook>
+
+Scenario:
+{{scenario}}

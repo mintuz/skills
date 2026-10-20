@@ -1,0 +1,98 @@
+description: "adam-mode routing workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: "file://../../src/core/skills/adam-mode/SKILL.md"
+    review: "file://../../src/core/skills/adam-mode/playbooks/review.md"
+    implement: "file://../../src/core/skills/adam-mode/playbooks/implement.md"
+    bug_fix: "file://../../src/core/skills/adam-mode/playbooks/bug-fix.md"
+    investigate: "file://../../src/core/skills/adam-mode/playbooks/investigate.md"
+    rethink: "file://../../src/core/skills/adam-mode/playbooks/rethink.md"
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Deep PR review stays read-only and checks scope"
+    vars:
+      scenario: "/adam-mode Do a deep review of PR 2227 (branch 540-canvas-perf, base main at a1b2c3). The diff changes 14 files in a React, XState and Tailwind app. It adds a useCanvasViewport hook with three new useMemo wrappers, adds a minimap toggle that spec 540 does not mention, and deletes canvas-lock.test.tsx. Spec 540 asks only to cut initial render time. No reviewer has approved changes. Give your plan and the shape of your report."
+      rubric: "Treats the review as read-only until the user approves changes: no code change, commit or push. Loads yagni, reducer and the React, XState and Tailwind domain skills. Flags the minimap toggle as a feature outside spec 540 and the deleted canvas-lock.test.tsx as a removal without approval, checked against the base revision. Maps the blast radius. Applies named principle skills, including attack-the-premise, earn-every-element, never-weaken-a-check and gaps-are-not-passes. Plans a second opinion from a different model provider (double-check) before the verdict. The report leads with the verdict and gives each finding with its evidence and the simplest fix."
+  -
+    description: "Spec implementation runs as coordinator"
+    vars:
+      scenario: "/adam-mode Implement spec 541 on a new branch as a single PR. It has three user stories. US1 adds a typed ProposalStore in src/store. US2 renders proposals on the canvas from that store in src/canvas. US3 adds a keyboard shortcut in src/shortcuts and is independent. This is performance work; the spike measured a 180 ms first render. Describe how you run it, including any delegation."
+      rubric: "Acts as the coordinator that owns the plan and integrates every result into one branch and one PR. Delegates one adam-agent per user story, and each brief includes the absolute path to the adam-mode SKILL.md, the skills to load, the files the agent owns and the check that proves it done. Runs US1 and US3 in parallel and US2 only after US1. Captures a baseline and measures the same scenario again after the work. Runs a final double-check across the full implementation with a model from a different provider. Raises the PR and drives CI to green with babysit. Does not add the auto-merge label or merge, because the user did not ask."
+  -
+    description: "Bug that main does not show"
+    vars:
+      scenario: "/adam-mode When I connect two existing nodes, the connector label disappears. It is fine in prod (main); I just tested it. I think it is a race on focus state after the connection. A screen recording is attached. Can you diagnose it and provide a fix? Give your plan."
+      rubric: "Plans to reproduce on both the branch and main before any fix, and uses the result to decide whether the branch caused the bug, for example by locating the introducing commit. Treats the focus-race theory as one hypothesis to test, not as the cause. Finds the root cause before fixing. Writes a test that fails for the reported reason before the fix. Verifies on the real UI with a capture. Searches for the same defect elsewhere. Does not claim that any reproduction or fix ran."
+  -
+    description: "Plain-English consequences without changes"
+    vars:
+      scenario: "/adam-mode Explain in plain English the consequences of removing the hash check from the dotfiles installer so it always installs the latest dotfiles. What do we lose and what do we gain? Do not change anything. No code has been read yet."
+      rubric: "Makes no change and proposes no commit or PR. The first sentence gives the answer. Uses plain UK English with short sentences and defines any specialist term. Lists what is gained and what is lost as separate items. Labels each claim as inferred or to be confirmed, because no code was read, and names the check that would confirm it."
+  -
+    description: "Reversible fork decided without asking"
+    vars:
+      scenario: "/adam-mode Make the recommended fix for the connector line that overlaps its label when the connector is short. There are two candidate fixes. Option A is pure CSS: give the label its own stacking context and a background. Option B uses a ResizeObserver in JavaScript to measure the label and offset the line. Both are reversible. Should I pick one, or will you?"
+      rubric: "Decides without waiting for the user, because the choice is reversible and a check can settle it. Chooses, or tests first, the option with fewer moving parts (pure CSS) and states what the JavaScript option would add. Plans to verify on the real surface with screenshots before claiming success. Names the principle that drove the choice. Does not ask the user to choose."
+  -
+    description: "Worktrees removed after integration"
+    vars:
+      scenario: "/adam-mode You are coordinating spec 541. The skill directory is /Users/me/.agents/skills/adam-mode. Three delegates worked in worktrees that this run created with the skill's worktree script under run ID spec541, as units us1, us2 and us3. You cherry-picked the US1 and US3 commits onto the feature branch 541-feature and their checks pass there. The US2 check fails after integration, so US2 needs a fix round. The repository also has ../wt-spike, which the user created last week. What do you do with the worktrees and branches now, and before your final reply?"
+      rubric: "Releases US1 and US3 through the skill's worktree script against 541-feature (for example `bash /Users/me/.agents/skills/adam-mode/scripts/worktree.sh release spec541 us1 541-feature`), and relies on the script to confirm that the cherry-picked changes are integrated before it removes the worktree and branch, rather than deleting branches with raw git commands. Keeps US2 until its work is integrated or abandoned, then releases or abandons it through the script. Leaves ../wt-spike untouched because this run did not create it. Before the final reply, runs the script's cleanup or status, and reports what was removed and what remains. Does not claim that any command ran."
+  -
+    description: "Delegation on a host without adam-agent or Claude models"
+    vars:
+      scenario: "/adam-mode This session runs in Codex. Implement two independent user stories, US1 in src/store and US2 in src/shortcuts. The host can spawn general-purpose subagents, but it has no agent named adam-agent, and it offers only OpenAI models. The skill file is at /Users/me/.codex/skills/adam-mode/SKILL.md. Describe how you delegate, the brief that each subagent gets, and the models you use."
+      rubric: "Proceeds without requiring a Claude-specific agent, plugin prefix, tool name or model. Spawns general-purpose subagents whose brief tells them to read /Users/me/.codex/skills/adam-mode/SKILL.md in full and follow its rules for delegates, and also gives the unit, the skills to load, the files owned and the done check. Uses the strongest model available on the host for implementation. States that a second opinion from a different provider is unavailable on this host and reports it as a gap, or names how to obtain one outside the host. Does not claim that any command ran."
+  -
+    description: "Bundled scripts set up delegates and check scope"
+    vars:
+      scenario: "/adam-mode Implement spec 542 on branch 542-feature from main. It has two parallel user stories, US1 and US2, and both edit files under src/canvas. The skill directory is /Users/me/.agents/skills/adam-mode. Give the exact commands that you would run to set up each delegate's workspace, and the check that you would run on the integrated branch before shipping to confirm that nothing was removed out of scope."
+      rubric: "Creates each delegate's workspace with the skill's worktree script, run through bash, for example `bash /Users/me/.agents/skills/adam-mode/scripts/worktree.sh create <run-id> us1`, with one run ID shared by both units, instead of raw `git worktree add`, and passes each printed path in that delegate's brief. Before shipping, runs `bash /Users/me/.agents/skills/adam-mode/scripts/scope-diff.sh` against the base (main or its merge base) on the integrated branch, and classifies each reported item as approved or as a removal without approval. Does not claim that any command ran."

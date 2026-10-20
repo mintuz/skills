@@ -6,6 +6,8 @@ This file is the only copy of the upstream MIT notice. The zip packager and the 
 
 Adaptations narrow triggers, remove provider dependencies, preserve scoped authorization, and distinguish measured evidence from inference.
 
+`adam-mode` and the `adam-agent` subagent are modelled on the pstack `poteto-mode` skill and `poteto-agent` subagent on the pstack `main` branch, which is later than the pinned commit.
+
 ## Derived skills
 
 - `create-verification-skill`
@@ -15,6 +17,7 @@ Adaptations narrow triggers, remove provider dependencies, preserve scoped autho
 - `benchmark-checklist`
 - `correct`
 - `recall`
+- `adam-mode`
 - `principle-attack-the-premise`
 - `principle-build-the-lever`
 - `principle-capture-the-baseline`
