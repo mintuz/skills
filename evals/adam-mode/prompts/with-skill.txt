@@ -28,6 +28,8 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 {{perf}}
 <playbook path="playbooks/resume.md">
 {{resume}}
+<playbook path="playbooks/spike.md">
+{{spike}}
 </playbook>
 
 Scenario:
