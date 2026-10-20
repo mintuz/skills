@@ -32,6 +32,7 @@ defaultTest:
     bug_fix: "file://../../src/core/skills/adam-mode/playbooks/bug-fix.md"
     investigate: "file://../../src/core/skills/adam-mode/playbooks/investigate.md"
     rethink: "file://../../src/core/skills/adam-mode/playbooks/rethink.md"
+    spike: "file://../../src/core/skills/adam-mode/playbooks/spike.md"
   assert:
     -
       type: "agent-rubric"
@@ -96,3 +97,13 @@ tests:
     vars:
       scenario: "/adam-mode Implement spec 542 on branch 542-feature from main. It has two parallel user stories, US1 and US2, and both edit files under src/canvas. The skill directory is /Users/me/.agents/skills/adam-mode. Give the exact commands that you would run to set up each delegate's workspace, and the check that you would run on the integrated branch before shipping to confirm that nothing was removed out of scope."
       rubric: "Creates each delegate's workspace with the skill's worktree script, run through bash, for example `bash /Users/me/.agents/skills/adam-mode/scripts/worktree.sh create <run-id> us1`, with one run ID shared by both units, instead of raw `git worktree add`, and passes each printed path in that delegate's brief. Before shipping, runs `bash /Users/me/.agents/skills/adam-mode/scripts/scope-diff.sh` against the base (main or its merge base) on the integrated branch, and classifies each reported item as approved or as a removal without approval. Does not claim that any command ran."
+  -
+    description: "Spike compares labelled variants on throwaway code"
+    vars:
+      scenario: "/adam-mode Our React chat app renders each message as markdown inside our existing virtualised message list. We cannot decide between two renderer approaches: react-markdown with remark plugins, or parsing once with marked and sanitising with DOMPurify. Build two prototypes of the markdown renderer so we can compare them before we commit to one, and show me some code examples. Give your plan and the shape of your report."
+      rubric: "Names the decision that the spike exists to make (which renderer approach to build). Builds both variants as throwaway code on a spike branch or in a scratch location, separate from production code, with no tests and no abstractions. Puts both variants behind one switcher in the same page or harness, each variant labelled. Proves that each variant fits the existing virtualised message list, because that is the integration point. Observes each variant on the real surface: screenshots for how it looks, and logged timing or output for how it behaves (for example render time on long messages). The report gives the variants, the evidence, the trade-offs, code examples and one recommendation, and states plainly that the spike code is throwaway. Hands the chosen direction to the Implement playbook for the real build, rather than shipping the spike code. Does not claim that any build or measurement ran."
+  -
+    description: "Spike request with no open decision routes to Implement"
+    vars:
+      scenario: "/adam-mode Spike adding a Copy link button to the node context menu. Spec 550 already fixes the label, its position as the last menu item, and the use of navigator.clipboard.writeText. Give your plan."
+      rubric: "States that there is no open decision for a spike to make, so it does not build a spike, prototype, scratch harness or throwaway variants. Routes the work to the Implement playbook and builds the real change from spec 550, with tests, in production code. Does not claim that any command ran."

@@ -50,7 +50,7 @@ Each name is the `principle-<name>` skill. Its description says when it applies.
 ## Autonomy
 
 - **Proceed without asking** on reversible work: branches, worktrees, commits, pushes to the task branch, PRs, PR descriptions and screenshots, CI repair, and tickets that the user asked for.
-- **Settle observable forks yourself.** If a check or an experiment can answer a "which approach" question, run it, decide, and report the result. Ask only for a product or preference decision that no experiment can settle. When you ask, use principle-price-each-option.
+- **Settle observable forks yourself.** If a check or an experiment can answer a "which approach" question, run it as a Spike (`playbooks/spike.md`), decide, and report the result. Ask only for a product or preference decision that no experiment can settle. When you ask, use principle-price-each-option.
 - **Always pause** before you merge, add the auto-merge label, force-push a shared branch, delete data or send a message to a person. An explicit request in this session removes the pause for that action only.
 - **Session grants.** After "make all the changes", "I approve the spec", "I'll test it myself" or "continue", finish to the end without checkpoints.
 - **Candour.** Answer "are you sure?" with evidence, not agreement. Disagree when the evidence supports it.
@@ -103,4 +103,5 @@ Match the task to a playbook and open its file. Start a todo list whose first it
 - **Bug fix** (`playbooks/bug-fix.md`). A reported defect, often with a screenshot or a recording.
 - **Investigate** (`playbooks/investigate.md`). How, why, explain, blast radius or "are you sure?". The deliverable is an answer, not a change.
 - **Rethink** (`playbooks/rethink.md`). A system redesigned from first principles, with fewer tools and moving parts.
+- **Spike** (`playbooks/spike.md`). A request to spike, prototype or compare approaches, when one design decision is still open. The code is throwaway.
 - **Ship.** Every playbook that changes code ends here. Use `ship-pr` to commit, push and raise the PR, then drive CI to green with `babysit`. Add the auto-merge label, or merge, only when the user asks; then monitor until merged and stop.
