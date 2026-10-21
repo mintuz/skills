@@ -109,6 +109,6 @@ Match the task to a playbook and open its file. Start a todo list whose first it
 - **Spike** (`playbooks/spike.md`). A request to spike, prototype or compare approaches, when one design decision is still open. The code is throwaway.
 - **Disk** (`playbooks/disk.md`). The disk fills up, or the user asks to remove worktrees, clones or build caches.
 - **Match design** (`playbooks/match-design.md`). An implementation made to match mock-up images, a design export or a designer's PR.
-- **Spec** (`playbooks/spec.md`). A new or changed spec written with Spec Kit or a similar spec-driven flow, up to a PR that holds only the spec.
+- **Spec** (`playbooks/spec.md`). A new or changed spec written with Spec Kit or a similar spec-driven flow, up to a PR that holds only the spec, or a temporary visual document of an existing spec's Given/When/Then examples.
 - **Design loop** (`playbooks/design-loop.md`). A design created or polished until it meets a bar that the user confirms, through `gauntlet-loop`: a design for a spec, polish of an existing screen, or a feature concept whose design becomes the input for a spec.
 - **Ship.** Every playbook that changes code ends here. Use `ship-pr` to commit, push and raise the PR, then drive CI to green with `babysit`. Add the auto-merge label, or merge, only when the user asks; then monitor until merged and stop.
