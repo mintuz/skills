@@ -84,6 +84,7 @@ Use one authoritative distribution per skill name. Run `omp --help` for the inst
 | `arena`                     | Run independent attempts at one task, judge them on a rubric, pick a base and graft the best parts       |
 | `sharpen`                   | Manual-only. Make a task deeper, not bigger, then rewrite the prompt                                      |
 | `in-your-own-words`         | Manual-only. Restate the user's goals and the problem they are trying to solve                            |
+| `creative-seed`             | Derive each UI concept's creative direction from a deterministic seed string that the design never shows  |
 
 ### Web
 
