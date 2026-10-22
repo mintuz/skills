@@ -1,0 +1,58 @@
+description: "teach activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use teach for the following request. Teach me what the outbox table in our billing service is. I'm reviewing a PR that touches it tomorrow. Findings: OrderService.ts:55 writes the order row and an outbox row in the same database transaction; relay.ts:20 polls the outbox every 2s, publishes to Kafka, then marks rows sent. PR #412 says dual writes lost events when Kafka was down."
+    assert:
+      -
+        type: "skill-used"
+        value: "teach"
+  -
+    description: "Natural request does not auto-apply manual-only skill"
+    vars:
+      request: "Help me really understand how our cache invalidation works; I'm new to this service."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not read, apply or name the teach skill as followed; teach is manual-only and was not explicitly invoked. It does not claim to have performed unavailable work and stays within the requested task."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

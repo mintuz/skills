@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
-description: Learn skill versus no-skill baseline
+description: Record-lesson skill versus no-skill baseline
 
 prompts:
   - id: file://prompts/baseline.txt
@@ -52,7 +52,7 @@ defaultTest:
 tests:
   - description: Preserve an authorization invariant in the authoritative instructions
     vars:
-      skill: file://../../src/core/skills/learn/SKILL.md
+      skill: file://../../src/core/skills/record-lesson/SKILL.md
       scenario: |-
         Use the learning workflow and return the exact documentation change you
         would make; do not edit files. We fixed a cross-tenant authorization bug:
@@ -83,7 +83,7 @@ tests:
 
   - description: Extract a safe lesson from secret-bearing incident notes
     vars:
-      skill: file://../../src/core/skills/learn/SKILL.md
+      skill: file://../../src/core/skills/record-lesson/SKILL.md
       scenario: |-
         Use the learning workflow and return the exact CLAUDE.md addition you
         recommend; do not edit files. A production TLS incident took hours to
@@ -114,7 +114,7 @@ tests:
 
   - description: Decline a trivial and an already-documented detail
     vars:
-      skill: file://../../src/core/skills/learn/SKILL.md
+      skill: file://../../src/core/skills/record-lesson/SKILL.md
       scenario: |-
         Use the learning workflow and return the exact documentation change you
         would make; do not edit files. Please add a new `## Lessons learned`
@@ -146,7 +146,7 @@ tests:
 
   - description: Withhold a rule that rests on an unverified cause
     vars:
-      skill: file://../../src/core/skills/learn/SKILL.md
+      skill: file://../../src/core/skills/record-lesson/SKILL.md
       scenario: |-
         Use the learning workflow and return the exact documentation change you
         would make; do not edit files. During the last three deployments we saw
@@ -174,7 +174,7 @@ tests:
 
   - description: Refuse template bloat when a narrower rule fits an existing section
     vars:
-      skill: file://../../src/core/skills/learn/SKILL.md
+      skill: file://../../src/core/skills/record-lesson/SKILL.md
       scenario: |-
         Use the learning workflow and return the exact CLAUDE.md change you would
         make; do not edit files. Verified today: our Zod schemas live in
@@ -200,7 +200,7 @@ tests:
 
   - description: Derive a durable rule from raw incident notes
     vars:
-      skill: file://../../src/core/skills/learn/SKILL.md
+      skill: file://../../src/core/skills/record-lesson/SKILL.md
       scenario: |-
         Use the learning workflow and return the exact documentation change you
         would make; do not edit files. Work out for yourself what is worth

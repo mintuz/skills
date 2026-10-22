@@ -1,0 +1,92 @@
+description: "arena activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use arena for the following request. Write the title, body and button copy shown when a card payment is declined at checkout; the dialog renders one title, one body and one button."
+    assert:
+      -
+        type: "skill-used"
+        value: "arena"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Rename the local variable cnt to count in src/utils/format.ts and update its three uses."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply the arena workflow (no competing candidates, rubric-based judging or grafting) and does not claim to have performed unavailable work; it stays within the requested task."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Natural task selects the workflow"
+    vars:
+      request: "Before we settle on one version, produce several independent attempts at the onboarding email for new workspace admins, judge them against clear criteria, then take the strongest as the base and merge in the best parts of the others."
+    assert:
+      -
+        type: "skill-used"
+        value: "arena"
+  -
+    description: "Iterating one artifact to a confirmed bar stays outside arena"
+    vars:
+      request: "Our pricing page is live but looks weak next to the Stripe pricing page screenshots I attached. Keep improving our page round after round until an independent reviewer, judging only the page against those screenshots, says it matches; stop after five rounds if it never does."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply the arena workflow (no competing candidates picked and grafted in one pass). It plans repeated rounds that improve one page against the attached screenshots, each judged independently, and stops by the stated limit. It does not claim to have performed unavailable work."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

@@ -68,7 +68,7 @@ Test code longer or more complex than the implementation signals overengineering
 
 ## Documentation
 
-At the end of every significant change, ask: **"What do I wish I'd known at the start?"** Correct CLAUDE.md and AGENTS.md when your change makes them wrong. `core:learn` owns the procedure for deciding whether to record an answer and how (`principle-encode-lessons-in-structure`). Whenever you write or propose a rule:
+At the end of every significant change, ask: **"What do I wish I'd known at the start?"** Correct CLAUDE.md and AGENTS.md when your change makes them wrong. `core:record-lesson` owns the procedure for deciding whether to record an answer and how (`principle-encode-lessons-in-structure`). Whenever you write or propose a rule:
 
 - Write the reusable rule, not the incident that revealed it: the action and the condition that makes it necessary. For a fixed fault, write it so a reader can detect the fault and follow the approved repair.
 - Amend the rule that already owns the subject; otherwise add one imperative sentence or bullet in the section that owns it, in that file's voice. Add a heading or code example only when a reader cannot apply the rule without it.

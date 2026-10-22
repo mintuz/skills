@@ -17,7 +17,7 @@
         "./skills/yagni",
         "./skills/gauntlet-loop",
         "./skills/graph-engineering",
-        "./skills/learn",
+        "./skills/record-lesson",
         "./skills/pr",
         "./skills/pseudocode",
         "./skills/reducer",
@@ -32,7 +32,12 @@
         "./skills/benchmark-checklist",
         "./skills/correct",
         "./skills/recall",
-        "./skills/adam-mode"
+        "./skills/adam-mode",
+        "./skills/teach",
+        "./skills/architect",
+        "./skills/arena",
+        "./skills/sharpen",
+        "./skills/in-your-own-words"
       ]
     },
     {

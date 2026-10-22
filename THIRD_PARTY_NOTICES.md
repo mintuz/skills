@@ -8,6 +8,8 @@ Adaptations narrow triggers, remove provider dependencies, preserve scoped autho
 
 `adam-mode` and the `adam-agent` subagent are modelled on the pstack `poteto-mode` skill and `poteto-agent` subagent on the pstack `main` branch, which is later than the pinned commit.
 
+`sharpen` adapts the pstack `sharpen` skill at commit [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/tree/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/sharpen), which is later than the pinned commit. The skill does not exist at the pinned commit. The upstream `LICENSE` is unchanged at that commit.
+
 ## Derived skills
 
 - `create-verification-skill`
@@ -18,6 +20,11 @@ Adaptations narrow triggers, remove provider dependencies, preserve scoped autho
 - `correct`
 - `recall`
 - `adam-mode`
+- `teach`
+- `architect`
+- `arena`
+- `sharpen`
+- `in-your-own-words`
 - `principle-attack-the-premise`
 - `principle-build-the-lever`
 - `principle-capture-the-baseline`
