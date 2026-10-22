@@ -1,5 +1,5 @@
 ---
-name: learn
+name: record-lesson
 description: WHEN preserving a durable project learning, gotcha, or decision in repository instructions such as AGENTS.md or CLAUDE.md, including when the user names the file; NOT for trivial or one-off details; checks the authoritative instruction file and writes the smallest safe rule.
 ---
 

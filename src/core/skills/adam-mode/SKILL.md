@@ -32,7 +32,7 @@ The scripts are in `scripts/` beside this file. Run each one as `bash <absolute 
 - **Second opinion.** Before a review verdict, or a "done" claim on non-trivial work, run `double-check` with a model from a different provider. When the host offers Astra and Fable agents, give both the same brief for a hard root cause, and reconcile their findings.
 - **Measurement.** Run performance work, including a performance user story inside Implement, through the Perf playbook (`playbooks/perf.md`).
 - **Proof.** Prove each change on the real surface before you claim success (principle-prove-it-works). For a UI change, capture a screenshot or a recording, and add it to the PR description.
-- **Lessons.** When the user corrects the same mistake twice, use `correct`. To keep a durable project fact, use `learn`.
+- **Lessons.** When the user corrects the same mistake twice, use `correct`. To keep a durable project fact, use `record-lesson`.
 
 ## Principles
 

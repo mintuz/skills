@@ -1,13 +1,13 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
-# Trigger-selection check for the learn skill description. Not part of the
+# Trigger-selection check for the record-lesson skill description. Not part of the
 # scripted suite. Run it from the repo root with:
-#   pnpm test:skills:triggers -- learn
+#   pnpm test:skills:triggers -- record-lesson
 # which refreshes the git-ignored fixture from src/ first.
 # The fixture lives in its own workspace, so no installed skill can reach the
-# behavioural suite in evals/learn/workspace.
+# behavioural suite in evals/record-lesson/workspace.
 # A symlink does not work as the fixture: Codex resolves it to the source path,
 # which the skill-used heuristic does not recognise.
-description: learn skill trigger selection
+description: record-lesson skill trigger selection
 
 prompts:
   - id: file://prompts/trigger.txt
@@ -37,7 +37,7 @@ tests:
         repository instructions so nobody hits it again.
     assert:
       - type: skill-used
-        value: learn
+        value: record-lesson
 
   - description: Activates on recording an architectural decision in AGENTS.md
     vars:
@@ -46,7 +46,7 @@ tests:
         than in the handlers. Record that decision in AGENTS.md.
     assert:
       - type: skill-used
-        value: learn
+        value: record-lesson
 
   - description: Activates on an unanchored wish-I-had-known learning
     vars:
@@ -55,7 +55,7 @@ tests:
         cache warms. Put that somewhere the next person will see it.
     assert:
       - type: skill-used
-        value: learn
+        value: record-lesson
 
   - description: Does not activate for a trivial documentation edit
     vars:
@@ -64,4 +64,13 @@ tests:
         "Installation".
     assert:
       - type: not-skill-used
-        value: learn
+        value: record-lesson
+
+  - description: Does not activate when the user wants to learn how something works
+    vars:
+      request: >-
+        I want to learn how our job queue retries failed jobs. Teach me the
+        retry path so I understand it before I change it.
+    assert:
+      - type: not-skill-used
+        value: record-lesson

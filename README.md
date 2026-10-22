@@ -64,7 +64,7 @@ Use one authoritative distribution per skill name. Run `omp --help` for the inst
 | `yagni`                     | Minimum sufficient execution, scope boundaries, TDD, and documentation practices                          |
 | `gauntlet-loop`             | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics              |
 | `graph-engineering`         | Orchestrate interdependent specs and stories as a contract-first execution graph with a verifier per node |
-| `learn`                     | Document learnings and capture insights into CLAUDE.md                                                    |
+| `record-lesson`             | Record a verified project lesson as the smallest rule in AGENTS.md or CLAUDE.md                           |
 | `pr`                        | PR descriptions, sizing, and creation with gh CLI                                                         |
 | `pseudocode`                | Render module boundaries, signatures, arguments, and a cited call graph for existing or planned code      |
 | `reducer`                   | First-principles system simplification with behavioral equivalence proofs                                 |
