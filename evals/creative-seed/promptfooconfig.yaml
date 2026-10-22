@@ -1,0 +1,87 @@
+description: "creative-seed portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Distinct concepts get deterministic seeds"
+    vars:
+      skill: "file://../../src/core/skills/creative-seed/SKILL.md"
+      scenario: "Create three UI concepts for the landing page of Streak, a new habit-tracking web app. Streak has no brand, no design system and no code yet; build each concept in plain HTML and CSS. The run ID is habit-landing. A shell is available. Describe your whole run step by step, through to what you hand back. This is a planning exercise; do not call tools."
+      rubric: "Derives each concept's creative direction from a long alphanumeric string printed by a script, not from a string that the agent invents or types. Makes the strings deterministic: each concept gets its own label built from the run ID (for example habit-landing/A, habit-landing/B and habit-landing/C), and the same label always regenerates the same string. Reads each string for patterns below the surface (for example repeats, runs, case rhythm, digit groups or special numbers) and turns them into explicit decisions for palette, typography, layout and the other open choices. Keeps every string out of the designs (visible text, alt text, file names, class names and comments) and records each label with its direction beside the concept, not inside it. Does not claim that any command ran."
+  -
+    description: "Direction read from the printed string"
+    vars:
+      skill: "file://../../src/core/skills/creative-seed/SKILL.md"
+      scenario: "Run habit-landing is building concept B for the landing page of Streak, a new habit-tracking web app with no brand or design system. The seed script printed this string for the label habit-landing/B: 9in2hE1wK9RfHYgNqM2zCTjrBWHoOkrJ6S0QWe7OHzisRBpd73ED59Hxz6oQz6FF. Write concept B's creative direction for its builder. This is a planning exercise; do not call tools."
+      rubric: "Writes a direction with concrete decisions: colour values (for example hex codes), named typefaces with a type scale, a layout or grid, spacing, corner shape, motion and one signature motif. Ties each decision to a specific pattern that is actually present in the supplied string (for example the 9 that opens it and recurs, the closing FF, digit groups such as 59 or 73, or a run of capitals), and invents no pattern that the string does not contain. Checks that text colours meet a contrast of at least 4.5:1. Keeps the string and its fragments out of the design, including visible text, class names and file names, and records the label habit-landing/B with the direction outside the design."
+  -
+    description: "Existing design system keeps its tokens"
+    vars:
+      skill: "file://../../src/core/skills/creative-seed/SKILL.md"
+      scenario: "Ledger is our existing React and Tailwind web app. Its design tokens are fixed: brand teal #0F766E, the Inter typeface, an 8 px spacing scale and rounded-md corners. We want UI concepts for a new spending dashboard inside Ledger. For concept A, the seed script printed this string for the label ledger-dash/A: z9BS3Jk5iWxTKPHbtN4xX9LJttCQez0eS5X5bj9S28WEUuwsXLA1zaOsFk6vDrXN. Describe concept A's creative direction. This is a planning exercise; do not call tools."
+      rubric: "Keeps Ledger's tokens unchanged: the teal #0F766E, Inter, the 8 px spacing scale and rounded-md corners. Uses the string only for the choices that the tokens leave open, such as layout and composition, chart style, data density, emphasis, motion or imagery, and ties each of those decisions to a specific pattern in the string. Does not introduce a new palette, a new typeface or a new corner style from the string. Keeps the string out of the design."
+  -
+    description: "Mid-loop reroll is refused"
+    vars:
+      skill: "file://../../src/core/skills/creative-seed/SKILL.md"
+      scenario: "A gauntlet-loop run is on round 3 for the Streak landing page. In round 1, arena picked concept B (seed label habit-landing/B) as the base, and its palette, typography and signature motif are now pinned in the bar. The fresh critic for round 3 returned LOSE: the hero headline and the sign-up form compete for attention. The builder proposes running the seed script with the label habit-landing/B/2 to get a fresh direction for round 4. What do you do? This is a planning exercise; do not call tools."
+      rubric: "Rejects the reroll for round 4, because the base's direction is pinned in the bar and a new seed would move the target of the loop. Keeps the pinned palette, typography and motif, and has the builder repair only the round's gap: the hierarchy between the hero headline and the sign-up form. Gives the next fresh critic only the goal, the bar and the artifact with its evidence, not the seed label, the string or the direction notes. States that a reroll belongs to a new exploration round that the user asks for, not to a repair round."
+  -
+    description: "Recorded label regenerates the direction"
+    vars:
+      skill: "file://../../src/core/skills/creative-seed/SKILL.md"
+      scenario: "Last week, run onboarding-0915 produced UI concept B for a first-run onboarding screen, and the user liked it. The design record names its seed label, onboarding-0915/B, but the direction notes for concept B were lost. The user now wants concept B's direction back, plus one new alternative to concept B. Plan the work. A shell is available. This is a planning exercise; do not call tools."
+      rubric: "Regenerates concept B's string by running the seed script with the same label, onboarding-0915/B, because the same label always prints the same string, and rebuilds the direction notes from that string. Does not invent, guess or randomly generate a replacement string for concept B. Gets the new alternative from a reroll label for the same variant, for example onboarding-0915/B/2, and records both labels with their directions beside the concepts. Does not claim that any command ran."
+  -
+    description: "String leaked into the design is removed"
+    vars:
+      skill: "file://../../src/core/skills/creative-seed/SKILL.md"
+      scenario: "Concept C of run habit-landing is ready for its critic. Its seed string is ueLsayEpRFh9f4wLnzyGjbiAxMPISzkClv5T3tsfF0579Vuy1t5eyLeB2apDcaZ5. The builder added a footer that reads 'build ueLsayEp', named the CSS classes .seed-ueLsay-hero and .seed-ueLsay-card, and put the full string in an HTML comment at the top of index.html. Check the concept before the critic sees it. This is a planning exercise; do not call tools."
+      rubric: "Identifies the footer text, the two class names and the HTML comment as leaks of the seed string, and has each one removed before the critic sees the concept: the footer text is deleted and the classes get names that describe their role, for example .hero and .card. Keeps the label habit-landing/C and the direction notes in the design record beside the concept, not in the artifact. Gives the critic the concept without the string, the label or the direction notes."

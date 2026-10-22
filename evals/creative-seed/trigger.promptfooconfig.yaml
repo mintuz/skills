@@ -1,0 +1,66 @@
+description: "creative-seed activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use creative-seed for the following request. Create three UI concepts for the landing page of a new podcast app that has no brand yet."
+    assert:
+      -
+        type: "skill-used"
+        value: "creative-seed"
+  -
+    description: "Natural concept request selects the workflow"
+    vars:
+      request: "Give me three bold, clearly different UI concepts for the home screen of a new recipe-sharing web app. We have no brand or design system yet."
+    assert:
+      -
+        type: "skill-used"
+        value: "creative-seed"
+  -
+    description: "Matching an agreed export stays outside the workflow"
+    vars:
+      request: "Build the checkout screen so that it matches the attached Figma export exactly, using our existing Tailwind tokens."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not derive a creative direction from a seed or a generated string; it plans to match the attached Figma export and the existing tokens. It does not claim to have performed unavailable work."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

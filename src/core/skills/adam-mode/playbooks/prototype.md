@@ -33,6 +33,8 @@ Several throwaway variants run through `arena`, which picks one base and grafts 
    - **Product:** the variants differ in concept or core flow. Each one is a thin end-to-end slice of the core journey.
    - **Feature or change:** the variants differ in flow, interaction or data shape. Each one runs at the integration point from step 3.
    - **Bug fix:** the variants differ in where and how the fix lands, for example at the source, at the boundary, or by removing the state that allows the defect. Each one runs against the same reproduction.
+
+   When the look of a product or feature variant is open, also give it a `creative-seed` label, `<run-id>/<variant>`. Put this line in its builder brief: "Load `creative-seed`, run its script with the label `<label>`, and derive the look from the printed string."
 10. **Set the bar and get it confirmed.** Follow step 1 of `gauntlet-loop` (principle-fix-the-bar-first). The bar says what makes a version good enough to decide on, not good enough to ship:
     - **Product, feature or change:** the core journey works end to end on the real surface, with named criteria that a critic can check, a fixed capture protocol (viewport or device, theme, seed data), and a materiality threshold.
     - **Bug fix:** one reproduction that fails on the base, the existing tests, and criteria such as the smallest change at the root cause.
