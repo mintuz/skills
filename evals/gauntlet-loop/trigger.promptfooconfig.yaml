@@ -1,0 +1,74 @@
+description: "gauntlet-loop activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Run a Gauntlet Loop on our pricing page until it matches the Stripe pricing page screenshots I attached."
+    assert:
+      -
+        type: "skill-used"
+        value: "gauntlet-loop"
+  -
+    description: "Natural task selects the workflow"
+    vars:
+      request: "Our pricing page is live but looks weak next to the Stripe pricing page screenshots I attached. Keep improving our page round after round until an independent reviewer, judging only the page against those screenshots, says it matches; stop after five rounds if it never does."
+    assert:
+      -
+        type: "skill-used"
+        value: "gauntlet-loop"
+  -
+    description: "Choosing between alternative shapes in one pass stays outside gauntlet-loop"
+    vars:
+      request: "Before we write the upload retry code, produce three independent takes on its shape: thrown errors or a Result type, a wrapper or a small state machine. Judge them against clear criteria, take the strongest as the base and merge in the best parts of the others."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply the gauntlet-loop workflow (no repeated build-and-critic rounds against an external bar). It plans three independent takes on the retry code's shape, judged against criteria in one pass, with one picked as the base and the best parts of the others merged in. It does not claim to have performed unavailable work."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Routine change stays outside gauntlet-loop"
+    vars:
+      request: "Rename the local variable cnt to count in src/utils/format.ts and update its three uses."
+    assert:
+      -
+        type: "not-skill-used"
+        value: "gauntlet-loop"

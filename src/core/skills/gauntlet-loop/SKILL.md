@@ -1,6 +1,6 @@
 ---
 name: gauntlet-loop
-description: WHEN a user asks for a Gauntlet Loop or relentless improvement of an ambitious artifact against a concrete, inspectable bar; NOT for routine changes with clear acceptance tests; coordinates separate builders and fresh critics until evidence supports stopping.
+description: WHEN a user asks for a Gauntlet Loop or relentless improvement of one ambitious artifact against a concrete, inspectable bar over repeated rounds; NOT for routine changes with clear acceptance tests, or for choosing between alternative shapes in one pass (arena); coordinates separate builders and fresh critics until evidence supports stopping.
 ---
 
 # Gauntlet Loop

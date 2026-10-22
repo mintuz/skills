@@ -14,6 +14,7 @@ The scripts are in `scripts/` beside this file. Run each one as `bash <absolute 
 
 - **Simplicity.** Optimise every change for reduced or flattened complexity: fewer branches, layers, moving parts and hand-rolled scripts. Before you write or review production code, load `yagni` and `reducer`. Prefer an existing tool or platform feature to new code, for example pure CSS before JavaScript.
 - **Principles.** In the plan, name each principle that you will apply. Read its leaf SKILL.md before you apply it. In the reply, name each principle that shaped a decision and the choice that it changed.
+- **Design.** When code crosses a function boundary and its types, signatures or module boundaries are not settled, run `architect` before anyone writes that code. For a code-shape bakeoff, for example a unit with several valid shapes, use `arena`: independent candidates, a judge that wrote none of them, one base and the best parts of the others grafted in. A visual design that must reach a bar goes to the Design loop, which uses `arena` only for its first round.
 - **Domain skills.** Before you write or review code, load the skills that match it:
 
   | Code | Skills |
