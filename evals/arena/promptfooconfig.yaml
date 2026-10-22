@@ -1,0 +1,93 @@
+description: "arena portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Single-provider host without subagents"
+    vars:
+      skill: "file://../../src/core/skills/arena/SKILL.md"
+      scenario: "Arena this: write the title, body and button copy shown when a card payment is declined at checkout. Grounding: docs/voice.md sets the tone rules and checkout/DeclinedDialog.tsx:14 renders a title, a body and one button. This host offers read/search/edit/shell only: it has no subagents, a single model from a single provider, and no model-routing rule file. Describe your whole run step by step, through to what you hand back. This is a planning exercise; do not call tools."
+      rubric: "Runs the arena inside this host: frames the artifact and a rubric of a few gradeable criteria before drafting; drafts at least two candidates one after another, finishing each before reading or starting the next, each kept in its own location; picks a base by scoring criterion by criterion and grafts from the others. Because no independent judge exists, says the picker scores alone and records the missing independent judge as a gap in the hand-off note, and notes that every candidate came from one model or provider. Does not require or name subagents, background spawning, a model-routing rule file or specific model names, and does not stall because they are absent."
+  -
+    description: "Delegation not authorised although subagents exist"
+    vars:
+      skill: "file://../../src/core/skills/arena/SKILL.md"
+      scenario: "Arena the README quickstart section for our new `sync` CLI command. Grounding: cli/sync.ts and docs/README.md. The host provides subagents and two model providers, but its operating rules allow subagents only when the user's request or an active workflow authorises delegation, and this request does neither. There is no model-routing rule file. Describe your run step by step, including who writes each candidate and who judges them. This is a planning exercise; do not call tools."
+      rubric: "Treats delegation as unauthorised: drafts the candidates itself in this session, each to completion before reading another, rather than spawning runner or judge subagents (at most it offers delegation for the user to authorise). With no independent judge available, scores the candidates alone and records the missing independent judge as a gap in its hand-off note. Does not name specific models or a model-routing rule file. Still frames a rubric before drafting, picks a base criterion by criterion, grafts named parts from the other candidates and verifies the result."
+  -
+    description: "Authorised delegation across two providers"
+    vars:
+      skill: "file://../../src/core/skills/arena/SKILL.md"
+      scenario: "adam-mode is active and authorises delegation. Arena three candidate designs for the retry policy module in src/net/retry.ts; the shared grounding is docs/net-how.md. The host offers subagents on two providers, Provider X and Provider Y; this session, which will pick the base, runs on Provider X. There is no model-routing rule file. Describe how you set up the runners, their output locations and the judging. This is a planning exercise; do not call tools."
+      rubric: "Runs the three candidates as independent subagents launched together, spreading the runners across both providers. Gives each candidate its own output location (a git worktree or a separate scratch directory). Hands every runner the same task, the shared grounding path, its own output location and a request for the artifact plus a rationale naming the alternatives considered and rejected, while keeping the rubric for picking rather than for the runners. After every candidate finishes, uses one read-only judge that wrote no candidate, chosen from Provider Y because the picker runs on Provider X. Does not name specific models or rely on a model-routing rule file."
+  -
+    description: "Base picked by rubric, not polish"
+    vars:
+      skill: "file://../../src/core/skills/arena/SKILL.md"
+      scenario: "An arena run for a config-loading module has finished drafting and every candidate has been read in full. Rubric: (1) invalid config fails at startup naming the offending key; (2) callers read typed values without casts; (3) one public entry point; (4) no global mutable state. Candidate 1 (candidate-1/) is the most polished and reads beautifully, with excellent doc comments, but exposes load(), validate() and get<T>() separately and caches into a module-level singleton. Candidate 2 (candidate-2/) exposes one loadConfig(): Config that validates at startup naming the bad key and keeps state in the returned object, but its error messages are terse. Candidate 3 (candidate-3/) has a formatter that prints the key, the expected type and the received value, but callers must cast values, as in config.get('port') as number. The independent judge recommends candidate 2. Pick the base, decide the grafts and write the hand-off note."
+      rubric: "Scores every candidate against each of the four criteria explicitly and picks candidate 2 as the base on those scores rather than on candidate 1's polish, noting that the judge's agreement confirms the pick. Grafts a small number of specific parts, each attributed to its source candidate (for example candidate 3's error formatter, adapted to candidate 2's single entry point, and possibly candidate 1's doc comments), rather than merging most of another candidate. Rejects candidate 1's split API and singleton and candidate 3's casts with reasons. The hand-off note names the base and why, the judge's verdict, each graft with its source, each rejection with its reason, and how the synthesised module will be verified, without claiming verification already ran."
+  -
+    description: "Convergence with a dropout"
+    vars:
+      skill: "file://../../src/core/skills/arena/SKILL.md"
+      scenario: "An arena run is producing a SQL migration that adds a nullable archived_at column and an index to the projects table. Four runners were launched. Runner 4 crashed and produced no output. Candidates 1 to 3 independently produced the same shape: add the nullable column, create the index concurrently, no backfill; they differ only in the index name and comment wording. The judge scored all three equal on every rubric criterion. What happens next, through to the hand-off?"
+      rubric: "Treats the agreement as consensus and ships the consensus shape without inventing substantive grafts (choosing one candidate's naming is fine). Continues with the three remaining candidates and records runner 4 as a dropout rather than stalling on it. Still verifies the synthesised migration before hand-off (for example applying it, and rolling it back, against a test database) without claiming that verification already ran. The hand-off note records the consensus, the dropout, the judge's verdict and the verification result or plan."
+  -
+    description: "Wild divergence triggers a reframe"
+    vars:
+      skill: "file://../../src/core/skills/arena/SKILL.md"
+      scenario: "An arena run for 'improve onboarding for new workspace admins' has finished drafting. Candidate 1 rewrote the welcome email sequence; candidate 2 designed an in-app setup checklist backed by new database tables; candidate 3 outlined an admin documentation site. The rubric criteria were 'clear', 'helpful' and 'low effort'. The judge scored a different candidate top on each criterion. Decide the next step."
+      rubric: "Recognises that the candidates diverge wildly because the frame was under-specified (a vague artifact and ungradeable criteria). Does not pick a base and graft, and does not average or combine the three into one artifact. Reframes by stating one concrete artifact and deriving gradeable criteria, asking the user only for information it cannot derive, and then reruns the candidates under the new frame."
+  -
+    description: "Verification failure returns to graft"
+    vars:
+      skill: "file://../../src/core/skills/arena/SKILL.md"
+      scenario: "An arena run synthesised a token-bucket rate limiter: candidate 2 is the base, with candidate 1's config parsing grafted in. Candidate 3 was rejected for its larger API. Running the test suite on the synthesised limiter, the concurrency test fails: two simultaneous requests both consume the last token. Candidate 3 used an atomic compare-and-set on the token count, and its rationale names this race. What do you do?"
+      rubric: "Identifies that a candidate caught the race and the arena missed that graft. Returns to grafting: folds candidate 3's atomic update into the base in the base's own terms, without adopting candidate 3's larger API. Reruns verification on the synthesised limiter, and records the new graft with its source and the failed then rerun verification in the hand-off note. Does not hide the failure by disabling, skipping or loosening the test, and does not hand off with the test failing."

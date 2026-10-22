@@ -1,0 +1,87 @@
+description: "architect portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Phase B delegates candidates to arena"
+    vars:
+      skill: "file://../../src/core/skills/architect/SKILL.md"
+      scenario: "/architect: design a per-tenant rate limiter for outbound webhook dispatch; implementation is authorised. Grounding is done: dispatch.ts:40 sends each webhook directly through httpClient.post, and tenant settings live in TenantConfig. The host has subagents and the user authorised delegation. Other skills, including one named arena, are installed. Describe how you produce the design sketch step by step, naming any skill you hand work to and the inputs you give it. This is a planning exercise; do not call tools."
+      rubric: "Hands candidate generation, judging, base picking and grafting to the arena skill rather than running its own separate synthesis procedure. The hand-off passes the design-sketch task, the Phase A grounding (dispatch.ts / TenantConfig findings), the architect runner prompt file as each candidate's prompt, at least two candidates, and architect-specific criteria covering all three of: structurally distinct whole-shape candidates, screening against the design red flags, and interface depth. States that arena's synthesis note (base, grafts, rejections) is copied into the rationale's Synthesis decision section. Does not name specific models or a model-routing rule file."
+  -
+    description: "Host without subagents or model routing"
+    vars:
+      skill: "file://../../src/core/skills/architect/SKILL.md"
+      scenario: "/architect: design a per-tenant rate limiter for outbound webhook dispatch and then implement it. Grounding is done: dispatch.ts:40 sends each webhook directly through httpClient.post, and tenant settings live in TenantConfig. This host offers read/search/edit/shell only. It has no subagents, no model-routing rule file and no way to choose another model. The arena skill is installed and says that without subagents each candidate is drafted in turn, to completion, before reading any other. Describe how you would produce the design sketch in this host, step by step, before any implementation. This is a planning exercise; do not call tools."
+      rubric: "Produces the competing candidates within this host: at least two structurally distinct whole-shape designs, each drafted independently (sequentially, finishing one before looking at the next) and then compared and synthesised into one design whose synthesis decision records the base, what was grafted and what was rejected. Does not require parallel runners, subagents, a model-routing rule file or specific named models, and does not stall or degrade the procedure because they are absent."
+  -
+    description: "Design-only request stops at the sketch"
+    vars:
+      skill: "file://../../src/core/skills/architect/SKILL.md"
+      scenario: "/architect How should we restructure notification preferences so email, push and SMS share one model? Grounding: prefs.ts:12 stores three separate boolean maps written by settings.ts:30 and by the unsubscribe handler in unsubscribe.ts:18. I want the shape to review with the team on Friday. Walk through your whole run: give the design, then say what you do after producing it, including any implementation or commits."
+      rubric: "Treats the request as design-only: delivers a caller-first sketch (usage before types, signatures with unimplemented bodies) plus rationale with alternatives, and then stops for review. Does not proceed to implementation, fill in bodies, or create or plan a commit of the design; at most offers implementation or a commit as a later step for the user to authorise. Notes the two writers of preference state as a design constraint."
+  -
+    description: "Screen candidates for red flags"
+    vars:
+      skill: "file://../../src/core/skills/architect/SKILL.md"
+      scenario: "/architect for a payments client, implementation not yet requested. Candidate A: PaymentsClient exposes buildRequest(order), signRequest(req), sendRequest(signed) and parseResponse(raw), and the package re-exports StripeChargeWire for callers; checkout.ts and subscriptionRenewal.ts each call all four in order. Candidate B: a Payments module whose only export is charge(order: Order): Promise<ChargeResult>, where ChargeResult is a domain union of Paid | Declined | RetryLater, and the Stripe wire type stays private. Compare them and give the resulting design."
+      rubric: "Names Candidate A's concrete problems: callers coordinating several methods for one operation (shallow interface / temporal stages exposed) and the re-exported wire type leaking a transport representation. Prefers or synthesises toward the deeper interface that hides signing, transport and parsing behind a small surface returning domain types, judged on interface depth. Shows caller usage at the call sites (checkout and subscription renewal) and derives the type sketch from it."
+  -
+    description: "Deviation during implementation is surfaced"
+    vars:
+      skill: "file://../../src/core/skills/architect/SKILL.md"
+      scenario: "Implementation of the reminders sketch is authorised and under way. The agreed sketch has scheduleReminder(userId: UserId, at: LocalTime): ReminderId. While filling in the body you find that converting LocalTime to a UTC trigger needs the user's timezone, which nothing in the sketch provides. What do you do next?"
+      rubric: "Treats the missing timezone as a deviation from the sketch to surface, not something to absorb silently by quietly adding a parameter or a hidden lookup. Diagnoses whether the sketch was wrong, a requirement was missed, or the implementation is overreaching, proposes how the sketch and its rationale change (for example where the timezone is owned and how it reaches the signature), and continues against the updated sketch."
+  -
+    description: "Pattern of friction triggers a scrap"
+    vars:
+      skill: "file://../../src/core/skills/architect/SKILL.md"
+      scenario: "Implementing an authorised sketch for a document-sync engine. So far: three unrelated callers each wrapped sync() in the same retry-and-refetch workaround; four places need `as any` casts because SyncState's optional fields are always set in practice; and a reviewer just proposed adding a mutex although the sketch said sync state is not shared. One separate edge case (empty documents) also needs a special branch. What do you do?"
+      rubric: "Recognises the repeated, independent friction (same workaround in unrelated callers, type escape hatches, the lock reflex against an unshared-state assumption) as a pattern showing the architecture is wrong, rather than patching each symptom or adding the mutex; does not treat the single empty-document edge case as decisive on its own. Scraps the sketch: re-grounds on what has been built, redesigns as if the new constraints were day-one assumptions, subtracts so the new sketch starts smaller than the old, and returns to sketching competing candidates before writing more code."

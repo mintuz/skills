@@ -1,0 +1,58 @@
+description: "sharpen activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use sharpen for the following request. Write a short internal post explaining why our signup conversion dropped last month. Not enough data is supplied; say what you need."
+    assert:
+      -
+        type: "skill-used"
+        value: "sharpen"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Write a short internal post explaining why our signup conversion dropped last month. Not enough data is supplied; say what you need."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply sharpen workflow or claim to have performed unavailable work; it stays within the requested task. It does not produce the skill's distinctive output or automatically activate the manual-only skill."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

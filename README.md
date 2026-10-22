@@ -79,6 +79,11 @@ Use one authoritative distribution per skill name. Run `omp --help` for the inst
 | `correct`                   | Turn recurring enforceable mistakes into verified structural guards                                       |
 | `recall`                    | Recover bounded past context and reconcile it with current evidence                                       |
 | `adam-mode`                 | Manual-only. Route a task to Adam's playbooks, principles and skills, and delegate through `adam-agent`   |
+| `teach`                     | Manual-only. Explain a change or subsystem plainly, using `how` and `why`, at the reader's pace           |
+| `architect`                 | Sketch types, signatures and modules through `arena`, then implement against the agreed sketch           |
+| `arena`                     | Run independent attempts at one task, judge them on a rubric, pick a base and graft the best parts       |
+| `sharpen`                   | Manual-only. Make a task deeper, not bigger, then rewrite the prompt                                      |
+| `in-your-own-words`         | Manual-only. Restate the user's goals and the problem they are trying to solve                            |
 
 ### Web
 
@@ -276,7 +281,7 @@ See [scripts/README.md](scripts/README.md) for more options including custom out
 
 ## Credits
 
-- Lauren Tan, for the 54 skills (7 core workflows and 47 principles) adapted from [pstack](https://github.com/cursor/plugins/tree/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454/pstack/skills), and for the `poteto-mode` skill and `poteto-agent` subagent on which `adam-mode` and `adam-agent` are modelled. The MIT license is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- Lauren Tan, for the 59 skills (12 core workflows and 47 principles) adapted from [pstack](https://github.com/cursor/plugins/tree/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454/pstack/skills), and for the `poteto-mode` skill and `poteto-agent` subagent on which `adam-mode` and `adam-agent` are modelled. `sharpen` comes from a later pstack commit. The MIT license is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - [City Paul's dotfiles](https://github.com/citypaul/.dotfiles/tree/main/claude/.claude)
 - [Lee Cheneler's dotfiles](https://github.com/LeeCheneler/dotfiles)
 - [Thomas Ricouard's Skills](https://github.com/Dimillian/Skills)

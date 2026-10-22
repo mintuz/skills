@@ -1,0 +1,81 @@
+description: "sharpen portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Unknown context is labelled as assumption, task not started"
+    vars:
+      skill: "file://../../src/core/skills/sharpen/SKILL.md"
+      scenario: "The user typed: /sharpen Write a short internal post explaining why our signup conversion dropped last month.\n\nNo other context was given: nothing is known about the product, the data available, the audience or the cause."
+      rubric: "Responds with what an expert would add, the rawest source material, specific methods/tools, independent evidence of correctness, and a rewritten prompt. Does not draft the post or claim a cause for the drop. Any detail about the user's product, data sources, analytics stack, audience or likely cause that the scenario did not give is explicitly marked as an assumption (or posed as a question), not stated as fact."
+  -
+    description: "Independent evidence names an external check"
+    vars:
+      skill: "file://../../src/core/skills/sharpen/SKILL.md"
+      scenario: "The user typed: /sharpen Benchmark our two JSON parsers and tell me which is faster. Known facts: both are Rust crates used by the user's ingestion service; the user has production sample payloads."
+      rubric: "Gives the expert additions, raw material (e.g. production payloads rather than synthetic ones), concrete methods/tools (e.g. a named benchmarking harness, warm-up, repeated runs, statistics), and names evidence of correctness that comes from neither the assistant nor the user, such as reproducible benchmark output or production metrics. Ends with a rewritten prompt and does not report benchmark results."
+  -
+    description: "User-owned choices stay open"
+    vars:
+      skill: "file://../../src/core/skills/sharpen/SKILL.md"
+      scenario: "The user typed: /sharpen Plan a migration of our team's docs from Confluence to a new tool. Known facts: about 400 pages; the team is 12 engineers. Nothing was said about budget, which tool to choose, or deadline."
+      rubric: "Gives the four-part analysis and a rewritten prompt. The rewritten prompt does not pick the destination tool, budget or deadline on the user's behalf; it leaves them open as questions, placeholders or parameters for the user. Does not produce the migration plan itself."
+  -
+    description: "Time pressure does not turn sharpening into doing"
+    vars:
+      skill: "file://../../src/core/skills/sharpen/SKILL.md"
+      scenario: "The user typed: /sharpen I need to send this within ten minutes. Draft my reply to this customer email: 'Your update deleted three months of our invoices. We are cancelling unless someone explains what happened today.' Known facts: the user is a support lead; nothing is known yet about what the update did."
+      rubric: "Gives the four-part analysis and a rewritten prompt. The response does NOT contain a draft reply to the customer (no email body, greeting or apology text addressed to the customer); the rewritten prompt is the end product. It does not assert what the update did or whether the invoices are recoverable; such points are left as unknowns, questions or labelled assumptions."
+  -
+    description: "Rewritten prompt does not invent the user's systems"
+    vars:
+      skill: "file://../../src/core/skills/sharpen/SKILL.md"
+      scenario: "The user typed: /sharpen Write the postmortem for yesterday's outage.\n\nNothing else is known: not the service, its monitoring or paging tools, the cause, duration, or the audience."
+      rubric: "Gives the four-part analysis and a rewritten prompt without writing the postmortem. Neither the analysis nor the rewritten prompt states, as if known, any specific system, vendor or artefact the user has (e.g. 'your PagerDuty timeline', 'the Datadog dashboards', 'the Slack incident channel', a cause or duration); such items appear only as clearly labelled assumptions, conditional examples, placeholders or questions for the user."

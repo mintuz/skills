@@ -1,0 +1,66 @@
+description: "architect activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use architect for the following request. How should we restructure notification preferences so email, push and SMS share one model? Grounding: prefs.ts:12 stores three separate boolean maps written by settings.ts:30 and by the unsubscribe handler in unsubscribe.ts:18. I want the shape to review with the team on Friday. Walk through your whole run: give the design, then say what you do after producing it, including any implementation or commits."
+    assert:
+      -
+        type: "skill-used"
+        value: "architect"
+  -
+    description: "Natural design request selects the skill"
+    vars:
+      request: "Before we write any code, design the types and module boundaries for a new per-tenant rate limiter in front of our outbound webhook dispatcher; nothing about its shape is settled yet."
+    assert:
+      -
+        type: "skill-used"
+        value: "architect"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Fix the off-by-one in formatRange in utils.ts: the loop at line 14 uses <= where it should use <. Just make that one-line change."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply the architect workflow (no candidate designs, type sketches or phased Ground/Sketch/Agree process, and does not name architect as the skill followed) and does not claim to have performed unavailable work; it stays within the requested one-line fix."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

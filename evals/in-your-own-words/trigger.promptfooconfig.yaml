@@ -1,0 +1,58 @@
+description: "in-your-own-words activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use in-your-own-words for the following request. Our on-call rota keeps breaking because shift swaps in Slack never reach PagerDuty. Suggest a fix."
+    assert:
+      -
+        type: "skill-used"
+        value: "in-your-own-words"
+  -
+    description: "Exclusion stays outside workflow"
+    vars:
+      request: "Our on-call rota keeps breaking because shift swaps in Slack never reach PagerDuty. Suggest a fix."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply in-your-own-words workflow or claim to have performed unavailable work; it stays within the requested task. It does not produce the skill's distinctive output or automatically activate the manual-only skill."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./trigger-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

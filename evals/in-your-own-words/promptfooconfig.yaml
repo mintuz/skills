@@ -1,0 +1,69 @@
+description: "in-your-own-words portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Stated versus inferred, no solving, invites correction"
+    vars:
+      skill: "file://../../src/core/skills/in-your-own-words/SKILL.md"
+      scenario: "The user typed: /in-your-own-words Our on-call rota keeps breaking. People swap shifts in Slack DMs, the PagerDuty schedule doesn't get updated, and last week nobody got paged for a database outage. I want something that stops this happening again."
+      rubric: "Restates the goal and underlying problem in the responder's own words, clearly separating what the user stated from what the responder infers (e.g. labelled sections or explicit 'you said' vs 'I infer'). Does not propose fixes, tools or process changes. Ends by inviting the user to correct the restatement."
+  -
+    description: "Restates underlying problem not just request"
+    vars:
+      skill: "file://../../src/core/skills/in-your-own-words/SKILL.md"
+      scenario: "The user typed: /in-your-own-words Can you make the test suite faster? CI takes 40 minutes and people have started merging without waiting for it."
+      rubric: "Restates that the deeper problem is that slow CI is causing people to bypass the safety check (merging untested changes), not only raw speed. Separates what was stated from inference, does not propose specific speed-ups, and invites correction. Stays brief (a short paragraph or a few bullets)."
+  -
+    description: "Stated means is not mistaken for the goal"
+    vars:
+      skill: "file://../../src/core/skills/in-your-own-words/SKILL.md"
+      scenario: "The user typed: /in-your-own-words I want to rewrite our billing service in Go."
+      rubric: "Recognises that rewriting in Go is the stated means and that the motivating problem was not given; any motivation it offers (e.g. performance, maintainability, hiring) is explicitly labelled as inference or a guess, not presented as the user's goal. Does not recommend for or against the rewrite or propose an approach. Invites the user to correct or supply the real goal. Stays brief."
