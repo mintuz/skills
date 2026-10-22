@@ -36,8 +36,8 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 {{resume}}
 </playbook>
 
-<playbook path="playbooks/spike.md">
-{{spike}}
+<playbook path="playbooks/prototype.md">
+{{prototype}}
 </playbook>
 
 <playbook path="playbooks/disk.md">

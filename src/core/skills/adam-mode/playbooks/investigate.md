@@ -1,11 +1,18 @@
 # Investigate
 
-A question about how, why, impact or consequences. The deliverable is an answer. Leave the subject unchanged (principle-investigate-read-only).
+A question about how, why, impact or consequences. The deliverable is a cited explanation or a recommendation, not a change. Leave the subject unchanged (principle-investigate-read-only): no branch, commit, PR or `babysit`, and no `architect`.
 
 1. **Restate the question.** Write the question and its scope in one sentence (principle-state-the-scope).
-2. **Pick the skill.** For how code works, use `how`. For why it was built, use `why`. For what a change can break, use `blast-radius`. For an explanation of a PR or diff, use `explain-diff` when it is installed, or `how` on the diff. For earlier work, use `recall`.
-3. **Gather the evidence.** Read the code and its history. When a run can answer the question, run it. When the user offers a hunch, test it as one hypothesis.
-4. **Answer.** Follow Writing the reply in the SKILL.md. For a decision or an option, the first sentence names the main gain and the main loss; then list what it makes possible and what it costs, as separate items. When you have not read the code, put the label "inferred" and the check that would confirm it beside each claim, not in one general disclaimer.
+2. **Pick the skill.** For how code works, use `how`. For why it was built, also use `why`. For what a change can break, use `blast-radius`. For an explanation of a PR or diff, use `explain-diff` when it is installed, or `how` on the diff. For earlier work, use `recall`.
+3. **Gather the evidence.** Read the code and its history. When a run can answer the question, run it. When the user offers a hunch or a premise, test it as one hypothesis.
+4. **Shape the answer.** Give the answer in the first sentence, then use the shape that fits the question:
+   - **How it works:** these headings, in this order: Key concepts; How it works, as a sequence from the trigger to the result; Where things live, with a file and symbol locator for each part; Gotchas.
+   - **A decision between alternatives:** a recommendation, then a trade-offs table that compares the options on named criteria. The first sentence names the main gain and the main loss.
+   - **"Are you sure?" or a stated premise:** your own judgement with its reasons. When the evidence contradicts the premise, say so (Candour in the SKILL.md).
+
+   When you have not read the code, put the label "inferred" and the check that would confirm it beside each claim, not in one general disclaimer.
+5. **Apply `writing` to the reply.** Load the `writing` skill and apply it to the whole reply, together with Writing the reply in the SKILL.md.
+6. **Hand back before any change.** When the investigation precedes a code change, stop after the answer. Hand back to the user, and name the playbook that makes the change: Bug fix for a defect, Implement for a spec or a story.
 
 ## Variant: diagnose from an artifact
 
