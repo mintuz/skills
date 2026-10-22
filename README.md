@@ -54,17 +54,17 @@ Each harness calls a skill by name with a different syntax. The examples use the
 
 ### Pick a skill
 
-| Situation                                                                    | Skill                                  |
-| ---------------------------------------------------------------------------- | -------------------------------------- |
-| A task needs a full workflow: review, bug fix, spec, implementation, design  | `adam-mode`                            |
-| An open "which approach?" question needs an experiment before the real build | `adam-mode` Prototype (spike) playbook |
-| One artifact must reach a high, confirmed bar over several rounds            | `gauntlet-loop`                        |
-| One artifact can take several shapes, and you want them judged in one pass   | `arena`                                |
-| The look of a UI concept is open, and the variants must differ               | `creative-seed`                        |
-| Existing code or a system has more moving parts than its behaviour needs     | `reducer`                              |
-| New work must stay at the minimum that the requirement needs                 | `yagni`                                |
-| You need to know what the code does now                                      | `how`                                  |
-| You need to know why the code exists in its current form                     | `why`                                  |
+| Situation                                                                    | Skill                                                                        |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| A task needs a full workflow: review, bug fix, spec, implementation, design  | [`adam-mode`](src/core/skills/adam-mode/SKILL.md)                            |
+| An open "which approach?" question needs an experiment before the real build | [`adam-mode`](src/core/skills/adam-mode/SKILL.md) Prototype (spike) playbook |
+| One artifact must reach a high, confirmed bar over several rounds            | [`gauntlet-loop`](src/core/skills/gauntlet-loop/SKILL.md)                    |
+| One artifact can take several shapes, and you want them judged in one pass   | [`arena`](src/core/skills/arena/SKILL.md)                                    |
+| The look of a UI concept is open, and the variants must differ               | [`creative-seed`](src/core/skills/creative-seed/SKILL.md)                    |
+| Existing code or a system has more moving parts than its behaviour needs     | [`reducer`](src/core/skills/reducer/SKILL.md)                                |
+| New work must stay at the minimum that the requirement needs                 | [`yagni`](src/core/skills/yagni/SKILL.md)                                    |
+| You need to know what the code does now                                      | [`how`](src/core/skills/how/SKILL.md)                                        |
+| You need to know why the code exists in its current form                     | [`why`](src/core/skills/why/SKILL.md)                                        |
 
 ### `adam-mode`
 
@@ -254,93 +254,93 @@ flowchart LR
 
 ### Core
 
-| Skill                       | Description                                                                                               |
-| --------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `acceptance-review`         | Verify implementation against an authoritative contract with an explicit verdict                          |
-| `commit-messages`           | Conventional commit messages that explain the "why" not just the "what"                                   |
-| `yagni`                     | Minimum sufficient execution, scope boundaries, TDD, and documentation practices                          |
-| `gauntlet-loop`             | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics              |
-| `graph-engineering`         | Orchestrate interdependent specs and stories as a contract-first execution graph with a verifier per node |
-| `record-lesson`             | Record a verified project lesson as the smallest rule in AGENTS.md or CLAUDE.md                           |
-| `pr`                        | PR descriptions, sizing, and creation with gh CLI                                                         |
-| `pseudocode`                | Render module boundaries, signatures, arguments, and a cited call graph for existing or planned code      |
-| `reducer`                   | First-principles system simplification with behavioral equivalence proofs                                 |
-| `ship-pr`                   | Commit, publish, repair, and monitor a GitHub pull request through merge                                  |
-| `writing`                   | Developer-focused writing: tutorials, how-tos, docs with clear structure                                  |
-| `wtf`                       | Re-explain an unclear response in plain, precise UK English                                               |
-| `create-verification-skill` | Create and cold-replay one critical user-journey check                                                    |
-| `blast-radius`              | Trace material change risks and decisive checks                                                           |
-| `how`                       | Explain the current execution path and state ownership                                                    |
-| `why`                       | Recover rationale while separating fact, inference and unknown                                            |
-| `benchmark-checklist`       | Check measurement correctness, repeatability and interpretation                                           |
-| `correct`                   | Turn recurring enforceable mistakes into verified structural guards                                       |
-| `recall`                    | Recover bounded past context and reconcile it with current evidence                                       |
-| `adam-mode`                 | Manual-only. Route a task to Adam's playbooks, principles and skills, and delegate through `adam-agent`   |
-| `teach`                     | Manual-only. Explain a change or subsystem plainly, using `how` and `why`, at the reader's pace           |
-| `architect`                 | Sketch types, signatures and modules through `arena`, then implement against the agreed sketch           |
-| `arena`                     | Run independent attempts at one task, judge them on a rubric, pick a base and graft the best parts       |
-| `sharpen`                   | Manual-only. Make a task deeper, not bigger, then rewrite the prompt                                      |
-| `in-your-own-words`         | Manual-only. Restate the user's goals and the problem they are trying to solve                            |
-| `creative-seed`             | Derive each UI concept's creative direction from a deterministic seed string that the design never shows  |
+| Skill                                                                             | Description                                                                                               |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [`acceptance-review`](src/core/skills/acceptance-review/SKILL.md)                 | Verify implementation against an authoritative contract with an explicit verdict                          |
+| [`commit-messages`](src/core/skills/commit-messages/SKILL.md)                     | Conventional commit messages that explain the "why" not just the "what"                                   |
+| [`yagni`](src/core/skills/yagni/SKILL.md)                                         | Minimum sufficient execution, scope boundaries, TDD, and documentation practices                          |
+| [`gauntlet-loop`](src/core/skills/gauntlet-loop/SKILL.md)                         | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics              |
+| [`graph-engineering`](src/core/skills/graph-engineering/SKILL.md)                 | Orchestrate interdependent specs and stories as a contract-first execution graph with a verifier per node |
+| [`record-lesson`](src/core/skills/record-lesson/SKILL.md)                         | Record a verified project lesson as the smallest rule in AGENTS.md or CLAUDE.md                           |
+| [`pr`](src/core/skills/pr/SKILL.md)                                               | PR descriptions, sizing, and creation with gh CLI                                                         |
+| [`pseudocode`](src/core/skills/pseudocode/SKILL.md)                               | Render module boundaries, signatures, arguments, and a cited call graph for existing or planned code      |
+| [`reducer`](src/core/skills/reducer/SKILL.md)                                     | First-principles system simplification with behavioral equivalence proofs                                 |
+| [`ship-pr`](src/core/skills/ship-pr/SKILL.md)                                     | Commit, publish, repair, and monitor a GitHub pull request through merge                                  |
+| [`writing`](src/core/skills/writing/SKILL.md)                                     | Developer-focused writing: tutorials, how-tos, docs with clear structure                                  |
+| [`wtf`](src/core/skills/wtf/SKILL.md)                                             | Re-explain an unclear response in plain, precise UK English                                               |
+| [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay one critical user-journey check                                                    |
+| [`blast-radius`](src/core/skills/blast-radius/SKILL.md)                           | Trace material change risks and decisive checks                                                           |
+| [`how`](src/core/skills/how/SKILL.md)                                             | Explain the current execution path and state ownership                                                    |
+| [`why`](src/core/skills/why/SKILL.md)                                             | Recover rationale while separating fact, inference and unknown                                            |
+| [`benchmark-checklist`](src/core/skills/benchmark-checklist/SKILL.md)             | Check measurement correctness, repeatability and interpretation                                           |
+| [`correct`](src/core/skills/correct/SKILL.md)                                     | Turn recurring enforceable mistakes into verified structural guards                                       |
+| [`recall`](src/core/skills/recall/SKILL.md)                                       | Recover bounded past context and reconcile it with current evidence                                       |
+| [`adam-mode`](src/core/skills/adam-mode/SKILL.md)                                 | Manual-only. Route a task to Adam's playbooks, principles and skills, and delegate through `adam-agent`   |
+| [`teach`](src/core/skills/teach/SKILL.md)                                         | Manual-only. Explain a change or subsystem plainly, using `how` and `why`, at the reader's pace           |
+| [`architect`](src/core/skills/architect/SKILL.md)                                 | Sketch types, signatures and modules through `arena`, then implement against the agreed sketch            |
+| [`arena`](src/core/skills/arena/SKILL.md)                                         | Run independent attempts at one task, judge them on a rubric, pick a base and graft the best parts        |
+| [`sharpen`](src/core/skills/sharpen/SKILL.md)                                     | Manual-only. Make a task deeper, not bigger, then rewrite the prompt                                      |
+| [`in-your-own-words`](src/core/skills/in-your-own-words/SKILL.md)                 | Manual-only. Restate the user's goals and the problem they are trying to solve                            |
+| [`creative-seed`](src/core/skills/creative-seed/SKILL.md)                         | Derive each UI concept's creative direction from a deterministic seed string that the design never shows  |
 
 ### Web
 
-| Skill              | Description                                                               |
-| ------------------ | ------------------------------------------------------------------------- |
-| `css`              | CSS best practices for maintainable, scalable styles                      |
-| `react`            | Production-ready React architecture and patterns                          |
-| `xstate`           | Typed XState actor lifecycles with legal Mermaid statechart visualization |
-| `react-testing`    | React Testing Library patterns for components, hooks, and context         |
-| `frontend-testing` | DOM Testing Library patterns for behavior-driven UI testing               |
-| `tdd`              | Test-Driven Development principles and Red-Green-Refactor workflow        |
-| `refactoring`      | Refactoring assessment and patterns after tests pass                      |
-| `web-design`       | Visual hierarchy, spacing, typography, and UI polish                      |
-| `tailwind`         | Design systems with Tailwind CSS, design tokens, and component libraries  |
-| `eyes`             | Visual feedback loop with Playwright screenshots for UI iteration         |
-| `chatgpt-app-sdk`  | Build ChatGPT apps using OpenAI Apps SDK and MCP with conversational UX   |
+| Skill                                                          | Description                                                               |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [`css`](src/web/skills/css/SKILL.md)                           | CSS best practices for maintainable, scalable styles                      |
+| [`react`](src/web/skills/react/SKILL.md)                       | Production-ready React architecture and patterns                          |
+| [`xstate`](src/web/skills/xstate/SKILL.md)                     | Typed XState actor lifecycles with legal Mermaid statechart visualization |
+| [`react-testing`](src/web/skills/react-testing/SKILL.md)       | React Testing Library patterns for components, hooks, and context         |
+| [`frontend-testing`](src/web/skills/frontend-testing/SKILL.md) | DOM Testing Library patterns for behavior-driven UI testing               |
+| [`tdd`](src/web/skills/tdd/SKILL.md)                           | Test-Driven Development principles and Red-Green-Refactor workflow        |
+| [`refactoring`](src/web/skills/refactoring/SKILL.md)           | Refactoring assessment and patterns after tests pass                      |
+| [`web-design`](src/web/skills/web-design/SKILL.md)             | Visual hierarchy, spacing, typography, and UI polish                      |
+| [`tailwind`](src/web/skills/tailwind/SKILL.md)                 | Design systems with Tailwind CSS, design tokens, and component libraries  |
+| [`eyes`](src/web/skills/eyes/SKILL.md)                         | Visual feedback loop with Playwright screenshots for UI iteration         |
+| [`chatgpt-app-sdk`](src/web/skills/chatgpt-app-sdk/SKILL.md)   | Build ChatGPT apps using OpenAI Apps SDK and MCP with conversational UX   |
 
 ### App
 
-| Skill                           | Description                                                                                     |
-| ------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `swift-testing`                 | Swift Testing framework: @Test macros, #expect/#require patterns                                |
-| `app-intent-driven-development` | Build features as App Intents first for Siri, Shortcuts, widgets, and SwiftUI                   |
-| `swiftui-architecture`          | Modern SwiftUI patterns: @Observable, state management, no ViewModels                           |
-| `debug`                         | Structured feedback loop for debugging iOS simulator issues and UI problems                     |
-| `local-ai-models`               | On-device AI with Foundation Models and MLX Swift: LLMs, VLMs, embeddings, and image generation |
-| `app-store-scraper`             | Scrape iOS/macOS App Store data using iTunes/App Store APIs                                     |
-| `app-store-keyword-ops`         | Mine Astro competitor keywords and safely update locale-specific App Store fields               |
-| `ios-localize-copy`             | Localize iOS and App Store copy across every supported locale                                   |
-| `xcode-dev-loop`                | Canonical xcodebuild build/test/simulator loop: background runs, result reading, screenshots    |
-| `asc-screenshots`               | Upload App Store screenshots and previews through helm-asc: staging, locales, verification      |
+| Skill                                                                                    | Description                                                                                     |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [`swift-testing`](src/app/skills/swift-testing/SKILL.md)                                 | Swift Testing framework: @Test macros, #expect/#require patterns                                |
+| [`app-intent-driven-development`](src/app/skills/app-intent-driven-development/SKILL.md) | Build features as App Intents first for Siri, Shortcuts, widgets, and SwiftUI                   |
+| [`swiftui-architecture`](src/app/skills/swiftui-architecture/SKILL.md)                   | Modern SwiftUI patterns: @Observable, state management, no ViewModels                           |
+| [`debug`](src/app/skills/debug/SKILL.md)                                                 | Structured feedback loop for debugging iOS simulator issues and UI problems                     |
+| [`local-ai-models`](src/app/skills/local-ai-models/SKILL.md)                             | On-device AI with Foundation Models and MLX Swift: LLMs, VLMs, embeddings, and image generation |
+| [`app-store-scraper`](src/app/skills/app-store-scraper/SKILL.md)                         | Scrape iOS/macOS App Store data using iTunes/App Store APIs                                     |
+| [`app-store-keyword-ops`](src/app/skills/app-store-keyword-ops/SKILL.md)                 | Mine Astro competitor keywords and safely update locale-specific App Store fields               |
+| [`ios-localize-copy`](src/app/skills/ios-localize-copy/SKILL.md)                         | Localize iOS and App Store copy across every supported locale                                   |
+| [`xcode-dev-loop`](src/app/skills/xcode-dev-loop/SKILL.md)                               | Canonical xcodebuild build/test/simulator loop: background runs, result reading, screenshots    |
+| [`asc-screenshots`](src/app/skills/asc-screenshots/SKILL.md)                             | Upload App Store screenshots and previews through helm-asc: staging, locales, verification      |
 
 ### TypeScript
 
-| Skill        | Description                                                           |
-| ------------ | --------------------------------------------------------------------- |
-| `typescript` | Schema-first development, strict typing, functional patterns, and Zod |
+| Skill                                                     | Description                                                           |
+| --------------------------------------------------------- | --------------------------------------------------------------------- |
+| [`typescript`](src/typescript/skills/typescript/SKILL.md) | Schema-first development, strict typing, functional patterns, and Zod |
 
 ### Life
 
-| Skill        | Description                                                                        |
-| ------------ | ---------------------------------------------------------------------------------- |
-| `gps-method` | Evidence-based goal achievement framework using Goal, Plan, and System methodology |
+| Skill                                               | Description                                                                        |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [`gps-method`](src/life/skills/gps-method/SKILL.md) | Evidence-based goal achievement framework using Goal, Plan, and System methodology |
 
 ### System Design
 
-| Skill               | Description                                                                     |
-| ------------------- | ------------------------------------------------------------------------------- |
-| `mermaid-generator` | Generate Mermaid diagrams from code to visualize architecture and relationships |
+| Skill                                                                      | Description                                                                     |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [`mermaid-generator`](src/system-design/skills/mermaid-generator/SKILL.md) | Generate Mermaid diagrams from code to visualize architecture and relationships |
 
 ### Product Management
 
-| Skill                     | Description                                                                            |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| `decision-trace`          | Trace claimed decisions from source evidence through delivery artifacts                |
-| `meeting-to-action-brief` | Turn meeting evidence into a concise decision and action brief                         |
-| `status-updates`          | Team updates and stakeholder comms with scannable structure and honest tone            |
-| `story-pr-orchestrator`   | Coordinate dependency-gated stories through isolated pull requests                     |
-| `design-handover`         | Explicitly transfer accepted behaviour, matching visuals, authority and durable assets |
+| Skill                                                                                       | Description                                                                            |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [`decision-trace`](src/product-management/skills/decision-trace/SKILL.md)                   | Trace claimed decisions from source evidence through delivery artifacts                |
+| [`meeting-to-action-brief`](src/product-management/skills/meeting-to-action-brief/SKILL.md) | Turn meeting evidence into a concise decision and action brief                         |
+| [`status-updates`](src/product-management/skills/status-updates/SKILL.md)                   | Team updates and stakeholder comms with scannable structure and honest tone            |
+| [`story-pr-orchestrator`](src/product-management/skills/story-pr-orchestrator/SKILL.md)     | Coordinate dependency-gated stories through isolated pull requests                     |
+| [`design-handover`](src/product-management/skills/design-handover/SKILL.md)                 | Explicitly transfer accepted behaviour, matching visuals, authority and durable assets |
 
 ## Principles
 
@@ -405,13 +405,13 @@ Each is an independent skill under `src/principle/skills/`, with its full `princ
 
 ## Agents
 
-| Agent                 | Plugin | Description                                                                                          |
-| --------------------- | ------ | ---------------------------------------------------------------------------------------------------- |
-| `adam-agent`          | core   | Delegate for an `/adam-mode` run that reads the `adam-mode` skill in full before any work            |
-| `code-reviewer`       | web    | Expert code review specialist focusing on quality, security, performance, and maintainability        |
-| `refactorer`          | web    | Refactoring coach to guide code improvement decisions and assess opportunities after tests pass      |
-| `senior-web-engineer` | web    | Expert UI engineer for building robust, scalable React components with focus on standards compliance |
-| `test-runner`         | web    | Runs tests with auto-detection and returns concise pass/fail summaries                               |
+| Agent                                                          | Plugin | Description                                                                                          |
+| -------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------- |
+| [`adam-agent`](src/core/agents/adam-agent.md)                  | core   | Delegate for an `/adam-mode` run that reads the `adam-mode` skill in full before any work            |
+| [`code-reviewer`](src/web/agents/code-reviewer.md)             | web    | Expert code review specialist focusing on quality, security, performance, and maintainability        |
+| [`refactorer`](src/web/agents/refactorer.md)                   | web    | Refactoring coach to guide code improvement decisions and assess opportunities after tests pass      |
+| [`senior-web-engineer`](src/web/agents/senior-web-engineer.md) | web    | Expert UI engineer for building robust, scalable React components with focus on standards compliance |
+| [`test-runner`](src/web/agents/test-runner.md)                 | web    | Runs tests with auto-detection and returns concise pass/fail summaries                               |
 
 ## MCP Integrations
 
