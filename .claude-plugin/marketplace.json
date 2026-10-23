@@ -27,6 +27,7 @@
         "./skills/github-monitor",
         "./skills/create-verification-skill",
         "./skills/blast-radius",
+        "./skills/double-check",
         "./skills/how",
         "./skills/why",
         "./skills/benchmark-checklist",
