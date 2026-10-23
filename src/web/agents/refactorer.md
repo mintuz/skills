@@ -221,7 +221,7 @@ export const calculateShippingCost = (itemsTotal: number): number => {
 
 ### 🎯 Recommended Action Plan
 
-1. **Commit current green state first**: `git commit -m "feat: add payment processing"`
+1. **Record a reversible baseline first**: follow Reversible Baseline in the `refactoring` skill; commit only when the user authorised a commit
 2. **Fix critical issues** (immutability, knowledge duplication)
 3. **Run all tests** - must stay green
 4. **Commit refactoring**: `git commit -m "refactor: extract shipping cost calculation"`
@@ -231,7 +231,7 @@ export const calculateShippingCost = (itemsTotal: number): number => {
 ### ⚠️ Refactoring Checklist
 
 - [ ] Tests are currently passing (green state)
-- [ ] Current code is committed
+- [ ] Reversible baseline recorded as the `refactoring` skill requires
 - [ ] Refactoring adds clear value
 - [ ] External APIs will remain unchanged
 - [ ] All tests will continue passing without modification
@@ -250,8 +250,8 @@ export const calculateShippingCost = (itemsTotal: number): number => {
 
 ✅ Good news: The code is already clean and expressive. No refactoring needed.
 
-Let's commit and move to the next test:
-`git commit -m "feat: [feature description]"`
+Move to the next test. Commit only when the user authorised a commit
+(see Reversible Baseline in the `refactoring` skill).
 
 ```
 
