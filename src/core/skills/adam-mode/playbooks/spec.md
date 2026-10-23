@@ -8,7 +8,7 @@ Write or update a spec with a spec-driven flow such as GitHub Spec Kit, from the
    - **Step:** the step's command, which the agent loads and follows first.
    - **Context:** the shared context file, and the rulings that the step must not reopen.
    - **Folder:** the spec folder, set explicitly for each Spec Kit script instead of another session's feature pointer.
-   - **Skills:** the skills that the user named, and `story-splitting` for the user stories.
+   - **Skills:** the skills that the user named, and `story-splitting` for the user stories. `story-splitting` is an external skill that this repository does not include. When the host does not install it, report the gap.
    - **Files:** the files that the step may change. Do not commit, and do not change an approved example.
    - **Checks:** the repository's spec checks, for example its Spec Kit check and `git diff --check`.
    - **Report:** the files changed, the check results and the open questions; for specify, also the full Given/When/Then set.
