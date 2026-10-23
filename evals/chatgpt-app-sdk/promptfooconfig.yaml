@@ -175,3 +175,24 @@ tests:
         - Puts the answers and the uploaded photo in server-owned storage through `save_quote_step`, and keeps widget state to a small set such as quote identifier, current step, and view preferences.
         - Makes resume work by re-fetching the saved quote from the server on the next tool call, and reapplying the small retained widget state on top, rather than by restoring answers from the widget.
         - Returns the chosen cover and excess as concise fields in model-readable `structuredContent` so follow-up questions are answerable, without also sending the photo, full step history, or unrelated internal quote fields to the model.
+
+  - description: Fail startup when the deployed widget asset URL is missing
+    vars:
+      skill: file://../../src/web/skills/chatgpt-app-sdk/SKILL.md
+      reference: file://../../src/web/skills/chatgpt-app-sdk/references/mcp-server.md
+      scenario: |-
+        Wire the kanban MCP server's widget assets for both local development
+        and production. Vite builds `widget.js` and `widget.css`, and CI uploads
+        them to a CDN. In development the team serves the same files from the
+        Vite dev server on port 5173. The container host injects environment
+        variables at deploy time.
+
+        Return the TypeScript that sets the widget asset base URL and registers
+        the `ui://widget/kanban.html` resource, plus how a developer runs the
+        server locally. Keep the existing server; do not add a new service.
+      rubric: |-
+        - Reads the widget asset base URL from the environment once at process startup and gives that value to the resource registration, rather than reading `process.env` inside the resource handler on each request.
+        - Stops startup with an error that names the variable when the URL is missing, empty, or not an absolute URL, so the server never starts with a broken widget configuration.
+        - Has no code path in which a deployed server silently uses `http://localhost` or any other default asset URL; an expression such as `process.env.WIDGET_CDN_URL || "http://localhost:5173"` or `?? "http://localhost:5173"` fails this outcome.
+        - Keeps the local Vite URL explicit for development, for example in an untracked env file, a dev script, or a named local mode, so a developer can still run the server locally without a code default.
+        - Adds no configuration framework, new dependency, or new service; a few lines of plain code or the server's existing zod are enough.
