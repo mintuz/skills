@@ -224,7 +224,7 @@ export const calculateShippingCost = (itemsTotal: number): number => {
 1. **Record a reversible baseline first**: follow Reversible Baseline in the `refactoring` skill; commit only when the user authorised a commit
 2. **Fix critical issues** (immutability, knowledge duplication)
 3. **Run all tests** - must stay green
-4. **Commit refactoring**: `git commit -m "refactor: extract shipping cost calculation"`
+4. **Commit the refactoring when the user asked for a commit**: `git commit -m "refactor: extract shipping cost calculation"`
 5. **Address high-value issues** if time permits
 6. **Skip** "consider" items unless actively working in those areas
 
