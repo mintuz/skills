@@ -202,3 +202,36 @@ tests:
         - Passes `recalculateTotals` only a cart, an `items` array, and line items that `applyDiscount` created itself.
         - Leaves the body, signature, and in-place behaviour of `recalculateTotals` unchanged for its other callers.
         - Explains that the ticket's "update in place" wording does not oblige in-place mutation here, because no documented contract or measured hot path requires it.
+
+  - description: Ask the contract owner when a documented public API requires in-place mutation
+    vars:
+      skill: file://../../src/typescript/skills/typescript/SKILL.md
+      scenario: |-
+        Ticket: "Add `applyDiscount(cart: Cart, rate: number): void` to
+        `cart.ts`, following the published contract."
+
+        Source packet:
+
+        ```ts
+        // cart.ts: public API of @shop/cart, consumed by other teams' packages
+        export type LineItem = { readonly sku: string; readonly unitPrice: number; readonly quantity: number };
+        export type Cart = { readonly id: string; readonly items: readonly LineItem[]; discountRate: number; total: number };
+        ```
+
+        Published contract (`docs/cart-api.md`, owned by the payments team and
+        approved in ADR-12): "`applyDiscount(cart, rate)` sets `cart.discountRate`
+        to `rate` and sets `cart.total` to the sum of `unitPrice * quantity` over
+        `cart.items`, multiplied by `(1 - rate)`. It mutates the cart it receives
+        and returns nothing."
+
+        The checkout and invoicing packages, owned by other teams, already call
+        `applyDiscount(cart, rate)` and then read `cart.total` from the same
+        object, which they also keep in a session store. You cannot change those
+        packages or the contract.
+
+        Return the minimum patch and a concise rationale.
+      rubric: |-
+        - Names the conflict: the published contract requires `applyDiscount` to mutate the caller's cart in place, while the immutability rule forbids mutating a value the caller owns.
+        - Explains why a new-value return would not satisfy the contract: the checkout and invoicing callers read `cart.total` from the object they passed in.
+        - Asks the contract owner, the payments team, to choose, for example between keeping the documented in-place contract and changing the API to return a new `Cart` with its callers migrated.
+        - Does not settle the conflict on its own: it presents neither an in-place mutating implementation nor a new-value implementation as the final patch, and labels any code it shows as an option that awaits the owner's choice.
