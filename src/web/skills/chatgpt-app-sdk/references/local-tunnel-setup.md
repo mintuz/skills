@@ -77,12 +77,14 @@ Your MCP server is now accessible at `https://mcp-dev.yourdomain.com`.
 
 ## Environment Configuration
 
-Update your MCP server to use the tunnel URL:
+Put the local URLs in an untracked `.env.local` file. Keep them out of the code as defaults:
 
-```typescript
-const MCP_SERVER_URL = process.env.MCP_SERVER_URL || "http://localhost:3000";
-const WIDGET_CDN_URL = process.env.WIDGET_CDN_URL || "http://localhost:5173";
+```bash
+MCP_SERVER_URL=https://mcp-dev.yourdomain.com
+WIDGET_CDN_URL=http://localhost:5173
 ```
+
+Start the server with `node --env-file=.env.local server.js`. The server reads each URL once at startup and stops when one is missing or invalid, as `requireUrl` does in [mcp-server.md](./mcp-server.md#1-register-widget-templates).
 
 For ChatGPT integration, configure your app to use the tunnel URL:
 - MCP Server: `https://mcp-dev.yourdomain.com`

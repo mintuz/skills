@@ -8,7 +8,7 @@ Write or update a spec with a spec-driven flow such as GitHub Spec Kit, from the
    - **Step:** the step's command, which the agent loads and follows first.
    - **Context:** the shared context file, and the rulings that the step must not reopen.
    - **Folder:** the spec folder, set explicitly for each Spec Kit script instead of another session's feature pointer.
-   - **Skills:** the skills that the user named, and `story-splitting` for the user stories.
+   - **Skills:** the skills that the user named, and `story-splitting` for the user stories. `story-splitting` is an external skill that this repository does not include. When the host does not install it, report the gap.
    - **Files:** the files that the step may change. Do not commit, and do not change an approved example.
    - **Checks:** the repository's spec checks, for example its Spec Kit check and `git diff --check`.
    - **Report:** the files changed, the check results and the open questions; for specify, also the full Given/When/Then set.
@@ -18,7 +18,7 @@ Write or update a spec with a spec-driven flow such as GitHub Spec Kit, from the
    - a question that an earlier ruling or an approved example settles: cite that ruling or example, and do not ask it again;
    - a product decision: ask the user in this form (principle-price-each-option): "Question. Recommended: A, because <reason>. Options: A, <cost>; B, <cost>", with two to four options.
 
-   Ask at most five questions, together, through the host's question tool or in chat. When the user pairs on the spec, ask one question at a time. When the user says "accept the recommendations", list the exact recommendations and record only what the user confirms. Give the user's answers and the sourced answers to a fresh clarify agent, which records them all in a dated Clarifications section.
+   Ask at most five questions, together, through the host's question tool or in chat. When the user pairs on the spec, ask one question at a time. When the user says "accept the recommendations", list the exact recommendations and record only what the user confirms. Give the user's answers and the sourced answers to a fresh clarify agent, which records them all in a dated Clarifications section. Before plan starts, ask each topic that clarify deferred in another round, or record it in `spec.md` as an open question with its owner.
 6. **Draw the examples for review.** After clarify, make a temporary visual document that shows each Given/When/Then example as three pictures, Given, When and Then, beside its words, grouped by user story. The user reviews it on their machine before the merge. The document is a review aid, not a spec artifact: keep it out of every commit and push, do not link it from `spec.md`, and do not mention it in the PR description. Give one fresh `adam-agent` a brief with the fields of step 3, with this step as its Step, and with these rules:
    - **Folder:** the agent writes only in a folder outside every git checkout, for example `~/spec-reviews/<NNN>-<slug>/`. The folder holds one self-contained page, `acceptance-examples.html`, the throwaway script that builds it, and a copy of each asset that the page shows, for example the spec's screenshots.
    - **Words:** the script takes each example's Given, When and Then from `spec.md`, so the page matches it word for word (principle-derive-from-one-owner). The page states that `spec.md` wins when the two differ.

@@ -185,3 +185,23 @@ tests:
         - Extracts only the shared tax rounding rule, and adds no new public API and no adjacent cleanup.
         - Runs the 9 focused cart tests after the extraction, then the full suite, and restores only the `src/cart.ts` structural change when either result differs from the baseline.
         - Stages only the verified refactor and any tests it added, stages no unrelated path, and stashes or resets nothing; it invents no callers, test names, tax rates, or file contents beyond the supplied facts.
+
+  - description: Moving a folder keeps path-based tool discovery working
+    vars:
+      skill: file://../../src/web/skills/refactoring/SKILL.md
+      scenario: |-
+        Produce an implementation-ready refactoring plan; make no edits. The
+        repository is a TypeScript service. The user asks: "Move `src/invoice/`
+        to `src/billing/invoice/`. Pure move, just fix the imports." The folder
+        holds 9 source files and 4 `*.test.ts` files with 37 tests. `pnpm test`
+        passes 268 tests, and `pnpm typecheck` and `pnpm lint` pass. No commit
+        has been requested.
+
+        Return the exact preflight, move, verification, rollback, and stopping
+        gates.
+      rubric: |-
+        - Records the baseline before the move: 268 passing tests in total, 37 of them in the four invoice test files, plus passing typecheck and lint.
+        - Looks beyond import statements before the move: searches the tool configuration that finds code by path (for example `tsconfig` paths, test include or coverage globs, lint file globs, build or packaging paths) for references to `src/invoice`, and updates only those path references.
+        - States that a green test run is not sufficient on its own, because a glob that stops matching drops tests, lint or build inputs without a failure; it requires the run after the move to still collect all 37 invoice tests and all 268 original tests.
+        - Treats any discovery loss (a missing invoice test, a lower test count, or a lint or build input no longer found) as a regression that stops the work, and restores only the owned move.
+        - Changes no code inside the moved files beyond import paths, adds no new tooling, invents no configuration file contents, and does not claim to have run a command or read a file.
