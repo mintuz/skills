@@ -164,3 +164,41 @@ tests:
         - Replaces the unchecked `as Cart` assertion in `loadCart` with a runtime-validated parse whose input stays `unknown`.
         - Gives invalid `POST /cart` bodies a checked failure path instead of letting an unvalidated value be used as a `Cart`.
         - Adds no schema, factory, or wrapper for the two internal types, and changes no code the scenario does not name.
+
+  - description: Return a new cart when the ticket says update in place and a reused helper mutates
+    vars:
+      skill: file://../../src/typescript/skills/typescript/SKILL.md
+      scenario: |-
+        Ticket: "Add `applyDiscount(cart: Cart, rate: number): Cart` to
+        `cart.ts`. Set `discountRate`, then reuse `recalculateTotals` from
+        `pricing.ts`; do not write a second pricing routine. Just update the cart
+        in place and hand it back."
+
+        Source packet:
+
+        ```ts
+        // cart.ts
+        export type LineItem = { sku: string; unitPrice: number; quantity: number; lineTotal: number };
+        export type Cart = { id: string; items: LineItem[]; discountRate: number; total: number };
+
+        // pricing.ts: nine other modules call this and rely on its in-place write
+        export function recalculateTotals(cart: Cart): void {
+          for (const item of cart.items) {
+            item.lineTotal = item.unitPrice * item.quantity;
+          }
+          cart.total = cart.items.reduce((sum, item) => sum + item.lineTotal, 0) * (1 - cart.discountRate);
+        }
+        ```
+
+        The checkout page calls `const priced = applyDiscount(cart, rate)` and
+        reads only `priced`. Nothing documents that `applyDiscount` must keep
+        the identity of its argument, and pricing is not a measured hot path.
+        Incoming `lineTotal` values can be stale.
+
+        Return the minimum patch and a concise rationale.
+      rubric: |-
+        - Returns a new `Cart` from `applyDiscount` with the requested `discountRate` and with totals computed by `recalculateTotals`, not by a second pricing routine.
+        - Leaves the caller's `cart` argument, its `items` array, and every caller-owned `LineItem` unchanged; a shallow copy that shares caller-owned items with `recalculateTotals` fails this outcome, because the helper writes `lineTotal` into each item.
+        - Passes `recalculateTotals` only a cart, an `items` array, and line items that `applyDiscount` created itself.
+        - Leaves the body, signature, and in-place behaviour of `recalculateTotals` unchanged for its other callers.
+        - Explains that the ticket's "update in place" wording does not oblige in-place mutation here, because no documented contract or measured hot path requires it.

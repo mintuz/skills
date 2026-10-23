@@ -25,6 +25,10 @@ A trust boundary still needs a runtime check. When the dependency set is frozen,
 
 Create the accumulator inside the function, append with `push` or assign by key, and return it under a `readonly` type. Do not build a growing collection with `[...accumulator, item]` or `{ ...accumulator, [key]: value }` inside a loop: each step copies the growing accumulator, so the loop becomes quadratic.
 
+### The request or a reused helper mutates in place
+
+When a request says "update it in place", or a helper that you must reuse writes into its argument, still return a new value. Mutate the caller's value only when the caller's contract requires it, for example a documented mutable API or a measured hot path. Give a mutating helper only a value that you created. Keep the helper's behaviour unchanged for its other callers. When you return a new value against the request's wording, say so in your answer, and state why neither exception applies.
+
 ### External data that is not fully documented
 
 Validate every field the source documents. Type each undocumented part as `unknown`; do not guess its field names. State in your answer what the validator does not check, and why, so a reader sees how far validation reaches without reading the code.
