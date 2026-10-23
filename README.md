@@ -247,7 +247,7 @@ flowchart LR
 | **system-design**      | Architecture visualization with Mermaid diagrams                                             |
 | **product-management** | PRDs, task management with Task Master MCP, decision tracing, and status updates             |
 | **app**                | Swift iOS development with App Intents, Swift Testing, and SwiftUI architecture              |
-| **principle**          | 54 independent engineering principles, each invoked for a specific decision                  |
+| **principle**          | Independent engineering principles, each invoked for a specific decision                     |
 | **life**               | Personal life management with GPS method for goal achievement                                |
 
 ## Skills

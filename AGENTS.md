@@ -12,7 +12,7 @@ Codex plugin marketplace containing eight plugins for software development and p
 - **system-design** – Mermaid diagram generation from code
 - **product-management** – PRD creation, status updates, and task orchestration
 - **app** – Swift iOS testing, App Intent-first development, and SwiftUI architecture
-- **principle** – 24 independent `principle-*` engineering skills
+- **principle** – independent `principle-*` engineering skills
 - **life** – personal life management with GPS method for goal achievement
 
 ## Plugin Architecture

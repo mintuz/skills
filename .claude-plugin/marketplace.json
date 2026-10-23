@@ -78,7 +78,9 @@
         "./skills/react-testing",
         "./skills/frontend-testing",
         "./skills/eyes",
-        "./skills/chatgpt-app-sdk"
+        "./skills/chatgpt-app-sdk",
+        "./skills/refactoring",
+        "./skills/tailwind"
       ]
     },
     {
