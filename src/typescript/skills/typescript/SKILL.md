@@ -27,7 +27,9 @@ Create the accumulator inside the function, append with `push` or assign by key,
 
 ### The request or a reused helper mutates in place
 
-When a request says "update it in place", or a helper that you must reuse writes into its argument, still return a new value. Mutate the caller's value only when the caller's contract requires it, for example a documented mutable API or a measured hot path. Give a mutating helper only a value that you created. Keep the helper's behaviour unchanged for its other callers. When you return a new value against the request's wording, say so in your answer, and state why neither exception applies.
+When a request says "update it in place", or a helper that you must reuse writes into its argument, return a new value and leave the caller's value unchanged. Give a mutating helper only a value that you created, and keep the helper's behaviour unchanged for its other callers. When you return a new value against the request's wording, say so in your answer, and state that neither a documented mutable API nor a measured hot path requires mutation.
+
+When the caller's contract does require mutation through a documented mutable API or a measured hot path, both mutating and returning a new value break a rule. Write neither as the final patch. Name the conflict between that contract and Core Principle 3, and ask the contract's owner to choose (`principle-rank-sources-by-authority`).
 
 ### External data that is not fully documented
 
