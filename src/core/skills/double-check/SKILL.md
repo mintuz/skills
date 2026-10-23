@@ -34,7 +34,7 @@ Tell the reviewer to report unverifiable findings, not to drop them.
 
 ## 4. Repeat on the fixes
 
-After fixes, run another round on the new state. Stop when the reviewer reports no confirmed issues. After about four rounds, or sooner when a round repeats the last disagreement, take the disagreement to the user with the evidence on each side.
+After fixes, run another round on the new state. Stop when the reviewer reports no confirmed issues other than nits. After about four rounds, or sooner when a round repeats the last disagreement, take the disagreement to the user with the evidence on each side.
 
 ## 5. Give the verdict
 
