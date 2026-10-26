@@ -1,17 +1,27 @@
 # Development Skills
 
-Reusable development skills for Codex, Claude and OMP. The new workflow and principle skills use portable Markdown instructions; host-specific discovery and tools remain the harness’s responsibility.
+Reusable development skills and plugin bundles for Codex, Claude Code and OMP.
+All three use the same skill directories under `src/`. Each harness manages
+plugin discovery, tool access and installation separately.
 
 ## Install with Codex
 
 ```bash
 codex plugin marketplace add mintuz/skills
+codex plugin list --marketplace mintuz-skills --available
+codex plugin add core@mintuz-skills
 ```
 
-Restart the ChatGPT desktop app, open the Plugins Directory, choose
-**Mintuz Skills**, and install the bundles you need.
+Replace `core` with any bundle name: `web`, `typescript`, `system-design`,
+`product-management`, `app`, `life` or `principle`.
+
+For the ChatGPT desktop app, restart the app after adding the marketplace.
+Open the Plugins Directory, choose **Mintuz Skills**, and install the bundles
+you need.
 
 ## Install with Claude Code
+
+Run these commands inside Claude Code:
 
 ```bash
 # Add the marketplace
@@ -28,7 +38,53 @@ Restart the ChatGPT desktop app, open the Plugins Directory, choose
 /plugin install principle@mintuz-skills
 ```
 
-## Use with OMP or standalone skill loaders
+## Install with OMP
+
+Run these commands in your shell. Add the marketplace before installing a
+plugin, so OMP resolves `name@mintuz-skills` as a catalogue entry:
+
+```bash
+omp plugin marketplace add mintuz/skills
+omp plugin discover mintuz-skills
+omp plugin install core@mintuz-skills
+omp plugin install web@mintuz-skills
+omp plugin install typescript@mintuz-skills
+omp plugin install system-design@mintuz-skills
+omp plugin install product-management@mintuz-skills
+omp plugin install app@mintuz-skills
+omp plugin install life@mintuz-skills
+omp plugin install principle@mintuz-skills
+```
+
+Install only the bundles you need. The default scope is `user`, which makes a
+plugin available across projects. When you run inside a Git project, add
+`--scope project` to limit discovery to that project. Project scope is not a
+security sandbox.
+
+You can also install from an OMP session:
+
+```text
+/marketplace add mintuz/skills
+/marketplace discover mintuz-skills
+/marketplace install --scope project core@mintuz-skills
+/reload-plugins
+```
+
+For an already-running session, run `/reload-plugins` after installation.
+Restart OMP if a plugin adds executable tools, hooks or extension modules.
+
+To update installed plugins, refresh the catalogue first, then upgrade:
+
+```bash
+omp plugin marketplace update mintuz-skills
+omp plugin upgrade core@mintuz-skills
+```
+
+OMP uses this repository's Claude Code-compatible catalogue. Separate
+`.omp-plugin` files are not required. See the
+[OMP marketplace documentation](https://omp.sh/docs/marketplace).
+
+## Use with standalone skill loaders
 
 Keep each complete skill directory, including references. For the 54 skills adapted from pstack (7 core workflows and 47 principles), the copier adds [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) so the MIT notice travels with the bundle. To generate flat directories with the existing copier:
 
@@ -38,19 +94,53 @@ go run scripts/codex-sync.go --output /path/to/your/skills
 
 Point the harness’s skill discovery at that directory, or copy it into its documented skill location. The copier preserves ordinary `SKILL.md` bundles; despite its name it does not translate the instructions into a Codex-only format. Leave `--prefix` off to preserve names such as `principle-prove-it-works`.
 
-Use one authoritative distribution per skill name. Run `omp --help` for the installed version’s discovery/filter options. Portable prose alone is not a runtime certification.
+Use one authoritative distribution per skill name. Do not install both a
+plugin bundle and a standalone copy of the same skill.
+
+## Plugin metadata and validation
+
+A marketplace catalogue lives at the repository root. Each plugin has a
+manifest inside its own `src/<plugin>/` directory, not another marketplace.
+
+| Harness | Root catalogue | Per-plugin manifest |
+| --- | --- | --- |
+| Codex | `.agents/plugins/marketplace.json` | `.codex-plugin/plugin.json` |
+| Claude Code | `.claude-plugin/marketplace.json` | `.claude-plugin/plugin.json` |
+| OMP | Shared Claude Code catalogue | Shared Claude Code manifest and conventional component directories |
+
+OMP reads `.claude-plugin/marketplace.json` when no
+`.omp-plugin/marketplace.json` exists. Keep the shared catalogue authoritative
+instead of maintaining a duplicate OMP catalogue.
+
+After changing a plugin, keep its Claude Code and Codex manifest versions
+aligned. Set the same `version` on its shared catalogue entry so OMP can detect
+available upgrades. Keep both catalogues' plugin names and source paths aligned.
+
+Run the repository metadata check without model calls or host configuration
+changes:
+
+```bash
+pnpm check:plugins
+```
+
+This checks plugin and skill inventories, source paths, repository URLs,
+versions and Model Context Protocol (MCP) configuration paths. It does not
+execute skills or start MCP servers. Validate and install through the target
+harness as well before publishing.
 
 ## When to use the main skills
 
 This section covers the entry points and the skills that I use every day. The [Skills](#skills) tables list every other skill. The example prompts come from real Claude Code and OMP sessions. Project names and links are replaced with placeholders.
 
-Each harness calls a skill by name with a different syntax. The examples use the Claude Code form.
+Each harness calls a skill by name with a different syntax. The examples below
+use unqualified skill names. For a Claude Code plugin installation, add the
+bundle prefix shown in the table.
 
-| Harness     | Syntax        | Example          |
-| ----------- | ------------- | ---------------- |
-| Claude Code | `/name`       | `/reducer`       |
-| OMP         | `/skill:name` | `/skill:reducer` |
-| Codex       | `$name`       | `$reducer`       |
+| Harness | Syntax | Example |
+| --- | --- | --- |
+| Claude Code plugin | `/plugin:name` | `/core:reducer` |
+| OMP | `/skill:name` | `/skill:reducer` |
+| Codex | `$name` | `$reducer` |
 
 ### Pick a skill
 
