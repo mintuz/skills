@@ -1,13 +1,13 @@
 {
   "name": "life",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Life Agents and skills for personal life management.",
   "author": {
     "name": "Adam Bulmer",
     "email": "[email protected]",
     "url": "https://github.com/mintuz"
   },
-  "repository": "https://github.com/mintuz/claude-plugins",
+  "repository": "https://github.com/mintuz/skills",
   "license": "MIT",
   "keywords": [
     "life",

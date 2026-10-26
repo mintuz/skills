@@ -1,5 +1,6 @@
 {
   "name": "mintuz-skills",
+  "description": "Development and productivity plugins for Codex, Claude Code and OMP",
   "owner": {
     "name": "Adam Bulmer",
     "email": "[email protected]",
@@ -8,6 +9,7 @@
   "plugins": [
     {
       "name": "core",
+      "version": "3.3.1",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
@@ -44,18 +46,21 @@
     },
     {
       "name": "typescript",
+      "version": "1.1.1",
       "source": "./src/typescript",
       "description": "Agents and skills that are specialised in writing Web Application TypeScript",
       "skills": ["./skills/typescript"]
     },
     {
       "name": "system-design",
+      "version": "1.4.5",
       "source": "./src/system-design",
       "description": "Skills for visualising Web Application architecture and relationships",
       "skills": ["./skills/mermaid-generator"]
     },
     {
       "name": "product-management",
+      "version": "1.9.1",
       "source": "./src/product-management",
       "description": "Agents and skills that are specialised in Product Management workflows",
       "skills": [
@@ -68,6 +73,7 @@
     },
     {
       "name": "web",
+      "version": "1.12.1",
       "source": "./src/web",
       "description": "Agents and skills that are specialised in building and maintaining web applications",
       "skills": [
@@ -86,6 +92,7 @@
     },
     {
       "name": "app",
+      "version": "1.9.1",
       "source": "./src/app",
       "description": "Agents and skills for Swift app development on iOS",
       "skills": [
@@ -103,12 +110,14 @@
     },
     {
       "name": "life",
+      "version": "1.0.5",
       "source": "./src/life",
       "description": "Agents and skills for personal life management",
       "skills": ["./skills/gps-method"]
     },
     {
       "name": "principle",
+      "version": "2.1.1",
       "source": "./src/principle",
       "description": "Independent engineering principles for focused decisions and execution",
       "skills": [

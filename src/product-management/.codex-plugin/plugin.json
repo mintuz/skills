@@ -1,6 +1,6 @@
 {
   "name": "product-management",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Product management skills and tools that speed up delivery workflows.",
   "author": { "name": "Adam Bulmer", "email": "[email protected]", "url": "https://github.com/mintuz" },
   "repository": "https://github.com/mintuz/skills",

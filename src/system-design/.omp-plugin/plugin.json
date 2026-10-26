@@ -1,0 +1,13 @@
+{
+  "name": "system-design",
+  "version": "1.4.5",
+  "description": "Skills for visualising Web Application architecture and relationships",
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["system-design"]
+}

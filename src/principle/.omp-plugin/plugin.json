@@ -1,0 +1,17 @@
+{
+  "name": "principle",
+  "version": "2.1.1",
+  "description": "Independent engineering principles for focused decisions and execution.",
+  "author": {
+    "name": "Adam Bulmer",
+    "url": "https://github.com/mintuz"
+  },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": [
+    "principles",
+    "engineering",
+    "verification",
+    "design"
+  ]
+}

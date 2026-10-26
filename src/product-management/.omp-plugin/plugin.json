@@ -1,0 +1,13 @@
+{
+  "name": "product-management",
+  "version": "1.9.1",
+  "description": "Product Management Agents and skills to speed up your workflows.",
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["product", "management", "planning", "roadmap", "documentation"]
+}
