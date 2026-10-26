@@ -38,14 +38,6 @@ More than one module writes the same state or keeps its own copy of it. An agent
 
 Give each piece of state one owner. Other modules read it or ask the owner to change it.
 
-## Mixed responsibilities
-
-A small interface hides responsibilities that change for different reasons. Look for different owners, different failure, deploy or permission boundaries, or different rates of change behind one entry point.
-
-Combine code in one module only when it shares meaning, rules, an owner or a lifecycle. Otherwise, give each responsibility its own module, even when the total public surface gets larger. A single entry point or a command type is correct when its commands share these things.
-
-This flag agrees with Split ownership. Split ownership is about several modules that write the same state. Separate modules for different state give each piece of state one owner.
-
 ## Two ways to do one task
 
 The design supports more than one way to do the same task. An agent copies whichever way it finds first, so every way keeps gaining callers.
