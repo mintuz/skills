@@ -25,12 +25,13 @@ When the target is a set of review findings, make each finding a claim to test, 
 | Mode | Use when | Label |
 |---|---|---|
 | Cross-provider | A read-only reviewer from a different model provider is usable | `cross-provider independent review` |
-| Same-provider fallback | No different provider is usable, neither the user nor the calling workflow requires one, and the host can launch an isolated fresh agent or process | `same-provider fresh-context fallback` |
+| Same-provider fallback | No different provider is usable, the user has not explicitly forbidden a same-provider review, and the host can launch an isolated fresh agent or process | `same-provider fresh-context fallback` |
 
 - Find the candidates at run time in the host's agents, tools and integrations. Do not assume a CLI, a model name, a login flow or a path. Read `references/reviewer-selection.md` for the capabilities that a reviewer needs, the selection order, the invocation settings and session continuity.
 - A different executable that routes to the same provider is the same provider. Never call the fallback independent or cross-provider.
 - When a candidate is installed but unusable, try the next independent candidate before you fall back.
-- When the user or the calling workflow requires a different provider and none is usable, do not fall back. Report the missing second opinion as a gap (`principle-gaps-are-not-passes`).
+- When no different provider is usable, fall back to a fresh same-provider reviewer, even when the calling workflow asks for a different provider. State in the report that no different-provider reviewer was available.
+- When the user explicitly requires a different provider and none is usable, do not fall back. Report the missing second opinion as a gap (`principle-gaps-are-not-passes`), and offer the fallback for the user to choose.
 - When no reviewer with a separate context can run, report that the double-check could not run. Your own re-read, or a reviewer that you play in this conversation, is self-review. Self-review never counts as a double-check.
 
 ## 2. Configure the reviewer

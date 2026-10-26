@@ -20,7 +20,7 @@ Read-only allows checks that change no external state and write nothing that the
 
 1. A usable reviewer from a different model provider from the model that built the work.
 2. Among those, the one with the stronger reasoning and the safer isolation.
-3. When none is usable, and neither the user nor the calling workflow requires a different provider: a fresh same-provider agent or process with no inherited authoring context.
+3. When none is usable, and the user has not explicitly required a different provider: a fresh same-provider agent or process with no inherited authoring context.
 4. When neither is safe: no review. Report that the double-check could not run.
 
 Look for candidates in the host's agents and tools, its installed integrations and their current documentation.

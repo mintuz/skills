@@ -8,5 +8,5 @@ A deep review of a PR, branch or diff. This playbook is read-only. Change code o
 4. **Split by lens.** When the diff is large, spawn one `adam-agent` for each lens: simplicity, scope, blast radius, and bugs and security. Done when every changed file has a reviewer.
 5. **Check scope against the base revision.** List each feature that the spec does not ask for. Run `scripts/scope-diff.sh <base>`, as Scope in the SKILL.md describes, and read the diff for each other behaviour that it removes or weakens. Report each removal as a removal without approval, unless the spec or the user approves it.
 6. **Map the blast radius.** Name the callers, state and user journeys that the change can break, and the check that proves each one safe.
-7. **Get a second opinion.** Run `double-check` on the findings with a model from a different provider. Remove each finding that it disproves. Mark each disagreement.
+7. **Get a second opinion.** Run `double-check` on the findings. Remove each finding that it disproves. Mark each disagreement.
 8. **Report.** Give the verdict first. Group the findings in this order: bugs, scope, complexity, then minor points. For each finding, give the file and line, the evidence, the principle and the simplest fix. Add a diagram of the blast radius.
