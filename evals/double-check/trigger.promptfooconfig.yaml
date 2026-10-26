@@ -27,6 +27,12 @@ tests:
     assert:
       - type: skill-used
         value: double-check
+  - description: "Applies to a cross-check of a high-stakes change before shipping"
+    vars:
+      request: "I've finished the migration that moves every billing amount to integer pence. Cross-check it before I ship it."
+    assert:
+      - type: skill-used
+        value: double-check
   - description: "Leaves routine self-checks alone"
     vars:
       request: "I just edited the tokenizer. Run its unit tests to make sure it still compiles and passes."
