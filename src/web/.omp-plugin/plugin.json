@@ -1,0 +1,22 @@
+{
+  "name": "web",
+  "version": "1.12.1",
+  "description": "Agents and skills that are specialised in building and maintaining web applications",
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": [
+    "web",
+    "design",
+    "ui",
+    "ux",
+    "css",
+    "html",
+    "javascript",
+    "typescript"
+  ]
+}

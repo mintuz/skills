@@ -22,6 +22,8 @@ const inside = (base, path) => {
 
 const shared = readJson(resolve(root, '.claude-plugin/marketplace.json'));
 const codex = readJson(resolve(root, '.agents/plugins/marketplace.json'));
+const omp = readJson(resolve(root, '.omp-plugin/marketplace.json'));
+assert.deepEqual(omp, shared, 'OMP and Claude Code catalogues differ');
 const pluginNames = directories(resolve(root, 'src'));
 assert.equal(shared.name, codex.name, 'Marketplace names differ');
 assert.ok(shared.owner?.name, 'Claude Code and OMP require owner.name');
@@ -33,6 +35,8 @@ for (const entry of shared.plugins) {
   const pluginRoot = inside(root, entry.source);
   assert.equal(pluginRoot, resolve(root, 'src', entry.name), `Wrong source for ${entry.name}`);
   const claude = readJson(resolve(pluginRoot, '.claude-plugin/plugin.json'));
+  const ompManifest = readJson(resolve(pluginRoot, '.omp-plugin/plugin.json'));
+  assert.deepEqual(ompManifest, claude, `OMP and Claude Code manifests differ for ${entry.name}`);
   const manifest = readJson(resolve(pluginRoot, '.codex-plugin/plugin.json'));
   const codexEntry = codex.plugins.find((plugin) => plugin.name === entry.name);
   assert.equal(codexEntry.source.source, 'local', `Expected a local source for ${entry.name}`);

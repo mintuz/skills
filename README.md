@@ -80,8 +80,9 @@ omp plugin marketplace update mintuz-skills
 omp plugin upgrade core@mintuz-skills
 ```
 
-OMP uses this repository's Claude Code-compatible catalogue. Separate
-`.omp-plugin` files are not required. See the
+OMP uses this repository's explicit `.omp-plugin/marketplace.json` catalogue.
+Each plugin also includes `.omp-plugin/plugin.json` metadata to match the
+Claude Code and Codex directory layout. See the
 [OMP marketplace documentation](https://omp.sh/docs/marketplace).
 
 ## Use with standalone skill loaders
@@ -106,15 +107,17 @@ manifest inside its own `src/<plugin>/` directory, not another marketplace.
 | --- | --- | --- |
 | Codex | `.agents/plugins/marketplace.json` | `.codex-plugin/plugin.json` |
 | Claude Code | `.claude-plugin/marketplace.json` | `.claude-plugin/plugin.json` |
-| OMP | Shared Claude Code catalogue | Shared Claude Code manifest and conventional component directories |
+| OMP | `.omp-plugin/marketplace.json` | `.omp-plugin/plugin.json` |
 
-OMP reads `.claude-plugin/marketplace.json` when no
-`.omp-plugin/marketplace.json` exists. Keep the shared catalogue authoritative
-instead of maintaining a duplicate OMP catalogue.
+Keep the OMP catalogue and manifests identical to their Claude Code copies.
+OMP prefers its own catalogue over the Claude Code fallback. Its runtime
+discovers the conventional component directories and uses the compatible
+Claude Code metadata where needed; retain both sets of manifests.
 
-After changing a plugin, keep its Claude Code and Codex manifest versions
-aligned. Set the same `version` on its shared catalogue entry so OMP can detect
-available upgrades. Keep both catalogues' plugin names and source paths aligned.
+After changing a plugin, keep all three manifest versions aligned. Set the
+same `version` on its Claude Code and OMP catalogue entries so OMP can detect
+available upgrades. Keep all three catalogues' plugin names and source paths
+aligned.
 
 Run the repository metadata check without model calls or host configuration
 changes:

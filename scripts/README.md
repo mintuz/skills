@@ -16,13 +16,14 @@ This directory contains two main tools:
 ## Check Plugin Metadata
 
 Run `pnpm check:plugins` before publishing plugin metadata changes. This checks
-the Codex catalogue and the shared Claude Code/OMP catalogue against `src/`,
-including plugin names, source paths, skill inventories, repository URLs,
-manifest versions and MCP configuration paths.
+the Codex, Claude Code and OMP catalogues against `src/`, including plugin
+names, source paths, skill inventories, repository URLs, manifest versions
+and MCP configuration paths.
 
-Keep each shared catalogue entry's `version` aligned with both host manifests.
-OMP uses the entry version to detect available upgrades. The repository uses
-OMP's Claude Code fallback instead of maintaining a third catalogue.
+Keep the OMP catalogue and per-plugin manifests identical to the Claude Code
+copies. Keep each catalogue entry's `version` aligned with all three host
+manifests. OMP uses the entry version to detect available upgrades. The check
+rejects differences between the OMP and Claude Code metadata.
 
 This check does not call a model, install plugins or start MCP servers.
 Also validate and install through each target harness. See the
