@@ -17,5 +17,5 @@ Build a spec, a user story, a branch or the fixes from a review, and end with on
 7. **Integrate.** Merge each result into the branch. Read every diff. Run the tests after each integration. After each unit's check passes on the branch, run `worktree.sh release` for that unit. Done when the check for each unit passes on the integrated branch and no worktree from an integrated unit remains.
 8. **Check scope against the base revision.** Run `scripts/scope-diff.sh <base>` on the integrated branch, as Scope in the SKILL.md describes. Confirm that no existing test, behaviour or feature is removed without approval.
 9. **Prove it on the real surface.** Run the app, the CLI or the script. For UI, capture screenshots. For performance, measure the baseline scenario again and compare.
-10. **Get a second opinion.** Run `double-check` across the full implementation with a model from a different provider. Fix each problem that it proves.
+10. **Get a second opinion.** Run `double-check` across the full implementation. Fix each problem that it proves.
 11. **Ship.** Continue with Ship in the SKILL.md.

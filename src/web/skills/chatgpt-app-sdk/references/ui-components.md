@@ -94,37 +94,7 @@ export default {
 };
 ```
 
-**Reference CDN files from MCP server:**
-
-```typescript
-const CDN_BASE = process.env.WIDGET_CDN_URL || "http://localhost:5173";
-
-server.registerResource(
-  "kanban-widget",
-  "ui://widget/kanban.html",
-  {},
-  async () => ({
-    contents: [
-      {
-        uri: "ui://widget/kanban.html",
-        mimeType: "text/html+skybridge",
-        text: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <link rel="stylesheet" href="${CDN_BASE}/widget.css" />
-          </head>
-          <body>
-            <div id="root"></div>
-            <script type="module" src="${CDN_BASE}/widget.js"></script>
-          </body>
-        </html>
-      `,
-      },
-    ],
-  })
-);
-```
+**Reference CDN files from MCP server:** register the widget resource with the `WIDGET_CDN_URL` base, as in [mcp-server.md](./mcp-server.md#1-register-widget-templates). The server reads that URL once at startup and stops when it is missing or invalid.
 
 **Local development:**
 

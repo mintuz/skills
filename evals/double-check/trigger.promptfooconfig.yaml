@@ -1,0 +1,41 @@
+description: "double-check activation and exclusion"
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Applies to a second opinion on finished work"
+    vars:
+      request: "I've finished the payments refactor on this branch. Get a second opinion on it from another model before I open the PR."
+    assert:
+      - type: skill-used
+        value: double-check
+  - description: "Applies to a cross-check of a high-stakes change before shipping"
+    vars:
+      request: "I've finished the migration that moves every billing amount to integer pence. Cross-check it before I ship it."
+    assert:
+      - type: skill-used
+        value: double-check
+  - description: "Leaves routine self-checks alone"
+    vars:
+      request: "I just edited the tokenizer. Run its unit tests to make sure it still compiles and passes."
+    assert:
+      - type: not-skill-used
+        value: double-check

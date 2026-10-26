@@ -4,5 +4,9 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 {{skill}}
 </skill>
 
+<design-red-flags-reference path="references/design-red-flags.md">
+{{redFlags}}
+</design-red-flags-reference>
+
 Scenario:
 {{scenario}}

@@ -56,7 +56,13 @@ Stay inside the user's authorised boundary:
 4. REFACTOR: Apply one structural slice
 5. VERIFY: Run the named characterization and focused behaviour tests, then the
    relevant regression suite; on failure, restore only that slice
-   (`principle-sequence-verifiable-units`)
+   (`principle-sequence-verifiable-units`). When the slice moves or renames
+   files, also check each tool the project uses that finds code by path, for
+   example workspace globs, `tsconfig` paths, test and lint globs, build
+   contexts and route discovery. A stale path in these tools is part of the
+   move: update it in the same slice. Confirm that the same tests, lint inputs
+   and build inputs are still found: a glob that stops matching drops them, and
+   the suite stays green.
 6. COMMIT: Save the refactor separately when requested
 
 ### Characterization Tests

@@ -247,7 +247,7 @@ flowchart LR
 | **system-design**      | Architecture visualization with Mermaid diagrams                                             |
 | **product-management** | PRDs, task management with Task Master MCP, decision tracing, and status updates             |
 | **app**                | Swift iOS development with App Intents, Swift Testing, and SwiftUI architecture              |
-| **principle**          | 54 independent engineering principles, each invoked for a specific decision                  |
+| **principle**          | Independent engineering principles, each invoked for a specific decision                     |
 | **life**               | Personal life management with GPS method for goal achievement                                |
 
 ## Skills
@@ -270,6 +270,7 @@ flowchart LR
 | [`wtf`](src/core/skills/wtf/SKILL.md)                                             | Re-explain an unclear response in plain, precise UK English                                               |
 | [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay one critical user-journey check                                                    |
 | [`blast-radius`](src/core/skills/blast-radius/SKILL.md)                           | Trace material change risks and decisive checks                                                           |
+| [`double-check`](src/core/skills/double-check/SKILL.md)                           | Second opinion from a fresh reviewer, ideally on another provider; findings close only on evidence        |
 | [`how`](src/core/skills/how/SKILL.md)                                             | Explain the current execution path and state ownership                                                    |
 | [`why`](src/core/skills/why/SKILL.md)                                             | Recover rationale while separating fact, inference and unknown                                            |
 | [`benchmark-checklist`](src/core/skills/benchmark-checklist/SKILL.md)             | Check measurement correctness, repeatability and interpretation                                           |
@@ -480,6 +481,6 @@ See [scripts/README.md](scripts/README.md) for more options including custom out
 ## Credits
 
 - Lauren Tan, for the 59 skills (12 core workflows and 47 principles) adapted from [pstack](https://github.com/cursor/plugins/tree/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454/pstack/skills), and for the `poteto-mode` skill and `poteto-agent` subagent on which `adam-mode` and `adam-agent` are modelled. `sharpen` comes from a later pstack commit. The MIT license is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- [City Paul's dotfiles](https://github.com/citypaul/.dotfiles/tree/main/claude/.claude)
+- [City Paul's dotfiles](https://github.com/citypaul/.dotfiles/tree/main/claude/.claude) (MIT). `double-check` and several principle additions adapt ideas from its skills, rewritten in new words.
 - [Lee Cheneler's dotfiles](https://github.com/LeeCheneler/dotfiles)
 - [Thomas Ricouard's Skills](https://github.com/Dimillian/Skills)

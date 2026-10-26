@@ -15,7 +15,17 @@ ChatGPT apps consist of three layers:
 Widget templates are MCP resources with `mimeType: "text/html+skybridge"`. Reference CDN-hosted assets:
 
 ```typescript
-const CDN_BASE = process.env.WIDGET_CDN_URL || "http://localhost:5173";
+// Read each deploy-time URL once, at startup. Stop with the variable's name
+// when it is missing or invalid; never fall back to a default.
+function requireUrl(name: string): string {
+  const value = process.env[name];
+  if (!value || !URL.canParse(value)) {
+    throw new Error(`${name} must be set to an absolute URL`);
+  }
+  return value;
+}
+
+const CDN_BASE = requireUrl("WIDGET_CDN_URL");
 
 server.registerResource(
   "kanban-widget",
@@ -44,10 +54,10 @@ server.registerResource(
 );
 ```
 
-**Environment configuration:**
+**Environment configuration:** set `WIDGET_CDN_URL` in every environment. The code has no default, so a missing value stops the server instead of sending `localhost` asset links to ChatGPT.
 
-- Local: `WIDGET_CDN_URL=http://localhost:5173` (Vite dev server)
-- Production: `WIDGET_CDN_URL=https://cdn.example.com` (CDN base URL)
+- Local: `WIDGET_CDN_URL=http://localhost:5173` (Vite dev server), in an untracked `.env` file or the dev script
+- Production: `WIDGET_CDN_URL=https://cdn.example.com` (CDN base URL), injected by the host
 
 See [ui-components.md](./ui-components.md) for widget build configuration.
 

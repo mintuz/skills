@@ -25,6 +25,8 @@ providers:
           plugins: false
           skill_search: false
 defaultTest:
+  vars:
+    redFlags: "file://../../src/core/skills/architect/references/design-red-flags.md"
   assert:
     -
       type: "agent-rubric"
