@@ -67,12 +67,14 @@ tests:
         - Applies `DEVELOPER_DIR=/Applications/Xcode-27.0-beta.app/Contents/Developer` to every Xcode command in the session, by exporting it or by prefixing each `xcodebuild` and `xcrun` call, disables signing for the simulator build, preserves a log, and runs the long build in the background.
         - Waits for the actual background task to finish and judges its exit status and terminal build log instead of assuming success, timing out the wait, or chaining arbitrary foreground sleeps.
         - Installs the freshly built `.app` on that same UDID with `xcrun simctl install`, then launches it with `xcrun simctl launch` under the same beta developer directory, taking the bundle identifier from the built app's Info.plist, so neither the other branch's installation nor a differently configured tool can supply the evidence.
-        - Reaches Settings through a deep link or an existing debug scenario rather than a blind coordinate tap, captures exactly one persistent numbered image with `simctl io <udid> screenshot`, and labels any visual state it has not inspected as unproved.
+        - Reaches Settings through a verified existing deep link or debug scenario, or through accessibility interaction guided by an inspected hierarchy when no such route is available. Rejects blind coordinate taps, confirms the requested screen, captures exactly one persistent image with `simctl io <udid> screenshot`, and labels any visual state it has not inspected as unproved. The scenario supplies no URL scheme or debug route; do not require an invented route or a particular image filename.
 
   - description: Correct a timing-out, name-addressed test command after a runner hang
     vars:
       skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
       scenario: >-
+        The agent created the simulator chosen for this verification run and
+        still owns it; the user authorised shutdown of that owned device.
         Repair a test command that never reaches a verdict on this Mac. The project
         builds from `App.xcworkspace` with the scheme `App`. The command runs
         `xcodebuild test-without-building -only-testing:AppTests
@@ -106,7 +108,7 @@ tests:
         - Declines to author the Swift Testing case in this answer and points that work at the dedicated Swift Testing guidance.
         - Contains no Swift test source: no `@Test` function, `#expect` call, or suite definition for `CartTotal`.
         - Supplies the command-line loop anyway: discover the scheme and one simulator UDID first, then run `xcodebuild test` scoped to the test target in the background with a kept log and a `-resultBundlePath` bundle.
-        - States the terminal evidence for a pass as the Swift Testing run summary with a non-zero test count plus `** TEST SUCCEEDED **` and a successful exit, and says `Executed 0 tests, with 0 failures` proves nothing.
+        - Requires the expected non-zero selected Swift Testing cases in the fresh structured result bundle, `** TEST SUCCEEDED **` and a successful exit; `Executed 0 tests, with 0 failures` proves nothing. A filtered terminal-summary line is corroborating evidence, not a required text format.
         - Does not assert a scheme name, test target name, simulator UDID, bundle identifier, or any `CartTotal` API detail that the scenario did not supply.
 
   - description: Order the loop when the project details are still unknown
@@ -124,7 +126,7 @@ tests:
         - Lists the checkout for a `.xcworkspace` or `.xcodeproj` and runs `xcodebuild -list` with the flag that matches what it finds, and lists the devices with `xcrun simctl list devices available -j` to resolve one UDID, before any build, install, or capture command.
         - Builds in the background with the output redirected to a log file, with `CODE_SIGNING_ALLOWED=NO` and a destination pinned as `platform=iOS Simulator,id=<udid>`, and confirms the build's exit status before the next step.
         - Waits for that UDID to finish booting before it installs, then installs the freshly built app and launches it, either through the simulator MCP install action then its launch action, or through `simctl install` then `simctl launch`, with the bundle identifier read from the built app's Info.plist.
-        - Saves the image with one capture mechanism only — a numbered `xcrun simctl io <udid> screenshot <path>.png` file — and does not also take an MCP screenshot of the same frame.
+        - Saves the image with one capture mechanism only — one `xcrun simctl io <udid> screenshot <path>.png` file — and does not also take an MCP screenshot of the same frame.
         - Writes every unknown as a placeholder that a named earlier command fills, states no concrete scheme name, project or workspace filename, UDID, or bundle identifier, and does not treat the home screen as reached without evidence, either an accessibility read of that screen or an inspection of the saved image.
 
   - description: Review a verification script that keeps a foreground build on request
