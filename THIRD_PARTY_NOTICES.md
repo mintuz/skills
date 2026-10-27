@@ -13,6 +13,7 @@ Adaptations narrow triggers, remove provider dependencies, preserve scoped autho
 ## Derived skills
 
 - `create-verification-skill`
+- `maintain-verification-skill`
 - `blast-radius`
 - `how`
 - `why`

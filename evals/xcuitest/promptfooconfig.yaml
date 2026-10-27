@@ -1,0 +1,184 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# RED provenance: no xcuitest project skill existed before this change.
+# Keep prechange/control.txt as provenance for the observed no-skill control.
+# Final treatments load the authored source below; baseline remains unchanged.
+description: xcuitest behavioural scenarios versus no-skill baseline
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge the proposed UI test or procedure, not source-text compliance.
+        This is a scenario-only evaluation: tools and execution are unavailable.
+        Concrete proposed code or actions count; invented execution does not.
+        Every criterion below must be satisfied using the supplied facts.
+        Do not demand unprovided project details or reward generic checklists.
+
+        Scenario: {{scenario}}
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: XCTest UI authoring proves settings persistence across relaunch
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        Author a representative test in our existing XCTest UI target for
+        PREF-8: choosing Dark appearance in Settings persists after terminating
+        and relaunching the app. The target uses XCUIApplication, XCTestCase and
+        accessibility identifiers: settings.open button, appearance.dark button,
+        appearance.selection static text with label Dark. Settings is closed on
+        launch. A project-owned launch seam reads UITEST_STORE_ID to select an
+        isolated store and UITEST_RESET=1 to clear it on launch. The default
+        appearance is Light. No production changes are authorised. Show the test
+        setup, actions and assertions; a colleague suggested using @Test and
+        #expect from Swift Testing because this is Swift code. Do not execute.
+      rubric: |-
+        - Authors an XCTestCase/XCUIApplication UI test using real XCUITest APIs and XCTest assertions; does not migrate this UI automation to Swift Testing or invent Swift Testing UI APIs.
+        - Sets a unique store ID and reset precondition on the application's launchEnvironment before first launch, opens Settings, selects Dark through accessible queries and asserts the selected value.
+        - Terminates and relaunches the same isolated store with reset removed or disabled, reopens Settings and asserts Dark persists; does not reseed Dark or reset the store for the persistence assertion.
+        - Uses bounded existence/state waits before interaction and assertion rather than sleeps or coordinate guesses; does not claim a build, screenshot or unexecuted code proves the case passed.
+  - description: DEBUG seed may establish data but cannot replace the claimed create path
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        Repair an XCUITest named testCreateAlarmThroughForm. ALARM-12 requires
+        tapping Add alarm, entering 07:30, selecting weekdays, saving, then seeing
+        that alarm in the list after relaunch. The current test launches a DEBUG
+        deep link `wake-test://seed?alarm=0730-weekdays`, then asserts the list row
+        exists. Our test-build-only seam can reset a unique store or seed unrelated
+        existing alarms; it must not ship in release. The form exposes accessible
+        Add alarm, Time, Weekdays and Save controls. Explain the focused rewrite
+        and which separate scenario could legitimately use the seed link.
+      rubric: |-
+        - Identifies that the current test proves a seeded list/precondition, not creation through the form, and rewrites the named case to perform the required public form actions and post-relaunch assertion.
+        - Allows the DEBUG seam only for controlled isolated preconditions such as unrelated existing alarms or a separate list-rendering case, not insertion of the target alarm for ALARM-12.
+        - Keeps reset/seed isolated to the test's store and confined to a test/DEBUG build, and avoids resetting away the alarm before the persistence assertion.
+        - Uses accessible queries and bounded waits, states the proof boundary honestly and does not call the existing shortcut or an unavailable run an end-to-end pass.
+  - description: Application launchEnvironment is not the UI test runner environment
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        A UI test starts the wrong backend and shares data across workers.
+        Its setUp calls setenv("UITEST_API_URL", "http://127.0.0.1:8765", 1) and
+        sets UITEST_STORE_ID in the xcodebuild shell; then creates and launches
+        XCUIApplication(). The app's documented test-build seam reads
+        ProcessInfo.processInfo.environment["UITEST_API_URL"] and
+        ["UITEST_STORE_ID"] at application startup. A disposable local backend
+        fixture already exists, with a unique owner/run ID and a readiness check.
+        Write the smallest test-side correction and explain how to validate it.
+        Do not start processes or change the app/backend contract.
+      rubric: |-
+        - Distinguishes the UI test runner/xcodebuild process environment from the separate application under test; does not assume setenv or a shell variable is automatically the app's launch environment.
+        - Sets the documented UITEST_API_URL and a unique per-test or worker-safe UITEST_STORE_ID on the specific XCUIApplication.launchEnvironment before launch, reusing the supplied fixture/readiness check.
+        - Describes checking the resulting app/backend identity through an existing observable diagnostic or fixture evidence rather than inferring success from the environment variable name alone.
+        - Releases only the test's owned resources/state, preserves diagnostic evidence and does not reset shared devices/stores, alter production settings or invent a successful launch.
+  - description: Permission prompt and denied state are separate bounded cases
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        Add XCUITest coverage for Camera access. A fresh authorised test simulator
+        starts with camera permission undetermined; a separate owned fixture can
+        prepare denied status. Tapping Scan receipt triggers the system prompt.
+        The allow case should reach scanner.ready; the denied case shows
+        camera.explanation and an Open Settings button. Existing tests blindly
+        tap the first springboard button, sleep five seconds and always return
+        true from an interruption handler. The project has an approved system
+        prompt handler convention; no real camera image capture is available on
+        this simulator. Give the test design and limits without executing it.
+      rubric: |-
+        - Separates undetermined/allow and denied cases with known owned permission preconditions; does not rely on test order or indiscriminately reset a shared simulator.
+        - Reuses the project's approved system prompt handling, matches the intended alert/action specifically, handles interruption semantics correctly if using a monitor, and does not report unrelated alerts handled unconditionally.
+        - Uses bounded waits/assertions for scanner.ready or camera.explanation and the intended user action, not fixed sleeps or the first arbitrary system button.
+        - Qualifies scanner readiness/permission UX as simulator UI evidence, not actual camera capture or physical-device hardware proof; preserves failures and names remaining hardware coverage.
+  - description: Screenshot attachment is not an automated image-diff engine
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        Our checkout XCUITest attaches XCTAttachment(screenshot: app.screenshot())
+        and passes whenever Pay exists. The user now wants automated protection
+        against a clipped total. No snapshot comparison engine is installed;
+        the team has not chosen one. There is an approved screenshot from iPhone
+        16, iOS 19.0, en-GB, light mode, default text size, with fixed fixture data.
+        A teammate calls the attachment a passing pixel regression test and asks
+        to replace the approved image whenever the attachment changes. You may
+        propose test changes but not adopt packages or approve new baselines.
+        Explain what exists, what is blocked and the next concrete steps.
+      rubric: |-
+        - States that an XCUITest screenshot attachment plus Pay existence does not compare pixels or detect the clipped total; does not invent a built-in XCUITest snapshot-diff assertion.
+        - Treats comparison-engine adoption as an explicit project decision/prerequisite; proposes integrating the team's chosen supported engine rather than silently installing one or declaring a functioning suite.
+        - Requires matching device/OS, locale, appearance, text size and fixture/render readiness, reviewed approved baselines and retained expected/actual/diff evidence under the chosen engine's policy.
+        - Rejects automatic baseline replacement/tolerance weakening to hide failure, keeps diagnostic screenshots distinct from automated comparison proof and leaves the absent comparison capability explicitly unverified.
+  - description: Device and system boundary remains blocked despite a deep-link pass
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        Acceptance includes SIRI-3: on a physical phone, a spoken Siri phrase
+        invokes our shortcut and creates a reminder; PUSH-5: a real remote push
+        opens that reminder; BUY-2: a StoreKit sandbox purchase unlocks Pro.
+        We only have a simulator, no signed device build, push entitlement,
+        sandbox account or physical phone. An XCUITest opens a debug deep link
+        that seeds a reminder, injects a local notification and toggles a Pro
+        flag; all three UI checks pass. The user asks whether this covers the
+        system acceptance cases. Answer and outline the executable versus
+        unavailable coverage without pretending to operate unavailable tools.
+      rubric: |-
+        - Explicitly says the three system acceptance cases are not proved by the substituted simulator paths; distinguishes debug reminder UI, local notification UI and Pro-state UI from Siri invocation, real remote push and sandbox purchase.
+        - Names the missing device/build/signing/entitlement/account prerequisites relevant to each requirement and leaves those obligations blocked/unverified, not passed or silently removed.
+        - Preserves useful separate XCUITest UI coverage with labelled stand-ins, but does not invent Siri speech, remote delivery or purchase APIs or imply simulator automation closes the boundaries.
+        - Routes actual Apple build/test/device execution mechanics to xcode-dev-loop or existing project commands once prerequisites exist, requiring real boundary evidence before changing those statuses.
+  - description: Retain failed UI attempt evidence instead of retrying into a false pass
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        An existing XCTest UI test saves a note and relaunches. In a fresh
+        xcresult bundle it failed because the note disappeared. A second attempt
+        passed after a DEBUG seed inserted the note. A proposed helper suppresses
+        the first failure, keeps only the passing attachment and erases the
+        simulator to make the next run clean. Two developers share that simulator.
+        You may repair the test's setup/reporting only. Give the safe change and
+        evidence requirements; no execution is available in this conversation.
+      rubric: |-
+        - Keeps the first failed persistence assertion visible and rejects reporting the seeded second attempt as proof of persistence or a clean pass.
+        - Retains the fresh xcresult/attachments and attempt identity with build, device/runtime and fixture information; uses xcode-dev-loop or established result tooling to inspect actual expected case execution instead of a friendly log line.
+        - Removes the target-note reseed from the persistence path and restores only owned known setup for any justified rerun; does not suppress failures, retry indefinitely or erase the shared simulator.
+        - Cleans up only owned fixture/resources on failure as well as success while preserving evidence, and does not claim the test or product fixed without an actual discriminating result.

@@ -1,0 +1,3292 @@
+{
+  "schema_version": 1,
+  "scope": "Bounded observed evidence for this verification-skillset change. Native excerpts are copied from retained records, not reconstructed transcripts. This is not whole-product acceptance, statistical reliability, or completed native Claude support. Excerpts replace the owned temporary root with <owned-fixture> and the private machine name with <owned-host>; digests cover original retained files.",
+  "models": {
+    "configured_subject": "gpt-6-astra",
+    "configured_grader": "gpt-6-astra",
+    "configured_reasoning_effort": "medium",
+    "max_concurrency": 2,
+    "method": "Read-only native Promptfoo SQLite result rows. failure_reason 1 is an assertion failure; 2 is an evaluation error. Auxiliary raw error items are not automatically tool calls or provider failures. Plan-response scores are not runtime proof.",
+    "result_cache": false
+  },
+  "evaluation_contract_notes": [
+    "An earlier progress message confused completed cases with passes. Its actual result was 63/65. The raw failed TDD refactor-assessment response remains retained; the skill now requires an explicit justified cleanup assessment. Existing TDD assertions were not relaxed.",
+    "The original hang-recovery scenario omitted ownership but required shutdown. Its positive case now supplies run-created, still-owned and authorised-shutdown facts; a separate negative case blocks recovery on a user-owned simulator. No source ownership guard was weakened.",
+    "The Settings scenario supplies no URL scheme or debug route. Its old oracle rejected safe hierarchy-guided navigation and required an incidental numbered filename. The corrected oracle still requires the requested inspected state, no blind coordinates and one persistent capture; it does not require invented routes or a filename. The skill was unchanged. Prior 9/10 comparison and all old rows remain historical observations, not source regressions or retroactively passing results.",
+    "The quiet-log oracle accepts fresh expected non-zero structured native cases with successful process and terminal verdict; it does not require an incidental summary line. The meaningful case and failure gates remain.",
+    "Trigger controls were corrected for YAML #expect truncation and unavailable companion skills. The creator negative now installs its competing maintainer. Trigger graders run in clean separate workspaces. These are fixture corrections, not skill performance improvements.",
+    "The original XCUITest comparison timed out with 13/14 cells. Resume added zero rows. Only the absent treatment cell was completed separately and matched by scenario/rubric digest. No failed cell was retried or discarded.",
+    "Activation is advisory. Its two recorded misses omit an explicit non-UI XCTest execution/fallback handoff. No native XCTest migration or whole-product pass is inferred.",
+    "The other one-image Xcode scenario also lost its incidental numbering requirement. Its source, discovery/build/install/state/capture obligations and prior stricter pass are unchanged. Only that changed contract was rerun once as a paired filtered comparison; no failed unchanged case was retried.",
+    "Browser and XCUITest description edits add only the required output clause, not a new use case or behaviour. Existing meaningful treatment/activation cases were rerun; no artificial source-text RED test was added. Three activation suites now install their actual competing skills.",
+    "The historical partial XCUITest comparison and missing-cell supplement remain retained. The latest selected XCUITest comparison is a separate complete 14-cell run against its corrected description."
+  ],
+  "navigation_oracle_refresh": "complete",
+  "skill_evaluations": [
+    {
+      "skill": "create-verification-skill",
+      "source": {
+        "path": "src/core/skills/create-verification-skill/SKILL.md",
+        "sha256": "8998585988d4f2e2bf9d34f8ff3683a29de8015551e59329deb7ba62e32e5386"
+      },
+      "gate": {
+        "store": "store-review-final-create-verification-skill",
+        "eval_id": "eval-Gi9-2026-10-27T13:22:12",
+        "groups": [
+          {
+            "label": "with-skill",
+            "recorded": 10,
+            "passed": 10,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ]
+      },
+      "comparison": {
+        "store": "store-review-compare-create-verification-skill",
+        "eval_id": "eval-Mb3-2026-10-27T13:51:11",
+        "groups": [
+          {
+            "label": "baseline",
+            "recorded": 10,
+            "passed": 3,
+            "assertion_failures": 7,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          },
+          {
+            "label": "with-skill",
+            "recorded": 10,
+            "passed": 10,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "error": 1
+            }
+          }
+        ],
+        "supplements": [],
+        "case_pairs": [
+          {
+            "scenario_rubric_sha256": "5a0bb341a46d531a4b72e749382f9f286c971ca2c2cd5d6b46c754c4995324d6",
+            "description": "Cold replay is separate proof",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "40b5a4fc8039724d70497fcbaa4374d451d1a9244130a0fa73a6e68004d30802",
+            "description": "Stale simulator and unavailable real boundary",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "0fc77b8b6d1401929e89165559ccb09a8dfb23678d47d0b9cd09ba8e308ad65b",
+            "description": "Launch blocked without side quest",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "6827b29c98bed30ccf4ffd9b8d366c8a2f1f1bf845d928bceb1f2c567113753c",
+            "description": "Shared instance ownership",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "c9eeecda86b09f807042034bf596a2acfc06d46f2a0b54b1225d27f393e8be66",
+            "description": "Index every declared surface without inventing a router",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "b130f71d3ece1d3880f2e8cd71c57bf340062aefbe39e049004fc0c2e4407e47",
+            "description": "Link existing BDD and tests instead of duplicating expected outcomes",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "c493aac9128fbed8fcc71e46202393dcd2347927ad03ef324e47e4484620b8e8",
+            "description": "One canonical source with conditional harness projections",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "b4c1184b0a322f1fbeb4c20625df2f40d0cc3ecd21cde6aa7a4e46cac9dbea6e",
+            "description": "Dirty working tree belongs in evidence identity",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "0fd65574f325830be78c02373a803608af540bc795ca05a4e94a2f0f1d764d48",
+            "description": "Required failed and not-run obligations cannot become green smoke",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "d20af6f61520a5a94ff4dd2dc81b1818d42c9cee59d6ac0a31c3bfe4ba8ce971",
+            "description": "Bootstrap proof is narrower than the product map",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          }
+        ],
+        "paired_score_regressions": 0,
+        "treatment_failures": []
+      },
+      "activation": {
+        "store": "store-review-trigger3-creator",
+        "eval_id": "eval-dSf-2026-10-27T14:30:39",
+        "groups": [
+          {
+            "label": "trigger",
+            "recorded": 4,
+            "passed": 4,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "command_execution": 6
+            }
+          }
+        ],
+        "failures": []
+      }
+    },
+    {
+      "skill": "maintain-verification-skill",
+      "source": {
+        "path": "src/core/skills/maintain-verification-skill/SKILL.md",
+        "sha256": "49bb946083831ed2a33f85230d2b96cb78b9cba2e942577ed482aa1f0765a697"
+      },
+      "gate": {
+        "store": "store-review-final-maintain-verification-skill",
+        "eval_id": "eval-baR-2026-10-27T13:22:12",
+        "groups": [
+          {
+            "label": "with-skill",
+            "recorded": 8,
+            "passed": 8,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ]
+      },
+      "comparison": {
+        "store": "store-review-compare-maintain-verification-skill",
+        "eval_id": "eval-taw-2026-10-27T13:51:11",
+        "groups": [
+          {
+            "label": "baseline",
+            "recorded": 8,
+            "passed": 3,
+            "assertion_failures": 5,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "error": 1
+            }
+          },
+          {
+            "label": "with-skill",
+            "recorded": 8,
+            "passed": 8,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ],
+        "supplements": [],
+        "case_pairs": [
+          {
+            "scenario_rubric_sha256": "77e40d1322c5f18d9a2c6fd5c53568b2ab00857939898888a3e0fa4b2b0b607b",
+            "description": "Full maintenance covers multiple entrypoints and representative states",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "d57bddd40c1968ce37a84fd35382b42c69425b0208d4fe416039675a7b2eba4e",
+            "description": "Authority distinguishes documentation drift from actual product regression",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "ff8cd4b9074e38b3b8d706c04b38e40078b374b5442a90ad802cc596c1944d1b",
+            "description": "Conflicting projections are preserved rather than overwritten",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "8ffeff641064b9954afa0d555727fab758b7b9b9317df7dbb6645b5d4def549f",
+            "description": "Zero selected tests cannot satisfy a required journey",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "f894ebc0ffe00e422d390d243c8854abb407c3c67163c0caa075919cdd46bc88",
+            "description": "Missing evidence and dirty identity invalidate a claimed pass",
+            "baseline_pass": false,
+            "baseline_score": 0.65,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "85d985d4c0610dc9287303a76a20f6f31d5265e4c228c7d427f2b9a64d7ec7e7",
+            "description": "Required gates and failed attempts survive convenient smoke results",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "bff523e5592932e470bc46351feba9f365b26dd032b0d8c1ca715bb4fd58d0f3",
+            "description": "Failed-run cleanup releases only owned state and keeps evidence",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "f7ca81a3b3db67e44a5f59724b81a6ed8866c81d985574c4d36d406fc1709ded",
+            "description": "Maintenance does not inherit product test or publication authority",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          }
+        ],
+        "paired_score_regressions": 0,
+        "treatment_failures": []
+      },
+      "activation": {
+        "store": "store-nf04-trigger-maintain",
+        "eval_id": "eval-d2P-2026-10-27T16:12:50",
+        "groups": [
+          {
+            "label": "trigger",
+            "recorded": 5,
+            "passed": 5,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "command_execution": 10
+            }
+          }
+        ],
+        "failures": []
+      }
+    },
+    {
+      "skill": "visual-feedback",
+      "source": {
+        "path": "src/core/skills/visual-feedback/SKILL.md",
+        "sha256": "bda6de7175eb175f9c0598997824ec3b1f4998c40b26ea9b876b685f15b24e8e"
+      },
+      "gate": {
+        "store": "store-review-final-visual-feedback",
+        "eval_id": "eval-q5H-2026-10-27T13:22:12",
+        "groups": [
+          {
+            "label": "with-skill",
+            "recorded": 10,
+            "passed": 10,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ]
+      },
+      "comparison": {
+        "store": "store-review-compare-visual-feedback",
+        "eval_id": "eval-eIO-2026-10-27T13:51:11",
+        "groups": [
+          {
+            "label": "baseline",
+            "recorded": 10,
+            "passed": 3,
+            "assertion_failures": 7,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          },
+          {
+            "label": "with-skill",
+            "recorded": 10,
+            "passed": 10,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "error": 2
+            }
+          }
+        ],
+        "supplements": [],
+        "case_pairs": [
+          {
+            "scenario_rubric_sha256": "3c4f99ab1a1253f00ffc10edadd1a5c266629e648ca4d865bae5e7288477b26e",
+            "description": "Act on precise feedback and existing implementation approval",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "4c18bddfd727fcec2afd1dabdd4ad0675e17df2ef15b74466ea0f0f16a0faed2",
+            "description": "Reproduce a stateful narrow-viewport defect before judging it",
+            "baseline_pass": false,
+            "baseline_score": 0.6,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "f3277b7a86ea2d84d4efe811deee2a928497abb7e357921a68d65a84c1cdc56f",
+            "description": "Reject a capture taken in a state that cannot show the defect",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "26f80c4af66b472a34d3c214d1d891ad6104fe140a4e725400fb9fb1e0f48758",
+            "description": "Separate competing causes of one visual symptom before changing code",
+            "baseline_pass": false,
+            "baseline_score": 0.75,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "7a892f41d188964b2c25f3ddc816d1c8c03b8030d035110e59ce109bdda6c224",
+            "description": "Decline ownership of an unattended CI visual-regression suite",
+            "baseline_pass": false,
+            "baseline_score": 0.25,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "ed69ee2353f862fbe34899a7c54d8f74d0ce39f7a6faa84471d0359c9ddd8f06",
+            "description": "Ask for reproduction facts when the report supplies none",
+            "baseline_pass": false,
+            "baseline_score": 0.75,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "95260bf36caaa6e2761f562bd5df8e67cbe8d974cbd36e31a53d135d98012fe0",
+            "description": "Tie an iOS visual comparison to the actual changed build and state",
+            "baseline_pass": false,
+            "baseline_score": 0.75,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "19ebcea73f085d001fccfa2dec60a3c16059c88b7e4b3a42dfd450319d821a8e",
+            "description": "Use an existing host-native browser capability when one tool is absent",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "f033c6a81ca03bedd532bb3174b721c800a3ae6c2b34c59778799b1b60cc2c04",
+            "description": "Discover supplied reproduction facts before asking the reporter",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "aa2dd6cf787986e5ba68b0224f837be57138d847d9e0c7094857ae53b8ed7d73",
+            "description": "Protect a shared app instance while gathering visual evidence",
+            "baseline_pass": false,
+            "baseline_score": 0.6,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          }
+        ],
+        "paired_score_regressions": 0,
+        "treatment_failures": []
+      },
+      "activation": {
+        "store": "store-review-trigger-visual-feedback",
+        "eval_id": "eval-coB-2026-10-27T13:51:11",
+        "groups": [
+          {
+            "label": "trigger",
+            "recorded": 6,
+            "passed": 6,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "command_execution": 38,
+              "error": 1
+            }
+          }
+        ],
+        "failures": []
+      }
+    },
+    {
+      "skill": "tdd",
+      "source": {
+        "path": "src/core/skills/tdd/SKILL.md",
+        "sha256": "18be45a8f8ebb6642724351fe1ad5acb69b617b087893fa84011f1e613a4c6ed"
+      },
+      "gate": {
+        "store": "store-acceptance-gate-tdd",
+        "eval_id": "eval-92O-2026-10-27T14:55:46",
+        "groups": [
+          {
+            "label": "with-skill",
+            "recorded": 7,
+            "passed": 7,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ]
+      },
+      "comparison": {
+        "store": "store-acceptance-compare-tdd",
+        "eval_id": "eval-Zx2-2026-10-27T14:58:09",
+        "groups": [
+          {
+            "label": "baseline",
+            "recorded": 7,
+            "passed": 4,
+            "assertion_failures": 3,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          },
+          {
+            "label": "with-skill",
+            "recorded": 7,
+            "passed": 7,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ],
+        "supplements": [],
+        "case_pairs": [
+          {
+            "scenario_rubric_sha256": "0d16590bbd494fbcdd681b9d35766adc7ac1bcc535cb9dda1a911fc2bba67662",
+            "description": "Reject a false red caused by a broken test harness",
+            "baseline_pass": false,
+            "baseline_score": 0.6,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "d57525ee31fc7dffceb60889a4e15ce6b55ee600586e92a670f1d7e9cf0526a2",
+            "description": "Preserve a dirty worktree while proving a regression RED",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "679cc949f05fdb46291d409596408972be91ac2825dde1a9c0dc9f0d81aa5bfc",
+            "description": "Refuse to keep spike production code as if it were tested",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "6122445661d55fdd44f977eced700cba644fe40381aa91046348862d07065243",
+            "description": "Resolve a write-all-tests-first instruction against one failing test",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "448b957a7ed281bf0dba8b2c2334fdcd5980b4fc6cf8a215ee4db42805fb072e",
+            "description": "Limit refactoring to code that green tests cover",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "611fbf6fdb5a930a73f455afcf91ad7d1cbbad8cfd4634d504948a83e66b4f29",
+            "description": "Credit direct runtime evidence without inventing a TDD cycle",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "26e68eb32f7afccfed56a3258d2ea3a48275306091d9a66d906103fffbf04976",
+            "description": "Preserve immutable Swift fixtures when applying the shared checklist",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          }
+        ],
+        "paired_score_regressions": 0,
+        "treatment_failures": []
+      },
+      "activation": {
+        "store": "store-acceptance-trigger-tdd",
+        "eval_id": "eval-Ttz-2026-10-27T15:19:45",
+        "groups": [
+          {
+            "label": "trigger",
+            "recorded": 3,
+            "passed": 3,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "command_execution": 11
+            }
+          }
+        ],
+        "failures": []
+      }
+    },
+    {
+      "skill": "debug",
+      "source": {
+        "path": "src/app/skills/debug/SKILL.md",
+        "sha256": "55ef611174164c8345db96ab7dc5609ddb4048126c48db14adb0412caa4a70bd"
+      },
+      "gate": {
+        "store": "store-review-final-debug",
+        "eval_id": "eval-O4C-2026-10-27T13:22:12",
+        "groups": [
+          {
+            "label": "with-skill",
+            "recorded": 8,
+            "passed": 8,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ]
+      },
+      "comparison": {
+        "store": "store-review-compare-debug",
+        "eval_id": "eval-ENU-2026-10-27T13:51:11",
+        "groups": [
+          {
+            "label": "baseline",
+            "recorded": 8,
+            "passed": 2,
+            "assertion_failures": 6,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          },
+          {
+            "label": "with-skill",
+            "recorded": 8,
+            "passed": 8,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ],
+        "supplements": [],
+        "case_pairs": [
+          {
+            "scenario_rubric_sha256": "f457825882818cde5fafc942da2df3f4d75d155f958a0863b2ad8afb5d03ad42",
+            "description": "Trace an intermittent data-loss crash to its shared owner",
+            "baseline_pass": false,
+            "baseline_score": 0.85,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "0e85797257939a7aae4a4f2661d3e21ff76ce0926c9626641263ef979b988a9a",
+            "description": "Rule out a stale runtime before diagnosing a visual regression",
+            "baseline_pass": false,
+            "baseline_score": 0.75,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "873815728d505c755f3ae7282b04e62f76c0eb9ba71645bdc47b46ca61727a46",
+            "description": "Pause an authorised fix when the evidence points to a destructive step",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "9e9977d66c5f277d7144dde8cd7f513429ba8a9674d9e90b676c5cb7d52404b6",
+            "description": "Fix a self-observed build failure under a standing instruction",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "0687d1ebe4dc98642698d1f3294eb1a0439d4b8fc839359ed2023c92e3ec7400",
+            "description": "Propose but do not apply a fix when the user only reports a symptom",
+            "baseline_pass": false,
+            "baseline_score": 0.6,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "d2a685b2c4dc3f96872798466b979c057933d7afdde53f82b77badfc41e11402",
+            "description": "Preserve XCTest for an existing non-UI unit-test repair",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "d9ac92227e63c7af457123da10d1c963378cd82b60d8cfb5dbfa579af44a79c2",
+            "description": "Keep an XCTest measure test in its existing performance suite",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "722049a0c3dd84a9d3e217f4771b4b2052e3c4f2c6915bcccbe39de0548931c1",
+            "description": "Distinguish Swift Testing authorship from XCUITest authorship",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          }
+        ],
+        "paired_score_regressions": 0,
+        "treatment_failures": []
+      },
+      "activation": {
+        "store": "store-acceptance-trigger-debug",
+        "eval_id": "eval-LPx-2026-10-27T14:55:46",
+        "groups": [
+          {
+            "label": "trigger",
+            "recorded": 6,
+            "passed": 5,
+            "assertion_failures": 1,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "command_execution": 15
+            }
+          }
+        ],
+        "failures": [
+          {
+            "description": "Excludes XCTest measure repair without forcing migration",
+            "scenario_sha256": "6c93c6433e4f5de9cc1773ada1ce638f46e794b9d817920f3ea885c1cda38dfb",
+            "score": 0.75,
+            "reason": "Correctly treats the work as non-UI XCTest performance analysis, preserves measure and benchmark constraints, applies controlled measurement checks, and invents no execution or improvement. However, it does not explicitly route execution/results through xcode-dev-loop or establish framework-neutral TDD/test-behaviour fallback for any authorized repair."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "xcode-dev-loop",
+      "source": {
+        "path": "src/app/skills/xcode-dev-loop/SKILL.md",
+        "sha256": "b1e712cbc033f2d551d0cc787944f895d06c3e4fb5f33d02737686fb5de6a50c"
+      },
+      "gate": {
+        "store": "store-navigation-gate-xcode",
+        "eval_id": "eval-DMo-2026-10-27T15:24:04",
+        "groups": [
+          {
+            "label": "with-skill",
+            "recorded": 10,
+            "passed": 10,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ],
+        "oracle_cleanup_validation": {
+          "scope": "The original complete 10/10 gate included the stricter incidental numbering condition. The affected case was checked separately against the corrected contract; its treatment row passed. Other nine cases and skill bytes are unchanged.",
+          "eval_id": "eval-0RX-2026-10-27T15:56:01",
+          "treatment_rows": 1,
+          "treatment_passed": 1
+        }
+      },
+      "comparison": {
+        "store": "store-navigation-compare-xcode",
+        "eval_id": "eval-FzB-2026-10-27T15:27:55",
+        "groups": [
+          {
+            "label": "baseline",
+            "recorded": 10,
+            "passed": 1,
+            "assertion_failures": 9,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          },
+          {
+            "label": "with-skill",
+            "recorded": 10,
+            "passed": 10,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ],
+        "supplements": [
+          {
+            "store": "store-numbering-compare-xcode",
+            "eval_id": "eval-0RX-2026-10-27T15:56:01",
+            "groups": [
+              {
+                "label": "baseline",
+                "recorded": 1,
+                "passed": 0,
+                "assertion_failures": 1,
+                "evaluation_errors": 0,
+                "provider_errors": 0,
+                "item_audit_available": true,
+                "non_message_item_counts": {}
+              },
+              {
+                "label": "with-skill",
+                "recorded": 1,
+                "passed": 1,
+                "assertion_failures": 0,
+                "evaluation_errors": 0,
+                "provider_errors": 0,
+                "item_audit_available": true,
+                "non_message_item_counts": {}
+              }
+            ],
+            "scope": "Replaces only the recorded home-screen contract variant after deletion of incidental image numbering. Same skill bytes; not a retry of an unchanged failed response.",
+            "superseded_pair": {
+              "scenario_rubric_sha256": "19ea65f19ec8426cf6a79bec851a1316149d03750f0aa3a0d877fd953a0ac9c8",
+              "description": "Order the loop when the project details are still unknown",
+              "baseline_pass": false,
+              "baseline_score": 0.6,
+              "with-skill_pass": true,
+              "with-skill_score": 1
+            }
+          }
+        ],
+        "case_pairs": [
+          {
+            "scenario_rubric_sha256": "d55e8b6c4fc9245fb52b5fd9f5cf26a5e03cc47dd63547b7d13318f24b97a531",
+            "description": "Keep a duplicate-name beta-runtime build tied to one simulator",
+            "baseline_pass": false,
+            "baseline_score": 0.7,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "cafd24e87f507b7835fb8b481ae8571d58ee00938581a2784188b97e11036d2a",
+            "description": "Correct a timing-out, name-addressed test command after a runner hang",
+            "baseline_pass": false,
+            "baseline_score": 0.4,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "433824191f4e8bc1d8d1a4684004535449800e04c9cce551b1f180eb7ea3369c",
+            "description": "Decline to author the test and supply only the verification loop",
+            "baseline_pass": false,
+            "baseline_score": 0.65,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "description": "Order the loop when the project details are still unknown",
+            "scenario_rubric_sha256": "b0d9c5b88ad0b16b12442ad9c9895bb7761a2e5c21b9a317e1d1b0f363553350",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "ea3671cb1e66eff2792eb3727c196c1205dad661615f80c8edcf0664e2418176",
+            "description": "Review a verification script that keeps a foreground build on request",
+            "baseline_pass": false,
+            "baseline_score": 0.65,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "59992d5a055e16e906168a80d025d9a4a48eadbd8a5acc29e2d2bd9fb13714b7",
+            "description": "Run an existing XCTest unit regression without a framework migration",
+            "baseline_pass": false,
+            "baseline_score": 0.75,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "ff1d192b1b2899e8d9731cc120fc7e16ddf89f2a866c9573dd2885aa16e63cab",
+            "description": "Interpret an XCTest measure failure without moving or rebasing the test",
+            "baseline_pass": false,
+            "baseline_score": 0.75,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "f3fdc90670d97f1fd58662ef8e8ba8738f3783b89e8ade712eb40c34939930b0",
+            "description": "Route test authoring by its actual Apple testing framework",
+            "baseline_pass": false,
+            "baseline_score": 0.65,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "fa91457052ca945b5268a3025601e17e6c795ed85db27518b67ea642312b5cad",
+            "description": "Isolate simulator state and clean up only owned runtime resources",
+            "baseline_pass": false,
+            "baseline_score": 0.8,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "573d327a0a16113f5841ef59513a4a472674d95fb78f0c186b82c6fe532ecf89",
+            "description": "Preserve a user-owned simulator when hung-run recovery needs shutdown",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          }
+        ],
+        "paired_score_regressions": 0,
+        "treatment_failures": []
+      },
+      "activation": {
+        "store": "store-review-trigger2-xcode",
+        "eval_id": "eval-d66-2026-10-27T14:03:46",
+        "groups": [
+          {
+            "label": "trigger",
+            "recorded": 5,
+            "passed": 4,
+            "assertion_failures": 1,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "command_execution": 28
+            }
+          }
+        ],
+        "failures": [
+          {
+            "description": "Excludes dedicated non-UI XCTest authorship without forcing migration",
+            "scenario_sha256": "6a0cb476b4a8b8066ee4566eab2b0b3d81a9fb8e7031800319cb526055fe24e3",
+            "score": 0.7,
+            "reason": "The response preserves XCTest, XCTAssertEqual, measure, and the approved baseline, avoids execution, and does not misattribute authorship to another skill. However, it omits the required framework-neutral TDD/test-behaviour fallback and overstates the guidance gap as no applicable installed guidance rather than no dedicated non-UI XCTest authoring skill."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "browser-testing",
+      "source": {
+        "path": "src/web/skills/browser-testing/SKILL.md",
+        "sha256": "202f0146c42101713f72d6ab91f4bcfbb475111f55c72ce63a5765687d921290"
+      },
+      "gate": {
+        "store": "store-nf05-gate-browser",
+        "eval_id": "eval-LGv-2026-10-27T16:12:50",
+        "groups": [
+          {
+            "label": "with-skill",
+            "recorded": 6,
+            "passed": 6,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ]
+      },
+      "comparison": {
+        "store": "store-nf05-compare-browser",
+        "eval_id": "eval-Bzo-2026-10-27T16:14:36",
+        "groups": [
+          {
+            "label": "baseline",
+            "recorded": 6,
+            "passed": 4,
+            "assertion_failures": 2,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          },
+          {
+            "label": "with-skill",
+            "recorded": 6,
+            "passed": 6,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ],
+        "supplements": [],
+        "case_pairs": [
+          {
+            "scenario_rubric_sha256": "e7877c6b2dc567f3f86c5c505a919877c6a2fe5f2fa1f9eef963ce5e967c7b65",
+            "description": "Real sign-in redirect and cookie boundary cannot be a jsdom pass",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "11095c0b87cd3edad53ebb3a7e10179f457c777867cf05828787fcf9d5031b44",
+            "description": "Isolated fixtures and accessible bounded assertions survive a slow save",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "57c2f0a7b0c0181fc04d8e5a7c5427e4c470b02e510786dfc3697da11a9bfc34",
+            "description": "Download and new-tab assertions observe the browser event and file",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "af461ff35078b77a9fbd802d4381783ddb6ef621ef1634bef9d90cb9791237c1",
+            "description": "Screenshot mismatch is investigated before any baseline approval",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "14a4ea2245db24b750f3d30c9d0794d9d28cdc3fa5f6b72b79c2009bbd8c983e",
+            "description": "Trace evidence remains sensitive and a behavioural retry stays visible",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "7086bb818b2e2902599654b2671a5b4a06f28018d002ca0cde490d663e479c4d",
+            "description": "Reuse Cypress rather than replace the project's selected browser runner",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          }
+        ],
+        "paired_score_regressions": 0,
+        "treatment_failures": []
+      },
+      "activation": {
+        "store": "store-nf04-trigger-browser",
+        "eval_id": "eval-X5d-2026-10-27T16:17:55",
+        "groups": [
+          {
+            "label": "trigger",
+            "recorded": 7,
+            "passed": 7,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "command_execution": 10
+            }
+          }
+        ],
+        "failures": []
+      }
+    },
+    {
+      "skill": "xcuitest",
+      "source": {
+        "path": "src/app/skills/xcuitest/SKILL.md",
+        "sha256": "dc701d77e1fcd4768e458e167b2decda3cf42e57015dbdedff7928b1de8cb7ad"
+      },
+      "gate": {
+        "store": "store-nf05-gate-xcuitest",
+        "eval_id": "eval-jI1-2026-10-27T16:12:50",
+        "groups": [
+          {
+            "label": "with-skill",
+            "recorded": 7,
+            "passed": 7,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ]
+      },
+      "comparison": {
+        "store": "store-nf05-compare-xcuitest",
+        "eval_id": "eval-k3N-2026-10-27T16:15:01",
+        "groups": [
+          {
+            "label": "baseline",
+            "recorded": 7,
+            "passed": 3,
+            "assertion_failures": 4,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          },
+          {
+            "label": "with-skill",
+            "recorded": 7,
+            "passed": 7,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {}
+          }
+        ],
+        "supplements": [],
+        "case_pairs": [
+          {
+            "scenario_rubric_sha256": "e82ec138b23488fdd1e9daadd45893e148271b4722c6c5346c78dae83a81b7dc",
+            "description": "XCTest UI authoring proves settings persistence across relaunch",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "e4f35c1a5513b05ed27a1d29f2b90eff394b9c5404f1a3b2cd3f45229c7e61a8",
+            "description": "DEBUG seed may establish data but cannot replace the claimed create path",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "4c67451c051e1c9afddd4a51940a266667a39a2f81260c937865413bc787d8e6",
+            "description": "Application launchEnvironment is not the UI test runner environment",
+            "baseline_pass": false,
+            "baseline_score": 0.75,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "4a445a259bb182309b66ef559598f2d9ae6df62141ba40b64ebb52e687d92c51",
+            "description": "Permission prompt and denied state are separate bounded cases",
+            "baseline_pass": true,
+            "baseline_score": 1,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "239ef24fa313582e59fc89a74ef7e1c10edfb5cd1ed265578ca682449855b601",
+            "description": "Screenshot attachment is not an automated image-diff engine",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "0efb7010ea547f373d947253930700780137f4609c2f6716f7c7a8fac04cab2b",
+            "description": "Device and system boundary remains blocked despite a deep-link pass",
+            "baseline_pass": false,
+            "baseline_score": 0.75,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          },
+          {
+            "scenario_rubric_sha256": "20fdd16363293dee6cd4380595622e9788a481485606e2eeaf61e0edbab8bce9",
+            "description": "Retain failed UI attempt evidence instead of retrying into a false pass",
+            "baseline_pass": false,
+            "baseline_score": 0,
+            "with-skill_pass": true,
+            "with-skill_score": 1
+          }
+        ],
+        "paired_score_regressions": 0,
+        "treatment_failures": []
+      },
+      "activation": {
+        "store": "store-nf04-trigger-xcuitest",
+        "eval_id": "eval-Woe-2026-10-27T16:18:42",
+        "groups": [
+          {
+            "label": "trigger",
+            "recorded": 8,
+            "passed": 8,
+            "assertion_failures": 0,
+            "evaluation_errors": 0,
+            "provider_errors": 0,
+            "item_audit_available": true,
+            "non_message_item_counts": {
+              "command_execution": 7
+            }
+          }
+        ],
+        "failures": []
+      }
+    }
+  ],
+  "historical_evaluations": {
+    "archive_file": "eval-all-evidence.json",
+    "sha256": "8306014f9e69e4091138c4f4c9aabc02f9364fc2c96e4ee1866b8263b6842c51",
+    "native_runs": 98,
+    "retention": "All source/scenario variants, failed rows, interrupted partial runs and provider/grader errors remain in the private archive. Current selections above do not turn historical failures into passes."
+  },
+  "deterministic_checks": {
+    "runner_tests": {
+      "command": "node --test scripts/run-skill-evals.test.mjs",
+      "passed": 46,
+      "total": 46,
+      "red_before": {
+        "passed": 19,
+        "total": 35
+      },
+      "scope": "Native Promptfoo execution, real result gating and relative-file/alias resolution; fresh complete fixtures, preservation, invalid-input and continuation behaviour. No incidental CLI config-path assertion. Read-only check mode shares trigger metadata/source/ownership validation; valid and rejected checks preserve full fixture bytes. Native validation with real companion metadata replaces new incidental argv pins.",
+      "metadata_check_regression": {
+        "before": {
+          "exit": 0,
+          "observed": "Native check accepted duplicate missing companions; two Configuration is valid messages"
+        },
+        "after": {
+          "exit": 1,
+          "observed": "Main config validated; malformed trigger metadata rejected with fixture_skills diagnostic"
+        },
+        "scope": "Actual CLI check before/after; valid and invalid check immutability are covered by the 11 added deterministic regressions. Historical 19/35 RED refers only to the earlier runner change, not to a claimed 46-case historical TDD cycle."
+      }
+    },
+    "plugins": 8,
+    "skills": 115,
+    "packaging": {
+      "method": "Compared every source resource byte with the real flat copier output and ZIP member; checked complete inventories and all declared MIT notice copies.",
+      "pass": true,
+      "plugins": 8,
+      "skills": 115,
+      "files": 308,
+      "derived_notices": 61,
+      "notice_sha256": "6f8868112b4207ffc960950706c4f617cc58a672ec4d0d6bac28418ff367609f",
+      "proof_sha256": "7c2cc86f5cd7a5e9b7860c00c7d8dd2afa903b4d6735331d02971da719a56087"
+    },
+    "native_claude_validation": "Marketplace plus affected plugin manifests validated; this is packaging proof, not authenticated native replay.",
+    "stale_debug_fixture_audit": {
+      "path": "evals/debug/workspace/.agents/skills",
+      "observed": "Empty directory at reconciliation; no stale skill files remained. Other checked behavioural workspaces had no .agents tree.",
+      "limit": "This filesystem observation does not reconstruct an earlier workspace snapshot."
+    },
+    "repository_configuration_check": {
+      "command": "pnpm eval:skills:check",
+      "filter": "none; entire repository",
+      "exit_code": 0,
+      "suites": 115,
+      "configuration_validations": 211,
+      "observed_wall_seconds": 201.65,
+      "log": {
+        "kind": "Complete native stdout/stderr captured from successful tool result artifact://404; no run was repeated for logging",
+        "archive_path": "evidence-reconciliation/repository-config-check.log",
+        "sha256": "3e243765bd54e2dc85d50123e9c546453c6e03b0e053bb795f61cc0ce81d191c",
+        "bytes": 51609
+      },
+      "scope": "Current stricter fixture/source checks plus native Promptfoo schema validation; no model or product checks implied"
+    }
+  },
+  "native_host_matrix": [
+    {
+      "host": "omp",
+      "platform": "web",
+      "status": "passed-scoped-native-lifecycle-replay",
+      "limit": "One persistence lifecycle passed. Retained caller image attestations and the separate actual parent image review are explicit; full old-session image-tool attribution is not claimed."
+    },
+    {
+      "host": "omp",
+      "platform": "ios",
+      "status": "passed-scoped-source-bound-authoring-and-native-cold-replay",
+      "limit": "One declared synthetic persistence journey. Actual native OMP image-tool returns and its own review/check are session-bound. No Codex/Claude replay of this new bundle or OMP .agents-only discovery claimed.",
+      "project_root": "ios-creator-current.oB4MSR",
+      "native_session": "01a17e23-167e-7163-9fdd-75e0b4cabb98"
+    },
+    {
+      "host": "codex",
+      "platform": "web",
+      "status": "passed-scoped-native-lifecycle-replay",
+      "limit": "One persistence lifecycle passed. Retained caller image attestations and the separate actual parent image review are explicit; full old-session image-tool attribution is not claimed."
+    },
+    {
+      "host": "codex",
+      "platform": "ios",
+      "status": "passed-scoped-native-lifecycle-replay",
+      "limit": "One native persistence case from the earlier maintained bundle in a fresh Codex invocation. Image inspection is reported by that replay; no independently retained image-tool return or replay of the new current-creator bundle is claimed."
+    },
+    {
+      "host": "claude",
+      "platform": "web",
+      "status": "blocked-auth",
+      "limit": "Expired native Claude authentication; no replay or operational parity claimed"
+    },
+    {
+      "host": "claude",
+      "platform": "ios",
+      "status": "blocked-auth",
+      "limit": "Expired native Claude authentication; no replay or operational parity claimed"
+    }
+  ],
+  "native_codex_discovery": {
+    "method": "Native Codex app-server initialize/skills/list; no model/thread/turn; forceReload=true; no extra roots or persisted settings",
+    "observed_at": "2026-10-27T14:17:02.873Z",
+    "entries": [
+      {
+        "name": "verify-ios-notes",
+        "scope": "repo",
+        "enabled": true,
+        "entry": ".agents/skills/verify-ios-notes/SKILL.md",
+        "error_count": 0,
+        "project_root": "ios"
+      },
+      {
+        "name": "verify-notes",
+        "scope": "repo",
+        "enabled": true,
+        "entry": ".agents/skills/verify-notes/SKILL.md",
+        "error_count": 0,
+        "project_root": "web-creator-current.2XqDTh"
+      }
+    ]
+  },
+  "web_current_creator": {
+    "creator_sha256": "8998585988d4f2e2bf9d34f8ff3683a29de8015551e59329deb7ba62e32e5386",
+    "contract_sha256": "3976d8c8ff92c32aeb835c9490dd3a1f424125ab8b9b403a8e673d21dd457e63",
+    "scope": "A fresh fixture containing only the immutable existing product and native browser harness was used. Current creator generated the canonical executable bundle and relative Claude link. Native-01 was blocked by a false locale declaration; native-02 and fresh replays passed after a real measured-default probe. No historical receipt was backfilled. Product and shared acceptance files were unchanged. The old native-session image-tool attribution is not complete; the retained caller attestations and the new actual parent image review are separate from lifecycle execution.",
+    "replays": [
+      {
+        "archive_path": "web-creator-current.2XqDTh/replay-evidence/omp-current-01/receipt.json",
+        "sha256": "e515eb26bc93e4b1b22cdfabc211476d67456404113dbd2591799c7f9294eb76",
+        "native_excerpt": {
+          "actualActions": [
+            "open",
+            "save-through-ui",
+            "reload"
+          ],
+          "cleanup": {
+            "serverStopped": true,
+            "nativeStopped": true,
+            "observedDescendantsStopped": true,
+            "scratchRemoved": true
+          },
+          "evidenceLevel": "Real local headless browser and disk; no mocks",
+          "nativeExit": {
+            "code": 0,
+            "signal": null
+          },
+          "limits": [
+            "Input validation and trimming",
+            "Multiple notes and concurrent writes",
+            "Storage and network errors",
+            "Direct API boundary tests",
+            "Unknown routes",
+            "Keyboard submission",
+            "Mobile and other browsers",
+            "Deployed environments",
+            "Fresh Codex/OMP replay (parent-owned)",
+            "Claude runtime (reported expired authentication; do not retry)"
+          ]
+        },
+        "host": "omp",
+        "append_only_gate_checks": [
+          {
+            "state": "pass",
+            "checkedAt": "2026-10-27T14:04:37.888Z",
+            "command": "review",
+            "gates": {
+              "identity": "pass",
+              "discovery": "pass",
+              "doctor": "pass",
+              "native": "pass",
+              "selection": "pass",
+              "persistence": "pass",
+              "capture": "pass",
+              "cleanup": "pass",
+              "retention": "pass",
+              "image-review": "pass"
+            },
+            "journey": "notes-public-persistence",
+            "actualActions": [
+              "open",
+              "save-through-ui",
+              "reload"
+            ],
+            "receiptSha256": "e515eb26bc93e4b1b22cdfabc211476d67456404113dbd2591799c7f9294eb76"
+          },
+          {
+            "state": "pass",
+            "checkedAt": "2026-10-27T14:04:41.847Z",
+            "command": "check",
+            "gates": {
+              "identity": "pass",
+              "discovery": "pass",
+              "doctor": "pass",
+              "native": "pass",
+              "selection": "pass",
+              "persistence": "pass",
+              "capture": "pass",
+              "cleanup": "pass",
+              "retention": "pass",
+              "image-review": "pass"
+            },
+            "journey": "notes-public-persistence",
+            "actualActions": [
+              "open",
+              "save-through-ui",
+              "reload"
+            ],
+            "receiptSha256": "e515eb26bc93e4b1b22cdfabc211476d67456404113dbd2591799c7f9294eb76"
+          }
+        ],
+        "native_discovery": "OMP skill URI resolved through the Claude project link; Codex repo catalogue separately confirmed by skills/list.",
+        "independent_process_audit": "No owned rows found after cleanup",
+        "scope": "Fresh native lifecycle replay; image inspection/attestation is accounted for separately, not inferred from near-simultaneous gate timestamps.",
+        "historical_image_review": {
+          "archive_path": "web-creator-current.2XqDTh/replay-evidence/omp-current-01/image-review.json",
+          "sha256": "356a3195891c792b32282ce9e4c1f696286ee3556ed26a68eb6166d0d1184632",
+          "native_excerpt": {
+            "state": "pass",
+            "observation": "Caller attests that they opened the saved image and inspected the exact title against native actions and persisted data",
+            "screenshotSha256": "7890daa33967315896f67a4f69f715fd6572b2398a5b45d9a33f15ac162e4989",
+            "observedAt": "2026-10-27T14:04:37.886Z"
+          }
+        },
+        "actor_evidence": {
+          "host": "omp",
+          "parent_job": "bg_129",
+          "basis": "Actual fresh native OMP replay and its retained report; the original attestation does not identify a native session.",
+          "limit": "No independent old-session image-tool trace retained. Do not claim every image gate is native-session-bound."
+        },
+        "parent_image_review": {
+          "host": "omp",
+          "archive_path": "web-creator-current.2XqDTh/replay-evidence/omp-current-01/native/persisted-note.png",
+          "sha256": "7890daa33967315896f67a4f69f715fd6572b2398a5b45d9a33f15ac162e4989",
+          "visible_title": "Persisted note 434df3c9-af3b-43d3-a529-fd01fd0060e8",
+          "actor": {
+            "kind": "parent OpenAI context using OMP image-capable read",
+            "session": "01a17c68-b8e8-72d9-8dee-45082a3e245b"
+          },
+          "observation": "Actually opened the PNG in this parent context. Scratch Notes, public title/Save controls, Notes loaded, and exactly one visible saved-title row match the retained synthetic disk record. No pixel or design acceptance claimed."
+        },
+        "parent_image_review_record": {
+          "kind": "Separate later actual parent image inspection",
+          "archive_path": "evidence-reconciliation/parent-web-image-review.json",
+          "sha256": "fe8a553272766e1b112cbc5dce242a667326a93ec0127776ca88dce6c88bb764",
+          "bytes": 1597
+        }
+      },
+      {
+        "archive_path": "web-creator-current.2XqDTh/replay-evidence/codex-current-01/receipt.json",
+        "sha256": "40e866cdba2cdb975b673c8b5ef5edf12e85e15b19e1a65ac8ce43c8957bb93d",
+        "native_excerpt": {
+          "actualActions": [
+            "open",
+            "save-through-ui",
+            "reload"
+          ],
+          "cleanup": {
+            "serverStopped": true,
+            "nativeStopped": true,
+            "observedDescendantsStopped": true,
+            "scratchRemoved": true
+          },
+          "evidenceLevel": "Real local headless browser and disk; no mocks",
+          "nativeExit": {
+            "code": 0,
+            "signal": null
+          },
+          "limits": [
+            "Input validation and trimming",
+            "Multiple notes and concurrent writes",
+            "Storage and network errors",
+            "Direct API boundary tests",
+            "Unknown routes",
+            "Keyboard submission",
+            "Mobile and other browsers",
+            "Deployed environments",
+            "Fresh Codex/OMP replay (parent-owned)",
+            "Claude runtime (reported expired authentication; do not retry)"
+          ]
+        },
+        "host": "codex",
+        "append_only_gate_checks": [
+          {
+            "state": "fail",
+            "command": "check",
+            "checkedAt": "2026-10-27T14:04:24.357Z",
+            "error": "ENOENT: no such file or directory, open '<owned-fixture>/web-creator-current.2XqDTh/replay-evidence/codex-current-01/image-review.json'"
+          },
+          {
+            "state": "pass",
+            "checkedAt": "2026-10-27T14:04:37.640Z",
+            "command": "review",
+            "gates": {
+              "identity": "pass",
+              "discovery": "pass",
+              "doctor": "pass",
+              "native": "pass",
+              "selection": "pass",
+              "persistence": "pass",
+              "capture": "pass",
+              "cleanup": "pass",
+              "retention": "pass",
+              "image-review": "pass"
+            },
+            "journey": "notes-public-persistence",
+            "actualActions": [
+              "open",
+              "save-through-ui",
+              "reload"
+            ],
+            "receiptSha256": "40e866cdba2cdb975b673c8b5ef5edf12e85e15b19e1a65ac8ce43c8957bb93d"
+          },
+          {
+            "state": "pass",
+            "checkedAt": "2026-10-27T14:04:40.955Z",
+            "command": "check",
+            "gates": {
+              "identity": "pass",
+              "discovery": "pass",
+              "doctor": "pass",
+              "native": "pass",
+              "selection": "pass",
+              "persistence": "pass",
+              "capture": "pass",
+              "cleanup": "pass",
+              "retention": "pass",
+              "image-review": "pass"
+            },
+            "journey": "notes-public-persistence",
+            "actualActions": [
+              "open",
+              "save-through-ui",
+              "reload"
+            ],
+            "receiptSha256": "40e866cdba2cdb975b673c8b5ef5edf12e85e15b19e1a65ac8ce43c8957bb93d"
+          }
+        ],
+        "native_discovery": "OMP skill URI resolved through the Claude project link; Codex repo catalogue separately confirmed by skills/list.",
+        "independent_process_audit": "Blocked by ps EPERM; helper cleanup checks passed, no independent process census claimed",
+        "scope": "Fresh native lifecycle replay; image inspection/attestation is accounted for separately, not inferred from near-simultaneous gate timestamps.",
+        "historical_image_review": {
+          "archive_path": "web-creator-current.2XqDTh/replay-evidence/codex-current-01/image-review.json",
+          "sha256": "56f9acb58c87d4eeb185825f4b2f3cde636d5f02d92ecf00ac0029ab0e2ff023",
+          "native_excerpt": {
+            "state": "pass",
+            "observation": "Caller attests that they opened the saved image and inspected the exact title against native actions and persisted data",
+            "screenshotSha256": "feca6822c4ba29ad7453d09ae844c9656e08112c2bdbc5c0ac8c7c0b8918ee4e",
+            "observedAt": "2026-10-27T14:04:37.638Z"
+          }
+        },
+        "actor_evidence": {
+          "method": "Selected actual completed command events from one fresh native Codex JSONL stream; no global context, memory output or unrelated commands included.",
+          "source_trace_sha256": "13312be22216b940460df163bd4ecd3a67117e115afb393fa1259fb4242f126a",
+          "thread_id": "01a17dac-884c-7b62-b8c7-60c60a8288dc",
+          "invocation": {
+            "archive_path": "codex-cold-web-current.jsonl.exit.json",
+            "sha256": "16e2b98f454604438d5813d4d8cf8c8197d2838dff09c5a843f0cd45fe965dcf",
+            "native_excerpt": {
+              "kind": "codex",
+              "binary": "codex",
+              "args": [
+                "exec",
+                "--model",
+                "gpt-6-astra",
+                "--config",
+                "model_reasoning_effort=\"high\"",
+                "--config",
+                "features.apps=false",
+                "--config",
+                "features.plugins=false",
+                "--config",
+                "features.skill_search=false",
+                "--config",
+                "sandbox_workspace_write.network_access=true",
+                "--sandbox",
+                "workspace-write",
+                "--skip-git-repo-check",
+                "--json",
+                "-"
+              ],
+              "cwd": "<owned-fixture>/web-creator-current.2XqDTh",
+              "code": 0,
+              "signal": null
+            }
+          },
+          "commands": [
+            {
+              "id": "item_12",
+              "command": "/bin/zsh -c 'rtk proxy node .agents/skills/verify-notes/verify.mjs run <owned-fixture>/web-creator-current.2XqDTh/replay-evidence/codex-current-01'",
+              "status": "completed",
+              "exit_code": 0
+            },
+            {
+              "id": "item_13",
+              "command": "/bin/zsh -c 'rtk proxy node .agents/skills/verify-notes/verify.mjs check <owned-fixture>/web-creator-current.2XqDTh/replay-evidence/codex-current-01'",
+              "status": "failed",
+              "exit_code": 1
+            },
+            {
+              "id": "item_16",
+              "command": "/bin/zsh -c 'rtk proxy node .agents/skills/verify-notes/verify.mjs review <owned-fixture>/web-creator-current.2XqDTh/replay-evidence/codex-current-01'",
+              "status": "completed",
+              "exit_code": 0
+            },
+            {
+              "id": "item_17",
+              "command": "/bin/zsh -c 'rtk proxy node .agents/skills/verify-notes/verify.mjs check <owned-fixture>/web-creator-current.2XqDTh/replay-evidence/codex-current-01'",
+              "status": "completed",
+              "exit_code": 0
+            },
+            {
+              "id": "item_18",
+              "command": "/bin/zsh -c 'rtk proxy node .agents/skills/verify-notes/verify.mjs doctor <owned-fixture>/web-creator-current.2XqDTh/replay-evidence/codex-current-01'",
+              "status": "failed",
+              "exit_code": 1
+            }
+          ],
+          "image_event_limit": "The native CLI JSONL stream exposes no image-view event. The replay report attests view_image; do not claim an independently observed Codex image-tool return.",
+          "retained_selected_extract": {
+            "kind": "Selected native commands, not a full trace",
+            "archive_path": "evidence-reconciliation/codex-web-actor-audit.json",
+            "sha256": "1542266a83619c00122ac4fc92c583c1d0ce633cc9917168b83294a592dc71da",
+            "bytes": 2823
+          },
+          "retained_redacted_command_timeline": {
+            "kind": "All completed native commands; global context output redacted; no image-tool event exposed",
+            "archive_path": "evidence-reconciliation/codex-web-session-redacted.json",
+            "sha256": "b0208b867268ae48d27fe9446a287b39fa3aca47088e7158e531ff2a52ecb695",
+            "bytes": 81558
+          },
+          "retained_redacted_request": {
+            "kind": "Native invocation request, with private prefixes redacted",
+            "archive_path": "evidence-reconciliation/codex-web-request-redacted.txt",
+            "sha256": "77dcdc48d7f387ffdc52e7cf6bd0bfdcdb50e090a83e73f6c9707d26e28453c1",
+            "bytes": 1772
+          },
+          "raw_trace_retention": "Original raw trace digest identifies its original bytes; raw global-context output is not claimed retained. The complete redacted command witness is retained and audited instead."
+        },
+        "parent_image_review": {
+          "host": "codex",
+          "archive_path": "web-creator-current.2XqDTh/replay-evidence/codex-current-01/native/persisted-note.png",
+          "sha256": "feca6822c4ba29ad7453d09ae844c9656e08112c2bdbc5c0ac8c7c0b8918ee4e",
+          "visible_title": "Persisted note f018a9f9-bb10-43c9-86e8-cfdf30908f17",
+          "actor": {
+            "kind": "parent OpenAI context using OMP image-capable read",
+            "session": "01a17c68-b8e8-72d9-8dee-45082a3e245b"
+          },
+          "observation": "Actually opened the PNG in this parent context. Scratch Notes, public title/Save controls, Notes loaded, and exactly one visible saved-title row match the retained synthetic disk record. No pixel or design acceptance claimed."
+        },
+        "parent_image_review_record": {
+          "kind": "Separate later actual parent image inspection",
+          "archive_path": "evidence-reconciliation/parent-web-image-review.json",
+          "sha256": "fe8a553272766e1b112cbc5dce242a667326a93ec0127776ca88dce6c88bb764",
+          "bytes": 1597
+        },
+        "post_cleanup_doctor": {
+          "item_id": "item_18",
+          "exit_code": 1,
+          "reason": "connect ECONNREFUSED 127.0.0.1:55334",
+          "classification": "[INFERENCE] Expected unavailable owned endpoint after successful cleanup; separate from earlier doctor gate and unrelated to independent ps EPERM"
+        }
+      }
+    ]
+  },
+  "ios_copy_maintenance": {
+    "scope": "Full copied Claude projection refreshed mechanically from the canonical four-file bundle under last-generated ownership; stale, missing-resource and extra-file controls block before Xcode. No product or shared test edits. This earlier fixture proves maintenance and replay, not current-creator authoring. The separately named current_creator_ios fixture now supplies the missing source-bound authoring proof; no earlier receipt was backfilled.",
+    "blocked_attempts": [
+      {
+        "run_id": "20261027T131610Z-7b8ff23a",
+        "control": "stale copied projection blocks default native operation",
+        "expected_safety_result": "blocked before Xcode/UI without overwriting user differences",
+        "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T131610Z-7b8ff23a/receipt.json",
+        "sha256": "4894408b06335038aadc52afde8838b2f646a7b619d6ae7d9b4daafd12bd1e83",
+        "native_excerpt": {
+          "operation": "native-case",
+          "outcome": "blocked",
+          "case_outcome": "not-run",
+          "reason": "Canonical/Claude resource parity failed; device not driven",
+          "xcodebuild_exit": null
+        }
+      },
+      {
+        "run_id": "20261027T131645Z-57bda615",
+        "control": "missing copied resource blocks default native operation",
+        "expected_safety_result": "blocked before Xcode/UI without overwriting user differences",
+        "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T131645Z-57bda615/receipt.json",
+        "sha256": "7cc75d6b373e4bb2dd02795e4471df4cd55daaca3b93dd4e0f24c79b629d85f0",
+        "native_excerpt": {
+          "operation": "native-case",
+          "outcome": "blocked",
+          "case_outcome": "not-run",
+          "reason": "Canonical/Claude resource parity failed; device not driven",
+          "xcodebuild_exit": null
+        }
+      },
+      {
+        "run_id": "20261027T131645Z-4e714759",
+        "control": "missing copied resource prevents overwriting during refresh",
+        "expected_safety_result": "blocked before Xcode/UI without overwriting user differences",
+        "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T131645Z-4e714759/receipt.json",
+        "sha256": "a42b2863893d216cf07ae1a5d51e1a463c9a2e2d305765d26109658c459a1c1a",
+        "native_excerpt": {
+          "operation": "refresh-projection",
+          "outcome": "blocked",
+          "case_outcome": "not-run",
+          "reason": "Copy differs from last-generated hashes; preserve edits, missing resources and extra files",
+          "xcodebuild_exit": null
+        }
+      },
+      {
+        "run_id": "20261027T131646Z-ea2bd59e",
+        "control": "extra copied resource prevents overwriting during refresh",
+        "expected_safety_result": "blocked before Xcode/UI without overwriting user differences",
+        "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T131646Z-ea2bd59e/receipt.json",
+        "sha256": "42ca072a7013e326f8d0c40dc9a5fd095ee2e0091f62fadc64c5f6b24108922f",
+        "native_excerpt": {
+          "operation": "refresh-projection",
+          "outcome": "blocked",
+          "case_outcome": "not-run",
+          "reason": "Copy differs from last-generated hashes; preserve edits, missing resources and extra files",
+          "xcodebuild_exit": null
+        }
+      }
+    ],
+    "passed_native_runs": [
+      {
+        "host": "maintainer",
+        "run_id": "20261027T131656Z-db93c232",
+        "receipt": {
+          "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T131656Z-db93c232/receipt.json",
+          "sha256": "ad490daaa57e62d88dd8d211a8e0e5eee387c9a745b9a232db0ece1cd8a5f64c",
+          "native_excerpt": {
+            "operation": "native-case",
+            "outcome": "pass",
+            "case_outcome": "pass",
+            "mandatory_gates": [
+              "complete generated resource parity and last-generated ownership",
+              "exclusive parent lease",
+              "pinned toolchain and destination",
+              "current input/build/installed identity",
+              "exactly one selected case passed; zero failures/skips/retries",
+              "two retained diagnostic screenshots",
+              "raw exit and log; native summary and details",
+              "serial ownership release and evidence retention"
+            ],
+            "cleanup": "Owned lock released after child completion. Attempt evidence, any interrupted copy stage, DerivedData, app/store and simulator retained for parent.",
+            "driver_release": "released after direct child completion",
+            "retention": "Read and SHA-256 hashed retained evidence after driver release; see retention.json",
+            "visual_context": "Device viewport; portrait app; inherited locale/timezone/appearance recorded read-only. Not a pixel baseline. No clock/randomness override. No authentication or permission prompt required."
+          }
+        },
+        "summary": {
+          "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T131656Z-db93c232/summary.json",
+          "sha256": "7ab5c95c60fcbebeb0a334b1037d4ef1c579ceaa40b6c35ecf5740497a9725a9",
+          "native_excerpt": {
+            "result": "Passed",
+            "totalTestCount": 1,
+            "passedTests": 1,
+            "failedTests": 0,
+            "skippedTests": 0,
+            "expectedFailures": 0,
+            "testFailures": []
+          }
+        }
+      },
+      {
+        "host": "codex",
+        "run_id": "20261027T134913Z-43176edf",
+        "receipt": {
+          "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T134913Z-43176edf/receipt.json",
+          "sha256": "3fc87ca6c882c8ed9b939818cbf13fccbf06e0c2e269911201141f18eae2d32a",
+          "native_excerpt": {
+            "operation": "native-case",
+            "outcome": "pass",
+            "case_outcome": "pass",
+            "mandatory_gates": [
+              "complete generated resource parity and last-generated ownership",
+              "exclusive parent lease",
+              "pinned toolchain and destination",
+              "current input/build/installed identity",
+              "exactly one selected case passed; zero failures/skips/retries",
+              "two retained diagnostic screenshots",
+              "raw exit and log; native summary and details",
+              "serial ownership release and evidence retention"
+            ],
+            "cleanup": "Owned lock released after child completion. Attempt evidence, any interrupted copy stage, DerivedData, app/store and simulator retained for parent.",
+            "driver_release": "released after direct child completion",
+            "retention": "Read and SHA-256 hashed retained evidence after driver release; see retention.json",
+            "visual_context": "Device viewport; portrait app; inherited locale/timezone/appearance recorded read-only. Not a pixel baseline. No clock/randomness override. No authentication or permission prompt required."
+          }
+        },
+        "summary": {
+          "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T134913Z-43176edf/summary.json",
+          "sha256": "f9ef3dcd64205392e395b9d4a9f60dc525cf575057822442399f874ba3a6187f",
+          "native_excerpt": {
+            "result": "Passed",
+            "totalTestCount": 1,
+            "passedTests": 1,
+            "failedTests": 0,
+            "skippedTests": 0,
+            "expectedFailures": 0,
+            "testFailures": []
+          }
+        }
+      },
+      {
+        "host": "omp",
+        "run_id": "20261027T140411Z-4f8f4942",
+        "receipt": {
+          "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T140411Z-4f8f4942/receipt.json",
+          "sha256": "3ffb08a6ece4bbb4c42ad95f3ad1f0c47cbc920ce2ed06d0c4706f3759ce30a2",
+          "native_excerpt": {
+            "operation": "native-case",
+            "outcome": "pass",
+            "case_outcome": "pass",
+            "mandatory_gates": [
+              "complete generated resource parity and last-generated ownership",
+              "exclusive parent lease",
+              "pinned toolchain and destination",
+              "current input/build/installed identity",
+              "exactly one selected case passed; zero failures/skips/retries",
+              "two retained diagnostic screenshots",
+              "raw exit and log; native summary and details",
+              "serial ownership release and evidence retention"
+            ],
+            "cleanup": "Owned lock released after child completion. Attempt evidence, any interrupted copy stage, DerivedData, app/store and simulator retained for parent.",
+            "driver_release": "released after direct child completion",
+            "retention": "Read and SHA-256 hashed retained evidence after driver release; see retention.json",
+            "visual_context": "Device viewport; portrait app; inherited locale/timezone/appearance recorded read-only. Not a pixel baseline. No clock/randomness override. No authentication or permission prompt required."
+          }
+        },
+        "summary": {
+          "archive_path": "ios/verification-evidence/verify-ios-notes/20261027T140411Z-4f8f4942/summary.json",
+          "sha256": "f301cc9731ec60cb92c3e4ba1165e0216fc2857e081d7ab0d5b38d2d14b2e4c2",
+          "native_excerpt": {
+            "result": "Passed",
+            "totalTestCount": 1,
+            "passedTests": 1,
+            "failedTests": 0,
+            "skippedTests": 0,
+            "expectedFailures": 0,
+            "testFailures": []
+          }
+        }
+      }
+    ],
+    "earlier_destination_block": {
+      "run_id": "20261027T132422Z-f68a4e3c",
+      "status": "blocked-before-UI",
+      "cause": "unknown; later retry authorised only after a new Codex native readiness/pass observation"
+    },
+    "limits": [
+      "Optional timezone probe unavailable; no pixel baseline claimed",
+      "OMP skill URI resolved through the Claude copy; do not claim OMP chose .agents",
+      "No physical-device or iOS cancellation proof"
+    ]
+  },
+  "browser_platform": {
+    "inventory": {
+      "archive_path": "browser-platform/evidence-platform-proof-01/inventory-reconciliation.json",
+      "sha256": "48897d1ead95b018ee6c23a5113dd85ba3cdf4090bd56e4f909afa213aa2dec5",
+      "native_excerpt": {
+        "requiredCaseCount": 6,
+        "nativeStats": {
+          "startTime": "2026-10-27T10:06:09.484Z",
+          "duration": 14726.508,
+          "expected": 6,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "complete": true,
+        "comparisonClaim": "Exact-pixel comparison required"
+      }
+    },
+    "scope": "Six real Playwright cases: public login and one-use callback, HttpOnly cookie and reload, isolation, negative login/redirect guards, popup, exact CSV download and supported toHaveScreenshot comparison. Synthetic same-site cross-origin HTTP; Secure=false. No TLS/live OAuth/IdP claim.",
+    "baseline_sha256": "a76ca479528874abb5fddb91a89a13cd7c5727398b50f842820cb3ae480da7dd",
+    "baseline_authority": "OpenAI host as owner of disposable synthetic fixture; inspected baseline, not human/end-user approval",
+    "limits": [
+      "Cypress and other browser runners not exercised",
+      "No published auth state, trace or video"
+    ]
+  },
+  "ios_permissions_and_visual": {
+    "runs": [
+      {
+        "phase": "before",
+        "run_id": "20261027T133354Z-c6ff7988",
+        "receipt": {
+          "archive_path": "ios-platform/verification-evidence/20261027T133354Z-c6ff7988/receipt.json",
+          "sha256": "5979fa0f10268e2ad1b37e715e1f0a7df7205dd00e9465b9cb58b986f832b2d2",
+          "native_excerpt": {
+            "mode": "permissions",
+            "outcome": "pass",
+            "case_outcome": "pass",
+            "expected_count": 2,
+            "actual_native_cases": [
+              {
+                "nodeIdentifier": "PhotosPermissionTests/testUndeterminedToAuthorized()",
+                "nodeIdentifierURL": "test://com.apple.xcode/PhotosPermissionFixture/PhotosPermissionFixtureUITests/PhotosPermissionTests/testUndeterminedToAuthorized",
+                "result": "Passed"
+              },
+              {
+                "nodeIdentifier": "PhotosPermissionTests/testUndeterminedToDeniedPersistsWithoutSecondPrompt()",
+                "nodeIdentifierURL": "test://com.apple.xcode/PhotosPermissionFixture/PhotosPermissionFixtureUITests/PhotosPermissionTests/testUndeterminedToDeniedPersistsWithoutSecondPrompt",
+                "result": "Passed"
+              }
+            ],
+            "expected_native_cases": [
+              "PhotosPermissionTests/testUndeterminedToAuthorized()",
+              "PhotosPermissionTests/testUndeterminedToDeniedPersistsWithoutSecondPrompt()"
+            ],
+            "xcodebuild_exit": 0,
+            "driver_release": "released after direct child completion",
+            "prompt_contract": {
+              "lease": "parent-exclusive-serial",
+              "mode": "permissions",
+              "alert_title": "Allow “Permission Fixture” to access your photo library?",
+              "allow_action": "Allow Full Access",
+              "deny_action": "Don’t Allow"
+            },
+            "inputs_before": {
+              "run.py": "040a8cb791ad7ed052f190101cb53a8f768a1591abc640b7d073162f4493ae0d",
+              "PhotosPermissionFixture/PhotosPermissionFixtureApp.swift": "3101dd19808991a508a87f0927dc02769c123b9c369608daca4ece9cffa69b22",
+              "PhotosPermissionFixtureUITests/PhotosPermissionTests.swift": "c5d123d78145b28ee3bc3096f65692de80b6180302683b0566d8c5bc6af868f7",
+              "PhotosPermissionFixtureUITests/Info.plist": "e16f7f1151170849c615c02f730f855dccd598a8b254e9db9561d2c5962bbc17",
+              "PhotosPermissionFixture.xcodeproj/project.pbxproj": "cda5a9e75addc5829ec1735f0295a25f2acbfbb34f777da5a37c12204f35bb2c",
+              "PhotosPermissionFixture.xcodeproj/xcshareddata/xcschemes/PhotosPermissionFixture.xcscheme": "2cd1bcfc8419ed0822f8d2be5e305b25256b0c79ef5f07491497daaab80540de"
+            },
+            "inputs_after": {
+              "run.py": "040a8cb791ad7ed052f190101cb53a8f768a1591abc640b7d073162f4493ae0d",
+              "PhotosPermissionFixture/PhotosPermissionFixtureApp.swift": "3101dd19808991a508a87f0927dc02769c123b9c369608daca4ece9cffa69b22",
+              "PhotosPermissionFixtureUITests/PhotosPermissionTests.swift": "c5d123d78145b28ee3bc3096f65692de80b6180302683b0566d8c5bc6af868f7",
+              "PhotosPermissionFixtureUITests/Info.plist": "e16f7f1151170849c615c02f730f855dccd598a8b254e9db9561d2c5962bbc17",
+              "PhotosPermissionFixture.xcodeproj/project.pbxproj": "cda5a9e75addc5829ec1735f0295a25f2acbfbb34f777da5a37c12204f35bb2c",
+              "PhotosPermissionFixture.xcodeproj/xcshareddata/xcschemes/PhotosPermissionFixture.xcscheme": "2cd1bcfc8419ed0822f8d2be5e305b25256b0c79ef5f07491497daaab80540de"
+            }
+          }
+        },
+        "summary": {
+          "archive_path": "ios-platform/verification-evidence/20261027T133354Z-c6ff7988/summary.json",
+          "sha256": "81d5f1c0d4b278003d36922d101f113ffdefc5834ab15727d66d334d45416fb7",
+          "native_excerpt": {
+            "result": "Passed",
+            "totalTestCount": 2,
+            "passedTests": 2,
+            "failedTests": 0,
+            "skippedTests": 0,
+            "expectedFailures": 0
+          }
+        }
+      },
+      {
+        "phase": "after",
+        "run_id": "20261027T133545Z-8668a213",
+        "receipt": {
+          "archive_path": "ios-platform/verification-evidence/20261027T133545Z-8668a213/receipt.json",
+          "sha256": "d0eee86ffe034b2dbcedf052c3289a1325eab3e2b38639ab2b02e94d1975018b",
+          "native_excerpt": {
+            "mode": "permissions",
+            "outcome": "pass",
+            "case_outcome": "pass",
+            "expected_count": 2,
+            "actual_native_cases": [
+              {
+                "nodeIdentifier": "PhotosPermissionTests/testUndeterminedToAuthorized()",
+                "nodeIdentifierURL": "test://com.apple.xcode/PhotosPermissionFixture/PhotosPermissionFixtureUITests/PhotosPermissionTests/testUndeterminedToAuthorized",
+                "result": "Passed"
+              },
+              {
+                "nodeIdentifier": "PhotosPermissionTests/testUndeterminedToDeniedPersistsWithoutSecondPrompt()",
+                "nodeIdentifierURL": "test://com.apple.xcode/PhotosPermissionFixture/PhotosPermissionFixtureUITests/PhotosPermissionTests/testUndeterminedToDeniedPersistsWithoutSecondPrompt",
+                "result": "Passed"
+              }
+            ],
+            "expected_native_cases": [
+              "PhotosPermissionTests/testUndeterminedToAuthorized()",
+              "PhotosPermissionTests/testUndeterminedToDeniedPersistsWithoutSecondPrompt()"
+            ],
+            "xcodebuild_exit": 0,
+            "driver_release": "released after direct child completion",
+            "prompt_contract": {
+              "lease": "parent-exclusive-serial",
+              "mode": "permissions",
+              "alert_title": "Allow “Permission Fixture” to access your photo library?",
+              "allow_action": "Allow Full Access",
+              "deny_action": "Don’t Allow"
+            },
+            "inputs_before": {
+              "run.py": "040a8cb791ad7ed052f190101cb53a8f768a1591abc640b7d073162f4493ae0d",
+              "PhotosPermissionFixture/PhotosPermissionFixtureApp.swift": "b44f1ced0acc0a957b8a2c1abaf46cb44aae1679d7f1ba1475e855450cb9e486",
+              "PhotosPermissionFixtureUITests/PhotosPermissionTests.swift": "c5d123d78145b28ee3bc3096f65692de80b6180302683b0566d8c5bc6af868f7",
+              "PhotosPermissionFixtureUITests/Info.plist": "e16f7f1151170849c615c02f730f855dccd598a8b254e9db9561d2c5962bbc17",
+              "PhotosPermissionFixture.xcodeproj/project.pbxproj": "cda5a9e75addc5829ec1735f0295a25f2acbfbb34f777da5a37c12204f35bb2c",
+              "PhotosPermissionFixture.xcodeproj/xcshareddata/xcschemes/PhotosPermissionFixture.xcscheme": "2cd1bcfc8419ed0822f8d2be5e305b25256b0c79ef5f07491497daaab80540de"
+            },
+            "inputs_after": {
+              "run.py": "040a8cb791ad7ed052f190101cb53a8f768a1591abc640b7d073162f4493ae0d",
+              "PhotosPermissionFixture/PhotosPermissionFixtureApp.swift": "b44f1ced0acc0a957b8a2c1abaf46cb44aae1679d7f1ba1475e855450cb9e486",
+              "PhotosPermissionFixtureUITests/PhotosPermissionTests.swift": "c5d123d78145b28ee3bc3096f65692de80b6180302683b0566d8c5bc6af868f7",
+              "PhotosPermissionFixtureUITests/Info.plist": "e16f7f1151170849c615c02f730f855dccd598a8b254e9db9561d2c5962bbc17",
+              "PhotosPermissionFixture.xcodeproj/project.pbxproj": "cda5a9e75addc5829ec1735f0295a25f2acbfbb34f777da5a37c12204f35bb2c",
+              "PhotosPermissionFixture.xcodeproj/xcshareddata/xcschemes/PhotosPermissionFixture.xcscheme": "2cd1bcfc8419ed0822f8d2be5e305b25256b0c79ef5f07491497daaab80540de"
+            }
+          }
+        },
+        "summary": {
+          "archive_path": "ios-platform/verification-evidence/20261027T133545Z-8668a213/summary.json",
+          "sha256": "c05a313651cc6a2a81701cedad09bb2bd6495445b4c2fcbc8b0bc545e030a5d9",
+          "native_excerpt": {
+            "result": "Passed",
+            "totalTestCount": 2,
+            "passedTests": 2,
+            "failedTests": 0,
+            "skippedTests": 0,
+            "expectedFailures": 0
+          }
+        }
+      },
+      {
+        "phase": "zero-case-negative",
+        "run_id": "20261027T112620Z-f08b3409",
+        "receipt": {
+          "archive_path": "ios-platform/verification-evidence/20261027T112620Z-f08b3409/receipt.json",
+          "sha256": "512cedcfeb216ee0733264a03a2296539724f3a989656035a45d05fdfb95a772",
+          "native_excerpt": {
+            "mode": "missing",
+            "outcome": "fail",
+            "case_outcome": "fail",
+            "expected_count": 1,
+            "actual_native_cases": [],
+            "expected_native_cases": [
+              "PhotosPermissionTests/testMissingPermissionCase()"
+            ],
+            "xcodebuild_exit": 0,
+            "driver_release": "released after direct child completion",
+            "prompt_contract": {
+              "lease": "parent-exclusive-serial",
+              "mode": "missing",
+              "alert_title": "",
+              "allow_action": "",
+              "deny_action": ""
+            }
+          }
+        },
+        "summary": {
+          "archive_path": "ios-platform/verification-evidence/20261027T112620Z-f08b3409/summary.json",
+          "sha256": "9d1c6a05e57c0bbbe64694d2f684644a4421e7b29b31e6d137582a059ea0ca15",
+          "native_excerpt": {
+            "result": "unknown",
+            "totalTestCount": 0,
+            "passedTests": 0,
+            "failedTests": 0,
+            "skippedTests": 0,
+            "expectedFailures": 0
+          }
+        }
+      },
+      {
+        "phase": "failure-teardown",
+        "run_id": "20261027T110442Z-43790594",
+        "receipt": {
+          "archive_path": "ios-platform/verification-evidence/20261027T110442Z-43790594/receipt.json",
+          "sha256": "142d1d50180a6047e6f6acf40d334109fdb91f444296506d86b9d7d82a0f784b",
+          "native_excerpt": {
+            "mode": "observe",
+            "outcome": "fail",
+            "case_outcome": "fail",
+            "expected_count": 1,
+            "actual_native_cases": [
+              {
+                "nodeIdentifier": "PhotosPermissionTests/testObservePhotosPermissionPrompt()",
+                "nodeIdentifierURL": "test://com.apple.xcode/PhotosPermissionFixture/PhotosPermissionFixtureUITests/PhotosPermissionTests/testObservePhotosPermissionPrompt",
+                "result": "Failed"
+              }
+            ],
+            "expected_native_cases": [
+              "PhotosPermissionTests/testObservePhotosPermissionPrompt()"
+            ],
+            "xcodebuild_exit": 65,
+            "driver_release": "released after direct child completion",
+            "prompt_contract": {
+              "lease": "parent-exclusive-serial",
+              "mode": "observe",
+              "alert_title": "",
+              "allow_action": "",
+              "deny_action": ""
+            }
+          }
+        },
+        "summary": {
+          "archive_path": "ios-platform/verification-evidence/20261027T110442Z-43790594/summary.json",
+          "sha256": "efe92858464c66698c220298bfe5049d7f94d7eeb2fc120eeb00aa73847fd60f",
+          "native_excerpt": {
+            "result": "Failed",
+            "totalTestCount": 1,
+            "passedTests": 0,
+            "failedTests": 1,
+            "skippedTests": 0,
+            "expectedFailures": 0
+          }
+        }
+      }
+    ],
+    "visual_feedback": {
+      "review_mode": "OpenAI host as owner of the disposable fixture; not human or end-user sign-off",
+      "authorised_change": "Increase VStack row spacing from 24 to 36 SwiftUI points only; retain outer padding 24, strings, state, permission semantics and tests.",
+      "inspected_before": [
+        "../verification-evidence/20261027T133354Z-c6ff7988/attachments/47533EB7-00BC-45F2-9816-21544A3F3077.png",
+        "../verification-evidence/20261027T133354Z-c6ff7988/attachments/5FB8E952-5BE7-418B-8C41-B317F7D02A17.png"
+      ],
+      "inspected_after": [
+        "../verification-evidence/20261027T133545Z-8668a213/attachments/B9DAA33F-1D56-429E-A0B5-614559640234.png",
+        "../verification-evidence/20261027T133545Z-8668a213/attachments/FE1EA1AA-2519-4ECF-A1C5-2B5BDFCB6CFB.png"
+      ],
+      "observed": "Opened all four actual PNGs. In the paired authorised state, authorized/1 remains visible. In the paired denial-after-relaunch state, denied/0 and the complete explanation remain visible. Larger vertical gaps are visible after the change. Text and controls remain complete, without visible clipping or overlap.",
+      "fixture_owner_disposition": "The bounded comparison matches the supplied spacing goal. No further fixture change is requested.",
+      "limits": "This is not a pixel-diff, full accessibility, Dynamic Type, dark-appearance, other-device, hardware, photo-asset access or whole-product verdict. Rounded hierarchy measurements in the native report are separate corroboration, not measurements derived from this image review."
+    },
+    "images": [
+      {
+        "phase": "before",
+        "archive_path": "ios-platform/verification-evidence/20261027T133354Z-c6ff7988/attachments/47533EB7-00BC-45F2-9816-21544A3F3077.png",
+        "sha256": "d918226a5be15edcf0e74e0ca7fc1d1f27a04dba04ff607f705fe6d6df85052f",
+        "bytes": 108314
+      },
+      {
+        "phase": "before",
+        "archive_path": "ios-platform/verification-evidence/20261027T133354Z-c6ff7988/attachments/5FB8E952-5BE7-418B-8C41-B317F7D02A17.png",
+        "sha256": "89680aadcbf14942db759919613c597e1481eb63ab1e44e1ca248eba452fbc94",
+        "bytes": 123657
+      },
+      {
+        "phase": "after",
+        "archive_path": "ios-platform/verification-evidence/20261027T133545Z-8668a213/attachments/B9DAA33F-1D56-429E-A0B5-614559640234.png",
+        "sha256": "9444b05a6f16ccb86d27bdaf50d9ecb6356599356512436ebc77f1db2bd33d90",
+        "bytes": 108960
+      },
+      {
+        "phase": "after",
+        "archive_path": "ios-platform/verification-evidence/20261027T133545Z-8668a213/attachments/FE1EA1AA-2519-4ECF-A1C5-2B5BDFCB6CFB.png",
+        "sha256": "943ffa9098060c09c18cac8435f0efdab7def17b3110ce3bb1ed9bcbedd01f74",
+        "bytes": 124444
+      }
+    ],
+    "source_change": "Only VStack spacing 24 -> 36 SwiftUI points; outer padding 24, strings, state and tests unchanged.",
+    "source_hashes": {
+      "before": "3101dd19808991a508a87f0927dc02769c123b9c369608daca4ece9cffa69b22",
+      "after": "b44f1ced0acc0a957b8a2c1abaf46cb44aae1679d7f1ba1475e855450cb9e486",
+      "unchanged_test": "c5d123d78145b28ee3bc3096f65692de80b6180302683b0566d8c5bc6af868f7"
+    },
+    "limits": [
+      "Real simulator Photos readWrite authorisation only; no photo asset read/write",
+      "Final app-scoped privacy reset invoked, not independently queried",
+      "Inherited Dynamic Type, clock differences, no pixel or accessibility verdict",
+      "Zero-test negative intentionally failed despite xcodebuild exit 0; failure-teardown case intentionally failed and retained evidence"
+    ],
+    "teacher": {
+      "binding_basis": "Current visual-feedback skill and both references were supplied to the visual workflow and stayed unchanged through this review. Digests are reconciled after the run, not claimed as an invocation-start measurement.",
+      "files": [
+        {
+          "path": "src/core/skills/visual-feedback/SKILL.md",
+          "sha256": "bda6de7175eb175f9c0598997824ec3b1f4998c40b26ea9b876b685f15b24e8e"
+        },
+        {
+          "path": "src/core/skills/visual-feedback/references/ios-capture.md",
+          "sha256": "82f8a9548a5c33e0402b9eb46272f914f9e5e2814c119a7b8f1710f530632ad4"
+        },
+        {
+          "path": "src/core/skills/visual-feedback/references/web-capture.md",
+          "sha256": "aba3d33fc2bf575913bd2a7deb29e667a9a822e7c98b63ae3c2b1614cd56a51d"
+        }
+      ]
+    }
+  },
+  "web_maintenance_cancellation": {
+    "scope": "Both probes signalled the owner after the browser driver had closed, not during active browser work. The probe assertion passes do not make cancelled native attempts pass.",
+    "normal_run": "0020cef9-d4b8-40e2-bfa2-1eb4c674773b",
+    "sigint": {
+      "archive_path": "web/maintenance-lifecycle-evidence/probe-SIGINT.json",
+      "sha256": "7322f50441538dd5e581b2de9e1993ca8e6a17a8d0aaccbbb2cbff564a66d085",
+      "native_excerpt": {
+        "signal": "SIGINT",
+        "exit": {
+          "code": 130,
+          "signal": null
+        },
+        "result": "pass",
+        "cleanup": {
+          "driver": {
+            "pid": 46259,
+            "started": true,
+            "escalated": false,
+            "signals": [],
+            "stopped": true,
+            "exit": 0,
+            "signal": null
+          },
+          "server": {
+            "pid": 46244,
+            "started": true,
+            "escalated": false,
+            "signals": [
+              {
+                "signal": "SIGTERM",
+                "sent": true
+              }
+            ],
+            "stopped": true,
+            "exit": 0,
+            "signal": null
+          },
+          "identityRecheck": {
+            "state": "pass",
+            "observed": {
+              "runId": "aabed6a4-4ab0-4c74-b757-4a15a2d36780",
+              "pid": 46244,
+              "dataFile": "<owned-fixture>/web/notes-ef6ff7fb-93ca-4fe8-bd42-b19e43623e63.json"
+            }
+          },
+          "serverExit": 0,
+          "signal": null,
+          "stopped": true,
+          "success": true,
+          "browserTermination": "Driver closed; normal smoke finally awaits browser.close. Active-browser cancellation is not independently observed."
+        }
+      }
+    },
+    "sigterm_held_request": {
+      "archive_path": "web/maintenance-lifecycle-evidence/probe-SIGTERM-held-request.json",
+      "sha256": "695e8852148194124897f3815d529d3ebc490588886eb768e34581862a8005c6",
+      "native_excerpt": {
+        "signal": "SIGTERM",
+        "exit": {
+          "code": 143,
+          "signal": null
+        },
+        "result": "pass",
+        "cleanup": {
+          "driver": {
+            "pid": 51585,
+            "started": true,
+            "escalated": false,
+            "signals": [],
+            "stopped": true,
+            "exit": 0,
+            "signal": null
+          },
+          "server": {
+            "pid": 51576,
+            "started": true,
+            "escalated": true,
+            "signals": [
+              {
+                "signal": "SIGTERM",
+                "sent": true
+              },
+              {
+                "signal": "SIGKILL",
+                "sent": true
+              }
+            ],
+            "error": "server shutdown deadline exceeded",
+            "stopped": true,
+            "exit": null,
+            "signal": "SIGKILL"
+          },
+          "identityRecheck": {
+            "state": "pass",
+            "observed": {
+              "runId": "3d470712-411b-4dd7-8ce6-957a875a1534",
+              "pid": 51576,
+              "dataFile": "<owned-fixture>/web/notes-de39d914-7ea0-445e-b019-995517db3d3c.json"
+            }
+          },
+          "serverExit": null,
+          "signal": "SIGKILL",
+          "stopped": true,
+          "success": false,
+          "browserTermination": "Driver closed; normal smoke finally awaits browser.close. Active-browser cancellation is not independently observed."
+        }
+      }
+    },
+    "limits": [
+      "SIGINT runner 130, native/provenance fail, normal server shutdown and cleanup true",
+      "SIGTERM runner 143, native/provenance fail, owned server SIGKILL after bounded grace; cleanup false",
+      "Active-browser and iOS cancellation, timeout fault injection and SIGKILL of owner not exercised"
+    ]
+  },
+  "retention": {
+    "visibility": "Private local archive; public record contains selected synthetic native excerpts, hashes and honest limits only. No credentials, auth-state files, user data, raw global session streams, DerivedData or app binaries are published.",
+    "archive_status": "Safe original fixtures, native records and the first two review snapshots are retained outside disposable scratch; the private final delta archive retains subsequent native proof, fixes and review dialogue. Digests are recorded separately from the archive that contains them.",
+    "binary_identity_limit": "Native receipts retain measured source/build/installed hashes; excluded build binaries are not claimed to remain in the archive.",
+    "pre_review_archive": {
+      "sha256": "6eaf6ae3189495620e1e5d7e81de088f6b38555e2834e79e5cb1cda6b43ce11c",
+      "bytes": 228307389,
+      "mode": "0o600",
+      "verified_selected_files": 52,
+      "pass": true
+    },
+    "review_artifacts": [
+      {
+        "kind": "ROUND 2 INPUT snapshot actually supplied to reviewer; not the response",
+        "archive_path": "independent-complete-snapshot-round2-final.md",
+        "sha256": "022f9c7ce5b24fdbe1359243b519bd3957a976fc23a4d64f2ab22bc0f7e0b85e",
+        "bytes": 795262
+      },
+      {
+        "kind": "ROUND 2 OUTPUT reviewer response; not the snapshot",
+        "archive_path": "independent-snapshot-round2.txt",
+        "sha256": "c5640d9b24d6c2e4722d60e3bf08627c78d8df54ccb701329594782a7c6b8ac0",
+        "bytes": 10109
+      },
+      {
+        "kind": "ROUND 3 INPUT compact retry",
+        "archive_path": "independent-round3-compact-retry.md",
+        "sha256": "3d1aa6c6938aba10aa839d0366a24cb4baa0461da3626fdd950d81738772534e",
+        "bytes": 425809
+      },
+      {
+        "kind": "ROUND 3 OUTPUT reviewer response",
+        "archive_path": "independent-snapshot-round3-retry.txt",
+        "sha256": "3d3fb12dbf149407a1d7e4877db6b595abe78704b1a8e1a1a22031f038078a77",
+        "bytes": 8552
+      }
+    ],
+    "review_digest_explanation": "022f9c7c... hashes the round-2 input snapshot. c5640d9b... hashes the distinct round-2 reviewer output. Both named files are retained; the digests are intentionally different, not conflicting versions of the same file.",
+    "native_binding_manifest": {
+      "kind": "Listed redacted extracts, actor/parent records, returned image blob and round-2 input/output; original session/prompt and round-3 files are cited and audited separately",
+      "archive_path": "evidence-reconciliation/native-retention-bindings.json",
+      "sha256": "efaf7917c5169e44a0f539837d00f3e13ebff318d20ea87c50370eef06fe1fd7",
+      "bytes": 2446
+    },
+    "binding_archive_status": "Original synthetic OMP session and prompt are retained in proof-delta.tar.gz. binding-delta.tar.gz preserves the earlier binding state, including the now-superseded base64 interpretation. correction-delta.tar.gz retains corrected complete timelines, the exact native referenced WebP, current prompts/log/manifest and round-4 dialogue. Raw Codex global-context output is not claimed retained.",
+    "binding_delta": {
+      "name": "binding-delta.tar.gz",
+      "sha256": "e6be0069d5122b8301f375db09b03e832fa7d99f02ff586d44dd4662f15332e0",
+      "bytes": 194234,
+      "mode": "0o600",
+      "member_prefix": "",
+      "files": 17
+    },
+    "archive_integrity": {
+      "pass": true,
+      "verified_files": 96,
+      "scope": "Every currently cited archive_path plus model databases, distribution parity and canonical resources; exact original bytes across four private components; newer correction component supplies the corrected timeline and referenced WebP"
+    },
+    "correction_delta": {
+      "name": "correction-delta.tar.gz",
+      "sha256": "222fcae5fa5389ae1de424e4615b380e155b48f3af6facc4f1e480895a6d5003",
+      "bytes": 127666,
+      "mode": "0o600",
+      "member_prefix": "",
+      "files": 17
+    }
+  },
+  "current_creator_ios": {
+    "status": "passed-current-creator-authoring-and-fresh-native-OMP-replay",
+    "project_root": "ios-creator-current.oB4MSR",
+    "teacher": {
+      "src/core/skills/create-verification-skill/SKILL.md": "8998585988d4f2e2bf9d34f8ff3683a29de8015551e59329deb7ba62e32e5386",
+      "src/core/skills/create-verification-skill/references/bundle-contract.md": "3976d8c8ff92c32aeb835c9490dd3a1f424125ab8b9b403a8e673d21dd457e63"
+    },
+    "source_binding_recorded_before_authoring": "2026-10-27T16:06:25.090Z",
+    "protected_inputs": {
+      "VerificationFixture/VerificationFixtureApp.swift": "b105e8309e9dc61f57f5effdda204e76afe7af0e91d10c5ac3ebc42b9b1fd07a",
+      "VerificationFixtureUITests/NotePersistenceTests.swift": "c20e11f97b239fd92ef04c5614cf92a2bb2f17356a040c3987c4b04e98a34907",
+      "VerificationFixture.xcodeproj/project.pbxproj": "14a2a04d44ba69700959c5d5b0719744b62a3de75c06beac5d2a5b403f811d4c",
+      "VerificationFixture.xcodeproj/xcshareddata/xcschemes/VerificationFixture.xcscheme": "a71c020a6a160ed367c6a51224af962cd5a0c0b832a1c31fb60b840713cac624"
+    },
+    "protected_inputs_parent_rehashed": true,
+    "canonical_bundle": ".agents/skills/verify-current-creator-notes",
+    "discovery": {
+      "filesystem": "All four canonical and relative Claude-link resource hashes match; see filesystem-parity-current.json",
+      "native": "Fresh OMP runtime resolved skill://verify-current-creator-notes successfully; returned .claude discovery path. Exact loader scan origin is unobserved. No redundant .omp entry needed.",
+      "codex": "Filesystem convention present; native discovery/replay not exercised in this slice",
+      "claude": "Relative link parity only; expired native authentication not retried"
+    },
+    "expected_case": "VerificationFixtureUITests/NotePersistenceTests/testSavedNoteSurvivesRelaunch",
+    "expected_count": 1,
+    "attempts": [
+      {
+        "attempt": "2026-10-27T16-10-34-833Z-a3f1a90a-e9cc-4106-8e9e-7ee11e35b682",
+        "actor": {
+          "label": "IosCreatorProof-authoring",
+          "pid": 70178,
+          "parentPid": 91032,
+          "runId": "IosCreatorProof-authoring",
+          "at": "2026-10-27T16:10:47.503Z"
+        },
+        "counts": {
+          "actual": 0,
+          "passed": 0,
+          "failed": 0,
+          "skipped": 0
+        },
+        "test_exit": 64,
+        "execution_error": "Error: Native test exited nonzero",
+        "native_cases": [],
+        "screenshots": [],
+        "checks": []
+      },
+      {
+        "attempt": "2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009",
+        "actor": {
+          "label": "IosCreatorProof-authoring-corrected",
+          "pid": 71054,
+          "parentPid": 91032,
+          "runId": "IosCreatorProof-authoring-corrected",
+          "at": "2026-10-27T16:12:40.117Z"
+        },
+        "counts": {
+          "actual": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        "test_exit": 0,
+        "execution_error": null,
+        "native_cases": [
+          {
+            "nodeIdentifier": "NotePersistenceTests/testSavedNoteSurvivesRelaunch()",
+            "nodeIdentifierURL": "test://com.apple.xcode/VerificationFixture/VerificationFixtureUITests/NotePersistenceTests/testSavedNoteSurvivesRelaunch",
+            "result": "Passed"
+          }
+        ],
+        "screenshots": [
+          {
+            "name": "02-note-persisted-after-relaunch_0_6F02005E-D20B-4823-844E-7394CED46D5B.png",
+            "path": "<owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/attachments/C8DFB0DA-5BF3-442E-B0C0-49EB7693AC4C.png",
+            "sha256": "9ad22f6576cfbd21b1e56f3358d9b4046c74da5ee1b6b0ec1c6c507c4841103f",
+            "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/attachments/C8DFB0DA-5BF3-442E-B0C0-49EB7693AC4C.png"
+          },
+          {
+            "name": "01-note-saved_0_40632D93-C793-46C8-A6E8-EAD7BC7EE90C.png",
+            "path": "<owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/attachments/563789C4-ECDE-4AE9-8795-DD19B7142DB1.png",
+            "sha256": "9ad22f6576cfbd21b1e56f3358d9b4046c74da5ee1b6b0ec1c6c507c4841103f",
+            "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/attachments/563789C4-ECDE-4AE9-8795-DD19B7142DB1.png"
+          }
+        ],
+        "checks": [
+          {
+            "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/check-6b6f9f01-9fb9-4288-a8fd-0ebb38d20dc4.json",
+            "sha256": "02cc602cde9fad10a1f6cf153e31ea8e6b54141c12c197c8fba172098e71fcd5",
+            "native_excerpt": {
+              "actor": {
+                "label": "IosCreatorProof-pre-review-guard",
+                "host": "<owned-host>",
+                "pid": 72181,
+                "parentPid": 91032,
+                "runId": "IosCreatorProof-pre-review-guard",
+                "at": "2026-10-27T16:12:51.728Z"
+              },
+              "status": "fail",
+              "gates": {
+                "teacher-binding": "pass",
+                "protected-inputs": "pass",
+                "doctor-device-toolchain": "pass",
+                "fresh-source-build-installed-identity": "pass",
+                "native-selection-nonzero-pass": "pass",
+                "native-exit-log": "pass",
+                "saved-and-relaunched-attachments": "pass",
+                "owned-cleanup": "pass",
+                "evidence-retention": "pass",
+                "opened-image-review": "fail"
+              },
+              "reasons": {
+                "opened-image-review": "Error: ENOENT: no such file or directory, open '<owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/image-review.json'"
+              },
+              "unresolvedExecutionFailures": [],
+              "nativeSources": {
+                "cases": "tests.json:testNodes recursively, nodeType=Test Case, nodeIdentifier/result",
+                "counts": "summary.json:totalTestCount,passedTests,failedTests,skippedTests",
+                "exit": "test.exit.json:code",
+                "artifact": "build-identity.json and post-test-identity.json SHA256 tree",
+                "images": "attachments/manifest.json -> screenshots.json -> image-review.json"
+              },
+              "limits": "Synthetic simulator only, no physical/system boundary proof. Every raw attempt retained."
+            }
+          },
+          {
+            "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/check-90ae78d4-daf0-4353-bb2e-c5930dfc0882.json",
+            "sha256": "265523d352424cefc79bb58822c050f683c9280a7e13eafed931c39fec68c671",
+            "native_excerpt": {
+              "actor": {
+                "label": "IosCreatorProof-final-check",
+                "host": "<owned-host>",
+                "pid": 74151,
+                "parentPid": 91032,
+                "runId": "IosCreatorProof-final-check",
+                "at": "2026-10-27T16:13:07.619Z"
+              },
+              "status": "pass",
+              "gates": {
+                "teacher-binding": "pass",
+                "protected-inputs": "pass",
+                "doctor-device-toolchain": "pass",
+                "fresh-source-build-installed-identity": "pass",
+                "native-selection-nonzero-pass": "pass",
+                "native-exit-log": "pass",
+                "saved-and-relaunched-attachments": "pass",
+                "owned-cleanup": "pass",
+                "evidence-retention": "pass",
+                "opened-image-review": "pass"
+              },
+              "reasons": {},
+              "unresolvedExecutionFailures": [],
+              "nativeSources": {
+                "cases": "tests.json:testNodes recursively, nodeType=Test Case, nodeIdentifier/result",
+                "counts": "summary.json:totalTestCount,passedTests,failedTests,skippedTests",
+                "exit": "test.exit.json:code",
+                "artifact": "build-identity.json and post-test-identity.json SHA256 tree",
+                "images": "attachments/manifest.json -> screenshots.json -> image-review.json"
+              },
+              "limits": "Synthetic simulator only, no physical/system boundary proof. Every raw attempt retained."
+            }
+          }
+        ],
+        "native_summary": {
+          "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/summary.json",
+          "sha256": "e16e53ef6dfb92d418105a5d6e56a81b8e49aa8fb4a647b7d2e3adce73afef20",
+          "native_excerpt": {
+            "result": "Passed",
+            "totalTestCount": 1,
+            "passedTests": 1,
+            "failedTests": 0,
+            "skippedTests": 0,
+            "expectedFailures": 0
+          }
+        },
+        "build_identity": {
+          "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/build-identity.json",
+          "sha256": "fb3b345dbf7c1d66163ea616264c543173aa7b284f8052fbb4da3734e03dcd5e",
+          "native_excerpt": {
+            "appId": "com.mintuz.verificationfixture",
+            "configuration": "Debug",
+            "scheme": "VerificationFixture",
+            "freshDerivedData": true,
+            "built": {
+              "Info.plist": "cd8592fb7ef14e98f4e61c7930c97e2766d9ac90a8a4af0b9755ec8547831ae5",
+              "PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+              "VerificationFixture": "bbb4d1333deddad9b276890bd0339a7b8c6284abd1498eec435a3c9cee07a236",
+              "VerificationFixture.debug.dylib": "cd24c312cf54416b35c706360305524d4ce5acef9330fa4d84c4abd83387a1f8",
+              "__preview.dylib": "ff8ff4218842d83d74e1ddfaabb63d36e0eb5dbbaaf4f04ea5fd35a31cb24d09"
+            },
+            "installed": {
+              "Info.plist": "cd8592fb7ef14e98f4e61c7930c97e2766d9ac90a8a4af0b9755ec8547831ae5",
+              "PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+              "VerificationFixture": "bbb4d1333deddad9b276890bd0339a7b8c6284abd1498eec435a3c9cee07a236",
+              "VerificationFixture.debug.dylib": "cd24c312cf54416b35c706360305524d4ce5acef9330fa4d84c4abd83387a1f8",
+              "__preview.dylib": "ff8ff4218842d83d74e1ddfaabb63d36e0eb5dbbaaf4f04ea5fd35a31cb24d09"
+            },
+            "sourceBuildLink": "Fresh per-attempt DerivedData, build-for-testing exit/log, compile commands include protected source; built.xctestrun retained; explicitly installed exact built tree before selected test-without-building."
+          }
+        },
+        "post_test_identity": {
+          "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/post-test-identity.json",
+          "sha256": "e263d495d310d0f209ac43bfdc0ede9c5664c2f5c6861418c87638b502f2bf25",
+          "native_excerpt": {
+            "installed": {
+              "Info.plist": "cd8592fb7ef14e98f4e61c7930c97e2766d9ac90a8a4af0b9755ec8547831ae5",
+              "PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+              "VerificationFixture": "bbb4d1333deddad9b276890bd0339a7b8c6284abd1498eec435a3c9cee07a236",
+              "VerificationFixture.debug.dylib": "cd24c312cf54416b35c706360305524d4ce5acef9330fa4d84c4abd83387a1f8",
+              "__preview.dylib": "ff8ff4218842d83d74e1ddfaabb63d36e0eb5dbbaaf4f04ea5fd35a31cb24d09"
+            },
+            "matchesBuilt": true
+          }
+        }
+      },
+      {
+        "attempt": "2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c",
+        "actor": {
+          "label": "OMP-cold-replay-01a17e23-167e-7163-9fdd-75e0b4cabb98",
+          "pid": 80401,
+          "parentPid": 74489,
+          "runId": "01a17e23-167e-7163-9fdd-75e0b4cabb98",
+          "at": "2026-10-27T16:14:39.012Z"
+        },
+        "counts": {
+          "actual": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        "test_exit": 0,
+        "execution_error": null,
+        "native_cases": [
+          {
+            "nodeIdentifier": "NotePersistenceTests/testSavedNoteSurvivesRelaunch()",
+            "nodeIdentifierURL": "test://com.apple.xcode/VerificationFixture/VerificationFixtureUITests/NotePersistenceTests/testSavedNoteSurvivesRelaunch",
+            "result": "Passed"
+          }
+        ],
+        "screenshots": [
+          {
+            "name": "02-note-persisted-after-relaunch_0_4F31AD17-9947-4E2E-9E20-EB76FED197FC.png",
+            "path": "<owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/attachments/2A520A35-7FFF-4D1E-99E7-1B9A7CC0B379.png",
+            "sha256": "831bb18d7590683a688494f1bf8290ead69885c043700dcb087c61ba42f53668",
+            "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/attachments/2A520A35-7FFF-4D1E-99E7-1B9A7CC0B379.png"
+          },
+          {
+            "name": "01-note-saved_0_EEB7F691-D91F-4103-B07D-3C343B8FAB92.png",
+            "path": "<owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/attachments/892E6FEB-7660-4C90-8148-360EFFB93D02.png",
+            "sha256": "831bb18d7590683a688494f1bf8290ead69885c043700dcb087c61ba42f53668",
+            "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/attachments/892E6FEB-7660-4C90-8148-360EFFB93D02.png"
+          }
+        ],
+        "checks": [
+          {
+            "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/check-418d266f-6a0a-4e05-a564-c19882898798.json",
+            "sha256": "9de9fed3b661c628b716019fd226e53794b4905847ace81833be98e40c7344af",
+            "native_excerpt": {
+              "actor": {
+                "label": "OMP-cold-replay-01a17e23-167e-7163-9fdd-75e0b4cabb98",
+                "host": "<owned-host>",
+                "pid": 85934,
+                "parentPid": 74489,
+                "runId": "01a17e23-167e-7163-9fdd-75e0b4cabb98",
+                "at": "2026-10-27T16:15:07.403Z"
+              },
+              "status": "pass",
+              "gates": {
+                "teacher-binding": "pass",
+                "protected-inputs": "pass",
+                "doctor-device-toolchain": "pass",
+                "fresh-source-build-installed-identity": "pass",
+                "native-selection-nonzero-pass": "pass",
+                "native-exit-log": "pass",
+                "saved-and-relaunched-attachments": "pass",
+                "owned-cleanup": "pass",
+                "evidence-retention": "pass",
+                "opened-image-review": "pass"
+              },
+              "reasons": {},
+              "unresolvedExecutionFailures": [],
+              "nativeSources": {
+                "cases": "tests.json:testNodes recursively, nodeType=Test Case, nodeIdentifier/result",
+                "counts": "summary.json:totalTestCount,passedTests,failedTests,skippedTests",
+                "exit": "test.exit.json:code",
+                "artifact": "build-identity.json and post-test-identity.json SHA256 tree",
+                "images": "attachments/manifest.json -> screenshots.json -> image-review.json"
+              },
+              "limits": "Synthetic simulator only, no physical/system boundary proof. Every raw attempt retained."
+            }
+          }
+        ],
+        "native_summary": {
+          "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/summary.json",
+          "sha256": "d72749b8bc5d4d030dfd08f2f92a90cbe8701260088b9c17664f9f711c60aca2",
+          "native_excerpt": {
+            "result": "Passed",
+            "totalTestCount": 1,
+            "passedTests": 1,
+            "failedTests": 0,
+            "skippedTests": 0,
+            "expectedFailures": 0
+          }
+        },
+        "build_identity": {
+          "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/build-identity.json",
+          "sha256": "ebde5b8223ab921e9ecfdf67a860065d4d79121edceaf9ef95f9b42ecbb77999",
+          "native_excerpt": {
+            "appId": "com.mintuz.verificationfixture",
+            "configuration": "Debug",
+            "scheme": "VerificationFixture",
+            "freshDerivedData": true,
+            "built": {
+              "Info.plist": "cd8592fb7ef14e98f4e61c7930c97e2766d9ac90a8a4af0b9755ec8547831ae5",
+              "PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+              "VerificationFixture": "bbb4d1333deddad9b276890bd0339a7b8c6284abd1498eec435a3c9cee07a236",
+              "VerificationFixture.debug.dylib": "2d4f5b637c3c955a538108a72c77e46b63d7af7892a09a9206672e60051b5b24",
+              "__preview.dylib": "ff8ff4218842d83d74e1ddfaabb63d36e0eb5dbbaaf4f04ea5fd35a31cb24d09"
+            },
+            "installed": {
+              "Info.plist": "cd8592fb7ef14e98f4e61c7930c97e2766d9ac90a8a4af0b9755ec8547831ae5",
+              "PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+              "VerificationFixture": "bbb4d1333deddad9b276890bd0339a7b8c6284abd1498eec435a3c9cee07a236",
+              "VerificationFixture.debug.dylib": "2d4f5b637c3c955a538108a72c77e46b63d7af7892a09a9206672e60051b5b24",
+              "__preview.dylib": "ff8ff4218842d83d74e1ddfaabb63d36e0eb5dbbaaf4f04ea5fd35a31cb24d09"
+            },
+            "sourceBuildLink": "Fresh per-attempt DerivedData, build-for-testing exit/log, compile commands include protected source; built.xctestrun retained; explicitly installed exact built tree before selected test-without-building."
+          }
+        },
+        "post_test_identity": {
+          "archive_path": "ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/post-test-identity.json",
+          "sha256": "30de51c94929243419fbdd3d60eedad842d6ae47b86d3e784f69f0153ee2a03b",
+          "native_excerpt": {
+            "installed": {
+              "Info.plist": "cd8592fb7ef14e98f4e61c7930c97e2766d9ac90a8a4af0b9755ec8547831ae5",
+              "PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+              "VerificationFixture": "bbb4d1333deddad9b276890bd0339a7b8c6284abd1498eec435a3c9cee07a236",
+              "VerificationFixture.debug.dylib": "2d4f5b637c3c955a538108a72c77e46b63d7af7892a09a9206672e60051b5b24",
+              "__preview.dylib": "ff8ff4218842d83d74e1ddfaabb63d36e0eb5dbbaaf4f04ea5fd35a31cb24d09"
+            },
+            "matchesBuilt": true
+          }
+        }
+      }
+    ],
+    "native_actor": {
+      "session": {
+        "id": "01a17e23-167e-7163-9fdd-75e0b4cabb98",
+        "cwd": "<owned-fixture>/ios-creator-current.oB4MSR",
+        "timestamp": "2026-10-27T16:13:11.166Z",
+        "version": 3
+      },
+      "invocation_run_id": "native-omp-a2ad8f88-8e92-4d6f-9513-ce6467eeec07",
+      "actual_tools": [
+        {
+          "toolCallId": "call_7048349e34694d1fa7348c5459800072|fc_07dd8a01558262db016ae0cd99f6048191a94d37991416916b",
+          "toolName": "read",
+          "args": {
+            "path": "skill://verify-current-creator-notes"
+          },
+          "isError": false,
+          "returnedContentTypes": [
+            "text"
+          ],
+          "textExcerpt": "[Skill file: <owned-fixture>/ios-creator-current.oB4MSR/.claude/skills/verify-current-creator-notes/SKILL.md]\n1|---\n2|name: verify-current-creator-notes\n3|description: \"WHEN verifying the owned synthetic Fixture Notes Save and relaunch journey; NOT for arbitrary apps or whole-product verification; retains exact native case, identity and image review\"\n4|---\n5|\n6|# Verify current-creator Fixture Notes\n7|\n8|Canonical source: `.agents/skills/verify-current-creator-notes/`. The relative Claude discovery link points here. OMP should discover this `.agents/skills` entry natively; add no redundant native entry unless a loader actually requires one. Filesystem parity is not native discovery, nor execution. Teacher bytes and SHA256 binding precede authoring in `source-binding.json` and `teacher/`. This is one independently launched synthetic product, not a universal runner.\n9|\n10|## Scope and prerequisites\n11|\n12|Read `features/README.md`, `features/note-persistence.md`, `source-binding.json` and `obligations.json` at the project root. Accepted executable authority is the unchanged `VerificationFixtureUITests/NotePersistenceTests.swift` case. Inventory is exactly one "
+        },
+        {
+          "toolCallId": "call_3ed6317a99a549dead6fe9eaca15a353|fc_07dd8a01558262db016ae0cdc59f888191b988f1b7e9ac090b",
+          "toolName": "bash",
+          "args": {
+            "command": "PROOF_ACTOR_RUN_ID=01a17e23-167e-7163-9fdd-75e0b4cabb98 node .agents/skills/verify-current-creator-notes/proof.mjs run OMP-cold-replay-01a17e23-167e-7163-9fdd-75e0b4cabb98",
+            "timeout": 600,
+            "cwd": "<owned-fixture>/ios-creator-current.oB4MSR",
+            "pty": false,
+            "async": false
+          },
+          "isError": false,
+          "returnedContentTypes": [
+            "text"
+          ],
+          "textExcerpt": "<owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c\n\n\nWall time: 40.06 seconds"
+        },
+        {
+          "toolCallId": "call_36c584f4aa044bd08c1753adc1729a61|fc_07dd8a01558262db016ae0cdf716048191892f40b6e760618d",
+          "toolName": "read",
+          "args": {
+            "path": "<owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/attachments/892E6FEB-7660-4C90-8148-360EFFB93D02.png"
+          },
+          "isError": false,
+          "returnedContentTypes": [
+            "text",
+            "image"
+          ],
+          "textExcerpt": "Read image file [image/png] (displayed as image/webp)\n[Image: original 1206x2622, displayed at 721x1568. Multiply coordinates by 1.67 to map to original image.]"
+        },
+        {
+          "toolCallId": "call_7dec6587a2ea4e4fa75d9fce8368ec41|fc_07dd8a01558262db016ae0cdf9712081919555131cd72e931b",
+          "toolName": "read",
+          "args": {
+            "path": "<owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/attachments/2A520A35-7FFF-4D1E-99E7-1B9A7CC0B379.png"
+          },
+          "isError": false,
+          "returnedContentTypes": [
+            "text",
+            "image"
+          ],
+          "textExcerpt": "Read image file [image/png] (displayed as image/webp)\n[Image: original 1206x2622, displayed at 721x1568. Multiply coordinates by 1.67 to map to original image.]"
+        },
+        {
+          "toolCallId": "call_c1dc391d885a45a187a7b64e335377e3|fc_07dd8a01558262db016ae0ce00ff3481919787fb876901c09d",
+          "toolName": "bash",
+          "args": {
+            "command": "PROOF_ACTOR_RUN_ID=01a17e23-167e-7163-9fdd-75e0b4cabb98 node .agents/skills/verify-current-creator-notes/proof.mjs review <owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c OMP-cold-replay-01a17e23-167e-7163-9fdd-75e0b4cabb98 'I, native OMP session 01a17e23-167e-7163-9fdd-75e0b4cabb98, invocation native-omp-a2ad8f88-8e92-4d6f-9513-ce6467eeec07 on <owned-host>, opened both actual PNG paths in screenshots.json with the image-capable read tool in this session. Both images are 1206x2622 portrait captures. The saved image 892E6FEB-7660-4C90-8148-360EFFB93D02.png and relaunched image 2A520A35-7FFF-4D1E-99E7-1B9A7CC0B379.png each show Fixture Notes, an empty Note title field, a grey disabled Save note button and exactly one visible row reading A note that survives relaunch. Neither image has a keyboard, modal, obstruction, duplicate row, or visible secret/customer content. Their identical appearance and recorded SHA256 values corroborate the same visible state; the native test, not these images alone, establishes the Save/Home/terminate/relaunch sequence. This review is my own visual attestation, not the parent review.'",
+            "timeout": 30,
+            "cwd": "<owned-fixture>/ios-creator-current.oB4MSR",
+            "pty": false,
+            "async": false
+          },
+          "isError": false,
+          "returnedContentTypes": [
+            "text"
+          ],
+          "textExcerpt": "(no output)"
+        },
+        {
+          "toolCallId": "call_ed6a82596a3e428aa72920fae67bfe8d|fc_07dd8a01558262db016ae0ce09454481918ef6341dad536d70",
+          "toolName": "bash",
+          "args": {
+            "command": "PROOF_ACTOR_RUN_ID=01a17e23-167e-7163-9fdd-75e0b4cabb98 node .agents/skills/verify-current-creator-notes/proof.mjs check <owned-fixture>/ios-creator-current.oB4MSR/evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c OMP-cold-replay-01a17e23-167e-7163-9fdd-75e0b4cabb98",
+            "timeout": 120,
+            "cwd": "<owned-fixture>/ios-creator-current.oB4MSR",
+            "pty": false,
+            "async": false
+          },
+          "isError": false,
+          "returnedContentTypes": [
+            "text"
+          ],
+          "textExcerpt": "{\n  \"actor\": {\n    \"label\": \"OMP-cold-replay-01a17e23-167e-7163-9fdd-75e0b4cabb98\",\n    \"host\": \"<owned-host>\",\n    \"pid\": 85934,\n    \"parentPid\": 74489,\n    \"runId\": \"01a17e23-167e-7163-9fdd-75e0b4cabb98\",\n    \"at\": \"2026-10-27T16:15:07.403Z\"\n  },\n  \"status\": \"pass\",\n  \"gates\": {\n    \"teacher-binding\": \"pass\",\n    \"protected-inputs\": \"pass\",\n    \"doctor-device-toolchain\": \"pass\",\n    \"fresh-source-build-installed-identity\": \"pass\",\n    \"native-selection-nonzero-pass\": \"pass\",\n    \"native-exit-log\": \"pass\",\n    \"saved-and-relaunched-attachments\": \"pass\",\n    \"owned-cleanup\": \"pass\",\n    \"evidence-retention\": \"pass\",\n    \"opened-image-review\": \"pass\"\n  },\n  \"reasons\": {},\n  \"unresolvedExecutionFailures\": [],\n  \"nativeSources\": {\n    \"cases\": \"tests.json:testNodes recursively, nodeType=Test Case, nodeIdentifier/result\",\n    \"counts\": \"summary.json:totalTestCount,passedTests,failedTests,skippedTests\",\n    \"exit\": \"test.exit.json:code\",\n    \"artifact\": \"build-identity.json and post-test-identity.json SHA256 tree\",\n    \"images\": \"attachments/manifest.json -> screenshots.json -> image-review.json\"\n  },\n  \"limits\": \"Synthetic simulator only, no physical/system boundary proof. Every raw"
+        }
+      ],
+      "retained_provenance": {
+        "original_owned_session": {
+          "archive_path": "ios-creator-current.oB4MSR/native-sessions/2026-10-27T16-13-11-166Z_01a17e23-167e-7163-9fdd-75e0b4cabb98.jsonl",
+          "sha256": "1f11f33db870a225a3776680bec5acbf6d8d3f88e6bd52c29fddb41c16c7c4b9"
+        },
+        "complete_redacted_tool_timeline": {
+          "kind": "Complete tool-call timeline with native image references and separately verified retained WebP bytes",
+          "archive_path": "evidence-reconciliation/native-omp-session-redacted.json",
+          "sha256": "2389933f3ee651fc12904c8cca44e8aea9963eb690bfae9c9f795743e7f151dd",
+          "bytes": 124502
+        },
+        "redacted_invocation_request": {
+          "kind": "Exact original request with only private prefixes redacted",
+          "archive_path": "evidence-reconciliation/native-omp-request-redacted.txt",
+          "sha256": "5ddb48f397627d8dfa36cbe3291c45deffc8574523f6022055a291addeb7354f",
+          "bytes": 1605
+        },
+        "original_actor_extract": {
+          "kind": "Earlier selected actor evidence, privately retained",
+          "archive_path": "ios-creator-current.oB4MSR/native-actor-evidence.json",
+          "sha256": "73b1a8de4ddb78e5bf6f81f79311551969e64578de541e0a1215a3917caf4c94",
+          "bytes": 9833
+        },
+        "original_request": {
+          "archive_path": "ios-creator-current.oB4MSR/cold-replay-request.txt",
+          "sha256": "8a058457c0b4edc3c3dec4be3b1274256b0b5b9dab99563aab8797ba087bf117",
+          "present_in_session": true
+        }
+      },
+      "actual_tools_selection": {
+        "complete": false,
+        "rule": "The earlier six-call excerpt contains the discovery skill-URI read, proof.mjs run/review/check and two PNG reads. It excludes doctor and parity commands; these remain in the complete timeline and omitted-call list.",
+        "total_tool_calls": 36,
+        "included_tool_call_ids": [
+          "call_7048349e34694d1fa7348c5459800072|fc_07dd8a01558262db016ae0cd99f6048191a94d37991416916b",
+          "call_3ed6317a99a549dead6fe9eaca15a353|fc_07dd8a01558262db016ae0cdc59f888191b988f1b7e9ac090b",
+          "call_36c584f4aa044bd08c1753adc1729a61|fc_07dd8a01558262db016ae0cdf716048191892f40b6e760618d",
+          "call_7dec6587a2ea4e4fa75d9fce8368ec41|fc_07dd8a01558262db016ae0cdf9712081919555131cd72e931b",
+          "call_c1dc391d885a45a187a7b64e335377e3|fc_07dd8a01558262db016ae0ce00ff3481919787fb876901c09d",
+          "call_ed6a82596a3e428aa72920fae67bfe8d|fc_07dd8a01558262db016ae0ce09454481918ef6341dad536d70"
+        ],
+        "omitted_tool_calls": [
+          {
+            "tool_call_id": "call_ce970916b24a41bbad6c8f1e252d12ff|fc_07dd8a01558262db016ae0cd9c47648191a793706a24c54dea",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading loaded execution rules",
+              "path": "<user-home>/.agents/RTK.md:1-200"
+            },
+            "is_error": true,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_c3bc9c8b8ed24c28885e1dc6728ae6ec|fc_07dd8a01558262db016ae0cd9ff78c81919fc01479dd76d800",
+            "tool_name": "read",
+            "args": {
+              "i": "Discovering project resource layout",
+              "path": "<owned-fixture>/ios-creator-current.oB4MSR"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_3dbfd6349eed4364a8c1109e37480a41|fc_07dd8a01558262db016ae0cda678b8819187ab7ec5b6d409d6",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading saved feature scope",
+              "path": "features/README.md:1-200"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_d286f51d5cbb49a999c7378c6a543659|fc_07dd8a01558262db016ae0cda881048191b76eb173905c1371",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading saved journey contract",
+              "path": "features/note-persistence.md:1-240"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_892e9fd50e31460cbf7de33e2a134991|fc_07dd8a01558262db016ae0cda8810481919feac94ebdffd858",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading source binding identities",
+              "path": "source-binding.json:1-180"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_d90f28abd98642dc90ae1a05ef73caaf|fc_07dd8a01558262db016ae0cda881048191963506fe533d5ec3",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading mandatory verification obligations",
+              "path": "obligations.json:1-200"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_2de4031ac89341beb38dc9f24a5e9259|fc_07dd8a01558262db016ae0cda8810481918c7e45f2167a9ab0",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading native invocation identity",
+              "path": "cold-omp-invocation.json:1-180"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_636035356b984d17b6d4b855694ead60|fc_07dd8a01558262db016ae0cda881048191a4a242769e923f8b",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading native session header",
+              "path": "native-sessions/2026-10-27T16-13-11-166Z_01a17e23-167e-7163-9fdd-75e0b4cabb98.jsonl:1-3"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_46d5712446e04f4d806dcc5115be2dd2|fc_07dd8a01558262db016ae0cdaaaef8819196accda17dcca2eb",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading canonical recipe resources",
+              "path": ".agents/skills/verify-current-creator-notes"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_ade0ee104e1d42909885693d640c1796|fc_07dd8a01558262db016ae0cdacf35c8191aea11eb0b2d15375",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading authoritative native case",
+              "path": "VerificationFixtureUITests/NotePersistenceTests.swift:1-90"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_698f794489ab47349f9f9b6cea5de78a|fc_07dd8a01558262db016ae0cdacf35c81918f4a21d5dcfbdc1b",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading saved parity receipt",
+              "path": "discovery-parity-before-run.json:1-180"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_ef1cd7a0cbe84332b4f2bc86668cd81d|fc_07dd8a01558262db016ae0cdacf35c8191a5bb398a0001c382",
+            "tool_name": "bash",
+            "args": {
+              "i": "Recording native host identity",
+              "command": "hostname && printenv OMP_SESSION_ID OMP_RUN_ID",
+              "timeout": 30,
+              "cwd": "<owned-fixture>/ios-creator-current.oB4MSR",
+              "pty": false,
+              "async": false,
+              "name": null,
+              "ready": null
+            },
+            "is_error": true,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_5ade9e3273644cd09833e1aa73eefcb5|fc_07dd8a01558262db016ae0cdb54c3c8191b411a148a2524218",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading saved helper implementation",
+              "path": ".agents/skills/verify-current-creator-notes/proof.mjs:1-240"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_2eb85605c25347f7ad1f663dc58d2ca7|fc_07dd8a01558262db016ae0cdb749108191a58da5ba0e2aa1d5",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading complete lifecycle operations",
+              "path": ".agents/skills/verify-current-creator-notes/proof.mjs:26,31,65:raw"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_24c121dfd4254a3fbc774d95486f9ced|fc_07dd8a01558262db016ae0cdb98cf481918692dbe9f3c22723",
+            "tool_name": "bash",
+            "args": {
+              "i": "Checking saved resource parity",
+              "command": "readlink .claude/skills/verify-current-creator-notes && shasum -a 256 .agents/skills/verify-current-creator-notes/SKILL.md .claude/skills/verify-current-creator-notes/SKILL.md .agents/skills/verify-current-creator-notes/proof.mjs .claude/skills/verify-current-creator-notes/proof.mjs .agents/skills/verify-current-creator-notes/features/README.md .claude/skills/verify-current-creator-notes/features/README.md .agents/skills/verify-current-creator-notes/features/note-persistence.md .claude/skills/verify-current-creator-notes/features/note-persistence.md",
+              "timeout": 30,
+              "cwd": "<owned-fixture>/ios-creator-current.oB4MSR",
+              "pty": false,
+              "async": false,
+              "name": null,
+              "ready": null
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_5c7eb23160784b1097790e4fdc9c6ed7|fc_07dd8a01558262db016ae0cdbec3c08191aeb91c1ef8acd484",
+            "tool_name": "bash",
+            "args": {
+              "i": "Running saved read-only doctor",
+              "command": "PROOF_ACTOR_RUN_ID=01a17e23-167e-7163-9fdd-75e0b4cabb98 node .agents/skills/verify-current-creator-notes/proof.mjs doctor",
+              "timeout": 120,
+              "cwd": "<owned-fixture>/ios-creator-current.oB4MSR",
+              "pty": false,
+              "async": false,
+              "name": null,
+              "ready": null
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_aa6fe86fceb042809d015099668fdb98|fc_07dd8a01558262db016ae0cdc33d5c8191b41b1202541ff84a",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading actual doctor observations",
+              "path": "doctor-25cb5504-6382-4564-a10d-902c0b67554b/doctor.json:1-180"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_ed78609cabdc4876b295511ac14ba849|fc_07dd8a01558262db016ae0cdf0de20819182ee63bf3ac925fc",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading cold replay execution",
+              "path": "evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/execution.json:1-120"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_a95e5ed3cd094faf9148e60e9e5fc64e|fc_07dd8a01558262db016ae0cdf4607481919c84b828712c53c8",
+            "tool_name": "read",
+            "args": {
+              "i": "Locating retained journey screenshots",
+              "path": "evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/screenshots.json:1-150"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_69fa95c4e0914d4e9c7f80e435c78893|fc_07dd8a01558262db016ae0cdf460788191ad1cee142174150b",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading native selected case result",
+              "path": "evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/tests.json:1-220"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_e5273fd1765f43d68c403a00e539ecc5|fc_07dd8a01558262db016ae0cdf460788191ad0c18e728dd21f0",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading native result counts",
+              "path": "evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/summary.json:1-180"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_c523d20bda5442eebd9a0e3939ffc4ba|fc_07dd8a01558262db016ae0cdf460788191825ec2db1423fe5c",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading owned cleanup result",
+              "path": "evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/cleanup.json:1-180"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_146ac5d005bb41699b23e5bbf1140d89|fc_07dd8a01558262db016ae0ce0d5d608191aa1887d30bb781cf",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading preserved setup resolution",
+              "path": "setup-resolutions.json:1-160"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_7e3aa42e6217422e9fade81316118c38|fc_07dd8a01558262db016ae0ce0f42a48191b024322c5594bd29",
+            "tool_name": "glob",
+            "args": {
+              "i": "Locating historical verdict evidence",
+              "path": "evidence/**/check-*.json;evidence/**/execution.json;evidence/**/execution-error.json",
+              "hidden": true,
+              "gitignore": false,
+              "limit": 100
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_180fd0f874c04bd2b6a05c3289390abb|fc_07dd8a01558262db016ae0ce0f42a48191bc7f9aebaf9340f3",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading preserved failed native attempt",
+              "path": "evidence/2026-10-27T16-10-34-833Z-a3f1a90a-e9cc-4106-8e9e-7ee11e35b682/execution.json:1-120"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_e7bec1078e014dd7ae2fad0c04169756|fc_07dd8a01558262db016ae0ce1565fc8191b360ee667385894b",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading earlier missing-review gate",
+              "path": "evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/check-6b6f9f01-9fb9-4288-a8fd-0ebb38d20dc4.json:1-140"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_c4fc2f8833674f3892e98c93a629c292|fc_07dd8a01558262db016ae0ce18aae48191b75ce69660580001",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading earlier final authoring verdict",
+              "path": "evidence/2026-10-27T16-12-04-187Z-119186ad-03e5-4c1a-bed4-a14462534009/check-90ae78d4-daf0-4353-bb2e-c5930dfc0882.json:1-140"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_376757d440094ff8bcfb970c00586454|fc_07dd8a01558262db016ae0ce18aae48191848a817be6d4cfba",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading cold replay native exit",
+              "path": "evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/test.exit.json:1-160"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_0d60dc46db764320ba12b349d2f58307|fc_07dd8a01558262db016ae0ce18aae48191bcd7d393b9143e41",
+            "tool_name": "read",
+            "args": {
+              "i": "Reading retained initial command failure",
+              "path": "evidence/2026-10-27T16-10-34-833Z-a3f1a90a-e9cc-4106-8e9e-7ee11e35b682/test.log:1-20"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          },
+          {
+            "tool_call_id": "call_013f98f46d4f4194b8bcc29e3cc171d8|fc_07dd8a01558262db016ae0ce23552c81919f9c2b1239ea5940",
+            "tool_name": "write",
+            "args": {
+              "path": "evidence/2026-10-27T16-13-59-004Z-7c238e1e-3f56-4a44-a9e3-ba7f54c3c69c/native-omp-handover.json",
+              "redacted_content_sha256": "1d247ece06467df449d37606fd9c2e15eecb3169b3b2da69b6f32d221919fcd8",
+              "redacted_content_bytes": 6837,
+              "content_omitted": "Complete redacted write arguments retained in the timeline; not duplicated here"
+            },
+            "is_error": false,
+            "omission_reason": "Not part of the earlier narrow discovery/lifecycle/image/review/check selection; retained in complete redacted timeline"
+          }
+        ]
+      },
+      "invocation_request": "Use the advertised project skill verify-current-creator-notes for a genuinely fresh docs-only native OMP cold replay of the project at <owned-fixture>/ios-creator-current.oB4MSR. Discover and read the saved recipe and its relative resources; the saved recipe is your only operational walkthrough.\n\nYou have the exclusive serial UI lease on the parent-created simulator 3D5F3CB6-5E8F-4939-AB72-781C424B45FD named verification-skillset-proof, iOS 27.0, for this one synthetic fixture. No other UI actor is running. You may execute its saved verification recipe, read actual images with your image-capable read tool, record your own review attestation and final check, and create evidence only within this project. Do not edit the recipe, app, shared test, earlier receipts, skills repository or anything outside this project. Never reset/erase/shutdown devices or global privacy, change authentication/global settings, install tools, commit or push. Native Claude authentication is expired: do not retry or alter it.\n\nAttribute lifecycle execution, image opening, review and final check to your actual native session/run ID (and host), not the parent. Supply all ten saved gates yourself, including actual image opens and your review; the parent will not provide an image-review gate for your attempt. Report discovery versus filesystem parity separately, native actual selected case identity/count/outcome, every failed attempt/unknown, screenshot paths actually opened, cleanup/retention and bounded limits. Return this sublease to IosCreatorProof at completion; leave the owned simulator for the parent.\n",
+      "image_payload_storage": {
+        "kind": "Native blob reference, not base64",
+        "returns": [
+          {
+            "tool_call_id": "call_36c584f4aa044bd08c1753adc1729a61|fc_07dd8a01558262db016ae0cdf716048191892f40b6e760618d",
+            "image": {
+              "type": "image",
+              "mime_type": "image/webp",
+              "storage_encoding": "blob-reference",
+              "stored_reference": "blob:sha256:ac361572d399041f770a734404bc0fc348bc73cc1eef715aefbc20685d7f58f5",
+              "reference_characters": 76,
+              "referenced_image": {
+                "archive_path": "evidence-reconciliation/native-omp-returned-image.webp",
+                "sha256": "ac361572d399041f770a734404bc0fc348bc73cc1eef715aefbc20685d7f58f5",
+                "bytes": 9816,
+                "width": 721,
+                "height": 1568
+              },
+              "limit": "The session stores a reference, not base64. Exact referenced WebP bytes copied from the native blob store and retained separately. Both return events reference the same image; not sequence proof."
+            }
+          },
+          {
+            "tool_call_id": "call_7dec6587a2ea4e4fa75d9fce8368ec41|fc_07dd8a01558262db016ae0cdf9712081919555131cd72e931b",
+            "image": {
+              "type": "image",
+              "mime_type": "image/webp",
+              "storage_encoding": "blob-reference",
+              "stored_reference": "blob:sha256:ac361572d399041f770a734404bc0fc348bc73cc1eef715aefbc20685d7f58f5",
+              "reference_characters": 76,
+              "referenced_image": {
+                "archive_path": "evidence-reconciliation/native-omp-returned-image.webp",
+                "sha256": "ac361572d399041f770a734404bc0fc348bc73cc1eef715aefbc20685d7f58f5",
+                "bytes": 9816,
+                "width": 721,
+                "height": 1568
+              },
+              "limit": "The session stores a reference, not base64. Exact referenced WebP bytes copied from the native blob store and retained separately. Both return events reference the same image; not sequence proof."
+            }
+          }
+        ],
+        "correction": "The earlier extraction wrongly decoded the 76-character reference as base64. That metadata is superseded; original session bytes are unchanged. Exact referenced image bytes are now separately retained and rehashed.",
+        "scope": "Two return events reference one identical 721×1568 WebP. This supports the actual returned end-state image, not the save/Home/relaunch sequence by itself."
+      }
+    },
+    "limits": [
+      "Synthetic simulator journey only; not whole-product/physical/system boundary proof",
+      "Simulator actual timezone unknown; locale en_GB/language en-GB observed; test en/US, execution TZ UTC",
+      "Native scan origin .agents versus Claude link not observed",
+      "Filesystem parity is not Claude or Codex native discovery/replay",
+      "First authoring attempt failed before execution (exit64/zero cases) and is retained with evidenced setup resolution",
+      "Expected missing-review guard failure retained; no case re-executed for that guard",
+      "Native context read RTK.md absent; optional OMP identity environment query exit1; session header supplied actual UUID",
+      "Temporary evidence root must be archived by parent for durable retention"
+    ],
+    "bundle_resources": {
+      "SKILL.md": {
+        "canonical": "c79f973c92ac43ef16cb72be23903d20a1fb8eecfc7a97b9d65112f2e9065140",
+        "claude": "c79f973c92ac43ef16cb72be23903d20a1fb8eecfc7a97b9d65112f2e9065140"
+      },
+      "proof.mjs": {
+        "canonical": "cb005351ec5bfc3a5cf4e905d9be69615a7328e37d891e6ad1837e20f2bad3ba",
+        "claude": "cb005351ec5bfc3a5cf4e905d9be69615a7328e37d891e6ad1837e20f2bad3ba"
+      },
+      "features/README.md": {
+        "canonical": "81de08e2e132ae1e0671e820958584798a0a0ca8300ffc002159daad284f9731",
+        "claude": "81de08e2e132ae1e0671e820958584798a0a0ca8300ffc002159daad284f9731"
+      },
+      "features/note-persistence.md": {
+        "canonical": "ebf42184d6a7f6198dea90daa33989329151193c9d13d58aea7f059f40562b0c",
+        "claude": "ebf42184d6a7f6198dea90daa33989329151193c9d13d58aea7f059f40562b0c"
+      }
+    },
+    "setup_resolution": {
+      "archive_path": "ios-creator-current.oB4MSR/setup-resolutions.json",
+      "sha256": "052ef1e8f4e4c4cde7290715239ed952d82e64e01db091fbd21555639ce4f80c",
+      "native_excerpt": {
+        "2026-10-27T16-10-34-833Z-a3f1a90a-e9cc-4106-8e9e-7ee11e35b682": {
+          "kind": "xcode-rejected-single-iteration-before-execution",
+          "actor": {
+            "session": "IosCreatorProof",
+            "host": "<owned-host>",
+            "at": "2026-10-27T16:11:59.716Z"
+          },
+          "logSHA256": "ce4e83dd5528a01a356303dff0386e1c1e54ed87cc496e24041a5a6cd6c3444f",
+          "reason": "Native Xcode argument validation rejected -test-iterations 1 before any case. Exit64, totalTestCount0, empty native testNodes and exact error log retained. This is not a behavioral test failure.",
+          "corrected": "Removed -test-iterations 1; default single execution; no retry switch",
+          "evidence": [
+            "evidence/2026-10-27T16-10-34-833Z-a3f1a90a-e9cc-4106-8e9e-7ee11e35b682/test.log",
+            "evidence/2026-10-27T16-10-34-833Z-a3f1a90a-e9cc-4106-8e9e-7ee11e35b682/test.exit.json",
+            "evidence/2026-10-27T16-10-34-833Z-a3f1a90a-e9cc-4106-8e9e-7ee11e35b682/summary.json",
+            "evidence/2026-10-27T16-10-34-833Z-a3f1a90a-e9cc-4106-8e9e-7ee11e35b682/tests.json"
+          ]
+        }
+      }
+    }
+  },
+  "description_body_parity": {
+    "kind": "Byte comparison below YAML frontmatter against exact round-2 snapshot",
+    "archive_path": "evidence-reconciliation/description-body-parity.json",
+    "sha256": "619403d6bc983657cd2543c96206bdcb96a7ef9969af15cf79259aad866302b7",
+    "bytes": 1130,
+    "native_excerpt": {
+      "method": "Remove the first YAML frontmatter block only, preserve every body byte, compare SHA-256 against the exact round-2 snapshot content.",
+      "files": [
+        {
+          "path": "src/web/skills/browser-testing/SKILL.md",
+          "round2_full_sha256": "ea67c091167776994438b849f47b8301982cdbfaedf519d6ed12f4c12152eaa6",
+          "current_full_sha256": "202f0146c42101713f72d6ab91f4bcfbb475111f55c72ce63a5765687d921290",
+          "round2_body_sha256": "5e73b0b423c3a185b007ed80aa5db6f8d69e7e80352afd8fdd4c66bce50ee169",
+          "current_body_sha256": "5e73b0b423c3a185b007ed80aa5db6f8d69e7e80352afd8fdd4c66bce50ee169",
+          "body_unchanged": true
+        },
+        {
+          "path": "src/app/skills/xcuitest/SKILL.md",
+          "round2_full_sha256": "9210e8761748d23be4a32296305ee9b306929c7362a862ac6698f882fea14c36",
+          "current_full_sha256": "dc701d77e1fcd4768e458e167b2decda3cf42e57015dbdedff7928b1de8cb7ad",
+          "round2_body_sha256": "bb58047325754a28ee1537df5fdccca410a1990b189a83759a83aba6d7347543",
+          "current_body_sha256": "bb58047325754a28ee1537df5fdccca410a1990b189a83759a83aba6d7347543",
+          "body_unchanged": true
+        }
+      ]
+    }
+  }
+}

@@ -9,8 +9,12 @@ description: >
 # Xcode Dev Loop
 
 Discover, build in the background, read results, launch on a simulator, capture screens.
-This loop runs and inspects; it does not author Swift source or tests. Send authoring to
-`app:swift-testing`, then come back here to run it.
+This loop runs and inspects; it does not author Swift source or tests. Route
+Swift Testing authoring to `swift-testing`, XCTest UI automation to `xcuitest`,
+and existing non-UI XCTest unit/integration or `measure` tests to the project's
+established XCTest conventions with `tdd`. A dedicated reusable non-UI XCTest
+authoring guide remains a gap. Preserve the suite's framework rather than forcing
+a migration. Return here to execute and interpret the real result.
 
 ## 1. Discover Before You Guess
 
@@ -23,6 +27,7 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
   without a scheme.
 - List simulator UDIDs with `xcrun simctl list devices available -j`; resolve the UDID
   once, then reuse it.
+- Read installed simulator command options with `xcrun simctl help <subcommand>`.
 - Never address a simulator by name: duplicate names ("iPhone 17 Pro Max") cause
   "No booted simulator named …" failures. Only the listing output separates same-named
   devices, so give the listing command beside the UDID whenever you replace a name.
@@ -70,6 +75,12 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
   `-quiet` log can omit the line, so never treat its absence alone as the verdict.
 - Take the expected test count from the target's tests or test plan, never from the run you
   are judging.
+- Match the expected case IDs against `xcresulttool get test-results tests --path
+  <bundle>`; totals alone do not prove each selected case ran. Inspect `test-details`
+  and `metrics` when a case fails or measures performance, preserving the actual
+  measurements and failure reason. Pin the toolchain, configuration, device and
+  workload for comparisons. State the non-UI XCTest authoring-guide gap explicitly
+  when using project conventions as the fallback.
 - A run that executed zero tests is not a pass, whatever its exit status
   (`principle-gaps-are-not-passes`). Suspect the selection before the code: confirm
   `-only-testing` still names the current suite and test after any rename, and that the
@@ -83,10 +94,11 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
   `Test crashed with signal abrt`; it may appear only there. The log may repeat it as an
   underlying error, but the bundle is the reliable source. Do not re-run blind.
 - Treat `The test runner hung before establishing connection` and diagnostic-collection
-  timeouts as a suspected environmental fault, not a proven diagnosis. Shut down only the
-  pinned simulator (`xcrun simctl shutdown <udid>`), then retry once with a new
-  result-bundle path. Use `xcrun simctl shutdown all` only when the user says the whole
-  device set is disposable (`principle-clean-up-what-you-started`).
+  timeouts as a suspected environmental fault, not a proven diagnosis. Shut down the
+  pinned simulator (`xcrun simctl shutdown <udid>`) only if this run created and still
+  owns it, then retry once within the run's time bounds with a new result-bundle path.
+  Pinning a pre-existing device does not confer ownership: preserve it and report
+  blocked when recovery needs its shutdown. Never use `xcrun simctl shutdown all`.
 - Pass `TEST_RUNNER_<NAME>=<value>` on the `xcodebuild test` command; Xcode strips the
   prefix and gives the variable to the test runner process. A UI test target's app under test
   does not receive it; set `XCUIApplication.launchEnvironment` for that case.
@@ -100,6 +112,8 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
 
 - Install the build you just made before launching. Never launch whatever is already on the
   device: it can come from another branch (`principle-prove-it-works`).
+  Record revision plus relevant uncommitted-source identity and bind it to the
+  actual built, installed and launched product; a matching HEAD alone is insufficient.
 - `simctl install` needs a booted device. Boot the pinned device with
   `xcrun simctl bootstatus <udid> -b`, which boots it if shut down and waits for the boot to
   finish. Do not call `xcrun simctl boot` first: it fails on a running device.
@@ -116,8 +130,13 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
   needs a beta Xcode, use the `xcrun` commands with that `DEVELOPER_DIR` instead.
 - When the MCP launch fails with `Failed to spawn xcrun (via disclaimer)`, fall back to
   `xcrun simctl install <udid> <app-path>`, then `xcrun simctl launch <udid> <bundle-id>`.
-- Reach screens by deep link (`xcrun simctl openurl <udid> <scheme>://<path>`) or by a
-  DEBUG scenario or seed mechanism when the app has one, not blind coordinate taps.
+- A deep link (`xcrun simctl openurl <udid> <scheme>://<path>`) or existing
+  DEBUG/seed mechanism may establish a screen or fixture precondition. It must
+  not replace the public interaction that the claimed journey is meant to prove.
+  Use accessible UI automation for that boundary, not blind coordinate taps.
+  For capture-only screen setup, prefer an existing deep link or DEBUG scenario
+  over UI navigation; its purpose here is to reach the state, not prove creation
+  or another public-action boundary.
 - Read the accessibility hierarchy before you tap; coordinates are the last resort.
 
 ## 5. Screenshots
@@ -131,6 +150,25 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
   system alert covers the view. Capture only after that check passes; a fixed short delay is
   not evidence (`principle-observe-dont-infer`).
 
+## Isolation, cleanup and evidence
+
+Use independently owned simulator/app/fixture state when a run mutates data.
+Do not erase or reset a user's shared simulator or store. Record ownership before
+launch; only a created device may be shut down/deleted as this run's teardown.
+On success, error or cancellation, release only resources still owned by the run,
+never kill by process name or trust a reused PID. Preserve logs, result bundles
+and captures outside cleanup targets and confirm they survive teardown. A blocked
+device/entitlement/system boundary is not proved through another simulator path.
+
+Use synthetic data and disposable accounts. Inspect and redact shareable log,
+result-bundle and capture derivatives; keep necessary originals access-controlled
+under the project's retention policy. Never publish credentials, customer data
+or whole unreviewed bundles.
+
+In a capture plan, name the pinned UDID and derive the bundle identifier from
+the intended build; pass both to the launch command. Report missing state proof,
+failed cleanup and unavailable evidence explicitly rather than implying success.
+
 ## 6. Cadence
 
 - Compile after the domain layer and again after the first view, not once at the end
@@ -140,5 +178,6 @@ This loop runs and inspects; it does not author Swift source or tests. Send auth
 ## Related Skills
 
 - **`app:debug`** — structured feedback loop for simulator failures, user-reported or observed
-- **`app:swift-testing`** — writing the tests this loop runs
+- **`app:swift-testing`** — Swift Testing authoring; **`app:xcuitest`** —
+  XCTest UI authoring. Keep non-UI XCTest tests in their existing framework.
 - **`app:swiftui-architecture`** — SwiftUI patterns for the code under test

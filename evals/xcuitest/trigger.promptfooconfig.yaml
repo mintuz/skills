@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection suite against the current canonical source.
+description: xcuitest activation and XCTest framework boundaries
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+metadata:
+  fixture_skills:
+    - swift-testing
+    - xcode-dev-loop
+    - tdd
+    - benchmark-checklist
+providers:
+  - id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Explicit invocation selects UI test authorship
+    vars:
+      request: Use xcuitest to author an XCTest UI test that changes appearance through Settings and proves it survives app termination and relaunch. Plan the test only.
+    assert:
+      - type: skill-used
+        value: xcuitest
+  - description: Natural accessibility and launch fixture repair selects UI authoring
+    vars:
+      request: Repair our XCUIApplication UI automation. It uses coordinate taps and sleeps, shares one launch store across workers and sets the API URL only on the test runner. We need accessibility queries, bounded waits and isolated app launchEnvironment. Plan only.
+    assert:
+      - type: skill-used
+        value: xcuitest
+  - description: UI permission workflow selects UI authoring
+    vars:
+      request: Add XCTest UI cases for the camera system permission alert and the denied-permission explanation. Keep simulator permission setup owned and don't pretend this proves real camera capture. Plan the tests only.
+    assert:
+      - type: skill-used
+        value: xcuitest
+  - description: Screenshot automation question selects UI suite guidance
+    vars:
+      request: Our XCUITest attaches a screenshot but never compares it. Explain how to add automated visual comparison using the project's existing approved snapshot engine, matching device conditions and reviewed baselines. Plan the test changes only.
+    assert:
+      - type: skill-used
+        value: xcuitest
+  - description: Swift Testing unit authorship is not UI automation
+    vars:
+      request: "Add a Swift Testing @Test for a pure currency formatter using #expect and parameterised inputs. This is a unit target with no app, simulator or UI interactions. Plan only."
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response stays with Swift Testing unit authoring or swift-testing when available. It does not apply xcuitest or introduce XCUIApplication/XCTest UI infrastructure, and does not claim execution.
+        provider:
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: Existing non-UI XCTest unit test retains its framework
+    vars:
+      request: Repair an existing XCTestCase unit test for JSON decoding in our library. It uses XCTAssertThrowsError and has no app or UI. Keep XCTest; no Swift Testing migration or UI target is authorised. Plan only.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response preserves the non-UI XCTest framework and follows existing suite conventions or framework-neutral TDD. It does not treat xcuitest as generic XCTest authorship, introduce UI automation or force migration to Swift Testing, and makes no execution claim.
+        provider:
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: XCTest measure performance repair is not UI authoring
+    vars:
+      request: Fix noisy fixture setup inside an existing XCTest measure block benchmarking our parser. Preserve XCTest measurement and the benchmark's meaning; there is no app UI. Do not migrate frameworks. Plan only.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response retains the existing non-UI XCTest measure API and benchmark conventions rather than applying xcuitest or inventing Swift Testing performance measurement. It may name benchmark-checklist or framework-neutral test guidance; it does not claim an unavailable run or change the measured obligation silently.
+        provider:
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: Running an unchanged UI target belongs to the Xcode execution loop
+    vars:
+      request: Run our already documented XCTest UI target on the named simulator and inspect the fresh xcresult. No test authoring, fixture repair or baseline changes are requested. Plan the execution only; do not actually run it here.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response stays within executing and inspecting the existing Apple UI test target using xcode-dev-loop or documented project commands. It does not apply xcuitest authorship to rewrite tests or substitute a screenshot for the result, and does not invent execution evidence.
+        provider:
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

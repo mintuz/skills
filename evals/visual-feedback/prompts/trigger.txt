@@ -1,0 +1,9 @@
+Skills installed under `.agents/skills/` in this workspace are available. Use
+read-only file discovery commands to inspect their descriptions and read a
+skill's guidance only when it applies. Do not run product/test commands, launch
+anything, capture images or modify files. Return a short plan using supplied
+facts, then name the skill whose guidance it follows, or "none". A handoff names
+the appropriate owner without claiming unavailable guidance or runtime proof.
+
+Request:
+{{request}}

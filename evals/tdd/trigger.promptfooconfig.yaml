@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Migrated to core without changing the framework-neutral TDD cycle.
+description: Framework-neutral TDD activation and exclusion
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  - &subject
+    id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Activates for a non-web RED GREEN REFACTOR cycle
+    vars:
+      request: Use Red-Green-Refactor to repair the existing Python invoice CLI rounding regression. Write one discriminating failing behaviour test before changing production code and preserve this project's pytest runner.
+    assert:
+      - type: skill-used
+        value: tdd
+  - description: Activates without forcing an XCTest migration
+    vars:
+      request: Use TDD for the zero-credit regression in our existing XCTestCase unit suite. Keep XCTest and the project's conventions, prove a failing-before and passing-after assertion, then assess refactoring.
+    assert:
+      - type: skill-used
+        value: tdd
+  - description: Does not relabel a runtime observation as a TDD cycle
+    vars:
+      request: Classify this evidence only; do not start coding or author tests. A recording of the identified changed app proves quantity 3 persists through checkout and relaunch, but no test ran before or after the fix. Is it runtime evidence, TDD-cycle evidence, both or neither?
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response accepts bounded direct runtime evidence for the observed quantity and persistence, rejects proof of a RED/GREEN cycle because no failing-before/passing-after test ran, and does not launch a coding workflow or declare that only a test can prove any behaviour.
+        provider:
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

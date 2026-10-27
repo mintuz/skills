@@ -10,6 +10,9 @@ prompts:
 providers:
   - id: openai:codex-sdk
     config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
       working_dir: ./workspace
       skip_git_repo_check: true
       sandbox_mode: read-only
@@ -38,6 +41,9 @@ defaultTest:
         id: openai:codex-sdk
         config:
           working_dir: ./workspace
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
           skip_git_repo_check: true
           sandbox_mode: read-only
           approval_policy: never
@@ -52,7 +58,7 @@ defaultTest:
 tests:
   - description: Reject a false red caused by a broken test harness
     vars:
-      skill: file://../../src/web/skills/tdd/SKILL.md
+      skill: file://../../src/core/skills/tdd/SKILL.md
       scenario: |-
         You are adding `parseRetryAfter(value: string): number | null` to an
         existing TypeScript package. The first new Vitest case expects
@@ -78,7 +84,7 @@ tests:
 
   - description: Preserve a dirty worktree while proving a regression RED
     vars:
-      skill: file://../../src/web/skills/tdd/SKILL.md
+      skill: file://../../src/core/skills/tdd/SKILL.md
       scenario: |-
         Fix a regression in `applyCredit(balance, amount)`: `amount === 0`
         currently throws, but should return the unchanged balance. Before TDD
@@ -102,7 +108,7 @@ tests:
 
   - description: Refuse to keep spike production code as if it were tested
     vars:
-      skill: file://../../src/web/skills/tdd/SKILL.md
+      skill: file://../../src/core/skills/tdd/SKILL.md
       scenario: |-
         You must integrate `@vendor/feed-parser`, whose output shape is
         undocumented. To learn the shape you wrote a throwaway script and ran it
@@ -125,7 +131,7 @@ tests:
 
   - description: Resolve a write-all-tests-first instruction against one failing test
     vars:
-      skill: file://../../src/web/skills/tdd/SKILL.md
+      skill: file://../../src/core/skills/tdd/SKILL.md
       scenario: |-
         A `validatePassword(password)` helper must satisfy seven acceptance
         rules from a written spec: minimum length, one upper case letter, one
@@ -146,7 +152,7 @@ tests:
 
   - description: Limit refactoring to code that green tests cover
     vars:
-      skill: file://../../src/web/skills/tdd/SKILL.md
+      skill: file://../../src/core/skills/tdd/SKILL.md
       scenario: |-
         `calculateInvoiceTotal` has just gone green, and behavior tests cover it.
         The same file holds `legacyExportCsv`, which has no test at all and
@@ -164,3 +170,62 @@ tests:
         - Declines to refactor the untested `legacyExportCsv` as asked; it either writes characterisation tests pinning the current CSV output first or leaves that function untouched, and says which option it takes.
         - Keeps both public signatures unchanged because other packages import them, and keeps the refactoring change separate from any behavior change.
         - Does not assert that extracting the rounding expression from `legacyExportCsv` is safe without tests, and does not invent that function's current behavior or a coverage figure.
+
+  - description: Credit direct runtime evidence without inventing a TDD cycle
+    vars:
+      skill: file://../../src/core/skills/tdd/SKILL.md
+      scenario: |-
+        An engineer fixed a checkout quantity bug before writing any test.
+        A retained recording and console trace show the actual app built from
+        that changed working tree: entering quantity 3 and checking out creates
+        one persisted order with quantity 3, visible again after relaunch. The
+        build identity, fixture account and action sequence are recorded. This is
+        direct runtime evidence, not a static page render or an assertion about
+        unseen behaviour. There is no automated test, no failing-before run and
+        no passing-after test run. The user's unrelated changes must remain, and
+        no commit, stash or reset is allowed.
+
+        The engineer says "either this proves our TDD cycle, or you must say the
+        recording proves no behaviour at all". Correct that false choice and
+        describe the next TDD sequence for the quantity regression. Do not run
+        anything, invent results, or claim a cycle already happened.
+      rubric: |-
+        - Explicitly accepts the recording and trace as valid, bounded direct-runtime evidence of the observed quantity-3 checkout and persistence on that identified build; does not dismiss it merely because no automated test ran.
+        - Rejects the claim that runtime evidence proves a RED/GREEN cycle: no failing-before behaviour test or passing-after test run exists, and unobserved quantities or boundaries remain unproved.
+        - Keeps the runtime evidence but restores only the engineer's quantity fix to its pre-fix state while preserving the user's unrelated work; does not commit, stash or reset.
+        - Writes one discriminating public-behaviour regression test, runs it against pre-fix production code and requires the intended quantity assertion to fail rather than a harness fault before implementing.
+        - Reapplies only the implementation that test demands, requires a focused passing run and relevant regressions, then assesses refactoring; does not relabel the prior recording or a test written after the fix as historical RED/GREEN proof.
+
+  - description: Preserve immutable Swift fixtures when applying the shared checklist
+    vars:
+      skill: file://../../src/core/skills/tdd/SKILL.md
+      scenario: |-
+        Apply the TDD skill's complete pre-commit checklist to this existing
+        Swift Testing test. Its public conversion requirement is exactly
+        100 centimetres -> 1 metre. RED before the production fix and GREEN
+        afterwards are retained, relevant regressions pass, and there is no
+        concrete refactoring opportunity. Do not run or change anything.
+
+        @Test func convertsCentimetresToMetres() {
+            let centimetres = 100.0
+            let metres = convertCentimetresToMetres(centimetres)
+            #expect(metres == 1.0)
+        }
+
+        A reviewer marks the checklist item "Factory functions used (no
+        let/beforeEach)" failed. They demand replacing both local let bindings
+        with mutable var properties and a setUp method before approving the
+        test. Decide whether this demand follows the intended isolation rule.
+        Explain the language distinction and any justified patch. Keep the
+        Swift Testing framework and the business assertion unchanged.
+
+        In a separate existing Vitest suite, beforeEach starts a uniquely owned
+        local server and afterEach closes that server. Those hooks build no
+        test data, and the suite's resource isolation is already established.
+        The same reviewer also demands deleting those resource hooks because
+        the checklist says "no beforeEach". Address this proposed removal too.
+      rubric: |-
+        - Rejects the proposed mutable properties/setUp rewrite and preserves isolated immutable local Swift let bindings; does not require replacing these simple scalar values with factories just to satisfy a literal keyword ban.
+        - Explains that Swift let means an immutable binding and is not the outer-scope mutable JavaScript/TypeScript let plus beforeEach fixture pattern the isolation rule addresses.
+        - Keeps the exact public conversion assertion, existing Swift Testing framework and recorded RED/GREEN evidence; proposes no unrequested product change, migration or fabricated execution.
+        - Preserves fresh explicit per-test data and rejects removing the supplied owned-server setup/teardown hooks: resource lifecycle is distinct from building test data, so the JavaScript/TypeScript data-fixture rule does not ban those hooks.

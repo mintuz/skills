@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# RED provenance: explicit no-skill control eval-FqQ-2026-10-27T09:20:10
+# ran before browser-testing existed. prechange/control.txt retains that fixture;
+# final treatment below reads the authored source, not the provenance fixture.
+description: browser-testing behavioural scenarios versus no-skill baseline
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge the proposed test or procedure, not source-text compliance.
+        This is a scenario-only evaluation: tools and execution are unavailable.
+        Concrete proposed code or actions count; invented execution does not.
+        Every criterion below must be satisfied using the supplied facts.
+        Do not demand unprovided project details or reward generic checklists.
+
+        Scenario: {{scenario}}
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: Real sign-in redirect and cookie boundary cannot be a jsdom pass
+    vars:
+      skill: file://../../src/web/skills/browser-testing/SKILL.md
+      scenario: |-
+        Author a test plan for AUTH-17: signing in from /orders redirects through
+        the local test identity service on another origin, returns to /orders,
+        sets an HttpOnly session cookie, and still shows the account after reload.
+        The repo already uses Playwright with both local services. The identity
+        service has a disposable test account; no live credentials are needed.
+        A colleague proposes a Testing Library/jsdom test that sets localStorage,
+        mocks the callback and renders the account name. Another proposes reusing
+        storageState from the admin account. Give a concrete test shape and state
+        exactly what it proves. Do not run anything.
+      rubric: |-
+        - Uses the existing Playwright real-browser runner for the cross-origin navigation and cookie boundary; explains why the proposed jsdom test does not prove AUTH-17.
+        - Starts with an isolated unauthenticated context, performs the actual sign-in and callback through the supplied local identity service, and does not substitute stored admin auth or mock away the claimed boundary.
+        - Uses observable bounded assertions for the return URL and account state, checks the actual context session cookie including HttpOnly, and reloads to assert the signed-in state persists.
+        - Uses disposable test credentials without printing or committing them; qualifies the proof as local browser integration, not live identity-provider or production proof, and does not invent a pass.
+  - description: Isolated fixtures and accessible bounded assertions survive a slow save
+    vars:
+      skill: file://../../src/web/skills/browser-testing/SKILL.md
+      scenario: |-
+        Repair a Playwright test for renaming a project. Both parallel workers use
+        project 42. The test finds `.row:nth-child(2) .edit`, sleeps 500 ms after
+        Save, then asserts the input value. The API can take 100-1800 ms, and the
+        input changes before the save finishes. Existing test fixture
+        `projectFactory.create({ ownerId, name })` returns an isolated project and
+        `projectFactory.remove(id)` deletes it. Each worker already has its own
+        authenticated owner. The UI has a row named by the project title, a
+        button named Rename project, a labelled Project name input, a Save
+        button, and a status named Saved. The requirement is persisted rename,
+        visible after reload. Provide a representative replacement and cleanup.
+      rubric: |-
+        - Reuses the existing factory and per-worker owner to create a unique project per test and removes only that project's fixture even on failure; does not serialise workers or share project 42.
+        - Scopes stable role/label queries to the intended project rather than row position or generated CSS, and performs the visible rename interaction.
+        - Replaces the sleep with a bounded observable save-completion assertion, then reloads and asserts the persisted title rather than accepting the optimistic input value alone.
+        - Keeps assertions meaningful under the supplied latency without arbitrary timeout inflation, broad networkidle waits or retries masking the race; does not claim execution.
+  - description: Download and new-tab assertions observe the browser event and file
+    vars:
+      skill: file://../../src/web/skills/browser-testing/SKILL.md
+      scenario: |-
+        Write representative Playwright code for EXPORT-4 in our existing suite.
+        An authenticated finance user opens an invoice, clicks Receipt to open a
+        new tab, then clicks Download CSV in that tab. The download is an
+        attachment named invoice-704.csv containing header `invoice,total_gbp`
+        and row `704,19.50`. A download fixture already supplies a unique scratch
+        directory and cleans it after the test. The primary page is still usable
+        afterwards. Use the real local server; the feature includes session
+        cookies reaching the receipt route. A proposed shortcut mocks fetch and
+        asserts that window.open was called. Give the test, not a fake result.
+      rubric: |-
+        - Uses the existing real-browser suite and authenticated isolated context; rejects mocked fetch/window.open as proof of the cookie, tab and download boundaries.
+        - Registers or awaits the popup event before triggering Receipt, then registers or awaits the download event before clicking Download CSV in the new page, avoiding missed-event races.
+        - Asserts the receipt tab is the intended invoice, the suggested filename and actual downloaded CSV content using the fixture directory, not only that a link or event exists.
+        - Preserves the original page and verifies it remains usable, closes owned popup resources and relies on or preserves the supplied fixture cleanup without deleting unrelated downloads.
+  - description: Screenshot mismatch is investigated before any baseline approval
+    vars:
+      skill: file://../../src/web/skills/browser-testing/SKILL.md
+      scenario: |-
+        CI's existing Playwright toHaveScreenshot checkout test failed: the total
+        is clipped by 12 pixels. The approved reference shows the full total.
+        Local rendering used a different browser revision, fallback fonts and a
+        random promotion banner. CI uses the pinned Linux container, en-GB,
+        Europe/London, light mode, 1280x800 and the bundled fonts. There is an
+        existing fixture seam for promotion data and time. A teammate asks you
+        to run --update-snapshots and increase maxDiffPixelRatio to 0.12 until
+        green. You may author tests, not approve a design change. Explain the
+        smallest safe test/config change and the evidence needed next.
+      rubric: |-
+        - Refuses update-until-green or tolerance increases that conceal the clipped total; retains the existing approved baseline and policy unless an authorised review changes the intended design.
+        - Reproduces under the pinned browser/container, viewport, locale, timezone, theme and fonts, and uses the supplied fixture seam for repeatable promotion/time rather than hiding the total or whole checkout.
+        - Uses the project's existing screenshot-comparison engine, waits for meaningful page/font readiness and retains expected/actual/diff artefacts with render conditions for diagnosis.
+        - Distinguishes environment drift, unstable fixture and a possible product regression; does not claim the failure is fixed or that an image diff proves good design, and leaves baseline approval to its authorised owner.
+  - description: Trace evidence remains sensitive and a behavioural retry stays visible
+    vars:
+      skill: file://../../src/web/skills/browser-testing/SKILL.md
+      scenario: |-
+        Our Playwright CI policy retries a failed test once and keeps a trace on
+        first retry. Attempt 1 charged the disposable test order twice and failed
+        its one-charge assertion; attempt 2 passed after a reset. The reporter
+        marks the case flaky. A teammate wants a helper that reruns until success,
+        deletes earlier reports and uploads the entire trace to a public issue.
+        The trace contains request cookies, an Authorization header and a test
+        customer's address. Author the safe CI/reporting change and diagnostic
+        plan. You cannot change the one-charge requirement or claim a new run.
+      rubric: |-
+        - Rejects unbounded reruns/deletion and does not promote fail-then-pass into a clean pass; preserves attempt identities, the first behavioural failure and the declared flaky result.
+        - Reuses the existing runner retry/report/trace capabilities and diagnoses the duplicate-charge failure rather than weakening the assertion, resetting until success or blindly increasing retries.
+        - Keeps useful failed-attempt trace and structured test evidence with revision/environment/fixture identity in access-controlled retention; does not publish the raw sensitive trace.
+        - Requires removing or redacting sensitive data before sharing and using disposable data, names the cookie/header/address exposure concretely, and keeps the unresolved behavioural outcome visible until decisive evidence resolves it.
+  - description: Reuse Cypress rather than replace the project's selected browser runner
+    vars:
+      skill: file://../../src/web/skills/browser-testing/SKILL.md
+      scenario: |-
+        Add a browser regression for changing a delivery address and revisiting
+        checkout. This repository has Cypress e2e tests with cy.session and
+        per-test seed/reset tasks. It has no Playwright dependency. The form has
+        accessible labels, an Update address button, a success message and a
+        checkout summary. The existing test uses cy.wait(2000), forced clicks and
+        only asserts that the form still exists. The requirement is the updated
+        address in the summary after navigating away and back. Describe or show
+        the focused replacement; installing another runner is not authorised.
+      rubric: |-
+        - Uses and repairs the existing Cypress e2e suite, session convention and isolated seed/reset tasks without introducing Playwright or a parallel test framework.
+        - Uses stable supported queries and actionable user interactions without forced clicks that bypass an unexplained problem.
+        - Replaces the fixed wait with Cypress's bounded retrying assertions on the meaningful update result, navigates away/back, and asserts the updated summary address, not merely form existence.
+        - Keeps cached authentication as a precondition for this address test rather than claiming it tests sign-in, and requires actual execution evidence before declaring the regression covered.

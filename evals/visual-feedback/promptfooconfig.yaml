@@ -1,0 +1,232 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Visual feedback skill versus no-skill baseline
+
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+defaultTest:
+  assert:
+    - type: agent-rubric
+      metric: rubric
+      threshold: 1
+      value: |-
+        Judge only whether the visual-feedback response reaches every required
+        outcome for this scenario. Give equal weight to every outcome below.
+        Credit explicit, scenario-specific actions and evidence gates. Do not
+        reward verbosity, copied rubric wording, or invented observations.
+        Every scenario forbids execution, so the response is a plan. Judge the
+        actions and evidence gates it states. Never require executed results,
+        captured images, or observed values to be present in the response.
+
+        {{rubric}}
+      provider:
+        id: openai:codex-sdk
+        config:
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+
+tests:
+  - description: Act on precise feedback and existing implementation approval
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        I have already specified the visual change: on the pricing page at
+        1440x900, increase the gap between the three plan cards from 16px to
+        24px and leave every other spacing value alone. Implement it and verify
+        the result; you have my explicit permission to edit the code. Give the
+        actions and evidence checkpoints you would follow, but do not execute
+        them or invent results.
+      rubric: |-
+        - Treats the supplied 16px-to-24px request as complete visual feedback and does not ask the user what specifically should change.
+        - Treats the explicit permission to implement and verify as authorization, proceeding without a second confirmation or approval question.
+        - Requires a pricing-page capture at exactly 1440x900 before editing and identification of the owning spacing declaration before the smallest scoped change.
+        - Requires verification at the same 1440x900 viewport, before/after comparison, and a check that only the requested card gap changed; it does not claim this evidence already exists.
+        - Plans to present the completed comparison for user review while keeping observations, intended actions, and currently unexecuted evidence distinct.
+
+  - description: Reproduce a stateful narrow-viewport defect before judging it
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        Fix the account menu that is clipped only on /settings at a 390x844
+        viewport in dark mode, after keyboard focus opens the menu. The desktop
+        page and the closed mobile menu look correct. I authorize the code
+        change. Give the actions and evidence checkpoints you would follow, but
+        do not execute them or invent results.
+      rubric: |-
+        - Reproduces the exact route, 390x844 viewport, dark theme, keyboard-focus interaction, and open-menu state before diagnosing or editing; a generic page screenshot is insufficient.
+        - Uses the first available capture route and, if Chrome headless is needed, avoids trusting its sub-500px window-size behavior by using device emulation or an iframe harness and confirming the resulting layout viewport width.
+        - Uses an accessibility snapshot or equivalent state evidence to confirm keyboard focus and menu exposure, then traces the clipped element to its owning layout rule before proposing the smallest scoped fix.
+        - Proceeds without another approval question because implementation is already authorized, while keeping any unavailable runtime evidence as an explicit proof gap.
+        - Recreates the identical route, viewport, theme, focus interaction, and open state after the change, then compares before and after screenshots and verifies keyboard behavior as well as appearance.
+
+  - description: Reject a capture taken in a state that cannot show the defect
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        On the dashboard at 1280x800 the success toast overlaps the header. The
+        toast slides in over 400ms and auto-dismisses 3 seconds later, and its
+        container has height 0 until the slide-in starts. A teammate captured a
+        screenshot in the same millisecond as the Save click, and the toast does
+        not appear anywhere in that image. Tell me whether that screenshot
+        settles the overlap question and what you would do next. Give the
+        actions and evidence checkpoints you would follow, but do not execute
+        them or invent results.
+      rubric: |-
+        - States that the supplied screenshot cannot settle the overlap question, and grounds that in the capture timing relative to the 400ms slide-in or in the zero-height container.
+        - Requires captures of both the moving phase and the settled phase, because the report does not say which phase the overlap occurs in, and takes them all before the 3-second auto-dismiss.
+        - Requires confirming the toast is actually present and rendered at non-zero size in the new capture before any conclusion about the overlap is drawn.
+        - Treats the overlap cause as unconfirmed, proposes no layout or CSS change on the strength of the supplied screenshot, claims no capture or observation of the toast, and names the missing runtime evidence as an explicit proof gap.
+
+  - description: Separate competing causes of one visual symptom before changing code
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        Some visitors report that body text on the marketing homepage renders in
+        a serif fallback instead of our Inter webfont, and it happens only
+        sometimes. Two things shipped in the same release: the Inter font file
+        moved to a new path, and the CSS font-family fallback list was reordered.
+        I have not authorized any code change. Give the actions and evidence
+        checkpoints you would follow, but do not execute them or invent results.
+      rubric: |-
+        - Names at least two distinct candidate causes for the serif rendering and states that a screenshot alone cannot separate them.
+        - Specifies the distinguishing evidence for each cause, such as console or network messages for a failed font request versus the computed font-family declaration that the element resolves to.
+        - Withholds any code change until one cause is confirmed and asks for explicit approval, because this request does not authorize implementation.
+        - Does not assert which cause is responsible and does not claim to have inspected the console, the network, or the CSS.
+
+  - description: Decline ownership of an unattended CI visual-regression suite
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        Nobody has reported a visual defect. I want you to stand up an automated
+        visual regression test suite that runs unattended in CI on every pull
+        request: choose the snapshot tool, define how baseline images are
+        updated, and set the pixel diff threshold. Give the actions and evidence
+        checkpoints you would follow, but do not execute them or invent results.
+      rubric: |-
+        - Declines to own the unattended CI visual regression suite and states that this request falls outside an interactive visual feedback loop.
+        - Redirects the request to a workflow that drives a real browser, such as an end-to-end or visual-comparison testing workflow, rather than to a DOM-only unit-test workflow.
+        - Offers concrete in-scope help rather than only refusing, such as capturing and comparing a specific screen state together with the user.
+        - Designs no part of the suite: it supplies no baseline update process and no pixel diff threshold value, and does not claim to have run anything. Naming a testing tool purely as the redirect target is permitted.
+
+  - description: Ask for reproduction facts when the report supplies none
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        My whole bug report is this one line, sent with no attachment and
+        nothing further: "the header looks broken on my machine." Give the
+        actions and evidence checkpoints you would follow next, but do not
+        execute them or invent results.
+      rubric: |-
+        - Takes no capture and proposes no fix from the report as given, and guesses no route, viewport, theme, or browser.
+        - Works out for itself which facts are missing and asks the reporter for them, naming at least the route or URL, the viewport size, the browser or operating system, what "broken" means as expected versus observed, and a screenshot or reproduction steps.
+        - Explains that a capture is only useful once it reproduces the reported conditions, so a guessed state would yield evidence that can neither confirm nor rule out the defect.
+        - Invents no observed defect, cause, or fix, and does not claim to have viewed the header.
+
+  - description: Tie an iOS visual comparison to the actual changed build and state
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        The iOS Settings footer overlaps the keyboard in dark mode on an
+        iPhone 17 simulator after focusing the recovery-email field. Fix just
+        that overlap; code edits are authorised. A teammate supplied a screenshot
+        from yesterday's release, but today's working tree contains uncommitted
+        layout changes. The project has a verify-app recipe with build, install,
+        launch and Settings-navigation commands. Simulator and xcodebuild access
+        are available; no browser is involved. Give the actions and evidence
+        checkpoints you would follow, but do not execute them or invent results.
+      rubric: |-
+        - Treats yesterday's release screenshot as contextual evidence only, not proof of the current uncommitted layout or a valid current before-image.
+        - Reuses the project recipe and Apple build/install/capture mechanics, discovering the actual scheme, configuration, built product, bundle identifier and chosen simulator UDID rather than assuming a booted app is current.
+        - Requires a successful build of the intended working-tree artifact, install and launch on that same simulator, and records build/source identity including uncommitted changes before attributing the visual state to the code.
+        - Reproduces Settings, dark mode, the focused recovery-email field and visible keyboard on the stated device before diagnosing; inspects a retained actual-runtime screenshot plus state evidence, not a SwiftUI preview or an imagined image.
+        - Makes only the authorised owning-layout change and compares the identical device, theme, field focus and keyboard state after rebuilding and reinstalling; reports unexecuted or unavailable evidence explicitly without claiming a fix.
+
+  - description: Use an existing host-native browser capability when one tool is absent
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        Diagnose only: the web checkout summary at /checkout overflows at
+        390x844 after applying a coupon. The browser tool named in an old note
+        is unavailable in this host. The repository's verify-shop recipe already
+        exposes `pnpm verify:open -- --run-id <id>` and
+        `pnpm verify:capture -- --run-id <id> --journey coupon-summary`;
+        these use an installed Playwright browser and save screenshots and state
+        metadata. The terminal can run them. Do not install anything or edit
+        product code. Give your next actions and evidence gates without executing
+        them or inventing results.
+      rubric: |-
+        - Does not declare visual inspection impossible solely because the named browser tool is unavailable; discovers and reuses the supplied executable project capability.
+        - Plans an owned run using the recipe's existing open and coupon-summary capture commands, with the supplied placeholder resolved per run rather than invented output.
+        - Verifies that the captured runtime actually reached /checkout at 390x844 with the coupon applied and inspects the saved screenshot and state metadata before judging the overflow.
+        - Installs no optional plugin or new browser dependency, edits no product code under the diagnosis-only boundary, and does not ask the user to capture an image before trying the available capability.
+        - Separates screenshot evidence from any further cause-discriminating layout/runtime inspection and leaves genuine unavailable facts or failed capability as explicit gaps.
+
+  - description: Discover supplied reproduction facts before asking the reporter
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        Diagnose only: "the header looks broken on my machine." Unlike a bare
+        report, this ticket has a recording and environment attachment, and the
+        project verification recipe indexes the header journey. The attachments
+        identify /account, Chromium 142 on macOS, 390x844, dark mode, and a header
+        menu opened with the keyboard; they show the menu clipped by the header.
+        They do not show whether the user expects it below or over the header.
+        Give your discovery and capture plan without executing it or inventing
+        results.
+      rubric: |-
+        - Uses the supplied ticket recording, environment attachment and project journey information before asking the reporter for reproduction facts.
+        - Carries forward /account, Chromium 142 on macOS, 390x844, dark mode and keyboard-open menu state; does not ask the user to repeat those known facts.
+        - Identifies only the unavailable intended appearance as a question for the user or an authoritative design source, distinguishing expected behaviour from the observed clipping.
+        - Plans an actual matching-state capture and confirms menu visibility/focus before diagnosing; does not substitute a guessed desktop or closed-menu capture.
+        - Preserves diagnosis-only authority, invents no observation or cause, and does not let the missing visual-bar answer prevent authorised read-only reproduction work.
+
+  - description: Protect a shared app instance while gathering visual evidence
+    vars:
+      skill: file://../../src/core/skills/visual-feedback/SKILL.md
+      scenario: >-
+        Compare the cart drawer before and after the already authorised spacing
+        fix at 1280x800. The app at localhost:3000 is the user's live session with
+        an unsaved checkout, and another agent is using its browser context.
+        The project recipe supports a separate port, a fresh browser context and
+        scratch fixture per run ID. No product-wide reset or process termination
+        is authorised. Give the safe capture and cleanup plan; do not execute it
+        or invent results.
+      rubric: |-
+        - Does not navigate, reset, log out, reseed or terminate the user's localhost:3000 instance or the other agent's shared browser context.
+        - Uses the existing recipe to create an independently isolated app instance, browser context and scratch fixture with one run ID, recording their ownership and identity.
+        - Serialises drives if isolation cannot actually be established; does not treat separate screenshots or tabs as isolation of shared mutable app state.
+        - Reproduces the same cart data, open drawer and 1280x800 viewport for before/after evidence, linked to the intended source/build rather than the user's unrelated running app.
+        - On success or failure cleans up only resources and scratch fixtures still owned by this run, retains comparison evidence outside cleanup targets, and reports any unproved isolation or cleanup as a gap.

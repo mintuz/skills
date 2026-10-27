@@ -1,22 +1,26 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
-# Trigger-selection check for the debug skill description. Not part of the
-# scripted suite. Run it from the repo root with:
-#   pnpm test:skills:triggers -- debug
-# which refreshes the git-ignored fixture from src/ first.
+# Trigger-selection check. The runner refreshes the git-ignored fixture from src/.
+# Run: pnpm test:skills:triggers -- debug
 # A symlink does not work as the fixture: Codex resolves it to the source path,
 # which the skill-used heuristic does not recognise. The heuristic counts any
 # read of SKILL.md as use, so an exclusion the agent applies after reading the
 # skill is judged from the response with agent-rubric instead.
 description: debug skill trigger selection
+metadata:
+  fixture_skills: [tdd, xcuitest, swift-testing, xcode-dev-loop, benchmark-checklist]
 
 prompts:
   - id: file://prompts/trigger.txt
     label: trigger
 
 providers:
-  - id: openai:codex-sdk
+  - &subject
+    id: openai:codex-sdk
     config:
-      working_dir: ./workspace
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
       skip_git_repo_check: true
       sandbox_mode: read-only
       approval_policy: never
@@ -63,10 +67,13 @@ tests:
           - The closing line names swift-testing (or app:swift-testing) or "none" as the guidance followed; it does not name debug or app:debug.
           - The plan does not include simulator launch, screenshot capture, or app runtime log capture; the failing surface it works on is the test and its xcodebuild output.
           - The plan does not claim to have run xcodebuild, read project files that the request did not supply, or found the cause already.
-        provider:
+        provider: &judge
           id: openai:codex-sdk
           config:
-            working_dir: ./workspace
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
             skip_git_repo_check: true
             sandbox_mode: read-only
             approval_policy: never
@@ -77,3 +84,52 @@ tests:
                 apps: false
                 plugins: false
                 skill_search: false
+
+  - description: Excludes existing non-UI XCTest unit-test repair
+    vars:
+      request: >-
+        The app builds and runs correctly. Repair only the existing
+        XCTestCase unit test BalanceTests/testZeroCreditKeepsBalance, using
+        XCTAssertEqual and our established project conventions. No framework
+        migration is authorised. Give the authoring and execution handoffs only.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          - Treats the task as test-only non-UI XCTest work, not simulator crash or screenshot diagnosis.
+          - Preserves XCTest and uses established project conventions with framework-neutral TDD/test-behaviour fallback; it does not route authoring to swift-testing or UI-only xcuitest, force migration or claim a dedicated reusable non-UI XCTest guide exists.
+          - Names xcode-dev-loop for test execution/result interpretation, does not name debug as the authoring guidance followed and claims no executed results.
+        provider: *judge
+
+  - description: Excludes XCTest measure repair without forcing migration
+    vars:
+      request: >-
+        The app works. Diagnose only the existing XCTestCase
+        ImportPerformanceTests/testImportThousandRows performance failure.
+        It uses measure(metrics: [XCTClockMetric()]) against an approved
+        baseline. Preserve its framework, baseline, workload and threshold.
+        Give the handoffs and evidence plan, but do not execute anything.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          - Treats this as non-UI XCTest performance-suite work rather than app runtime diagnosis and does not name debug as the guidance followed.
+          - Preserves XCTest measure and all supplied benchmark constraints, routing any authorised repair through existing project conventions and framework-neutral TDD/test-behaviour fallback; neither swift-testing nor xcuitest is claimed as the dedicated non-UI XCTest authoring owner.
+          - Uses xcode-dev-loop for execution/results and benchmark-checklist or explicit controlled measurement checks for validity; invents no execution or performance improvement.
+        provider: *judge
+
+  - description: Excludes UI test-only authorship in favour of xcuitest
+    vars:
+      request: >-
+        The iOS app runs correctly. Author only an XCUIApplication UI test
+        that denies permission and verifies the choice after relaunch in our
+        existing XCUITest suite. Give the authoring handoff, not test source
+        or an execution result.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          - Routes XCUIApplication UI-test authorship to xcuitest rather than debug or swift-testing and does not force migration.
+          - Keeps permission denial and persistence after relaunch as explicit UI-journey obligations, not a screenshot-only loop.
+          - Names xcode-dev-loop only for build/test/result mechanics if needed, writes no test source and claims no execution.
+        provider: *judge

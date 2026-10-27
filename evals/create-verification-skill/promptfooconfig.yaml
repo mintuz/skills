@@ -73,3 +73,39 @@ tests:
       skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
       scenario: "A saved recipe starts a worker on port 4311 and records an ownership token, PID and start time. During a failed run the worker exits; another user process later reuses that PID. The run produced evidence/trace.json and scratch rows under its run ID. How should its cleanup and replay behave?"
       rubric: "Checks resource identity/ownership beyond reused PID before termination; removes only owned scratch state and preserves evidence; does not kill by process name or terminate unrelated reused PID. A failed replay remains unverified and cleanup runs on failure too."
+  -
+    description: "Index every declared surface without inventing a router"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "Create verify-orbit for one product with a web client and iOS app sharing one API and fixture account. Its agreed surface list includes web checkout, iOS purchase history, a deep-link entry to history, and Siri reorder on a physical device. Existing Playwright and xcodebuild commands cover the first two. There is no Siri runner and the phone is unavailable. Outline the bundle and initial feature map; no execution is available here."
+      rubric: "Inventories all four declared journeys with surface/entrypoint and authority/check references; reuses the existing runners and one bundle with shared fixture ownership rather than inventing a monorepo router or framework. Siri remains a named blocked/unverified obligation with its exact missing device prerequisite, not a removed feature or simulator substitute. Distinguishes a deep-link entry from the ordinary history entry rather than assuming one covers the other."
+  -
+    description: "Link existing BDD and tests instead of duplicating expected outcomes"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "Bootstrap verify-basket. Accepted examples CART-7 and CART-8 live in specs/cart.feature. tests/cart.spec.ts already implements those examples with named case IDs. A new accepted example CART-9 has no executable test yet. A colleague proposes copying every Given/When/Then and expected result into SKILL.md, a feature-map document and a second YAML assertion catalogue. What should the deliverable contain?"
+      rubric: "Keeps accepted examples and existing test expectations authoritative in their current paths, indexing CART-7/8 by requirement/example and executable case references instead of copying expected outcomes into multiple maintained formats. Records exact preconditions/actions/expected result and authority for uncovered CART-9, explicitly unverified. Does not mandate Cucumber/new BDD tooling or author product tests without separate authority, and avoids a second hand-maintained assertion/result database."
+  -
+    description: "One canonical source with conditional harness projections"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "Create verify-notes in a project with no skill registration convention. Codex and OMP support native .agents discovery here; Claude Code discovers .claude/skills. Relative directory symlinks are supported. We want to claim all three hosts support both the real web notes journey and iOS save/relaunch journey. Only a Codex web authoring run is currently observed. Describe source placement, registration and the remaining proof."
+      rubric: "Proposes .agents/skills/verify-notes as the single canonical source and a relative directory symlink in .claude/skills; does not create independent hand-authored recipes or an unnecessary .omp duplicate when .agents already works. Requires complete relative resources and discovery/loading checks, and separates these from operational cold replay. Requires fresh-context representative real web and real iOS replay in each claimed host; the observed Codex authoring web run proves neither cold replay nor the other matrix cells. Unavailable cells remain unproven; no implicit plugin installation."
+  -
+    description: "Dirty working tree belongs in evidence identity"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "Create a reusable verify-ledger recipe for this working tree. HEAD is c71 but src/totals.ts and fixtures/invoices.json have uncommitted user edits. An old receipt says c71 passed on the clean checkout. The current process also reports c71 as its revision. The user must keep their edits. Describe what the recipe needs before claiming its current run."
+      rubric: "Does not treat the matching commit as sufficient build/runtime identity or reuse the old clean pass automatically. Captures an uncommitted-source fingerprint plus relevant fixture/environment/toolchain and recipe identity, establishes that the running artifact includes the intended working-tree inputs, and checks evidence validity against changed inputs. Preserves user edits without reset/stash/commit and avoids claiming an unperformed run."
+  -
+    description: "Required failed and not-run obligations cannot become green smoke"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "Design the result aggregation for verify-checkout. Repository policy requires unit, checkout-browser and migration checks. The proposed smoke profile runs units (pass), checkout-browser (payment assertion fails, then passes on an unexplained retry), and omits migrations (not-run). A screenshot exists but the contract also requires a browser trace, which was not retained. The author wants an overall PASS because the last command exited zero. What should the generated recipe do?"
+      rubric: "Records selected obligations and mandatory gates/exclusions before execution; smoke cannot silently drop mandatory migrations. Records attempts and the behavioural failure rather than erasing it with the retry. Reports per-obligation pass/fail/blocked/not-run honestly and requires valid required evidence, including the missing trace. Aggregation cannot pass while mandatory checks are not-run, evidence is missing or a behavioural failure is unresolved; exit zero and screenshot alone are insufficient. Prefers structured native results and actual case inventory over a friendly log line."
+  -
+    description: "Bootstrap proof is narrower than the product map"
+    vars:
+      skill: "file://../../src/core/skills/create-verification-skill/SKILL.md"
+      scenario: "We authorised bootstrapping verify-planner around one critical web journey, create-plan. The declared product map also includes edit-plan, export and iOS offline sync. Create-plan passed its authoring run and a fresh-context replay with valid identity, cleanup and evidence. The other three journeys were only inventoried; they are outside the authorised initial execution scope. May the handover say 'Planner is fully verified'? State the justified handover."
+      rubric: "Rejects the whole-product claim and reports only bounded create-plan authoring/cold-replay proof. Keeps edit-plan, export and iOS offline sync visible as unverified/outside the proved scope, not silently deleted or labelled passes. Distinguishes this permitted bounded bootstrap from full maintenance, which must account for all declared required entrypoints/states. Does not expand execution or product-edit authority merely to obtain a green product badge."

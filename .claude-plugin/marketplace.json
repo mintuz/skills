@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "core",
-      "version": "3.3.1",
+      "version": "3.4.0",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
@@ -28,6 +28,9 @@
         "./skills/wtf",
         "./skills/github-monitor",
         "./skills/create-verification-skill",
+        "./skills/maintain-verification-skill",
+        "./skills/visual-feedback",
+        "./skills/tdd",
         "./skills/blast-radius",
         "./skills/double-check",
         "./skills/how",
@@ -60,7 +63,7 @@
     },
     {
       "name": "product-management",
-      "version": "1.9.1",
+      "version": "1.9.2",
       "source": "./src/product-management",
       "description": "Agents and skills that are specialised in Product Management workflows",
       "skills": [
@@ -73,18 +76,17 @@
     },
     {
       "name": "web",
-      "version": "1.12.1",
+      "version": "2.0.0",
       "source": "./src/web",
       "description": "Agents and skills that are specialised in building and maintaining web applications",
       "skills": [
         "./skills/web-design",
         "./skills/css",
-        "./skills/tdd",
         "./skills/react",
         "./skills/xstate",
         "./skills/react-testing",
         "./skills/frontend-testing",
-        "./skills/eyes",
+        "./skills/browser-testing",
         "./skills/chatgpt-app-sdk",
         "./skills/refactoring",
         "./skills/tailwind"
@@ -92,11 +94,12 @@
     },
     {
       "name": "app",
-      "version": "1.9.1",
+      "version": "1.10.0",
       "source": "./src/app",
       "description": "Agents and skills for Swift app development on iOS",
       "skills": [
         "./skills/swift-testing",
+        "./skills/xcuitest",
         "./skills/app-intent-driven-development",
         "./skills/swiftui-architecture",
         "./skills/debug",

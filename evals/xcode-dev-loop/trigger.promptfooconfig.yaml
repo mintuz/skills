@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Apple runtime mechanics activation and authorship boundaries
+metadata:
+  fixture_skills: [tdd, xcuitest, swift-testing, benchmark-checklist]
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  - &subject
+    id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Activates for actual build install and state capture
+    vars:
+      request: Build the current iOS working tree, install its actual app on one discovered simulator UDID, reach Settings through our existing journey recipe and save a screenshot with the keyboard open. Preserve the user's other booted simulator.
+    assert:
+      - type: skill-used
+        value: xcode-dev-loop
+  - description: Activates for running existing XCTest unit and measure selections
+    vars:
+      request: Run and interpret two existing xcodebuild selections in App.xcworkspace scheme App, an XCTest unit test and an XCTest measure test. Keep the framework and baseline unchanged, save fresh xcresult evidence and confirm each named test actually ran.
+    assert:
+      - type: skill-used
+        value: xcode-dev-loop
+  - description: Excludes Swift Testing source authorship
+    vars:
+      request: "Only author a new @Test and #expect repository test using Swift Testing conventions. Do not run xcodebuild or install, launch or capture the app."
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response directs Swift Testing source authorship to swift-testing rather than applying xcode-dev-loop as the authoring owner. It respects the no-execution boundary and invents no test API or results.
+        provider: &judge
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: Excludes XCUITest source authorship
+    vars:
+      request: Only author the XCUIApplication UI test for permission denial and persistence after relaunch. Use our existing UI suite conventions; no build/test execution loop is requested.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response routes XCUIApplication UI test authorship to xcuitest rather than swift-testing or xcode-dev-loop as source-authoring owner; it preserves the permission and relaunch boundary and does not substitute a screenshot.
+        provider: *judge
+  - description: Excludes dedicated non-UI XCTest authorship without forcing migration
+    vars:
+      request: Only repair source in our existing XCTestCase unit test and XCTest measure performance test. Preserve XCTAssertEqual, measure, the approved performance baseline and project conventions. Do not run tests and do not migrate frameworks.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response preserves non-UI XCTest and its measure/baseline contract, uses project-convention and framework-neutral TDD/test-behaviour fallback for authorised repairs, and acknowledges the absence of a dedicated reusable non-UI XCTest authoring skill. It does not claim swift-testing, UI-only xcuitest or xcode-dev-loop supplies that authorship, and it does not execute anything.
+        provider: *judge

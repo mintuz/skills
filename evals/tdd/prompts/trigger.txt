@@ -1,0 +1,8 @@
+Skills installed under `.agents/skills/` in this workspace are available. Use
+read-only file discovery commands to inspect descriptions and read applicable
+guidance. Do not execute product/test commands or modify files. Return a short
+plan or evidence classification, then name the skill whose guidance it follows,
+or "none". Do not claim unexecuted evidence.
+
+Request:
+{{request}}

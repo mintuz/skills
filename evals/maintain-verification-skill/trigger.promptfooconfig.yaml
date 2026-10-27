@@ -1,0 +1,83 @@
+# Trigger-selection suite against the current canonical source.
+description: "maintain-verification-skill activation versus creation and routine execution"
+prompts:
+  - id: "file://prompts/trigger.txt"
+    label: "trigger"
+metadata:
+  fixture_skills:
+    - create-verification-skill
+    - browser-testing
+providers:
+  - id: "openai:codex-sdk"
+    config: &isolated_provider
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Explicit maintenance invocation reaches skill"
+    vars:
+      request: "Use maintain-verification-skill to audit the existing verify-ledger bundle, reconcile its feature index and fix stale owned registration entries. Do not change the product."
+    assert:
+      - type: "skill-used"
+        value: "maintain-verification-skill"
+  - description: "Natural full audit selects maintenance"
+    vars:
+      request: "Our existing reusable verification recipe has drifted since the web and iOS launch commands changed. Audit every declared journey and all Codex, Claude Code and OMP discovery entries; safely repair only the recipe and its owned helpers."
+    assert:
+      - type: "skill-used"
+        value: "maintain-verification-skill"
+  - description: "Initial bootstrap belongs to creator"
+    vars:
+      request: "This project has no verification skill. Create its first reusable verify-ledger recipe using the existing CLI harness, and prove one critical journey with a fresh-context replay."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "Does not apply ongoing maintain-verification-skill workflow to a missing bundle. Identifies initial bootstrap as creation, suitable for create-verification-skill if available, without claiming execution."
+        provider:
+          id: "openai:codex-sdk"
+          config: &judge_config
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: "Routine execution does not start maintenance"
+    vars:
+      request: "Run the already documented verify-ledger save-invoice journey once and report its evidence. Do not audit, create, refresh or change the verification bundle."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "Stays within routine execution of the existing project recipe, not maintain-verification-skill audit/repair or creator bootstrap. Does not claim to run checks when execution was excluded by the evaluation prompt."
+        provider:
+          id: "openai:codex-sdk"
+          config: *judge_config
+  - description: "Shared test authoring is not bundle maintenance"
+    vars:
+      request: "Repair the failing assertion in our existing tests/checkout.spec.ts Playwright suite under test-authoring authority. Leave the verification recipe, its fixtures and registrations unchanged."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "Identifies browser-suite test authoring, not maintenance of the verification bundle. Does not apply maintain-verification-skill as authority to change shared acceptance expectations or unrelated recipe files, and does not claim unavailable execution."
+        provider:
+          id: "openai:codex-sdk"
+          config: *judge_config
