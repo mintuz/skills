@@ -396,6 +396,20 @@ Keep requirements, executable checks and runtime evidence distinct:
   `acceptance-review` for requirement satisfaction, and `double-check`
   for a separate reviewer. None replaces machine-checked assertions.
 
+For iOS work, keep these owners separate:
+
+| Skill | Owns | Hands off |
+|---|---|---|
+| `debug` | Root-cause investigation of build/runtime identity, state, storage, lifecycle or crash faults | Rendering-only defects and agreed visual iteration to `visual-feedback`; execution to `xcode-dev-loop` |
+| `xcode-dev-loop` | Toolchain, build/install/run/capture mechanics and native result inspection | Test authorship and visual judgement |
+| `xcuitest` | UI-test actions, fixtures, waits and assertions | Exact cases, preconditions and proof requirements to the execution owner; unexplained behavioural failures with all attempt evidence to `debug` |
+| `visual-feedback` | Actual image inspection, visual diagnosis and equivalent before/after review in web or iOS | Apple execution to `xcode-dev-loop`; broader iOS build/runtime identity, state, storage, lifecycle or crash faults to `debug` |
+
+Keep one execution owner at a time. Request controlled experiments through that
+owner rather than starting a parallel simulator driver. Keep brief safety and
+evidence rules in each skill. If an optional companion is absent, use the project's
+documented commands; core visual feedback retains a standalone capture fallback.
+
 Project recipes use one canonical bundle, not three authored versions.
 Prefer the project's convention; otherwise use `.agents/skills` with a
 Claude project-directory link and an OMP native link only when needed.

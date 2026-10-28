@@ -178,34 +178,32 @@ Apple build/test/device execution to `xcode-dev-loop` or established project
 commands. Missing device, entitlement, signing or account keeps the corresponding
 obligation **blocked/unverified**, even if every stand-in UI test passes.
 
-## Require fresh, identifiable execution evidence
+## Hand off execution and judge the returned evidence
 
-When execution is authorised, hand the exact case/test-plan selection to
-`xcode-dev-loop`. Establish expected case identities and non-zero count from the
-suite/test plan **before** interpreting the run. Record the actual test target,
-class/method, selection, revision plus relevant dirty-source identity, built
-product, toolchain, device UDID/runtime, fixture/store ID and permission state.
+When execution is authorised, name one `xcode-dev-loop` executor or actual
+documented project command in the handoff/report, including device/system
+follow-through. It uses the project's recipes and owns discovery, build,
+install, run, native case-result inspection, process verdicts and teardown.
+Send exact case/test-plan IDs, isolated fixture and permission preconditions,
+reset-versus-relaunch rules and expected outcomes. Do not create another runner.
 
-Give every attempt a fresh `-resultBundlePath`; inspect that `.xcresult` with the
-installed Xcode's structured result tooling (for example
-`xcrun xcresulttool get test-results summary --path <bundle>` and its case-level
-results). Confirm expected cases actually executed, with no unexplained skips,
-failures or crashes, and reconcile the result with the process exit status and
-terminal test verdict. A friendly log line, zero-test success, old bundle,
-screenshot or unbuilt test edit does not establish a pass.
+Require returned case IDs and non-zero execution count, source identity including
+dirty changes, actual built/installed product, toolchain, device/runtime, fixture
+ID and evidence that the requested permission state held. Expected cases must
+have fresh native results with no unexplained skips, failures or crashes.
+Authored code, a screenshot, a total count or an old result alone is not proof.
+Keep unavailable device/system boundaries explicit.
 
-Retain all attempts, failures, logs, result bundles and attachments with their
-identities. A failed persistence attempt followed by a seeded pass is still a
-failed persistence obligation, not a clean pass. Remove the target reseed from
-the persistence path. Rerun only under a declared retry policy or a specific
-diagnosed setup/infrastructure reason, restoring only owned known state and
-preserving the original failure. Do not suppress assertions, retry indefinitely
-or erase shared simulator state to obtain green. A later valid result must not
-conceal the earlier behavioural failure or unresolved flakiness.
+Retain failed attempts and their evidence. A seeded pass cannot close a failed
+persistence obligation: remove the target reseed, preserve the original failure
+and use only a declared retry policy or a diagnosed setup/infrastructure reason.
+Never suppress assertions, retry indefinitely or erase shared state to get green.
 
-Report authored changes separately from exercised proof: exact case IDs,
-pass/fail/blocked/not-run, artifact paths, stand-ins/limits, cleanup and evidence
-retention. In a handoff, name the execution owner: `xcode-dev-loop` or the actual
-documented project command, including device/system-boundary follow-through.
-If execution was not available or not requested, say the proposal or code is
-unexecuted; do not claim either the test or product is fixed.
+Report authored changes separately from exercised proof: exact case and attempt
+IDs, each pass/fail/blocked/not-run result, evidence paths, stand-ins and
+cleanup/retention gaps. A later passing retry must not conceal an earlier
+behavioural failure or unresolved flakiness. Until that failure is explained and
+the required behaviour is proved, do not claim the test or product fixed.
+Hand both attempts and their retained evidence to `debug` or the project's named
+diagnostic owner. Do not investigate or request another run here.
+If execution was unavailable or not requested, label the code unexecuted.

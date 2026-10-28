@@ -178,6 +178,8 @@ failed cleanup and unavailable evidence explicitly rather than implying success.
 ## Related Skills
 
 - **`app:debug`** — structured feedback loop for simulator failures, user-reported or observed
+- **`core:visual-feedback`** — interactive appearance diagnosis and before/after
+  review; this loop supplies the execution, captures and identity/state evidence.
 - **`app:swift-testing`** — Swift Testing authoring; **`app:xcuitest`** —
   XCTest UI authoring. Keep non-UI XCTest tests in their existing framework.
 - **`app:swiftui-architecture`** — SwiftUI patterns for the code under test

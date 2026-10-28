@@ -45,6 +45,5 @@ scratch cleanup and never use a logged-in user profile for an isolated run.
 Prefer synthetic data and disposable accounts. Inspect and redact shareable
 capture derivatives; keep necessary originals access-controlled under the
 project's retention policy. Never publish credentials, customer data or whole
-unreviewed bundles. Shared-instance inspection requires explicit authority,
-one serial driver under one lifecycle owner and no risk to foreign unsaved state;
-never stop, reset or clear a user-owned instance.
+unreviewed bundles. Apply the parent skill's single Isolation and evidence rule
+for shared-instance authority, serial inspection and protection of foreign state.

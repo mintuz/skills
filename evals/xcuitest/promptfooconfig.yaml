@@ -182,3 +182,42 @@ tests:
         - Retains the fresh xcresult/attachments and attempt identity with build, device/runtime and fixture information; uses xcode-dev-loop or established result tooling to inspect actual expected case execution instead of a friendly log line.
         - Removes the target-note reseed from the persistence path and restores only owned known setup for any justified rerun; does not suppress failures, retry indefinitely or erase the shared simulator.
         - Cleans up only owned fixture/resources on failure as well as success while preserving evidence, and does not claim the test or product fixed without an actual discriminating result.
+
+  - description: Hand UI-test execution to its existing owner without creating another runner
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        We need an authoring and handoff plan for
+        NotesUITests/PersistenceTests/testSavedNoteSurvivesRelaunch. It must
+        create one note through Add, enter its title, Save, terminate and
+        relaunch without reseeding, then assert that exact note. The test
+        target already exists. A separate xcode-dev-loop executor owns the
+        isolated simulator, build commands, result parsing and teardown.
+        Its execution request accepts case IDs, fixture preconditions,
+        expected outcomes and evidence requirements. It has not run this case.
+        How do you divide the work and decide whether the case is proved?
+        Do not execute, invent project launch keys or build a second runner.
+      rubric: |-
+        - Owns UI-test actions, bounded waits and exact assertions, including a public Save and persistence after relaunch without resetting or reseeding the target note.
+        - Gives the existing executor the exact supplied case ID, isolated fixture/reset-versus-relaunch preconditions, expected saved-note outcome and required case-level evidence; does not take over that executor's simulator or invent a parallel runner/result parser.
+        - Requires evidence that this exact case ran against the intended source/build and fixture, with a fresh native result and no unexplained failure/skip, rather than treating authored code, a screenshot or a total count as a pass.
+        - Keeps the case not-run until real results exist and retains any failed attempts and cleanup gaps instead of retrying or rewriting assertions into a pass.
+
+  - description: A passing retry does not close an unexplained persistence failure
+    vars:
+      skill: file://../../src/app/skills/xcuitest/SKILL.md
+      scenario: |-
+        NotesUITests/PersistenceTests/testSavedNoteSurvivesRelaunch failed in
+        attempt A: after a public Save and relaunch, the note was absent.
+        The team's declared policy permits one retry. Attempt B ran the same
+        case and passed without changing source or setup. The execution owner
+        retained both fresh xcresult bundles, case IDs, source/build/toolchain,
+        simulator and isolated-store identities. There is no explanation for
+        A. You own UI-test reporting, not another run or source repair. A
+        colleague wants to report "persistence fixed" because B is green.
+        Give the accurate report and handoff. Do not execute or invent a cause.
+      rubric: |-
+        - Distinguishes A's failed behaviour, B's passing attempt and the unresolved overall persistence/flakiness obligation; a permitted retry alone is not proof that a defect was fixed.
+        - Reports and retains both attempt identities and native case evidence rather than hiding A behind an aggregate pass or the latest screenshot.
+        - Does not claim the test or product fixed while the behavioural failure remains unexplained; hands both attempts and retained evidence to debug or a concretely named project diagnostic recipient, not an unnamed investigation or an execution-owner rerun; does not suppress the failure or start more execution.
+        - Preserves assertions, source, store and retry bounds, invents no infrastructure cause, and performs no further retry or shared-state cleanup.

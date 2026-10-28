@@ -205,3 +205,56 @@ tests:
         - Reuses xcode-dev-loop for both tasks' build/test/result mechanics rather than claiming it authors either test.
         - Keeps permission handling and persistence through relaunch as explicit UI-journey obligations; neither a deep link nor a screenshot alone substitutes for them.
         - Does not broaden these test-only tasks into unrelated app runtime diagnosis, force framework migration or claim any test has run.
+
+  - description: Route agreed visual iteration without manufacturing an app defect
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: |-
+        The iOS app builds and works. The user says: "Make the Settings cards
+        less cramped: change their vertical gap from 16 to 24 points, and show
+        me the before/after at large text size. You may make that layout change.
+        There is no crash or lost data." visual-feedback and xcode-dev-loop
+        are installed. We have no capture yet. Give the ownership handoff and
+        evidence plan, not code or execution. A colleague proposes starting a
+        full repository/storage/lifecycle root-cause investigation and adding a
+        new UI regression suite before accepting the spacing change.
+      rubric: |-
+        - Recognises an agreed visual iteration rather than an unexplained app defect; does not manufacture a storage/crash investigation or require a new UI suite merely for this request.
+        - Hands the visual state, requested 16-to-24-point gap, large-text conditions and human before/after review to visual-feedback or an explicitly scoped visual-comparison owner.
+        - Uses xcode-dev-loop for the actual current-source build/install/capture mechanics under one execution owner, not as the author of visual requirements or a duplicate diagnostic workflow.
+        - Preserves the already supplied layout-edit permission, changes no unrelated values/data, and requires actual matching-state image inspection/comparison without claiming the plan has run.
+
+  - description: Give a layout-only defect one visual diagnostic owner
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: |-
+        Diagnose only: the keyboard hides Save on the note editor on a small
+        iPhone at large text size. The app builds and works, the field keeps
+        its value, and no storage, crash or lifecycle fault is reported.
+        debug was selected because the report contains a wrong screenshot.
+        visual-feedback and xcode-dev-loop are installed. Give one ownership
+        and evidence handoff without executing or editing. If later evidence
+        shows a lost model value rather than clipping, explain the return path.
+      rubric: |-
+        - Gives the reported rendering/keyboard defect to the visual workflow for diagnosis and equivalent image comparison rather than running two parallel root-cause and before/after loops.
+        - Carries the actual small-device, large-text, focused-field and keyboard-visible state into the capture request, using one Apple execution owner and requiring current-build/state evidence and actual image inspection.
+        - Preserves diagnosis-only authority and does not invent a cause, edit code, reset a store or require a new UI suite.
+        - Returns a subsequently evidenced model-value/state fault to debug or the project's broader diagnostic owner, preserving the visual evidence and exact authority rather than treating a layout change as its fix.
+
+  - description: Replay a fresh-install failure without deleting unrelated app data
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: |-
+        Fix the crash on the first launch after a fresh install. Code edits
+        are authorised. The captured failing sequence installs onto a new
+        empty simulator, launches, then crashes during initial bootstrap.
+        A separate xcode-dev-loop executor owns the test lifecycle. Its old
+        test device has now launched the previous build and contains state.
+        The user's daily simulator also has this app and unsaved notes;
+        deleting or clearing that app is forbidden. Plan the post-fix replay
+        and evidence handoff without executing or inventing a result.
+      rubric: |-
+        - Preserves the fresh-install/empty-state precondition and first-launch bootstrap sequence; does not treat installing over the already launched stateful test app as an equivalent replay.
+        - Uses the existing execution owner with a newly created run-owned device or equivalently fresh isolated fixture and the rebuilt intended product, not a parallel driver.
+        - Never uninstalls, clears or resets the user's app/device/data; scopes any fresh-state setup and cleanup to verified run-owned resources.
+        - Requires actual source/build/runtime identity and first-launch crash or success evidence from the exact replay before claiming the bootstrap defect fixed; preserves the original failure and reports unproved boundaries.

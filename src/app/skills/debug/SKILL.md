@@ -22,10 +22,46 @@ authorised, stop and ask again only when the proved fix needs a materially
 different, destructive, or externally visible action, such as deleting stored
 data or resetting a shared store (`principle-stay-in-scope`).
 
+## Visual work and execution ownership
+
+Choose one diagnostic owner before starting the root-cause loop. A rendering-only
+defect, including keyboard overlap or a wrong screenshot with no evidenced
+build/runtime identity, state, storage, lifecycle or crash fault, belongs to
+`visual-feedback`. So does an
+agreed appearance change. Hand over the screen, requested values, capture
+conditions and exact authorised scope for actual image inspection, visual
+diagnosis, equivalent before/after comparison and human review. Do not add a
+second root-cause loop or a UI suite merely for that handoff.
+Require the returned source/build identity, including dirty changes, and state
+evidence for the focused field and keyboard/permission conditions. A screenshot
+path or app name alone does not establish that capture identity.
+
+Keep build/runtime identity, state, storage, lifecycle or crash diagnosis here.
+If visual evidence reveals one of those faults, take that diagnostic handoff
+back without treating a layout repair as its fix. If `visual-feedback` is unavailable, use the
+project's visual-review procedure, or perform the same scoped actual-image
+comparison and human review here.
+
+Use the project's documented recipes through one `xcode-dev-loop` executor, or
+the established project commands, for current-source build, installation, launch
+and capture. Keep one lifecycle owner at a time; request controlled experiments
+through that owner rather than starting a parallel device driver.
+After an authorised source change, ask that owner to rebuild and restore the
+recorded failing sequence's starting state. If the sequence depends on existing
+app data, install the intended product over that app while keeping its data.
+If it starts from a fresh install or empty store, use a new run-owned device or
+equivalently fresh isolated fixture. Never uninstall or clear a user-owned app
+or its data. Replay the failing action and collect fresh logs; checking the
+previous build's identity alone is not verification.
+
 ## Test-only failures and regression authorship
 
-If the application builds and runs and only a test fails, do not start an app
-crash/build investigation or manufacture runtime proof. Identify the suite first:
+Take back a UI-test failure that indicates a possible build/runtime identity,
+state, storage, lifecycle or crash fault. `xcuitest` still owns the test code;
+request diagnostic experiments through the same execution owner.
+
+For a test-authoring failure with no indicated app fault, identify the suite
+instead of manufacturing an app crash/build investigation or runtime proof:
 
 - Swift Testing `@Test` / `#expect`: use `swift-testing`.
 - XCTest UI automation with `XCUIApplication`: use `xcuitest`.
@@ -116,6 +152,8 @@ boundary; do not turn a user's reported symptom into an agent-observed reproduct
 
 - **`app:xcode-dev-loop`** — the build, test, install, launch, and screenshot
   mechanics that steps 1, 2, and 5 run.
+- **`core:visual-feedback`** — rendering-only diagnosis and interactive appearance
+  comparison; return build/runtime identity, state, storage, lifecycle or crash faults here.
 - **`app:swift-testing`** — Swift Testing regression checks; use `app:xcuitest`
   for UI automation and preserve existing non-UI XCTest conventions as above.
 - **`app:swiftui-architecture`** — SwiftUI state and data-flow patterns for the
