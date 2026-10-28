@@ -1,13 +1,13 @@
 # Skill Packaging and Evaluation
 
-This directory contains tools for working with Claude plugin skills across different platforms.
+This directory contains packaging and evaluation tools for shared skills used by Codex, Claude Code and OMP.
 
 ## Overview
 
 This directory contains two main tools:
 
 1. **`package-skills.go`** - Packages skills into a zip file for uploading to Claude web (claude.ai)
-2. **`codex-sync.go`** - Syncs skills to OpenAI Codex CLI format
+2. **`codex-sync.go`** - Copies complete portable skill bundles to a selected discovery directory; it does not translate their instructions
 
 **IMPORTANT:** Run these scripts from the repository root directory, not from within the `scripts/` directory.
 
@@ -69,6 +69,17 @@ New portable suites select `codex_path_override: codex` so the installed CLI sup
 The `test:skills` command runs only treatments with a 1.0 gate; the full comparisons
 report baseline and treatment side by side and are informational.
 
+Concurrent Promptfoo processes must not share a SQLite result store. Set a
+different `PROMPTFOO_CONFIG_DIR` for each invocation. Create a new owned directory:
+
+```sh
+run_dir=$(mktemp -d "${TMPDIR:-/tmp}/skill-eval.XXXXXX")
+PROMPTFOO_CONFIG_DIR="$run_dir/creator" pnpm test:skills -- create-verification-skill
+```
+
+Keep each store until its results and earlier failed attempts have been recorded.
+`SQLITE_BUSY` is an infrastructure failure, not a behavioural result.
+
 Promptfoo and its reports run locally, but this configuration sends the skill and
 scenario text to the model behind the existing Codex login. Change the provider to
 a local agent/model when inference must stay on the machine.
@@ -79,12 +90,35 @@ The main suite tests behaviour after activation. A skill whose description
 changed also needs a trigger-selection suite, which tests whether the skill
 fires at all. Put it in `evals/<skill>/trigger.promptfooconfig.yaml` and give it
 one relative provider `working_dir` below the eval directory, separate from the baseline workspace.
+Use a separate clean `grading-workspace` for rubric providers. Do not grade
+from the populated subject fixture or a reused baseline workspace.
 
 `pnpm test:skills:triggers` copies the complete current skill directory into
 `<working_dir>/.agents/skills/<skill>/` before each run, then evaluates the
-trigger config. That `.agents/skills/` directory is owned disposable test data. By default the fixture holds exactly one skill: the runner deletes every sibling and replaces the skill under test, including its relative resources. A trigger provider may set `keep_skills` to an array of sibling directory names to preserve; the skill under test is still refreshed, and a kept symlink is rejected before cleanup. Keep no user skills there unless that opt-in names them. Quoted YAML paths are supported; paths outside the suite, symlink ancestors and duplicate source names are rejected before cleanup. It is git-ignored
-rather than committed: a committed copy would drift from the source and the suite
-would test a stale description. Never edit the fixture; edit the skill.
+trigger config. That `.agents/skills/` directory is owned disposable test data.
+By default it holds exactly one current skill, including all relative resources.
+For handoff-selection cases, declare `metadata.fixture_skills` as an array of
+companion names. The runner resolves each canonical source uniquely and refreshes
+its complete bundle on every run, including on a clean checkout.
+
+Set `metadata.keep_skills` to an array of names to preserve fixture-specific
+siblings instead. Keep it at the top level alongside `metadata.fixture_skills`,
+not inside provider configuration. A skill cannot be both refreshed and kept.
+The runner rejects misplaced `provider.config.keep_skills` before fixture
+cleanup, so forgotten migrations cannot delete kept fixtures. It passes the
+original YAML to Promptfoo unchanged, preserving relative paths and aliases.
+Other unknown provider options still fail native validation.
+
+`check` also validates trigger fixture metadata, canonical companion sources
+and owned paths. It does not create, refresh or prune the fixture. Invalid
+metadata fails before native validation of that trigger config; other configs
+still receive their own validation.
+
+All names and sources are checked before cleanup. Paths outside the suite,
+symlink ancestors, kept symlinks and duplicate source names are rejected. Do not
+put user skills in this owned fixture unless `metadata.keep_skills` names them. Generated
+copies are git-ignored: a committed copy would drift from the source. Edit the
+canonical skill, not the fixture.
 
 Trigger runs report rather than gate. Activation is nondeterministic, and
 Promptfoo's `skill-used` heuristic counts any read of `SKILL.md` as use, so an
@@ -92,7 +126,12 @@ exclusion the agent applies after reading the skill still counts as activation.
 Judge such cases with `agent-rubric` on the response instead. A symlink does not
 work as the fixture, because Codex resolves it to the source path.
 
-Run `node --test scripts/run-skill-evals.test.mjs` to check fixture copying and cleanup without model calls.
+Run `node --test scripts/run-skill-evals.test.mjs` to check fixture ownership,
+copying and cleanup without model calls. The deterministic integration cases
+also run the installed Promptfoo CLI, resolved through its package `bin` entry,
+with a local custom provider and a separate result store per invocation. They
+check relative prompts, native provider validation, real trigger results and
+failed assertions: trigger mode reports them, while test mode gates on them.
 
 Use `skill-doctor` separately to find trigger problems in real conversation history.
 
@@ -332,7 +371,7 @@ The sync tool preserves all skill features:
 
 ## Skill inventory
 
-Both scripts read `.claude-plugin/marketplace.json`; [the repository README](../README.md) describes the inventory. The `principle` plugin groups 54 independent `principle-*` skills. Leave `--prefix` off to retain those names. The copier and zip packager preserve reference files. They also copy [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) into each bundle whose name is listed in that file, which is how the 54 pstack adaptations keep the upstream MIT notice. Other skills are copied as they are. The repository root `LICENSE` stays at the root.
+Both scripts read `.claude-plugin/marketplace.json`; [the repository README](../README.md) describes the inventory. The `principle` plugin groups 54 independent `principle-*` skills. Leave `--prefix` off to retain those names. The copier and zip packager preserve reference files. They also copy [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) into each bundle whose name is listed in that file, so every declared pstack adaptation keeps the upstream MIT notice. Other skills are copied as they are. The repository root `LICENSE` stays at the root.
 
 The same flat bundles can be used by other compatible loaders, including OMP. Install into a directory the target harness actually discovers and verify activation there. Do not install competing copies of the same skill name.
 

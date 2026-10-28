@@ -10,6 +10,9 @@ prompts:
 providers:
   - id: openai:codex-sdk
     config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
       working_dir: ./workspace
       skip_git_repo_check: true
       sandbox_mode: read-only
@@ -38,6 +41,9 @@ defaultTest:
         id: openai:codex-sdk
         config:
           working_dir: ./workspace
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
           skip_git_repo_check: true
           sandbox_mode: read-only
           approval_policy: never
@@ -81,7 +87,7 @@ tests:
         it or invent results.
       rubric: |-
         - Preserves the diagnosis-only boundary and proposes no code or project mutation as though it had been authorized.
-        - Records the expected surface and state, captures the current screenshot, and plans to map the displayed button to the exact source view and styling rule that should render it orange, without naming a file or rule the scenario did not supply.
+        - Records the expected surface and state, retains the supplied real screenshot as current-display evidence or plans a capture without claiming an unexecuted capture observed, and maps the displayed button to the exact source view and styling rule expected to render it orange without inventing a file or rule. Attributes the image to source only after linking it to the verified installed app and launched process; no separate fresh capture is required when that image, state and identity evidence already holds.
         - Verifies the selected scheme/configuration, built product, bundle identifier, installed app, and launched process before attributing the screenshot to source code.
         - Uses build/runtime logs and a clean reinstall or rebuild only as a stated diagnostic experiment, keeping observed facts separate from hypotheses and expected outcomes.
         - Ends with either a reproduced source defect and its owning code path, a proved stale/wrong runtime identity, or an explicit runtime-proof gap; it does not claim a root cause from the screenshot alone.
@@ -145,3 +151,110 @@ tests:
         - Asks the user to confirm before editing code, because the user reported a symptom and did not request a fix; it does not describe the edit as already made or as authorised.
         - Includes a verification step that rebuilds, repeats the tap, and checks the logs for the started `LoginIntent` after the fix is approved.
         - Does not invent new evidence beyond the supplied logs and source facts, and does not widen scope to the Siri shortcut path that already works.
+
+  - description: Preserve XCTest for an existing non-UI unit-test repair
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: >-
+        The app builds, installs and runs correctly. The only failure is
+        `DraftStoreTests/testZeroCreditKeepsBalance`, an existing XCTestCase unit
+        test using XCTAssertEqual in AppTests, under xcodebuild. Repair the
+        zero-credit regression in its existing framework; no test migration is
+        authorised. Existing project conventions and a focused test command are
+        discoverable in the repository. Give the ownership handoff and evidence
+        plan without executing commands, writing test source or inventing results.
+      rubric: |-
+        - Identifies this as test-only non-UI XCTest work, not an iOS simulator runtime diagnosis requiring screenshots, app launch or crash-log collection.
+        - Preserves XCTestCase and XCTAssertEqual, following the suite's existing project conventions and framework-neutral TDD/test-behaviour guidance for the authorised repair.
+        - Does not route this case to swift-testing or the UI-only xcuitest guidance as though either supplies dedicated non-UI XCTest authoring; forces no framework migration and names that reusable specialist-authoring gap honestly.
+        - Uses xcode-dev-loop for discovery, execution and interpretation of the focused existing XCTest selection and relevant regressions, requiring valid failure and passing result evidence rather than a changed assertion alone.
+        - Does not weaken the expected zero-credit behaviour, fabricate a result or write production/test changes in this planning-only response.
+
+  - description: Keep an XCTest measure test in its existing performance suite
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: >-
+        Our XCTestCase performance suite contains
+        `ImportPerformanceTests/testImportThousandRows`, which uses
+        `measure(metrics: [XCTClockMetric()])` and an approved checked-in baseline.
+        Its runtime doubled after an importer change; the app otherwise works.
+        Diagnose and repair the regression without changing the benchmark
+        workload, baseline, threshold or test framework. Give the routing and
+        evidence plan only; do not execute anything or invent results.
+      rubric: |-
+        - Treats the failing surface as an existing non-UI XCTest performance test, not a screenshot or app-launch defect.
+        - Preserves XCTest measure and the established suite conventions; does not force a Swift Testing migration or send it to UI-only xcuitest authorship.
+        - Uses framework-neutral TDD/test-behaviour and project-convention fallback for any authorised repair, explicitly acknowledging the lack of dedicated reusable non-UI XCTest authoring guidance.
+        - Routes test execution and structured result interpretation to xcode-dev-loop and measurement fairness/repeatability to benchmark-checklist or equivalent explicit checks under controlled toolchain, device and workload conditions.
+        - Preserves the approved workload, baseline and threshold, distinguishes performance observations from an unproved cause, and requires retained failing/after-fix evidence rather than raising the limit or claiming an unobserved improvement.
+
+  - description: Distinguish Swift Testing authorship from XCUITest authorship
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: >-
+        Two tasks are waiting and neither is an app build or crash failure.
+        Task A repairs a failing `@Test` with `#expect` in a Swift Testing
+        repository suite. Task B authors a UI journey using XCUIApplication:
+        deny a permission, open Settings in the app, relaunch and verify the
+        choice persists. Dedicated swift-testing and xcuitest guidance is
+        available, as is xcode-dev-loop. Give the separate authoring and execution
+        handoffs without executing, writing tests or inventing results.
+      rubric: |-
+        - Routes Task A's Swift Testing authoring/diagnosis to swift-testing, retaining that suite's framework.
+        - Routes Task B's XCUIApplication UI automation authorship to xcuitest rather than swift-testing, a generic simulator screenshot loop or debug as the authoring owner.
+        - Reuses xcode-dev-loop for both tasks' build/test/result mechanics rather than claiming it authors either test.
+        - Keeps permission handling and persistence through relaunch as explicit UI-journey obligations; neither a deep link nor a screenshot alone substitutes for them.
+        - Does not broaden these test-only tasks into unrelated app runtime diagnosis, force framework migration or claim any test has run.
+
+  - description: Route agreed visual iteration without manufacturing an app defect
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: |-
+        The iOS app builds and works. The user says: "Make the Settings cards
+        less cramped: change their vertical gap from 16 to 24 points, and show
+        me the before/after at large text size. You may make that layout change.
+        There is no crash or lost data." visual-feedback and xcode-dev-loop
+        are installed. We have no capture yet. Give the ownership handoff and
+        evidence plan, not code or execution. A colleague proposes starting a
+        full repository/storage/lifecycle root-cause investigation and adding a
+        new UI regression suite before accepting the spacing change.
+      rubric: |-
+        - Recognises an agreed visual iteration rather than an unexplained app defect; does not manufacture a storage/crash investigation or require a new UI suite merely for this request.
+        - Hands the visual state, requested 16-to-24-point gap, large-text conditions and human before/after review to visual-feedback or an explicitly scoped visual-comparison owner.
+        - Uses xcode-dev-loop for the actual current-source build/install/capture mechanics under one execution owner, not as the author of visual requirements or a duplicate diagnostic workflow.
+        - Preserves the already supplied layout-edit permission, changes no unrelated values/data, and requires actual matching-state image inspection/comparison without claiming the plan has run.
+
+  - description: Give a layout-only defect one visual diagnostic owner
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: |-
+        Diagnose only: the keyboard hides Save on the note editor on a small
+        iPhone at large text size. The app builds and works, the field keeps
+        its value, and no storage, crash or lifecycle fault is reported.
+        debug was selected because the report contains a wrong screenshot.
+        visual-feedback and xcode-dev-loop are installed. Give one ownership
+        and evidence handoff without executing or editing. If later evidence
+        shows a lost model value rather than clipping, explain the return path.
+      rubric: |-
+        - Gives the reported rendering/keyboard defect to the visual workflow for diagnosis and equivalent image comparison rather than running two parallel root-cause and before/after loops.
+        - Carries the actual small-device, large-text, focused-field and keyboard-visible state into the capture request, using one Apple execution owner and requiring current-build/state evidence and actual image inspection.
+        - Preserves diagnosis-only authority and does not invent a cause, edit code, reset a store or require a new UI suite.
+        - Returns a subsequently evidenced model-value/state fault to debug or the project's broader diagnostic owner, preserving the visual evidence and exact authority rather than treating a layout change as its fix.
+
+  - description: Replay a fresh-install failure without deleting unrelated app data
+    vars:
+      skill: file://../../src/app/skills/debug/SKILL.md
+      scenario: |-
+        Fix the crash on the first launch after a fresh install. Code edits
+        are authorised. The captured failing sequence installs onto a new
+        empty simulator, launches, then crashes during initial bootstrap.
+        A separate xcode-dev-loop executor owns the test lifecycle. Its old
+        test device has now launched the previous build and contains state.
+        The user's daily simulator also has this app and unsaved notes;
+        deleting or clearing that app is forbidden. Plan the post-fix replay
+        and evidence handoff without executing or inventing a result.
+      rubric: |-
+        - Preserves the fresh-install/empty-state precondition and first-launch bootstrap sequence; does not treat installing over the already launched stateful test app as an equivalent replay.
+        - Uses the existing execution owner with a newly created run-owned device or equivalently fresh isolated fixture and the rebuilt intended product, not a parallel driver.
+        - Never uninstalls, clears or resets the user's app/device/data; scopes any fresh-state setup and cleanup to verified run-owned resources.
+        - Requires actual source/build/runtime identity and first-launch crash or success evidence from the exact replay before claiming the bootstrap defect fixed; preserves the original failure and reports unproved boundaries.

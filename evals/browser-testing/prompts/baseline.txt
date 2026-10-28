@@ -1,0 +1,4 @@
+This is a read-only scenario evaluation. Do not use tools or installed skills. Treat the supplied scenario as the complete evidence packet. Answer the request using only its facts. Describe proposed code or actions without claiming they ran.
+
+Scenario:
+{{scenario}}

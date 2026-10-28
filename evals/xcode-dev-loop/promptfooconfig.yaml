@@ -10,6 +10,9 @@ prompts:
 providers:
   - id: openai:codex-sdk
     config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
       working_dir: ./workspace
       skip_git_repo_check: true
       sandbox_mode: read-only
@@ -38,6 +41,9 @@ defaultTest:
       provider:
         id: openai:codex-sdk
         config:
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
           working_dir: ./workspace
           skip_git_repo_check: true
           sandbox_mode: read-only
@@ -67,12 +73,14 @@ tests:
         - Applies `DEVELOPER_DIR=/Applications/Xcode-27.0-beta.app/Contents/Developer` to every Xcode command in the session, by exporting it or by prefixing each `xcodebuild` and `xcrun` call, disables signing for the simulator build, preserves a log, and runs the long build in the background.
         - Waits for the actual background task to finish and judges its exit status and terminal build log instead of assuming success, timing out the wait, or chaining arbitrary foreground sleeps.
         - Installs the freshly built `.app` on that same UDID with `xcrun simctl install`, then launches it with `xcrun simctl launch` under the same beta developer directory, taking the bundle identifier from the built app's Info.plist, so neither the other branch's installation nor a differently configured tool can supply the evidence.
-        - Reaches Settings through a deep link or an existing debug scenario rather than a blind coordinate tap, captures exactly one persistent numbered image with `simctl io <udid> screenshot`, and labels any visual state it has not inspected as unproved.
+        - Reaches Settings through a verified existing deep link or debug scenario, or through accessibility interaction guided by an inspected hierarchy when no such route is available. Rejects blind coordinate taps, confirms the requested screen, captures exactly one persistent image with `simctl io <udid> screenshot`, and labels any visual state it has not inspected as unproved. The scenario supplies no URL scheme or debug route; do not require an invented route or a particular image filename.
 
   - description: Correct a timing-out, name-addressed test command after a runner hang
     vars:
       skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
       scenario: >-
+        The agent created the simulator chosen for this verification run and
+        still owns it; the user authorised shutdown of that owned device.
         Repair a test command that never reaches a verdict on this Mac. The project
         builds from `App.xcworkspace` with the scheme `App`. The command runs
         `xcodebuild test-without-building -only-testing:AppTests
@@ -102,11 +110,14 @@ tests:
         the test target name, or any simulator identifier. Say what you will and
         will not do here, then give the verification loop; do not execute
         commands or invent results.
+      # Correct a pre-existing oracle defect: a filtered/quiet log can omit the
+      # summary while the fresh bundle proves selected cases. Preserve case and
+      # process gates instead of asserting an incidental terminal text format.
       rubric: |-
         - Declines to author the Swift Testing case in this answer and points that work at the dedicated Swift Testing guidance.
         - Contains no Swift test source: no `@Test` function, `#expect` call, or suite definition for `CartTotal`.
         - Supplies the command-line loop anyway: discover the scheme and one simulator UDID first, then run `xcodebuild test` scoped to the test target in the background with a kept log and a `-resultBundlePath` bundle.
-        - States the terminal evidence for a pass as the Swift Testing run summary with a non-zero test count plus `** TEST SUCCEEDED **` and a successful exit, and says `Executed 0 tests, with 0 failures` proves nothing.
+        - Requires the expected non-zero selected Swift Testing cases in the fresh structured result bundle, `** TEST SUCCEEDED **` and a successful exit; `Executed 0 tests, with 0 failures` proves nothing. A filtered terminal-summary line is corroborating evidence, not a required text format.
         - Does not assert a scheme name, test target name, simulator UDID, bundle identifier, or any `CartTotal` API detail that the scenario did not supply.
 
   - description: Order the loop when the project details are still unknown
@@ -124,7 +135,7 @@ tests:
         - Lists the checkout for a `.xcworkspace` or `.xcodeproj` and runs `xcodebuild -list` with the flag that matches what it finds, and lists the devices with `xcrun simctl list devices available -j` to resolve one UDID, before any build, install, or capture command.
         - Builds in the background with the output redirected to a log file, with `CODE_SIGNING_ALLOWED=NO` and a destination pinned as `platform=iOS Simulator,id=<udid>`, and confirms the build's exit status before the next step.
         - Waits for that UDID to finish booting before it installs, then installs the freshly built app and launches it, either through the simulator MCP install action then its launch action, or through `simctl install` then `simctl launch`, with the bundle identifier read from the built app's Info.plist.
-        - Saves the image with one capture mechanism only — a numbered `xcrun simctl io <udid> screenshot <path>.png` file — and does not also take an MCP screenshot of the same frame.
+        - Saves the image with one capture mechanism only — one `xcrun simctl io <udid> screenshot <path>.png` file — and does not also take an MCP screenshot of the same frame.
         - Writes every unknown as a placeholder that a named earlier command fills, states no concrete scheme name, project or workspace filename, UDID, or bundle identifier, and does not treat the home screen as reached without evidence, either an accessibility read of that screen or an inspection of the saved image.
 
   - description: Review a verification script that keeps a foreground build on request
@@ -149,3 +160,91 @@ tests:
         - Replaces the name-based destination with a UDID resolved from the device list, because two available simulators share that name.
         - Keeps one capture mechanism per frame, and gates the first capture after the erase on an observable readiness check — boot completion plus a screen state with no system alert — rather than on the fixed five-second delay.
         - Replaces the fixed-coordinate tap with a deep link or an existing debug scenario and reads the accessibility hierarchy before any fallback tap, without inventing the app's URL scheme, a debug entry point, or the paywall's contents.
+
+  - description: Run an existing XCTest unit regression without a framework migration
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        Run and interpret `AppTests/BalanceTests/testZeroCreditKeepsBalance`,
+        an existing XCTestCase unit test with XCTAssertEqual. Use
+        App.xcworkspace and scheme App on a discovered simulator UDID. If the
+        assertion fails, explain who should repair it in the existing framework;
+        migration is not authorised. Give commands, result gates and authorship
+        handoff only; do not execute, write test source or invent results.
+      rubric: |-
+        - Discovers one available simulator UDID, uses the supplied workspace/scheme and exact AppTests/BalanceTests/testZeroCreditKeepsBalance selection in an xcodebuild test command pinned by id, not a guessed name.
+        - Keeps a log and a fresh result bundle, handles a long run with background completion and checks exit status, structured per-test result and terminal test verdict.
+        - Requires that the named XCTest actually ran with a non-zero executed selection; a zero-test summary or successful build alone is not a pass.
+        - Leaves authorship outside xcode-dev-loop, using established non-UI XCTest project conventions plus framework-neutral TDD/test-behaviour guidance for an authorised repair; does not claim swift-testing or UI-only xcuitest owns this authoring gap.
+        - Preserves XCTestCase/XCTAssertEqual, forces no migration, writes no Swift test source and reports no unobserved result.
+
+  - description: Interpret an XCTest measure failure without moving or rebasing the test
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        App.xcworkspace, scheme App, contains the existing XCTest measure case
+        `AppPerformanceTests/ImportPerformanceTests/testImportThousandRows`.
+        Its latest retained xcresult reports a performance failure against the
+        approved baseline. Run a controlled comparison after the authorised
+        importer fix. Do not alter the baseline, workload, threshold or framework.
+        State execution/evidence mechanics and the appropriate authorship
+        handoff if the test needs repair, but execute nothing and invent no results.
+      rubric: |-
+        - Preserves the existing XCTest measure case, baseline, workload, threshold and framework rather than migrating it to Swift Testing, dropping the performance assertion or updating the baseline until green.
+        - Pins a discovered simulator UDID and consistent toolchain/configuration/environment for the supplied case, using the existing suite's performance policy rather than inventing a new numerical limit.
+        - Runs the selected performance case with a kept log and a fresh result bundle, waits for actual completion and interprets exit status plus structured per-case results including measurements and the failure reason.
+        - Requires proof that the named performance case actually executed and retains before/after measurement evidence; a build pass or unrelated test summary cannot establish the claimed comparison.
+        - Keeps test authorship separate: established non-UI XCTest project conventions and framework-neutral TDD/test-behaviour are the fallback, with the reusable specialist gap explicit; benchmark-checklist can assess measurement validity, not substitute for a passing required case.
+
+  - description: Route test authoring by its actual Apple testing framework
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        Before running the app test plan, identify the authoring owner for three
+        failures: A is an @Test/#expect repository case in Swift Testing; B is
+        an XCUIApplication permission-and-relaunch UI test; C is an existing
+        XCTestCase unit test using XCTAssertThrowsError. swift-testing and
+        xcuitest guidance are available. No framework migration is authorised.
+        Give the handoffs and the common execution/result gates without writing
+        Swift tests, executing commands or inventing project identifiers.
+      rubric: |-
+        - Hands A's Swift Testing authoring to swift-testing and B's XCUIApplication UI authorship to xcuitest; does not conflate UI XCTest with all XCTest.
+        - Keeps C in its existing non-UI XCTest framework using project conventions plus framework-neutral TDD/test-behaviour, naming the dedicated reusable non-UI XCTest authoring gap rather than pretending swift-testing or xcuitest fills it.
+        - Keeps xcode-dev-loop as build/test/structured-results owner, not test-source author, for all three.
+        - Requires discovery of actual project, scheme, test selections and simulator identity, then a fresh result bundle, successful process/terminal verdict and evidence that each selected case really ran; zero tests cannot pass the plan.
+        - Does not write Swift test source, invent identifiers, force migration or claim that a screenshot or an unexecuted command proves any case.
+
+  - description: Isolate simulator state and clean up only owned runtime resources
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        Build today's dirty working tree and capture Settings with the keyboard
+        visible. The booted simulator belongs to the user and holds unsaved work;
+        another agent is driving its app. The project recipe can create a
+        disposable simulator and per-run fixture store. The user's simulator,
+        shared store and processes must not be erased, reset, shut down or killed.
+        Give the owned build/install/state/capture and failure-cleanup sequence
+        without executing it or inventing identifiers or results.
+      rubric: |-
+        - Leaves the user's booted simulator, live app, shared store and other agent's drive untouched; does not use a booted-device shortcut, erase all devices or kill by process name.
+        - Reuses the recipe to establish an independently owned disposable simulator UDID and per-run fixture store; if isolation is unavailable, reports the gap rather than driving shared mutable state concurrently.
+        - Records the dirty working-tree source/build identity, builds successfully for that UDID, installs the actual fresh built product and launches its derived bundle identifier, not an older app.
+        - Reaches Settings and the focused field/visible keyboard through available project drive mechanisms, verifies readiness and the exact state, then retains an inspected screenshot; a successful build or launched home screen alone is insufficient.
+        - On success or failure releases only currently owned simulator/process/fixture resources after checking ownership identity, retains evidence outside disposable paths and confirms its survival; reports cleanup or state-proof failures explicitly.
+
+  - description: Preserve a user-owned simulator when hung-run recovery needs shutdown
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        An existing XCTest command has finished with exit 70 and reports that
+        the runner hung before establishing connection. Its selected simulator
+        pre-dates this run, belongs to the user and holds unsaved work. The user
+        granted a serial, non-destructive test lease but did not authorise
+        shutdown, reset, erasure or replacement of that device. No owned test
+        child remains active. Give the next evidence and recovery decision
+        without executing commands or inventing results.
+      rubric: |-
+        - Treats the native hang as observed failure evidence, not a successful build/test verdict or a proven underlying cause.
+        - Does not shut down, reset, erase or replace the user's pre-existing simulator, or equate a pinned UDID or serial test lease with lifecycle ownership.
+        - Reports shutdown-based recovery as blocked by the missing ownership/authority, retains the original log/status/result evidence and does not launch a blind or concurrent retry.
+        - Limits any cleanup to resources this run still owns, preserves user state and makes no unobserved test-count, per-case or recovery-success claim.

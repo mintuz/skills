@@ -87,7 +87,7 @@ Claude Code and Codex directory layout. See the
 
 ## Use with standalone skill loaders
 
-Keep each complete skill directory, including references. For the 54 skills adapted from pstack (7 core workflows and 47 principles), the copier adds [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) so the MIT notice travels with the bundle. To generate flat directories with the existing copier:
+Keep each complete skill directory, including references. For skills listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), the copier includes that file so the MIT notice travels with the bundle. To generate flat directories with the existing copier:
 
 ```bash
 go run scripts/codex-sync.go --output /path/to/your/skills
@@ -361,7 +361,10 @@ flowchart LR
 | [`ship-pr`](src/core/skills/ship-pr/SKILL.md)                                     | Commit, publish, repair, and monitor a GitHub pull request through merge                                  |
 | [`writing`](src/core/skills/writing/SKILL.md)                                     | Developer-focused writing: tutorials, how-tos, docs with clear structure                                  |
 | [`wtf`](src/core/skills/wtf/SKILL.md)                                             | Re-explain an unclear response in plain, precise UK English                                               |
-| [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay one critical user-journey check                                                    |
+| [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay a shared project verification bundle with indexed coverage                          |
+| [`maintain-verification-skill`](src/core/skills/maintain-verification-skill/SKILL.md) | Repair verification recipes and harness discovery without changing product expectations                 |
+| [`visual-feedback`](src/core/skills/visual-feedback/SKILL.md)                   | Reproduce and compare visual states in web and iOS applications                                            |
+| [`tdd`](src/core/skills/tdd/SKILL.md)                                           | Framework-neutral Red-Green-Refactor workflow with explicit evidence                                       |
 | [`blast-radius`](src/core/skills/blast-radius/SKILL.md)                           | Trace material change risks and decisive checks                                                           |
 | [`double-check`](src/core/skills/double-check/SKILL.md)                           | Second opinion from a fresh reviewer, ideally on another provider; findings close only on evidence        |
 | [`how`](src/core/skills/how/SKILL.md)                                             | Explain the current execution path and state ownership                                                    |
@@ -377,6 +380,64 @@ flowchart LR
 | [`in-your-own-words`](src/core/skills/in-your-own-words/SKILL.md)                 | Manual-only. Restate the user's goals and the problem they are trying to solve                            |
 | [`creative-seed`](src/core/skills/creative-seed/SKILL.md)                         | Derive each UI concept's creative direction from a deterministic seed string that the design never shows  |
 
+### Verification workflow
+
+Keep requirements, executable checks and runtime evidence distinct:
+
+- Use `create-verification-skill` once to record a project's launch, doctor,
+  drive, evidence and cleanup procedures. Use `maintain-verification-skill`
+  to keep that bundle and its host discovery entries accurate.
+- Use `tdd` with the relevant authoring skill: `frontend-testing`,
+  `react-testing`, `browser-testing`, `swift-testing` or `xcuitest`.
+- Use the generated `verify-<project>` recipe to run existing checks and
+  exercise real user journeys. Link existing BDD scenarios and test cases
+  instead of copying their expectations into another specification.
+- Use `visual-feedback` for interactive visual comparison,
+  `acceptance-review` for requirement satisfaction, and `double-check`
+  for a separate reviewer. None replaces machine-checked assertions.
+
+For iOS work, keep these owners separate:
+
+| Skill | Owns | Hands off |
+|---|---|---|
+| `debug` | Root-cause investigation of build/runtime identity, state, storage, lifecycle or crash faults | Rendering-only defects and agreed visual iteration to `visual-feedback`; execution to `xcode-dev-loop` |
+| `xcode-dev-loop` | Toolchain, build/install/run/capture mechanics and native result inspection | Test authorship and visual judgement |
+| `xcuitest` | UI-test actions, fixtures, waits and assertions | Exact cases, preconditions and proof requirements to the execution owner; unexplained behavioural failures with all attempt evidence to `debug` |
+| `visual-feedback` | Actual image inspection, visual diagnosis and equivalent before/after review in web or iOS | Apple execution to `xcode-dev-loop`; broader iOS build/runtime identity, state, storage, lifecycle or crash faults to `debug` |
+
+Keep one execution owner at a time. Request controlled experiments through that
+owner rather than starting a parallel simulator driver. Keep brief safety and
+evidence rules in each skill. If an optional companion is absent, use the project's
+documented commands; core visual feedback retains a standalone capture fallback.
+
+Project recipes use one canonical bundle, not three authored versions.
+Prefer the project's convention; otherwise use `.agents/skills` with a
+Claude project-directory link and an OMP native link only when needed.
+Maintain every declared discovery entry. Prove loading and representative
+cold replay separately in each claimed host and target platform.
+
+`visual-feedback` replaces `web:eyes`, and `core:tdd` replaces `web:tdd`.
+Install or update `core` when upgrading from `web` 1.x to 2.x.
+No compatibility copies remain in the web plugin.
+
+For standalone installations, preserve unrelated user-authored skills. Remove
+only known old web-plugin copies: `eyes`, or `web-eyes` with `--prefix`.
+Replace an unprefixed `tdd` bundle in full. For prefixed installations, remove
+the old `web-tdd` copy and install `core-tdd`. The copier does not prune
+retired skill directories.
+
+Use existing runners and structured reports for repeatable assertions.
+Record required checks before execution, retain failed attempts, and
+report blocked or unrun checks as gaps. A passing browser or simulator
+journey does not prove physical-device, accessibility or security coverage.
+Non-UI XCTest authoring still uses the project's existing XCTest
+conventions; do not force migration to Swift Testing.
+
+The [verification evidence record](evals/verification-skillset-native-results.json)
+separates treatment gates, advisory comparisons, activation checks and native
+runtime proof. It records blocked native Claude replay and the limits of each
+web and iOS fixture. Filesystem parity alone is not host runtime proof.
+
 ### Web
 
 | Skill                                                          | Description                                                               |
@@ -386,11 +447,10 @@ flowchart LR
 | [`xstate`](src/web/skills/xstate/SKILL.md)                     | Typed XState actor lifecycles with legal Mermaid statechart visualization |
 | [`react-testing`](src/web/skills/react-testing/SKILL.md)       | React Testing Library patterns for components, hooks, and context         |
 | [`frontend-testing`](src/web/skills/frontend-testing/SKILL.md) | DOM Testing Library patterns for behavior-driven UI testing               |
-| [`tdd`](src/web/skills/tdd/SKILL.md)                           | Test-Driven Development principles and Red-Green-Refactor workflow        |
 | [`refactoring`](src/web/skills/refactoring/SKILL.md)           | Refactoring assessment and patterns after tests pass                      |
 | [`web-design`](src/web/skills/web-design/SKILL.md)             | Visual hierarchy, spacing, typography, and UI polish                      |
 | [`tailwind`](src/web/skills/tailwind/SKILL.md)                 | Design systems with Tailwind CSS, design tokens, and component libraries  |
-| [`eyes`](src/web/skills/eyes/SKILL.md)                         | Visual feedback loop with Playwright screenshots for UI iteration         |
+| [`browser-testing`](src/web/skills/browser-testing/SKILL.md) | Author real-browser tests and controlled screenshot comparisons with the project's runner |
 | [`chatgpt-app-sdk`](src/web/skills/chatgpt-app-sdk/SKILL.md)   | Build ChatGPT apps using OpenAI Apps SDK and MCP with conversational UX   |
 
 ### App
@@ -398,6 +458,7 @@ flowchart LR
 | Skill                                                                                    | Description                                                                                     |
 | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | [`swift-testing`](src/app/skills/swift-testing/SKILL.md)                                 | Swift Testing framework: @Test macros, #expect/#require patterns                                |
+| [`xcuitest`](src/app/skills/xcuitest/SKILL.md)                                         | Author XCTest UI automation with controlled fixtures, public interactions and lifecycle proof   |
 | [`app-intent-driven-development`](src/app/skills/app-intent-driven-development/SKILL.md) | Build features as App Intents first for Siri, Shortcuts, widgets, and SwiftUI                   |
 | [`swiftui-architecture`](src/app/skills/swiftui-architecture/SKILL.md)                   | Modern SwiftUI patterns: @Observable, state management, no ViewModels                           |
 | [`debug`](src/app/skills/debug/SKILL.md)                                                 | Structured feedback loop for debugging iOS simulator issues and UI problems                     |

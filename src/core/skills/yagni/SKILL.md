@@ -98,4 +98,4 @@ Confirm every item before reporting the task done:
 ## Relationship to Other Skills
 
 - `core:reducer` removes mechanism from an existing system; this skill keeps mechanism out of new work. When a task only removes mechanism from working code and adds no behaviour, say `core:reducer` owns it and write no removal plan of your own. State only the limits that still hold: name the module or modules the change stays inside, say the rest stay untouched, and keep behaviour identical. Re-run the existing tests afterwards as the regression check, not as proof of equivalence. Add no test for the removal itself. Name any affected behaviour the existing tests do not cover, because that gap must close before the removal is safe.
-- `web:tdd` drives the Red-Green-Refactor cycle in detail; this skill sets the scope limits inside that cycle.
+- `core:tdd` drives the Red-Green-Refactor cycle in detail; this skill sets the scope limits inside that cycle.

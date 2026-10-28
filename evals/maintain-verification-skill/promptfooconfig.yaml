@@ -1,0 +1,82 @@
+# prechange/control.txt retains the no-skill RED control used before implementation.
+description: "maintain-verification-skill workflow versus no-skill baseline"
+prompts:
+  - id: "file://prompts/baseline.txt"
+    label: "baseline"
+  - id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  - id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: "file://../../src/core/skills/maintain-verification-skill/SKILL.md"
+  assert:
+    - type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented execution claims. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Full maintenance covers multiple entrypoints and representative states"
+    vars:
+      scenario: "Maintain verify-orbit completely. Its index declares web history from normal navigation and a signed-in emailed link, plus iOS history from a cold launch and a deep link, each with populated and empty states. Only web normal-navigation/populated has passed. The emailed-link account credential is unavailable. The iOS app can launch. The old handover calls the history feature green. Describe the maintenance scope and justified result."
+      rubric: "Accounts for every declared required entrypoint and representative state, not merely one convenient route or one check per feature. Plans available checks using documented commands, marks missing credential coverage blocked and other unexecuted coverage not-run/unverified. Reconciles index with requirements/current sources without removing failed or unavailable coverage. Rejects the feature-wide green and does not infer deep-link or empty-state coverage from ordinary populated navigation."
+  - description: "Authority distinguishes documentation drift from actual product regression"
+    vars:
+      scenario: "During verify-ledger maintenance, accepted decision ADR-12 says exports keep cancelled invoices and name the file ledger.csv. Current product exports ledger.csv but omits cancelled invoices. The recipe still expects export.csv and includes cancelled invoices. A merged command-renaming note explicitly replaced export.csv with ledger.csv; nothing authorises changing invoice inclusion. Current source omits cancelled records. The old acceptance test still checks inclusion. What may maintenance repair, and how should it classify each discrepancy?"
+      rubric: "Uses accepted decision and explicit naming-change authority, not current source alone, to distinguish the stale filename instruction from the invoice-inclusion product regression. May repair the verification-owned filename instruction and references, but preserves the inclusion obligation and reports the regression to its owner. Does not rewrite the accepted expectation/test, delete the journey, or edit the product to make maintenance green. Names supporting authority and any ambiguity rather than inventing approval."
+  - description: "Conflicting projections are preserved rather than overwritten"
+    vars:
+      scenario: "The canonical bundle is .agents/skills/verify-notes. Claude registration is a broken relative directory symlink; OMP uses a generated copy under .omp/skills/verify-notes. That copy has uncommitted user edits to a helper and lacks references/ios.md. Codex loads the canonical source. The user asks to maintain all three supported hosts. No permission exists to discard user work. Describe the safe reconciliation and proof."
+      rubric: "Audits every supported discovery entry and complete relative resources, detects the broken Claude link, missing resource and conflicting edited OMP copy. Preserves conflicting user edits and reports the conflict instead of blindly regenerating/overwriting or choosing an arbitrary winner. Repairs only safely owned registration/projection drift from the single canonical source; does not hand-author divergent bundles. Requires deterministic parity/link checks and native discovery separately from representative cold operational replay for materially affected host paths. Does not claim cross-host equivalence from Codex loading/parity alone or treat unavailable/conflicted cells as proven."
+  - description: "Zero selected tests cannot satisfy a required journey"
+    vars:
+      scenario: "Maintain verify-checkout. The required checkout-browser obligation selects case checkout-paid. Its runner exits zero, but fresh JUnit says tests=0 and no checkout-paid case appears. Units passed. The helper prints ALL GREEN after reading only the exit code. Product and shared tests are outside maintenance ownership. What should be repaired and reported?"
+      rubric: "Rejects overall pass because the required expected case did not run; checks structured result counts and actual selected case IDs rather than exit zero or a friendly string. Records checkout-browser not-run or an explicit failed obligation and units as bounded pass. May repair verification-owned selection/helper aggregation based on existing authoritative case IDs, without weakening assertions, inventing results or editing unrelated shared tests/product. Requires a real rerun before claiming repaired execution."
+  - description: "Missing evidence and dirty identity invalidate a claimed pass"
+    vars:
+      scenario: "Maintain verify-invoices. Required browser cases did execute and pass on HEAD d18, and logs name d18. The checkout also contains uncommitted UI and fixture changes; the running server was built before them. The required retained trace is missing and the old clean-tree receipt is offered instead. The recipe records only HEAD and final status. State the necessary maintenance and verdict."
+      rubric: "Does not count this as current-working-tree proof despite passing cases and matching HEAD. Repairs verification-owned identity/evidence capture to include dirty-source fingerprint, intended runtime/build, relevant fixture/environment/toolchain/recipe identity and required retained report paths. Checks evidence validity against changed inputs rather than reusing the old clean receipt. Missing required trace and stale runtime prevent aggregate pass; preserves dirty user work and requires current-artifact evidence before claiming success."
+  - description: "Required gates and failed attempts survive convenient smoke results"
+    vars:
+      scenario: "The canonical verify-orders index and repo policy require units, browser-save and migration. A maintenance run passes units, fails browser-save on persistence, then passes an unexplained retry. Migration is not-run because the helper's smoke profile omits it. User asks to refresh the recipe so the summary accurately reflects the run, not to change product behaviour. What should change?"
+      rubric: "Preserves all mandatory obligations and the original failed attempt; refuses to convert unexplained fail-then-pass into a clean pass. Repairs only verification-owned scope selection/aggregation/reporting, recording mandatory gates and exclusions before execution, all attempts and per-obligation raw states. Migration remains not-run until executed, and unresolved behavioural failure prevents aggregate pass. Does not remove persistence assertions, relabel required checks optional or silently delete failing coverage."
+  - description: "Failed-run cleanup releases only owned state and keeps evidence"
+    vars:
+      scenario: "A maintenance drive failed after launch. Its receipt owns worker PID 808 with start time T1, token run-42 and scratch rows run-42. PID 808 now has start time T2 and belongs to the user's server. A shared simulator contains user data. Trace and receipt live in evidence/run-42 outside scratch. Doctor only checks a listening port today. Describe the permitted lifecycle/helper repair and how the next attempt proceeds."
+      rubric: "Repairs verification-owned doctor/lifecycle logic to check actual identity/readiness/auth read-only, not just a port. Cleanup runs after failure and on success/cancellation, checks ownership beyond reused PID, does not kill the unrelated server or reset the shared simulator, and removes only owned scratch/resources. Retains trace/receipt outside cleanup targets and confirms evidence survives. Reruns doctor and restores known owned state before another drive; preserves the failed attempt rather than hiding it with retries."
+  - description: "Maintenance does not inherit product test or publication authority"
+    vars:
+      scenario: "User authorises only maintenance of verify-cart and its owned helpers/fixtures/registration. An accepted journey now fails in the app, and tests/cart.spec.ts, a shared acceptance suite linked by the map, also fails. A teammate suggests changing the app, rewriting the shared test expectation to current output, then committing, pushing and opening a PR. Recipe relative links are stale and can be corrected. What should you do now?"
+      rubric: "Completes reachable verification-owned link/helper/registration maintenance and reports the product/test failures with authority/evidence and named authoring/repair handoff. Does not edit product or shared acceptance tests as a side effect, change agreed outcomes, hide failed journeys, or commit/push/open a PR without separate authority. Existing linked tests remain at their authoritative paths; authorised test repair is a separate authoring task. Does not declare full maintenance pass while required journeys fail."

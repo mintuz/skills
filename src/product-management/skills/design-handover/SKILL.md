@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Design handover
 
-Use only when explicitly invoked. Transfer existing accepted decisions into one linked document and its durable assets. A request for general polish or one screenshot correction stays with the appropriate visual workflow, such as `eyes`.
+Use only when explicitly invoked. Transfer existing accepted decisions into one linked document and its durable assets. A request for general polish or one screenshot correction stays with the appropriate visual workflow, such as `visual-feedback`.
 
 1. **Resolve scope and authority.** Read the named designs, accepted behavior and recorded human rulings. Track supersession and explicit departures; neither a tool's design nor the newest ambiguous comment automatically wins. Ask only for unresolved product decisions or required facts that existing evidence cannot supply. Implementation, publication, unrelated launch repair and new behavior decisions are separate work.
 2. **Pair every in-scope state.** Assign a stable example ID and write Given/When/Then from the accepted behavior. Beside it, record:

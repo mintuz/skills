@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Final-source trigger suite: discovers src/web/skills/browser-testing/SKILL.md.
+# The pre-implementation no-skill behavioural control is recorded in
+# promptfooconfig.yaml; activation evidence requires this authored source.
+description: browser-testing activation and neighbouring responsibility boundaries
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+metadata:
+  fixture_skills:
+    - frontend-testing
+    - react-testing
+    - visual-feedback
+    - maintain-verification-skill
+providers:
+  - id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Explicit invocation selects browser authorship
+    vars:
+      request: Use browser-testing to repair our Playwright checkout regression. It races the redirect and misses the download event. Plan the repair only.
+    assert:
+      - type: skill-used
+        value: browser-testing
+  - description: Natural cross-origin auth and cookie test selects browser authorship
+    vars:
+      request: Author a real-browser test in our existing Playwright suite for sign-in through the local identity origin, returning to orders with an HttpOnly cookie that survives reload. We need stable fixtures and assertions, not a jsdom mock. Plan only.
+    assert:
+      - type: skill-used
+        value: browser-testing
+  - description: Automated visual comparison belongs to browser suite authorship
+    vars:
+      request: Repair our Playwright screenshot comparison test so checkout renders with pinned fonts and deterministic promotion data. Retain its approved baseline and diff evidence; do not update images until green. Plan the test change only.
+    assert:
+      - type: skill-used
+        value: browser-testing
+  - description: Existing Cypress runner is within scope
+    vars:
+      request: Replace sleeps and forced clicks in our Cypress e2e address test with isolated fixtures, bounded assertions and a check after leaving and reopening checkout. Keep Cypress. Plan only.
+    assert:
+      - type: skill-used
+        value: browser-testing
+  - description: Component-only jsdom repair stays with DOM authoring
+    vars:
+      request: >-
+        Repair a Testing Library test for one React password field in jsdom: type text, click Show password and assert its input type. There is no navigation, cookie, layout or real-browser requirement. Do not add an e2e suite. Plan only.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response keeps the task in DOM/component test authoring, using frontend-testing or react-testing when available. It does not apply browser-testing's real-browser workflow or add a browser runner, and makes no execution claim.
+        provider:
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: Interactive visual judgement is not baseline suite authorship
+    vars:
+      request: Look at this proposed dashboard screenshot and assess whether the heading hierarchy and spacing feel coherent. I want interactive visual feedback, not an automated screenshot test, a new baseline or an acceptance verdict. No file changes; plan only.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response stays with interactive visual assessment or visual-feedback when available. It does not substitute browser-testing test-suite authoring, an image-diff pass or baseline approval for the requested visual judgement, and does not claim unavailable observation.
+        provider:
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: Recipe maintenance is not browser test authoring
+    vars:
+      request: Audit and repair stale commands and harness discovery entries in verify-ledger. Its existing browser tests must remain unchanged; this request only maintains the reusable project verification bundle. Plan only, do not execute or publish.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response recognises verification-bundle maintenance rather than browser-test authorship. It does not apply browser-testing to rewrite the existing suite, silently change expected outcomes, publish anything or claim execution; it may name maintain-verification-skill if available.
+        provider:
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

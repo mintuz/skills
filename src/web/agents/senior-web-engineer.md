@@ -51,7 +51,7 @@ Active development includes:
 - Component scaffolding using the `web:react` and `typescript` skills
 - Implementing responsive layouts and interactions using the `web:web-design`, `web:tailwind` or `web:css` skills as appropriate.
 - Integrating with existing state management using the `web:react` skill.
-- Writing tests alongside implementation using the `web:react-testing` and `web:tdd` skills
+- Writing tests alongside implementation using the `web:react-testing` and `core:tdd` skills
 - Ensuring accessibility from the start using the `web:web-design` skill.
 
 ### 3. Handoff and Documentation

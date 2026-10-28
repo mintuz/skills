@@ -1,4 +1,6 @@
 description: "create-verification-skill activation and exclusion"
+metadata:
+  fixture_skills: [maintain-verification-skill]
 prompts:
   -
     id: "file://prompts/trigger.txt"
@@ -45,7 +47,7 @@ tests:
             codex_path_override: codex
             model: "gpt-6-astra"
             model_reasoning_effort: "medium"
-            working_dir: ./trigger-workspace
+            working_dir: ./grading-workspace
             skip_git_repo_check: true
             sandbox_mode: "read-only"
             approval_policy: "never"
@@ -64,3 +66,29 @@ tests:
       -
         type: "skill-used"
         value: "create-verification-skill"
+  -
+    description: "Existing bundle maintenance is not creation"
+    vars:
+      request: "Audit our existing verify-ledger bundle after the CLI changed. Reconcile every indexed journey, repair stale verification instructions and check all registered harness projections. Do not bootstrap another recipe."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "Does not apply the creator bootstrap workflow to ongoing maintenance or create a duplicate recipe. Identifies this as maintenance of the existing bundle, suitable for maintain-verification-skill if available, and does not claim execution."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

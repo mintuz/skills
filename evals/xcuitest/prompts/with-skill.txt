@@ -1,0 +1,8 @@
+This is a read-only scenario evaluation. Do not use tools. Treat the supplied scenario as the complete evidence packet and the skill below as the procedure. Answer the request with concrete proposed code or next steps; do not claim those steps ran.
+
+<skill>
+{{skill}}
+</skill>
+
+Scenario:
+{{scenario}}

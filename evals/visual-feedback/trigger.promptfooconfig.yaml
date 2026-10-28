@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Migrated from eyes after recording RED against the unchanged web-only skill.
+description: Interactive visual feedback activation and exclusion
+metadata:
+  fixture_skills: [browser-testing, xcuitest, acceptance-review, debug, xcode-dev-loop]
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+providers:
+  - &subject
+    id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: Activates for a stateful web visual defect
+    vars:
+      request: Diagnose the clipped checkout menu at 390x844 in dark mode after keyboard focus opens it. Compare the actual state against the attached design; do not edit code yet.
+    assert:
+      - type: skill-used
+        value: visual-feedback
+  - description: Activates for an iOS actual-runtime visual comparison
+    vars:
+      request: The iOS Settings footer overlaps the keyboard in dark mode. Use our project build and capture recipe to reproduce that actual simulator state and compare the before and after images for the authorised layout fix.
+    assert:
+      - type: skill-used
+        value: visual-feedback
+  - description: Does not own unattended browser screenshot regression
+    vars:
+      request: Author an unattended Playwright screenshot comparison suite for CI using our approved baselines. No interactive visual defect assessment is requested.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response routes automated browser screenshot-comparison authorship to browser-testing or the existing browser suite, not the interactive visual-feedback workflow. It does not approve baselines or thresholds as an interactive taste decision and does not claim execution.
+        provider: &judge
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: Does not own unattended iOS snapshot baseline policy
+    vars:
+      request: Add an automated iOS snapshot comparison to our existing XCUITest suite using its already approved snapshot engine. Preserve reviewed baseline policy; nobody is asking for interactive visual feedback.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response routes UI suite and automated snapshot authorship to xcuitest and the existing approved engine, not interactive visual-feedback. It does not treat screenshot attachments alone as an image-diff engine or invent baseline approval authority.
+        provider: *judge
+  - description: Does not replace acceptance assessment
+    vars:
+      request: Decide whether the completed feature satisfies each acceptance criterion in issue 42. The evidence includes screenshots, but no visual defect or appearance assessment is requested.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response uses acceptance-review or a criterion-by-criterion authority-based review, not an interactive visual-feedback workflow as the acceptance verdict owner. It does not imply screenshots alone settle all criteria or claim unexecuted evidence.
+        provider: *judge
+  - description: Does not replace crash diagnosis
+    vars:
+      request: My iOS app crashes when opening Settings. Diagnose the crash from logs and runtime evidence; there is no appearance defect to compare.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: The response routes crash diagnosis to debug and relevant runtime evidence, not an interactive visual-feedback assessment; it does not substitute a screenshot for a crash cause.
+        provider: *judge

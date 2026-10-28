@@ -37,36 +37,24 @@ if (!skills.length) {
 const SIBLING_SKILL_NAME = /^(?!\.\.?$)[A-Za-z0-9._-]+$/;
 
 // Opt-in sibling names. Absent or empty means the fixture holds exactly one skill.
-function keepSkills(providers, skill) {
-  const lists = providers.map((provider) => {
-    const value = provider?.config?.keep_skills;
-    if (value == null) return [];
-    if (!Array.isArray(value)) {
-      throw new Error(`${triggerPath(skill)} keep_skills must be an array of sibling skill names.`);
-    }
-    return value;
-  });
-  if (new Set(lists.map((list) => JSON.stringify(list))).size !== 1) {
-    throw new Error(`${triggerPath(skill)} must use one shared keep_skills list.`);
+function keepSkills(config, skill) {
+  const kept = config?.metadata?.keep_skills ?? [];
+  if (!Array.isArray(kept)) {
+    throw new Error(`${triggerPath(skill)} metadata.keep_skills must be an array of sibling skill names.`);
   }
-  for (const name of lists[0]) {
+  for (const name of kept) {
     if (typeof name !== "string" || !SIBLING_SKILL_NAME.test(name)) {
-      throw new Error(`${triggerPath(skill)} keep_skills entries must be single skill directory names.`);
+      throw new Error(`${triggerPath(skill)} metadata.keep_skills entries must be single skill directory names.`);
     }
     if (name === skill) {
-      throw new Error(`${triggerPath(skill)} keep_skills cannot include the skill under test; that copy is always refreshed.`);
+      throw new Error(`${triggerPath(skill)} metadata.keep_skills cannot include the skill under test; that copy is always refreshed.`);
     }
   }
-  return lists[0];
+  return kept;
 }
 
-// Rebuild the owned disposable fixture, including resources. By default the
-// fixture holds exactly one skill: everything under `.agents/skills` is
-// replaced by the skill under test. Set `keep_skills` on the trigger provider
-// to preserve named sibling directories. Stale files inside the refreshed
-// skill are still replaced. Path checks run before any deletion.
-function refreshFixture(skill) {
-  const config = parse(readFileSync(triggerPath(skill), "utf8"));
+// Validate fixture metadata, canonical sources and owned paths without mutation.
+function fixtureConfiguration(skill, config) {
   const providers = Array.isArray(config?.providers) ? config.providers : [config?.providers];
   const directories = providers.map((provider) => provider?.config?.working_dir);
   if (!directories.length || directories.some((value) => typeof value !== "string" || !value)) {
@@ -75,7 +63,7 @@ function refreshFixture(skill) {
   if (new Set(directories).size !== 1) {
     throw new Error(`${triggerPath(skill)} must use one shared trigger working_dir.`);
   }
-  const kept = keepSkills(providers, skill);
+  const kept = keepSkills(config, skill);
   const workingDir = directories[0];
   const suite = resolve("evals", skill);
   const workspace = resolve(suite, workingDir);
@@ -84,14 +72,13 @@ function refreshFixture(skill) {
     throw new Error(`Trigger working_dir must be a relative subdirectory of ${suite}.`);
   }
 
-  const sources = readdirSync("src", { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => join("src", entry.name, "skills", skill, "SKILL.md"))
-    .filter(existsSync);
-  if (sources.length !== 1) {
-    throw new Error(`Expected one SKILL.md under src/*/skills/${skill}/; found ${sources.length}.`);
+  const companions = config.metadata?.fixture_skills ?? [];
+  if (!Array.isArray(companions) || companions.some((name) =>
+    typeof name !== "string" || !SIBLING_SKILL_NAME.test(name) || name === skill || kept.includes(name)
+  ) || new Set(companions).size !== companions.length) {
+    throw new Error("fixture_skills must name unique canonical companions, distinct from the target and kept fixtures.");
   }
-  const source = sources[0];
+  const sources = new Map([skill, ...companions].map((name) => [name, findSkillSource(name)]));
   const fixtureRoot = join(workspace, ".agents", "skills");
   // Reject symlink ancestors before recursive cleanup, including dangling links.
   for (let path = fixtureRoot; path !== dirname(suite); path = dirname(path)) {
@@ -109,6 +96,16 @@ function refreshFixture(skill) {
       if (error.code !== "ENOENT") throw error;
     }
   }
+  return { kept, sources, fixtureRoot };
+}
+
+// Rebuild the owned disposable fixture, including resources. By default the
+// fixture holds exactly one skill: everything under `.agents/skills` is
+// replaced by the skill under test. Set `metadata.keep_skills` to preserve named
+// siblings. Always replace stale files inside the refreshed skill, and check
+// paths before deleting anything.
+function refreshFixture(skill, config) {
+  const { kept, sources, fixtureRoot } = fixtureConfiguration(skill, config);
   if (kept.length === 0) {
     rmSync(fixtureRoot, { recursive: true, force: true });
     mkdirSync(fixtureRoot, { recursive: true });
@@ -119,8 +116,19 @@ function refreshFixture(skill) {
       if (!preserve.has(entry)) rmSync(join(fixtureRoot, entry), { recursive: true, force: true });
     }
   }
-  cpSync(dirname(source), join(fixtureRoot, skill), { recursive: true });
-  return source;
+  for (const [name, source] of sources) cpSync(dirname(source), join(fixtureRoot, name), { recursive: true });
+  return sources.get(skill);
+}
+
+function findSkillSource(name) {
+  const sources = readdirSync("src", { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => join("src", entry.name, "skills", name, "SKILL.md"))
+    .filter(existsSync);
+  if (sources.length !== 1) {
+    throw new Error(`Expected one SKILL.md under src/*/skills/${name}/; found ${sources.length}.`);
+  }
+  return sources[0];
 }
 
 function configsFor(skill) {
@@ -128,6 +136,16 @@ function configsFor(skill) {
   const configs = [join("evals", skill, MAIN_CONFIG)];
   if (mode === "check" && existsSync(triggerPath(skill))) configs.push(triggerPath(skill));
   return configs;
+}
+
+// Reject the old namespace before cleanup; never discard a fixture opt-in.
+function readConfig(path) {
+  const config = parse(readFileSync(path, "utf8"));
+  const providers = Array.isArray(config?.providers) ? config.providers : [config?.providers];
+  if (providers.some((provider) => provider?.config && Object.hasOwn(provider.config, "keep_skills"))) {
+    throw new Error("provider.config.keep_skills is not supported; move it to metadata.keep_skills.");
+  }
+  return config;
 }
 
 const env = {
@@ -145,24 +163,21 @@ let exitCode = 0;
 for (const skill of skills) {
   console.log(`\n==> ${skill}`);
 
-  if (mode === "trigger") {
-    try {
-      console.log(`    fixture refreshed from ${refreshFixture(skill)}`);
-    } catch (error) {
-      console.error(`    ${error.message}`);
-      exitCode = 1;
-      continue;
-    }
-  }
-
   for (const config of configsFor(skill)) {
-    const result = spawnSync(promptfoo, [...args, "-c", config], { env, stdio: "inherit" });
-
-    if (result.error) {
-      console.error(result.error.message);
-      process.exit(1);
+    try {
+      const document = readConfig(config);
+      if (mode === "trigger") {
+        console.log(`    fixture refreshed from ${refreshFixture(skill, document)}`);
+      } else if (mode === "check" && config === triggerPath(skill)) {
+        fixtureConfiguration(skill, document);
+      }
+      const result = spawnSync(promptfoo, [...args, "-c", config], { env, stdio: "inherit" });
+      if (result.error) throw result.error;
+      if (result.status !== 0) exitCode = result.status ?? 1;
+    } catch (error) {
+      console.error(`    ${config}: ${error.message}`);
+      exitCode = 1;
     }
-    if (result.status !== 0) exitCode = result.status ?? 1;
   }
 }
 
