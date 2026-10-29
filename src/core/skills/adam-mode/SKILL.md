@@ -94,7 +94,7 @@ When you run as a delegate, the coordinator owns the playbook, the todo list, th
 - Label each claim as observed, inferred or a guess, with its source (principle-label-the-evidence). Run each check that you can run; do not give it to the user.
 - For a change or a decision, state what the user gains and what the user loses.
 - Use a diagram for architecture, flow and blast radius.
-- For docs and decisions, use `writing`. For commits, use `commit-messages`. For PR text, use `pr`.
+- For docs and decisions, use `writing-for-humans`. For commits, use `commit-messages`. For PR text, use `pr`.
 
 ## Playbooks
 

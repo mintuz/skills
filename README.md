@@ -359,8 +359,8 @@ flowchart LR
 | [`pseudocode`](src/core/skills/pseudocode/SKILL.md)                               | Render module boundaries, signatures, arguments, and a cited call graph for existing or planned code      |
 | [`reducer`](src/core/skills/reducer/SKILL.md)                                     | First-principles system simplification with behavioral equivalence proofs                                 |
 | [`ship-pr`](src/core/skills/ship-pr/SKILL.md)                                     | Commit, publish, repair, and monitor a GitHub pull request through merge                                  |
-| [`writing`](src/core/skills/writing/SKILL.md)                                     | Developer-focused writing: tutorials, how-tos, docs with clear structure                                  |
 | [`writing-for-agents`](src/core/skills/writing-for-agents/SKILL.md)               | Concise agent handovers and skill instructions that preserve scope, evidence and completion conditions   |
+| [`writing-for-humans`](src/core/skills/writing-for-humans/SKILL.md)               | Draft, edit and review human prose with contextual word bans, medium-specific voice and factual safeguards |
 | [`wtf`](src/core/skills/wtf/SKILL.md)                                             | Re-explain an unclear response in plain, precise UK English                                               |
 | [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay a shared project verification bundle with indexed coverage                          |
 | [`maintain-verification-skill`](src/core/skills/maintain-verification-skill/SKILL.md) | Repair verification recipes and harness discovery without changing product expectations                 |
@@ -383,9 +383,26 @@ flowchart LR
 
 `writing-for-agents` covers cross-agent messages and skill creation or updates.
 It removes repeated instructions and filler without dropping operational
-constraints. It draws on [write-a-skill](https://www.skills.sh/mattpocock/skills/write-a-skill),
-[unslop](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md)
-and [skill-diet](https://github.com/nicobailon/skill-diet).
+constraints.
+
+`writing-for-humans` covers articles, documentation, messages, marketing and UI
+text. It also improves PR and commit prose without replacing their format rules.
+It drafts from sufficient source material, preserves useful voice and applies
+default word bans with exceptions for accurate terms, quotations, code and names.
+It repeats editorial checks until they pass; a justified exception is a pass.
+Use `writing-for-agents` for agent instructions and skill authoring.
+
+Core 4.0 replaces `writing` with `writing-for-humans`; there is no alias.
+Update saved prompts and external skill references to the new name. In Claude
+Code, use `/core:writing-for-humans`; in OMP, use `/skill:writing-for-humans`;
+in Codex, use `$writing-for-humans`. The old fixed formatting rules are retired.
+For standalone copies, remove the installed `writing` skill before syncing or
+uploading `writing-for-humans`; copying the new skill does not remove the old one.
+
+Its [behavioural suite](evals/writing-for-humans/promptfooconfig.yaml) compares
+the skill against no skill. Its
+[activation suite](evals/writing-for-humans/trigger.promptfooconfig.yaml)
+checks discovery, specialist format owners and the `adam-mode` investigation caller.
 
 ### Verification workflow
 
@@ -639,9 +656,7 @@ After syncing, invoke skills in Codex CLI using the `$skill-name` syntax (e.g., 
 
 See [scripts/README.md](scripts/README.md) for more options including custom output directories, skill name prefixing, and dry-run mode.
 
-## Credits
+## Licence notices
 
-- Lauren Tan, for the 59 skills (12 core workflows and 47 principles) adapted from [pstack](https://github.com/cursor/plugins/tree/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454/pstack/skills), and for the `poteto-mode` skill and `poteto-agent` subagent on which `adam-mode` and `adam-agent` are modelled. `sharpen` comes from a later pstack commit. The MIT license is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- [City Paul's dotfiles](https://github.com/citypaul/.dotfiles/tree/main/claude/.claude) (MIT). `double-check` and several principle additions adapt ideas from its skills, rewritten in new words.
-- [Lee Cheneler's dotfiles](https://github.com/LeeCheneler/dotfiles)
-- [Thomas Ricouard's Skills](https://github.com/Dimillian/Skills)
+Required third-party copyright and licence notices are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

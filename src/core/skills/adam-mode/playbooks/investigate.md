@@ -11,7 +11,7 @@ A question about how, why, impact or consequences. The deliverable is a cited ex
    - **"Are you sure?" or a stated premise:** your own judgement with its reasons. When the evidence contradicts the premise, say so (Candour in the SKILL.md).
 
    When you have not read the code, put the label "inferred" and the check that would confirm it beside each claim, not in one general disclaimer.
-5. **Apply `writing` to the reply.** Load the `writing` skill and apply it to the whole reply, together with Writing the reply in the SKILL.md.
+5. **Apply `writing-for-humans` to the reply.** Load the `writing-for-humans` skill and apply it to the whole reply, together with Writing the reply in the SKILL.md.
 6. **Hand back before any change.** When the investigation precedes a code change, stop after the answer. Hand back to the user, and name the playbook that makes the change: Bug fix for a defect, Implement for a spec or a story.
 
 ## Variant: diagnose from an artifact
