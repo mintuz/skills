@@ -35,14 +35,14 @@ Use plain UK English by default. Preserve an explicit house style or supplied vo
 - **Reference and high-stakes prose:** favour precision, predictable structure and retrieval. Keep necessary repetition, definitions, citations, notices and uncertainty. Do not force an opinion or conversational voice onto neutral material.
 - **Articles, essays and newsletters:** preserve useful humour, bluntness, fragments, digressions, punctuation and varied sentence lengths. In an argument, retain the author's supported position and real limitations. Do not invent a stance or demand a thesis from every kind of prose.
 - **Messages:** lead with the request, decision, update or unresolved risk. Keep necessary social context and genuine politeness.
-- **Proposals:** separate the problem, evidence and open questions under clear headings before a recommendation. Label a target design as proposed, not decided. Keep staging results distinct from production evidence.
+- **Proposals:** start with the problem, not a recommendation. Give the problem, evidence and open questions clear headings before any recommendation; an introductory summary must not bypass this order. Label a target design as proposed, not decided. Keep staging results distinct from production evidence.
 - **Decision requests:** state the choice, then give labelled options before background. Each option states its action and consequence in plain language. Omit figures the choice does not need. State what has changed, if anything, and ask the user to choose; mark a recommendation as such.
 - **Marketing:** show supported value for a specific reader. Preserve required claims and useful calls to action, but invent no proof, customers or superlatives.
 - **UI text:** state the action, problem or recovery plainly. Preserve labels, accessibility and localisation constraints, and product meaning. Do not invent controls or make personality obstruct the task.
 
 Give a document one main purpose. Allow supporting explanation or a small lookup table when it helps the reader finish the task; split and link only when mixed purposes obstruct use.
 
-Default to sentence-case headings. Let content determine paragraph length, headings, lists and emphasis. Use numbered steps for sequences. Do not impose heading intervals, keyword placements or uniform paragraph shapes. Open with the useful outcome, fact, scene or request. Add a summary or next action only when it serves the reader, not to satisfy a template.
+Default to sentence-case headings. Let content determine paragraph length, headings, lists and emphasis. Use numbered steps for sequences. Do not impose heading intervals, keyword placements or uniform paragraph shapes. Follow the opening order specified for the medium above; otherwise open with the useful outcome, fact, scene or request. Add a summary or next action only when it serves the reader, not to satisfy a template.
 
 ## Apply default bans with contextual exceptions
 
