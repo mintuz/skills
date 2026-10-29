@@ -396,6 +396,8 @@ Core 4.0 replaces `writing` with `writing-for-humans`; there is no alias.
 Update saved prompts and external skill references to the new name. In Claude
 Code, use `/core:writing-for-humans`; in OMP, use `/skill:writing-for-humans`;
 in Codex, use `$writing-for-humans`. The old fixed formatting rules are retired.
+For standalone copies, remove the installed `writing` skill before syncing or
+uploading `writing-for-humans`; copying the new skill does not remove the old one.
 
 Its [behavioural suite](evals/writing-for-humans/promptfooconfig.yaml) compares
 the skill against no skill. Its
