@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Writing-for-agents trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config: &model
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates for a cold agent handover
+    vars:
+      request: Write a concise handover so another coding agent can continue my upload fix without this chat history.
+    assert:
+      - type: skill-used
+        value: writing-for-agents
+  - description: Activates for skill creation
+    vars:
+      request: Create an agent skill for preparing staging releases. Keep its SKILL.md lean and its completion conditions explicit.
+    assert:
+      - type: skill-used
+        value: writing-for-agents
+  - description: Activates for skill editing
+    vars:
+      request: Shorten our existing deployment skill without dropping any safeguards or exception paths.
+    assert:
+      - type: skill-used
+        value: writing-for-agents
+  - description: Excludes human marketing copy
+    vars:
+      request: Write the homepage headline for a photo-sharing app aimed at families. No agent instructions are needed.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          The response plans a family photo-sharing homepage headline, not an
+          agent handover or skill. It does not apply writing-for-agents or claim
+          to follow it. Reading the skill to determine that it is out of scope
+          is acceptable; judging the response, not a file-read trace, is required.
+        provider:
+          id: openai:codex-sdk
+          config: *model

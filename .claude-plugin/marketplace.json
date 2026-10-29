@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "core",
-      "version": "3.4.1",
+      "version": "3.5.0",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
@@ -25,6 +25,7 @@
         "./skills/reducer",
         "./skills/ship-pr",
         "./skills/writing",
+        "./skills/writing-for-agents",
         "./skills/wtf",
         "./skills/github-monitor",
         "./skills/create-verification-skill",

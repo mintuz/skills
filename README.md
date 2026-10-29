@@ -360,6 +360,7 @@ flowchart LR
 | [`reducer`](src/core/skills/reducer/SKILL.md)                                     | First-principles system simplification with behavioral equivalence proofs                                 |
 | [`ship-pr`](src/core/skills/ship-pr/SKILL.md)                                     | Commit, publish, repair, and monitor a GitHub pull request through merge                                  |
 | [`writing`](src/core/skills/writing/SKILL.md)                                     | Developer-focused writing: tutorials, how-tos, docs with clear structure                                  |
+| [`writing-for-agents`](src/core/skills/writing-for-agents/SKILL.md)               | Concise agent handovers and skill instructions that preserve scope, evidence and completion conditions   |
 | [`wtf`](src/core/skills/wtf/SKILL.md)                                             | Re-explain an unclear response in plain, precise UK English                                               |
 | [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay a shared project verification bundle with indexed coverage                          |
 | [`maintain-verification-skill`](src/core/skills/maintain-verification-skill/SKILL.md) | Repair verification recipes and harness discovery without changing product expectations                 |
@@ -379,6 +380,12 @@ flowchart LR
 | [`sharpen`](src/core/skills/sharpen/SKILL.md)                                     | Manual-only. Make a task deeper, not bigger, then rewrite the prompt                                      |
 | [`in-your-own-words`](src/core/skills/in-your-own-words/SKILL.md)                 | Manual-only. Restate the user's goals and the problem they are trying to solve                            |
 | [`creative-seed`](src/core/skills/creative-seed/SKILL.md)                         | Derive each UI concept's creative direction from a deterministic seed string that the design never shows  |
+
+`writing-for-agents` covers cross-agent messages and skill creation or updates.
+It removes repeated instructions and filler without dropping operational
+constraints. It draws on [write-a-skill](https://www.skills.sh/mattpocock/skills/write-a-skill),
+[unslop](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md)
+and [skill-diet](https://github.com/nicobailon/skill-diet).
 
 ### Verification workflow
 
