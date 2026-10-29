@@ -1,0 +1,177 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Writing-for-humans activation and migrated caller selection
+
+metadata:
+  fixture_skills:
+    - writing-for-agents
+    - commit-messages
+    - pr
+    - adam-mode
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config: &model
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates for a newsletter edit without explicit invocation
+    vars:
+      request: Edit my personal newsletter to remove generic AI-sounding phrasing without losing my blunt voice or changing facts.
+    assert:
+      - type: skill-used
+        value: writing-for-humans
+
+  - description: Activates for UI wording while preserving product constraints
+    vars:
+      request: Rewrite this UI error in plain language without changing the product's button labels or accessibility constraints.
+    assert:
+      - type: skill-used
+        value: writing-for-humans
+
+  - description: Explicit invocation works for technical documentation
+    vars:
+      request: Use writing-for-humans to edit our API guide. Preserve exact identifiers, prerequisites, and warnings.
+    assert:
+      - type: skill-used
+        value: writing-for-humans
+
+  - description: Leaves skill authoring to writing-for-agents
+    vars:
+      request: Create a concise agent skill for staging release checks, with explicit approval and completion conditions. This is instructions for another agent, not a human guide.
+    assert:
+      - type: skill-used
+        value: writing-for-agents
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          The response selects writing-for-agents for skill authoring and does
+          not apply writing-for-humans to the agent instructions. Reading a
+          skill to exclude it is acceptable. It does not execute the task.
+        provider:
+          id: openai:codex-sdk
+          config:
+            <<: *model
+            working_dir: ./grading-workspace
+
+  - description: Does not turn code implementation into prose editing
+    vars:
+      request: Implement an exponential-backoff function in TypeScript. I need executable code, not documentation or writing advice.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          The response plans code implementation and does not apply a prose
+          editing or agent-writing skill. Reading a skill to exclude it is
+          acceptable. It follows the request to plan without executing.
+        provider:
+          id: openai:codex-sdk
+          config:
+            <<: *model
+            working_dir: ./grading-workspace
+
+  - description: Activates on a ruling put to the user
+    vars:
+      request: >-
+        You found two ways to fix the flaky checkout test and cannot pick one
+        without me. Write the message that asks me to decide between them.
+    assert:
+      - type: skill-used
+        value: writing-for-humans
+
+  - description: Activates on a developer tutorial
+    vars:
+      request: >-
+        Write a short tutorial for backend developers on recording and
+        replaying an HTTP session with our `rex` CLI.
+    assert:
+      - type: skill-used
+        value: writing-for-humans
+
+  - description: Retains the specialist owner for commit format
+    vars:
+      request: >-
+        Write the conventional commit message for my staged change that fixes
+        the stale login redirect.
+    assert:
+      - type: skill-used
+        value: commit-messages
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          Uses commit-messages for the commit format. May also use
+          writing-for-humans to improve prose, but does not replace the
+          Conventional Commit format with a document or marketing headline.
+        provider:
+          id: openai:codex-sdk
+          config:
+            <<: *model
+            working_dir: ./grading-workspace
+
+  - description: Retains the specialist owner for PR descriptions
+    vars:
+      request: >-
+        Draft the pull request description for my branch that replaces the
+        retry loop with exponential backoff.
+    assert:
+      - type: skill-used
+        value: pr
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          Uses pr for the reviewer-facing PR description. May also use
+          writing-for-humans for prose, but does not discard PR context or
+          verification requirements in favour of a general essay template.
+        provider:
+          id: openai:codex-sdk
+          config:
+            <<: *model
+            working_dir: ./grading-workspace
+
+  - description: Activates for marketing under the expanded human-writing scope
+    vars:
+      request: >-
+        Write the homepage hero headline and subheadline for our new
+        uptime-monitoring product.
+    assert:
+      - type: skill-used
+        value: writing-for-humans
+
+  - description: Investigation caller loads the replacement writing skill
+    vars:
+      request: >-
+        Use adam-mode's Investigate playbook to explain how a cache works.
+        Follow its instruction to load the writing skill for the reply.
+        For this selection check, read the relevant skills and playbook,
+        then give only the plan. Do not investigate files or change anything.
+    assert:
+      - type: skill-used
+        value: writing-for-humans
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          Follows adam-mode's Investigate playbook and identifies
+          writing-for-humans as the writing skill for the reply. It does not
+          claim the retired writing skill is required or unavailable, and
+          does not plan code changes, commits or PR creation.
+        provider:
+          id: openai:codex-sdk
+          config:
+            <<: *model
+            working_dir: ./grading-workspace

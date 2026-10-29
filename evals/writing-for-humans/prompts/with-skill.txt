@@ -1,0 +1,10 @@
+This is a read-only writing evaluation. Do not use tools or inspect files.
+Use only the supplied facts. Return the artifact requested by the scenario.
+Follow the writing skill below.
+
+<skill>
+{{skill}}
+</skill>
+
+Scenario:
+{{scenario}}
