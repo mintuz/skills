@@ -1,10 +1,15 @@
 # Development Skills
 
-Reusable development skills and plugin bundles for Codex, Claude Code and OMP.
-All three use the same skill directories under `src/`. Each harness manages
-plugin discovery, tool access and installation separately.
+[![Twitter](https://img.shields.io/badge/twitter-blue.svg?&style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/mintuz)
+[![My LinkedIn profile](https://img.shields.io/badge/linkedin-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/adambulmer)
+
+Reusable skills, agents and plugin bundles for software development and personal productivity. They work with Codex, Claude Code and OMP. All three harnesses load the same skill directories under `src/`. Each harness manages its own plugin discovery, tool access and installation.
+
+To choose a skill for a task, go to [When to use the main skills](#when-to-use-the-main-skills).
 
 ## Install with Codex
+
+Run these commands in your shell:
 
 ```bash
 codex plugin marketplace add mintuz/skills
@@ -12,12 +17,14 @@ codex plugin list --marketplace mintuz-skills --available
 codex plugin add core@mintuz-skills
 ```
 
-Replace `core` with any bundle name: `web`, `typescript`, `system-design`,
-`product-management`, `app`, `life` or `principle`.
+To install a different bundle, replace `core` with its name: `web`, `typescript`, `system-design`, `product-management`, `app`, `life` or `principle`.
 
-For the ChatGPT desktop app, restart the app after adding the marketplace.
-Open the Plugins Directory, choose **Mintuz Skills**, and install the bundles
-you need.
+To install from the ChatGPT desktop app:
+
+1. Add the marketplace.
+2. Restart the app.
+3. Open the Plugins Directory and choose **Mintuz Skills**.
+4. Install the bundles that you need.
 
 ## Install with Claude Code
 
@@ -40,8 +47,7 @@ Run these commands inside Claude Code:
 
 ## Install with OMP
 
-Run these commands in your shell. Add the marketplace before installing a
-plugin, so OMP resolves `name@mintuz-skills` as a catalogue entry:
+Add the marketplace before you install a plugin, so that OMP resolves `name@mintuz-skills` as a catalogue entry. Install only the bundles that you need. Run these commands in your shell:
 
 ```bash
 omp plugin marketplace add mintuz/skills
@@ -56,10 +62,7 @@ omp plugin install life@mintuz-skills
 omp plugin install principle@mintuz-skills
 ```
 
-Install only the bundles you need. The default scope is `user`, which makes a
-plugin available across projects. When you run inside a Git project, add
-`--scope project` to limit discovery to that project. Project scope is not a
-security sandbox.
+The default scope is `user`, which makes a plugin available across projects. To limit discovery to one Git project, run the install command inside that project and add `--scope project`. Project scope is not a security sandbox.
 
 You can also install from an OMP session:
 
@@ -70,74 +73,20 @@ You can also install from an OMP session:
 /reload-plugins
 ```
 
-For an already-running session, run `/reload-plugins` after installation.
-Restart OMP if a plugin adds executable tools, hooks or extension modules.
+If a session is already running, run `/reload-plugins` after installation. Restart OMP if a plugin adds executable tools, hooks or extension modules.
 
-To update installed plugins, refresh the catalogue first, then upgrade:
+To update installed plugins, refresh the catalogue first, then upgrade each plugin:
 
 ```bash
 omp plugin marketplace update mintuz-skills
 omp plugin upgrade core@mintuz-skills
 ```
 
-OMP uses this repository's explicit `.omp-plugin/marketplace.json` catalogue.
-Each plugin also includes `.omp-plugin/plugin.json` metadata to match the
-Claude Code and Codex directory layout. See the
-[OMP marketplace documentation](https://omp.sh/docs/marketplace).
+OMP uses this repository's explicit `.omp-plugin/marketplace.json` catalogue. Each plugin also includes `.omp-plugin/plugin.json` metadata that matches the Claude Code and Codex directory layout. See the [OMP marketplace documentation](https://omp.sh/docs/marketplace).
 
-## Use with standalone skill loaders
+## Call a skill
 
-Keep each complete skill directory, including references. For skills listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), the copier includes that file so the MIT notice travels with the bundle. To generate flat directories with the existing copier:
-
-```bash
-go run scripts/codex-sync.go --output /path/to/your/skills
-```
-
-Point the harness’s skill discovery at that directory, or copy it into its documented skill location. The copier preserves ordinary `SKILL.md` bundles; despite its name it does not translate the instructions into a Codex-only format. Leave `--prefix` off to preserve names such as `principle-prove-it-works`.
-
-Use one authoritative distribution per skill name. Do not install both a
-plugin bundle and a standalone copy of the same skill.
-
-## Plugin metadata and validation
-
-A marketplace catalogue lives at the repository root. Each plugin has a
-manifest inside its own `src/<plugin>/` directory, not another marketplace.
-
-| Harness | Root catalogue | Per-plugin manifest |
-| --- | --- | --- |
-| Codex | `.agents/plugins/marketplace.json` | `.codex-plugin/plugin.json` |
-| Claude Code | `.claude-plugin/marketplace.json` | `.claude-plugin/plugin.json` |
-| OMP | `.omp-plugin/marketplace.json` | `.omp-plugin/plugin.json` |
-
-Keep the OMP catalogue and manifests identical to their Claude Code copies.
-OMP prefers its own catalogue over the Claude Code fallback. Its runtime
-discovers the conventional component directories and uses the compatible
-Claude Code metadata where needed; retain both sets of manifests.
-
-After changing a plugin, keep all three manifest versions aligned. Set the
-same `version` on its Claude Code and OMP catalogue entries so OMP can detect
-available upgrades. Keep all three catalogues' plugin names and source paths
-aligned.
-
-Run the repository metadata check without model calls or host configuration
-changes:
-
-```bash
-pnpm check:plugins
-```
-
-This checks plugin and skill inventories, source paths, repository URLs,
-versions and Model Context Protocol (MCP) configuration paths. It does not
-execute skills or start MCP servers. Validate and install through the target
-harness as well before publishing.
-
-## When to use the main skills
-
-This section covers the entry points and the skills that I use every day. The [Skills](#skills) tables list every other skill. The example prompts come from real Claude Code and OMP sessions. Project names and links are replaced with placeholders.
-
-Each harness calls a skill by name with a different syntax. The examples below
-use unqualified skill names. For a Claude Code plugin installation, add the
-bundle prefix shown in the table.
+Each harness calls a skill by name with a different syntax. The examples in this README use unqualified skill names. For a Claude Code plugin installation, add the bundle prefix.
 
 | Harness | Syntax | Example |
 | --- | --- | --- |
@@ -145,39 +94,45 @@ bundle prefix shown in the table.
 | OMP | `/skill:name` | `/skill:reducer` |
 | Codex | `$name` | `$reducer` |
 
+## When to use the main skills
+
+This section covers the entry points and the skills that I use every day. The [Skills](#skills) tables list every other skill. The example prompts come from real Claude Code and OMP sessions, with project names and links replaced by placeholders.
+
 ### Pick a skill
 
-| Situation                                                                    | Skill                                                                        |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| A task needs a full workflow: review, bug fix, spec, implementation, design  | [`adam-mode`](src/core/skills/adam-mode/SKILL.md)                            |
+| Situation | Skill |
+| --- | --- |
+| A task needs a full workflow: review, bug fix, spec, implementation, design | [`adam-mode`](src/core/skills/adam-mode/SKILL.md) |
 | An open "which approach?" question needs an experiment before the real build | [`adam-mode`](src/core/skills/adam-mode/SKILL.md) Prototype (spike) playbook |
-| One artifact must reach a high, confirmed bar over several rounds            | [`gauntlet-loop`](src/core/skills/gauntlet-loop/SKILL.md)                    |
-| One artifact can take several shapes, and you want them judged in one pass   | [`arena`](src/core/skills/arena/SKILL.md)                                    |
-| The look of a UI concept is open, and the variants must differ               | [`creative-seed`](src/core/skills/creative-seed/SKILL.md)                    |
-| Existing code or a system has more moving parts than its behaviour needs     | [`reducer`](src/core/skills/reducer/SKILL.md)                                |
-| New work must stay at the minimum that the requirement needs                 | [`yagni`](src/core/skills/yagni/SKILL.md)                                    |
-| You need to know what the code does now                                      | [`how`](src/core/skills/how/SKILL.md)                                        |
-| You need to know why the code exists in its current form                     | [`why`](src/core/skills/why/SKILL.md)                                        |
+| One artifact must reach a high, confirmed bar over several rounds | [`gauntlet-loop`](src/core/skills/gauntlet-loop/SKILL.md) |
+| One artifact can take several shapes, and you want them judged in one pass | [`arena`](src/core/skills/arena/SKILL.md) |
+| The look of a UI concept is open, and the variants must differ | [`creative-seed`](src/core/skills/creative-seed/SKILL.md) |
+| Existing code or a system has more moving parts than its behaviour needs | [`reducer`](src/core/skills/reducer/SKILL.md) |
+| New work must stay at the minimum that the requirement needs | [`yagni`](src/core/skills/yagni/SKILL.md) |
+| You need to know what the code does now | [`how`](src/core/skills/how/SKILL.md) |
+| You need to know why the code exists in its current form | [`why`](src/core/skills/why/SKILL.md) |
 
 ### `adam-mode`
 
-`adam-mode` is the main entry point. It is manual-only, so call it by name. It matches the request to a playbook, loads the skills that the playbook needs, delegates to `adam-agent` and proves the result before it reports. It continues without asking on reversible work, such as branches, commits, PRs and CI repair. It stops before a merge, the auto-merge label, a force-push, a data deletion or a message to a person, unless you asked for that action in the session.
+`adam-mode` is the main entry point. It is manual-only, so call it by name. It matches the request to a playbook, loads the skills that the playbook needs, delegates to `adam-agent` and proves the result before it reports.
 
-| Request                                                          | Playbook     |
-| ---------------------------------------------------------------- | ------------ |
-| "Review this PR"                                                 | Review       |
-| "Implement spec 013" or "Make the fixes that you recommended"    | Implement    |
-| "I have received a bug report"                                   | Bug fix      |
-| "How does…", "Why does…", "Explain…" or "Are you sure?"          | Investigate  |
-| "Redesign this from first principles with fewer moving parts"    | Rethink      |
-| "Make this faster"                                               | Perf         |
-| "Continue, my device crashed"                                    | Resume       |
-| "Spike this" or "Prototype this"                                 | Prototype    |
-| "The disk is full" or "Remove old worktrees"                     | Disk         |
-| "Make this match the mock-up"                                    | Match design |
-| "Write a spec" or "Create visual Given/When/Thens for this spec" | Spec         |
-| "Make this screen world class"                                   | Design loop  |
-| "Make CI go green"                                               | Ship         |
+It continues without asking on reversible work, such as branches, commits, PRs and CI repair. It stops before a merge, the auto-merge label, a force-push, a data deletion or a message to a person, unless you asked for that action in the session.
+
+| Request | Playbook |
+| --- | --- |
+| "Review this PR" | Review |
+| "Implement spec 013" or "Make the fixes that you recommended" | Implement |
+| "I have received a bug report" | Bug fix |
+| "How does…", "Why does…", "Explain…" or "Are you sure?" | Investigate |
+| "Redesign this from first principles with fewer moving parts" | Rethink |
+| "Make this faster" | Perf |
+| "Continue, my device crashed" | Resume |
+| "Spike this" or "Prototype this" | Prototype |
+| "The disk is full" or "Remove old worktrees" | Disk |
+| "Make this match the mock-up" | Match design |
+| "Write a spec" or "Create visual Given/When/Thens for this spec" | Spec |
+| "Make this screen world class" | Design loop |
+| "Make CI go green" | Ship |
 
 ```text
 /adam-mode Review this PR: <PR URL>. Restate what we are trying to achieve, then consider the solution from first principles. Optimise for simplicity and reduced complexity.
@@ -231,12 +186,12 @@ Use /arena with three candidates for the onboarding copy. Rubric: plain UK Engli
 
 `arena` and `gauntlet-loop` answer different questions. Use `arena` first when the direction is open, then `gauntlet-loop` to raise the chosen direction to the bar.
 
-|          | `arena`                                       | `gauntlet-loop`                                     |
-| -------- | --------------------------------------------- | --------------------------------------------------- |
-| Question | Which shape is best?                          | Is this shape good enough yet?                      |
-| Passes   | One                                           | Repeated rounds, until the evidence supports a stop |
-| Input    | The task, shared paths and a rubric           | One artifact and a bar that you confirm             |
-| Output   | One synthesised artifact and a synthesis note | One artifact, with a verdict for each round         |
+| | `arena` | `gauntlet-loop` |
+| --- | --- | --- |
+| Question | Which shape is best? | Is this shape good enough yet? |
+| Passes | One | Repeated rounds, until the evidence supports a stop |
+| Input | The task, shared paths and a rubric | One artifact and a bar that you confirm |
+| Output | One synthesised artifact and a synthesis note | One artifact, with a verdict for each round |
 
 ### `creative-seed`
 
@@ -330,203 +285,158 @@ flowchart LR
 /reducer Can we remove it without a change in behaviour?
 ```
 
-## Plugins
-
-| Plugin                 | Description                                                                                  |
-| ---------------------- | -------------------------------------------------------------------------------------------- |
-| **core**               | Core workflows: commits, learning, code review, prompts, PRs, writing, and persistent memory |
-| **web**                | Web development with CSS, React, Tailwind, TDD, testing, and design patterns                 |
-| **typescript**         | TypeScript strict mode, schema-first development, and best practices                         |
-| **system-design**      | Architecture visualization with Mermaid diagrams                                             |
-| **product-management** | PRDs, task management with Task Master MCP, decision tracing, and status updates             |
-| **app**                | Swift iOS development with App Intents, Swift Testing, and SwiftUI architecture              |
-| **principle**          | Independent engineering principles, each invoked for a specific decision                     |
-| **life**               | Personal life management with GPS method for goal achievement                                |
-
-## Skills
-
-### Core
-
-| Skill                                                                             | Description                                                                                               |
-| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [`acceptance-review`](src/core/skills/acceptance-review/SKILL.md)                 | Verify implementation against an authoritative contract with an explicit verdict                          |
-| [`commit-messages`](src/core/skills/commit-messages/SKILL.md)                     | Conventional commit messages that explain the "why" not just the "what"                                   |
-| [`yagni`](src/core/skills/yagni/SKILL.md)                                         | Minimum sufficient execution, scope boundaries, TDD, and documentation practices                          |
-| [`gauntlet-loop`](src/core/skills/gauntlet-loop/SKILL.md)                         | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics              |
-| [`graph-engineering`](src/core/skills/graph-engineering/SKILL.md)                 | Orchestrate interdependent specs and stories as a contract-first execution graph with a verifier per node |
-| [`record-lesson`](src/core/skills/record-lesson/SKILL.md)                         | Record a verified project lesson as the smallest rule in AGENTS.md or CLAUDE.md                           |
-| [`pr`](src/core/skills/pr/SKILL.md)                                               | PR descriptions, sizing, and creation with gh CLI                                                         |
-| [`pseudocode`](src/core/skills/pseudocode/SKILL.md)                               | Render module boundaries, signatures, arguments, and a cited call graph for existing or planned code      |
-| [`reducer`](src/core/skills/reducer/SKILL.md)                                     | First-principles system simplification with behavioral equivalence proofs                                 |
-| [`ship-pr`](src/core/skills/ship-pr/SKILL.md)                                     | Commit, publish, repair, and monitor a GitHub pull request through merge                                  |
-| [`writing-for-agents`](src/core/skills/writing-for-agents/SKILL.md)               | Concise agent handovers and skill instructions that preserve scope, evidence and completion conditions   |
-| [`writing-for-humans`](src/core/skills/writing-for-humans/SKILL.md)               | Draft, edit and review human prose with contextual word bans, medium-specific voice and factual safeguards |
-| [`wtf`](src/core/skills/wtf/SKILL.md)                                             | Re-explain an unclear response in plain, precise UK English                                               |
-| [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay a shared project verification bundle with indexed coverage                          |
-| [`maintain-verification-skill`](src/core/skills/maintain-verification-skill/SKILL.md) | Repair verification recipes and harness discovery without changing product expectations                 |
-| [`visual-feedback`](src/core/skills/visual-feedback/SKILL.md)                   | Reproduce and compare visual states in web and iOS applications                                            |
-| [`tdd`](src/core/skills/tdd/SKILL.md)                                           | Framework-neutral Red-Green-Refactor workflow with explicit evidence                                       |
-| [`blast-radius`](src/core/skills/blast-radius/SKILL.md)                           | Trace material change risks and decisive checks                                                           |
-| [`double-check`](src/core/skills/double-check/SKILL.md)                           | Second opinion from a fresh reviewer, ideally on another provider; findings close only on evidence        |
-| [`how`](src/core/skills/how/SKILL.md)                                             | Explain the current execution path and state ownership                                                    |
-| [`why`](src/core/skills/why/SKILL.md)                                             | Recover rationale while separating fact, inference and unknown                                            |
-| [`benchmark-checklist`](src/core/skills/benchmark-checklist/SKILL.md)             | Check measurement correctness, repeatability and interpretation                                           |
-| [`correct`](src/core/skills/correct/SKILL.md)                                     | Turn recurring enforceable mistakes into verified structural guards                                       |
-| [`recall`](src/core/skills/recall/SKILL.md)                                       | Recover bounded past context and reconcile it with current evidence                                       |
-| [`adam-mode`](src/core/skills/adam-mode/SKILL.md)                                 | Manual-only. Route a task to Adam's playbooks, principles and skills, and delegate through `adam-agent`   |
-| [`teach`](src/core/skills/teach/SKILL.md)                                         | Manual-only. Explain a change or subsystem plainly, using `how` and `why`, at the reader's pace           |
-| [`architect`](src/core/skills/architect/SKILL.md)                                 | Sketch types, signatures and modules through `arena`, then implement against the agreed sketch            |
-| [`arena`](src/core/skills/arena/SKILL.md)                                         | Run independent attempts at one task, judge them on a rubric, pick a base and graft the best parts        |
-| [`sharpen`](src/core/skills/sharpen/SKILL.md)                                     | Manual-only. Make a task deeper, not bigger, then rewrite the prompt                                      |
-| [`in-your-own-words`](src/core/skills/in-your-own-words/SKILL.md)                 | Manual-only. Restate the user's goals and the problem they are trying to solve                            |
-| [`creative-seed`](src/core/skills/creative-seed/SKILL.md)                         | Derive each UI concept's creative direction from a deterministic seed string that the design never shows  |
-
-`writing-for-agents` covers cross-agent messages and skill creation or updates.
-It removes repeated instructions and filler without dropping operational
-constraints.
-
-`writing-for-humans` covers articles, documentation, messages, marketing and UI
-text. It also improves PR and commit prose without replacing their format rules.
-It drafts from sufficient source material, preserves useful voice and applies
-default word bans with exceptions for accurate terms, quotations, code and names.
-It repeats editorial checks until they pass; a justified exception is a pass.
-Use `writing-for-agents` for agent instructions and skill authoring.
-
-Core 4.0 replaces `writing` with `writing-for-humans`; there is no alias.
-Update saved prompts and external skill references to the new name. In Claude
-Code, use `/core:writing-for-humans`; in OMP, use `/skill:writing-for-humans`;
-in Codex, use `$writing-for-humans`. The old fixed formatting rules are retired.
-For standalone copies, remove the installed `writing` skill before syncing or
-uploading `writing-for-humans`; copying the new skill does not remove the old one.
-
-Its [behavioural suite](evals/writing-for-humans/promptfooconfig.yaml) compares
-the skill against no skill. Its
-[activation suite](evals/writing-for-humans/trigger.promptfooconfig.yaml)
-checks discovery, specialist format owners and the `adam-mode` investigation caller.
-
-### Verification workflow
+## Verification workflow
 
 Keep requirements, executable checks and runtime evidence distinct:
 
-- Use `create-verification-skill` once to record a project's launch, doctor,
-  drive, evidence and cleanup procedures. Use `maintain-verification-skill`
-  to keep that bundle and its host discovery entries accurate.
-- Use `tdd` with the relevant authoring skill: `frontend-testing`,
-  `react-testing`, `browser-testing`, `swift-testing` or `xcuitest`.
-- Use the generated `verify-<project>` recipe to run existing checks and
-  exercise real user journeys. Link existing BDD scenarios and test cases
-  instead of copying their expectations into another specification.
-- Use `visual-feedback` for interactive visual comparison,
-  `acceptance-review` for requirement satisfaction, and `double-check`
-  for a separate reviewer. None replaces machine-checked assertions.
+- Use `create-verification-skill` once to record a project's launch, doctor, drive, evidence and cleanup procedures. Use `maintain-verification-skill` to keep that bundle and its host discovery entries accurate.
+- Use `tdd` with the relevant authoring skill: `frontend-testing`, `react-testing`, `browser-testing`, `swift-testing` or `xcuitest`.
+- Use the generated `verify-<project>` recipe to run existing checks and exercise real user journeys. Link existing BDD scenarios and test cases instead of copying their expectations into another specification.
+- Use `visual-feedback` for interactive visual comparison, `acceptance-review` for requirement satisfaction, and `double-check` for a separate reviewer. None of them replaces machine-checked assertions.
+
+Use existing runners and structured reports for repeatable assertions. Record the required checks before execution, keep failed attempts, and report blocked or unrun checks as gaps. A passing browser or simulator journey does not prove physical-device, accessibility or security coverage. Non-UI XCTest authoring still uses the project's existing XCTest conventions; do not force a migration to Swift Testing.
+
+### iOS skill owners
 
 For iOS work, keep these owners separate:
 
 | Skill | Owns | Hands off |
-|---|---|---|
+| --- | --- | --- |
 | `debug` | Root-cause investigation of build/runtime identity, state, storage, lifecycle or crash faults | Rendering-only defects and agreed visual iteration to `visual-feedback`; execution to `xcode-dev-loop` |
 | `xcode-dev-loop` | Toolchain, build/install/run/capture mechanics and native result inspection | Test authorship and visual judgement |
 | `xcuitest` | UI-test actions, fixtures, waits and assertions | Exact cases, preconditions and proof requirements to the execution owner; unexplained behavioural failures with all attempt evidence to `debug` |
 | `visual-feedback` | Actual image inspection, visual diagnosis and equivalent before/after review in web or iOS | Apple execution to `xcode-dev-loop`; broader iOS build/runtime identity, state, storage, lifecycle or crash faults to `debug` |
 
-Keep one execution owner at a time. Request controlled experiments through that
-owner rather than starting a parallel simulator driver. Keep brief safety and
-evidence rules in each skill. If an optional companion is absent, use the project's
-documented commands; core visual feedback retains a standalone capture fallback.
+Keep one execution owner at a time. Request controlled experiments through that owner; do not start a parallel simulator driver. Keep brief safety and evidence rules in each skill. If an optional companion skill is absent, use the project's documented commands. Core visual feedback keeps a standalone capture fallback.
 
-Project recipes use one canonical bundle, not three authored versions.
-Prefer the project's convention; otherwise use `.agents/skills` with a
-Claude project-directory link and an OMP native link only when needed.
-Maintain every declared discovery entry. Prove loading and representative
-cold replay separately in each claimed host and target platform.
+### Project verification bundles
 
-`visual-feedback` replaces `web:eyes`, and `core:tdd` replaces `web:tdd`.
-Install or update `core` when upgrading from `web` 1.x to 2.x.
-No compatibility copies remain in the web plugin.
+Each project has one canonical recipe bundle, not three authored versions. Follow the project's convention. If the project has no convention, use `.agents/skills` with a Claude project-directory link, and add an OMP native link only when needed. Maintain every declared discovery entry. Prove loading and representative cold replay separately in each claimed host and target platform.
 
-For standalone installations, preserve unrelated user-authored skills. Remove
-only known old web-plugin copies: `eyes`, or `web-eyes` with `--prefix`.
-Replace an unprefixed `tdd` bundle in full. For prefixed installations, remove
-the old `web-tdd` copy and install `core-tdd`. The copier does not prune
-retired skill directories.
+The [verification evidence record](evals/verification-skillset-native-results.json) separates treatment gates, advisory comparisons, activation checks and native runtime proof. It records the blocked native Claude replay and the limits of each web and iOS fixture. Filesystem parity alone is not host runtime proof.
 
-Use existing runners and structured reports for repeatable assertions.
-Record required checks before execution, retain failed attempts, and
-report blocked or unrun checks as gaps. A passing browser or simulator
-journey does not prove physical-device, accessibility or security coverage.
-Non-UI XCTest authoring still uses the project's existing XCTest
-conventions; do not force migration to Swift Testing.
+## Plugins
 
-The [verification evidence record](evals/verification-skillset-native-results.json)
-separates treatment gates, advisory comparisons, activation checks and native
-runtime proof. It records blocked native Claude replay and the limits of each
-web and iOS fixture. Filesystem parity alone is not host runtime proof.
+| Plugin | Description |
+| --- | --- |
+| **core** | Core workflows: commits, learning, code review, prompts, PRs, writing, and persistent memory |
+| **web** | Web development with CSS, React, Tailwind, TDD, testing, and design patterns |
+| **typescript** | TypeScript strict mode, schema-first development, and best practices |
+| **system-design** | Architecture visualisation with Mermaid diagrams |
+| **product-management** | PRDs, task management with Task Master MCP, decision tracing, and status updates |
+| **app** | Swift iOS development with App Intents, Swift Testing, and SwiftUI architecture |
+| **principle** | Independent engineering principles, each invoked for a specific decision |
+| **life** | Personal life management with the GPS method for goal achievement |
+
+## Skills
+
+### Core
+
+| Skill | Description |
+| --- | --- |
+| [`acceptance-review`](src/core/skills/acceptance-review/SKILL.md) | Verify implementation against an authoritative contract with an explicit verdict |
+| [`commit-messages`](src/core/skills/commit-messages/SKILL.md) | Conventional commit messages that explain the "why" not just the "what" |
+| [`yagni`](src/core/skills/yagni/SKILL.md) | Minimum sufficient execution, scope boundaries, TDD, and documentation practices |
+| [`gauntlet-loop`](src/core/skills/gauntlet-loop/SKILL.md) | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics |
+| [`graph-engineering`](src/core/skills/graph-engineering/SKILL.md) | Orchestrate interdependent specs and stories as a contract-first execution graph with a verifier per node |
+| [`record-lesson`](src/core/skills/record-lesson/SKILL.md) | Record a verified project lesson as the smallest rule in AGENTS.md or CLAUDE.md |
+| [`pr`](src/core/skills/pr/SKILL.md) | PR descriptions, sizing, and creation with gh CLI |
+| [`pseudocode`](src/core/skills/pseudocode/SKILL.md) | Render module boundaries, signatures, arguments, and a cited call graph for existing or planned code |
+| [`reducer`](src/core/skills/reducer/SKILL.md) | First-principles system simplification with behavioural equivalence proofs |
+| [`ship-pr`](src/core/skills/ship-pr/SKILL.md) | Commit, publish, repair, and monitor a GitHub pull request through merge |
+| [`writing-for-agents`](src/core/skills/writing-for-agents/SKILL.md) | Concise agent handovers and skill instructions that preserve scope, evidence and completion conditions |
+| [`writing-for-humans`](src/core/skills/writing-for-humans/SKILL.md) | Draft, edit and review human prose with contextual word bans, medium-specific voice and factual safeguards |
+| [`wtf`](src/core/skills/wtf/SKILL.md) | Re-explain an unclear response in plain, precise UK English |
+| [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay a shared project verification bundle with indexed coverage |
+| [`maintain-verification-skill`](src/core/skills/maintain-verification-skill/SKILL.md) | Repair verification recipes and harness discovery without changing product expectations |
+| [`visual-feedback`](src/core/skills/visual-feedback/SKILL.md) | Reproduce and compare visual states in web and iOS applications |
+| [`tdd`](src/core/skills/tdd/SKILL.md) | Framework-neutral Red-Green-Refactor workflow with explicit evidence |
+| [`blast-radius`](src/core/skills/blast-radius/SKILL.md) | Trace material change risks and decisive checks |
+| [`double-check`](src/core/skills/double-check/SKILL.md) | Second opinion from a fresh reviewer, ideally on another provider; findings close only on evidence |
+| [`how`](src/core/skills/how/SKILL.md) | Explain the current execution path and state ownership |
+| [`why`](src/core/skills/why/SKILL.md) | Recover rationale while separating fact, inference and unknown |
+| [`benchmark-checklist`](src/core/skills/benchmark-checklist/SKILL.md) | Check measurement correctness, repeatability and interpretation |
+| [`correct`](src/core/skills/correct/SKILL.md) | Turn recurring enforceable mistakes into verified structural guards |
+| [`recall`](src/core/skills/recall/SKILL.md) | Recover bounded past context and reconcile it with current evidence |
+| [`adam-mode`](src/core/skills/adam-mode/SKILL.md) | Manual-only. Route a task to Adam's playbooks, principles and skills, and delegate through `adam-agent` |
+| [`teach`](src/core/skills/teach/SKILL.md) | Manual-only. Explain a change or subsystem plainly, using `how` and `why`, at the reader's pace |
+| [`architect`](src/core/skills/architect/SKILL.md) | Sketch types, signatures and modules through `arena`, then implement against the agreed sketch |
+| [`arena`](src/core/skills/arena/SKILL.md) | Run independent attempts at one task, judge them on a rubric, pick a base and graft the best parts |
+| [`sharpen`](src/core/skills/sharpen/SKILL.md) | Manual-only. Make a task deeper, not bigger, then rewrite the prompt |
+| [`in-your-own-words`](src/core/skills/in-your-own-words/SKILL.md) | Manual-only. Restate the user's goals and the problem they are trying to solve |
+| [`creative-seed`](src/core/skills/creative-seed/SKILL.md) | Derive each UI concept's creative direction from a deterministic seed string that the design never shows |
+
+`writing-for-agents` covers cross-agent messages, agent instructions, and the creation or update of skills. It removes repeated instructions and filler without dropping operational constraints.
+
+`writing-for-humans` covers articles, documentation, messages, marketing and UI text. It also improves the prose in PRs and commits without replacing their format rules. It drafts from sufficient source material, keeps useful voice, and applies default word bans with exceptions for accurate terms, quotations, code and names. It repeats its editorial checks until they pass; a justified exception counts as a pass.
+
+The `writing-for-humans` [behavioural suite](evals/writing-for-humans/promptfooconfig.yaml) compares the skill against no skill. Its [activation suite](evals/writing-for-humans/trigger.promptfooconfig.yaml) checks discovery, specialist format owners and the `adam-mode` investigation caller.
 
 ### Web
 
-| Skill                                                          | Description                                                               |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [`css`](src/web/skills/css/SKILL.md)                           | CSS best practices for maintainable, scalable styles                      |
-| [`react`](src/web/skills/react/SKILL.md)                       | Production-ready React architecture and patterns                          |
-| [`xstate`](src/web/skills/xstate/SKILL.md)                     | Typed XState actor lifecycles with legal Mermaid statechart visualization |
-| [`react-testing`](src/web/skills/react-testing/SKILL.md)       | React Testing Library patterns for components, hooks, and context         |
-| [`frontend-testing`](src/web/skills/frontend-testing/SKILL.md) | DOM Testing Library patterns for behavior-driven UI testing               |
-| [`refactoring`](src/web/skills/refactoring/SKILL.md)           | Refactoring assessment and patterns after tests pass                      |
-| [`web-design`](src/web/skills/web-design/SKILL.md)             | Visual hierarchy, spacing, typography, and UI polish                      |
-| [`tailwind`](src/web/skills/tailwind/SKILL.md)                 | Design systems with Tailwind CSS, design tokens, and component libraries  |
+| Skill | Description |
+| --- | --- |
+| [`css`](src/web/skills/css/SKILL.md) | CSS best practices for maintainable, scalable styles |
+| [`react`](src/web/skills/react/SKILL.md) | Production-ready React architecture and patterns |
+| [`xstate`](src/web/skills/xstate/SKILL.md) | Typed XState actor lifecycles with legal Mermaid statechart visualisation |
+| [`react-testing`](src/web/skills/react-testing/SKILL.md) | React Testing Library patterns for components, hooks, and context |
+| [`frontend-testing`](src/web/skills/frontend-testing/SKILL.md) | DOM Testing Library patterns for behaviour-driven UI testing |
+| [`refactoring`](src/web/skills/refactoring/SKILL.md) | Refactoring assessment and patterns after tests pass |
+| [`web-design`](src/web/skills/web-design/SKILL.md) | Visual hierarchy, spacing, typography, and UI polish |
+| [`tailwind`](src/web/skills/tailwind/SKILL.md) | Design systems with Tailwind CSS, design tokens, and component libraries |
 | [`browser-testing`](src/web/skills/browser-testing/SKILL.md) | Author real-browser tests and controlled screenshot comparisons with the project's runner |
-| [`chatgpt-app-sdk`](src/web/skills/chatgpt-app-sdk/SKILL.md)   | Build ChatGPT apps using OpenAI Apps SDK and MCP with conversational UX   |
+| [`chatgpt-app-sdk`](src/web/skills/chatgpt-app-sdk/SKILL.md) | Build ChatGPT apps using OpenAI Apps SDK and MCP with conversational UX |
 
 ### App
 
-| Skill                                                                                    | Description                                                                                     |
-| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [`swift-testing`](src/app/skills/swift-testing/SKILL.md)                                 | Swift Testing framework: @Test macros, #expect/#require patterns                                |
-| [`xcuitest`](src/app/skills/xcuitest/SKILL.md)                                         | Author XCTest UI automation with controlled fixtures, public interactions and lifecycle proof   |
-| [`app-intent-driven-development`](src/app/skills/app-intent-driven-development/SKILL.md) | Build features as App Intents first for Siri, Shortcuts, widgets, and SwiftUI                   |
-| [`swiftui-architecture`](src/app/skills/swiftui-architecture/SKILL.md)                   | Modern SwiftUI patterns: @Observable, state management, no ViewModels                           |
-| [`debug`](src/app/skills/debug/SKILL.md)                                                 | Structured feedback loop for debugging iOS simulator issues and UI problems                     |
-| [`local-ai-models`](src/app/skills/local-ai-models/SKILL.md)                             | On-device AI with Foundation Models and MLX Swift: LLMs, VLMs, embeddings, and image generation |
-| [`app-store-scraper`](src/app/skills/app-store-scraper/SKILL.md)                         | Scrape iOS/macOS App Store data using iTunes/App Store APIs                                     |
-| [`app-store-keyword-ops`](src/app/skills/app-store-keyword-ops/SKILL.md)                 | Mine Astro competitor keywords and safely update locale-specific App Store fields               |
-| [`ios-localize-copy`](src/app/skills/ios-localize-copy/SKILL.md)                         | Localize iOS and App Store copy across every supported locale                                   |
-| [`xcode-dev-loop`](src/app/skills/xcode-dev-loop/SKILL.md)                               | Canonical xcodebuild build/test/simulator loop: background runs, result reading, screenshots    |
-| [`asc-screenshots`](src/app/skills/asc-screenshots/SKILL.md)                             | Upload App Store screenshots and previews through helm-asc: staging, locales, verification      |
+| Skill | Description |
+| --- | --- |
+| [`swift-testing`](src/app/skills/swift-testing/SKILL.md) | Swift Testing framework: @Test macros, #expect/#require patterns |
+| [`xcuitest`](src/app/skills/xcuitest/SKILL.md) | Author XCTest UI automation with controlled fixtures, public interactions and lifecycle proof |
+| [`app-intent-driven-development`](src/app/skills/app-intent-driven-development/SKILL.md) | Build features as App Intents first for Siri, Shortcuts, widgets, and SwiftUI |
+| [`swiftui-architecture`](src/app/skills/swiftui-architecture/SKILL.md) | Modern SwiftUI patterns: @Observable, state management, no ViewModels |
+| [`debug`](src/app/skills/debug/SKILL.md) | Structured feedback loop for debugging iOS simulator issues and UI problems |
+| [`local-ai-models`](src/app/skills/local-ai-models/SKILL.md) | On-device AI with Foundation Models and MLX Swift: LLMs, VLMs, embeddings, and image generation |
+| [`app-store-scraper`](src/app/skills/app-store-scraper/SKILL.md) | Scrape iOS/macOS App Store data using iTunes/App Store APIs |
+| [`app-store-keyword-ops`](src/app/skills/app-store-keyword-ops/SKILL.md) | Mine Astro competitor keywords and safely update locale-specific App Store fields |
+| [`ios-localize-copy`](src/app/skills/ios-localize-copy/SKILL.md) | Localise iOS and App Store copy across every supported locale |
+| [`xcode-dev-loop`](src/app/skills/xcode-dev-loop/SKILL.md) | Canonical xcodebuild build/test/simulator loop: background runs, result reading, screenshots |
+| [`asc-screenshots`](src/app/skills/asc-screenshots/SKILL.md) | Upload App Store screenshots and previews through helm-asc: staging, locales, verification |
 
 ### TypeScript
 
-| Skill                                                     | Description                                                           |
-| --------------------------------------------------------- | --------------------------------------------------------------------- |
+| Skill | Description |
+| --- | --- |
 | [`typescript`](src/typescript/skills/typescript/SKILL.md) | Schema-first development, strict typing, functional patterns, and Zod |
 
 ### Life
 
-| Skill                                               | Description                                                                        |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Skill | Description |
+| --- | --- |
 | [`gps-method`](src/life/skills/gps-method/SKILL.md) | Evidence-based goal achievement framework using Goal, Plan, and System methodology |
 
-### System Design
+### System design
 
-| Skill                                                                      | Description                                                                     |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [`mermaid-generator`](src/system-design/skills/mermaid-generator/SKILL.md) | Generate Mermaid diagrams from code to visualize architecture and relationships |
+| Skill | Description |
+| --- | --- |
+| [`mermaid-generator`](src/system-design/skills/mermaid-generator/SKILL.md) | Generate Mermaid diagrams from code to visualise architecture and relationships |
 
-### Product Management
+### Product management
 
-| Skill                                                                                       | Description                                                                            |
-| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [`decision-trace`](src/product-management/skills/decision-trace/SKILL.md)                   | Trace claimed decisions from source evidence through delivery artifacts                |
-| [`meeting-to-action-brief`](src/product-management/skills/meeting-to-action-brief/SKILL.md) | Turn meeting evidence into a concise decision and action brief                         |
-| [`status-updates`](src/product-management/skills/status-updates/SKILL.md)                   | Team updates and stakeholder comms with scannable structure and honest tone            |
-| [`story-pr-orchestrator`](src/product-management/skills/story-pr-orchestrator/SKILL.md)     | Coordinate dependency-gated stories through isolated pull requests                     |
-| [`design-handover`](src/product-management/skills/design-handover/SKILL.md)                 | Explicitly transfer accepted behaviour, matching visuals, authority and durable assets |
+| Skill | Description |
+| --- | --- |
+| [`decision-trace`](src/product-management/skills/decision-trace/SKILL.md) | Trace claimed decisions from source evidence through delivery artifacts |
+| [`meeting-to-action-brief`](src/product-management/skills/meeting-to-action-brief/SKILL.md) | Turn meeting evidence into a concise decision and action brief |
+| [`status-updates`](src/product-management/skills/status-updates/SKILL.md) | Team updates and stakeholder comms with scannable structure and honest tone |
+| [`story-pr-orchestrator`](src/product-management/skills/story-pr-orchestrator/SKILL.md) | Coordinate dependency-gated stories through isolated pull requests |
+| [`design-handover`](src/product-management/skills/design-handover/SKILL.md) | Explicitly transfer accepted behaviour, matching visuals, authority and durable assets |
 
 ## Principles
 
-Each is an independent skill under `src/principle/skills/`, with its full `principle-*` name. Invoke the one relevant to the decision; no router or global principle mode is required.
+Each principle is an independent skill under `src/principle/skills/`, with its full `principle-*` name. Invoke the one that is relevant to the decision. No router or global principle mode is required.
 
 | Skill | Focus |
-| ----- | ----- |
+| --- | --- |
 | [`principle-attack-the-premise`](src/principle/skills/principle-attack-the-premise/SKILL.md) | Challenge assumptions shared by failed approaches. |
 | [`principle-build-the-lever`](src/principle/skills/principle-build-the-lever/SKILL.md) | Automate repeated work when reuse earns it. |
 | [`principle-capture-the-baseline`](src/principle/skills/principle-capture-the-baseline/SKILL.md) | Record the before state before changing it. |
@@ -555,7 +465,7 @@ Each is an independent skill under `src/principle/skills/`, with its full `princ
 | [`principle-minimize-reader-load`](src/principle/skills/principle-minimize-reader-load/SKILL.md) | Collapse layers that own no decision. |
 | [`principle-model-the-domain`](src/principle/skills/principle-model-the-domain/SKILL.md) | Represent legal states, transitions and ownership. |
 | [`principle-narrow-state-lifetime`](src/principle/skills/principle-narrow-state-lifetime/SKILL.md) | Keep mutable state request-owned and short-lived. |
-| [`principle-never-block-on-the-human`](src/principle/skills/principle-never-block-on-the-human/SKILL.md) | Continue authorized independent work. |
+| [`principle-never-block-on-the-human`](src/principle/skills/principle-never-block-on-the-human/SKILL.md) | Continue authorised independent work. |
 | [`principle-never-weaken-a-check`](src/principle/skills/principle-never-weaken-a-check/SKILL.md) | Never loosen a gate just to pass. |
 | [`principle-observe-dont-infer`](src/principle/skills/principle-observe-dont-infer/SKILL.md) | Observe effects instead of trusting names. |
 | [`principle-outcome-oriented-execution`](src/principle/skills/principle-outcome-oriented-execution/SKILL.md) | Converge on the accepted end state. |
@@ -584,79 +494,89 @@ Each is an independent skill under `src/principle/skills/`, with its full `princ
 
 ## Agents
 
-| Agent                                                          | Plugin | Description                                                                                          |
-| -------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------- |
-| [`adam-agent`](src/core/agents/adam-agent.md)                  | core   | Delegate for an `/adam-mode` run that reads the `adam-mode` skill in full before any work            |
-| [`code-reviewer`](src/web/agents/code-reviewer.md)             | web    | Expert code review specialist focusing on quality, security, performance, and maintainability        |
-| [`refactorer`](src/web/agents/refactorer.md)                   | web    | Refactoring coach to guide code improvement decisions and assess opportunities after tests pass      |
-| [`senior-web-engineer`](src/web/agents/senior-web-engineer.md) | web    | Expert UI engineer for building robust, scalable React components with focus on standards compliance |
-| [`test-runner`](src/web/agents/test-runner.md)                 | web    | Runs tests with auto-detection and returns concise pass/fail summaries                               |
+| Agent | Plugin | Description |
+| --- | --- | --- |
+| [`adam-agent`](src/core/agents/adam-agent.md) | core | Delegate for an `/adam-mode` run that reads the `adam-mode` skill in full before any work |
+| [`code-reviewer`](src/web/agents/code-reviewer.md) | web | Code review specialist focusing on quality, security, performance, and maintainability |
+| [`refactorer`](src/web/agents/refactorer.md) | web | Refactoring coach to guide code improvement decisions and assess opportunities after tests pass |
+| [`senior-web-engineer`](src/web/agents/senior-web-engineer.md) | web | UI engineer for React components, with a focus on maintainability, user experience and web standards compliance |
+| [`test-runner`](src/web/agents/test-runner.md) | web | Runs tests with auto-detection and returns concise pass/fail summaries |
 
-## MCP Integrations
+## MCP integrations
 
-Some plugins include MCP server configurations:
+Some plugins include Model Context Protocol (MCP) server configurations:
 
-- **core** - Memory MCP for persistent knowledge storage across sessions
-- **web** - Playwright MCP for browser automation and visual checks
-- **product-management** - Task Master MCP for task management workflows
-- **app** - XcodeBuildMCP and iOS Simulator MCP for app development workflows
+- **core**: Memory MCP for persistent knowledge storage across sessions
+- **web**: Playwright MCP for browser automation and visual checks
+- **product-management**: Task Master MCP for task management workflows
+- **app**: XcodeBuildMCP and iOS Simulator MCP for app development workflows
 
-## Using Skills with Claude Web
+## Other ways to install skills
 
-The `.dist` folder contains individual skill zip files ready for upload to Claude web (claude.ai). Each skill is packaged as a separate zip file that can be uploaded independently to the skills section in your Claude web conversations.
+The marketplace installations above are the normal plugin path. Use the scripts in this section only when you want standalone skills instead.
 
-### Generating Skill Zips
+Use one authoritative distribution per skill name. Do not install both a plugin bundle and a standalone copy of the same skill.
 
-Run the packaging script from the repository root:
+### Standalone skill loaders and Codex CLI
 
-```bash
-# Create individual skill zips in .dist directory
-go run scripts/package-skills.go
+`scripts/codex-sync.go` copies complete `SKILL.md` bundles, including their references, into flat directories. Despite its name, it does not translate the instructions into a Codex-only format. For skills listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), it also copies that file, so the MIT notice travels with the bundle.
 
-# This creates files like:
-# .dist/commit-messages.zip
-# .dist/react.zip
-# .dist/swift-testing.zip
-# etc.
-```
-
-### Uploading to Claude Web
-
-1. Visit [claude.ai](https://claude.ai)
-2. Navigate to the skills section
-3. Upload the individual zip files from `.dist`
-4. Access the skills in your web conversations
-
-See [scripts/README.md](scripts/README.md) for more options including custom output directories and skill name prefixing.
-
-### Syncing individual skills to Codex CLI
-
-The marketplace installation above is the normal Codex plugin path. Use this
-script only when you want flattened, standalone skills instead.
-
-Skills can also be synced to the OpenAI Codex CLI format, making them available for use with Codex.
-
-Run the sync script from the repository root:
+Leave `--prefix` off to keep names such as `principle-prove-it-works`. Run the script from the repository root:
 
 ```bash
-# Sync all skills to ~/.codex/skills (user-level)
+# Copy all skills to ~/.codex/skills (user level, the default)
 go run scripts/codex-sync.go
 
-# Sync to .codex/skills in current project (project-level)
+# Copy all skills to .codex/skills in the current project (project level)
 go run scripts/codex-sync.go --project
 
-# This syncs skills like:
-# commit-messages
-# react
-# swift-testing
-# etc.
+# Copy all skills to another directory
+go run scripts/codex-sync.go --output /path/to/your/skills
 ```
 
-After syncing, invoke skills in Codex CLI using the `$skill-name` syntax (e.g., `$commit-messages`, `$react`).
+For a harness other than Codex CLI, point its skill discovery at the output directory, or copy the directory into the harness's documented skill location. In Codex CLI, call a synced skill with `$skill-name`, for example `$commit-messages` or `$react`.
 
-See [scripts/README.md](scripts/README.md) for more options including custom output directories, skill name prefixing, and dry-run mode.
+See [scripts/README.md](scripts/README.md) for more options, including skill name prefixes and dry-run mode.
 
-## Licence notices
+### Claude web
 
-Required third-party copyright and licence notices are in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The `.dist` folder contains one zip file for each skill, ready to upload to Claude web (claude.ai). You can upload each zip file independently.
+
+1. To regenerate the zip files, run the packaging script from the repository root:
+
+   ```bash
+   go run scripts/package-skills.go
+   ```
+
+   The script creates files such as `.dist/commit-messages.zip`, `.dist/react.zip` and `.dist/swift-testing.zip`.
+
+2. Go to [claude.ai](https://claude.ai).
+3. Open the skills section.
+4. Upload the zip files that you need from `.dist`.
+
+The uploaded skills are then available in your Claude web conversations. See [scripts/README.md](scripts/README.md) for more options, including custom output directories and skill name prefixes.
+
+## Plugin metadata and validation
+
+A marketplace catalogue lives at the repository root. Each plugin has a manifest inside its own `src/<plugin>/` directory, not another marketplace.
+
+| Harness | Root catalogue | Per-plugin manifest |
+| --- | --- | --- |
+| Codex | `.agents/plugins/marketplace.json` | `.codex-plugin/plugin.json` |
+| Claude Code | `.claude-plugin/marketplace.json` | `.claude-plugin/plugin.json` |
+| OMP | `.omp-plugin/marketplace.json` | `.omp-plugin/plugin.json` |
+
+Keep the OMP catalogue and manifests identical to their Claude Code copies. OMP prefers its own catalogue over the Claude Code fallback. Its runtime discovers the conventional component directories and uses the compatible Claude Code metadata where needed, so keep both sets of manifests.
+
+After you change a plugin:
+
+1. Set the same version in all three of its manifests.
+2. Set that `version` on its Claude Code and OMP catalogue entries, so that OMP can detect available upgrades.
+3. Keep the plugin names and source paths aligned in all three catalogues.
+4. Run the repository metadata check. It makes no model calls and does not change host configuration:
+
+   ```bash
+   pnpm check:plugins
+   ```
+
+The check covers plugin and skill inventories, source paths, repository URLs, versions and MCP configuration paths. It does not execute skills or start MCP servers. Before you publish, also validate and install through the target harness.
