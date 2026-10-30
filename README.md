@@ -1,5 +1,8 @@
 # Development Skills
 
+[![Twitter](https://img.shields.io/badge/twitter-blue.svg?&style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/mintuz)
+[![My LinkedIn profile](https://img.shields.io/badge/linkedin-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/adambulmer)
+
 Reusable skills, agents and plugin bundles for software development and personal productivity. They work with Codex, Claude Code and OMP. All three harnesses load the same skill directories under `src/`. Each harness manages its own plugin discovery, tool access and installation.
 
 To choose a skill for a task, go to [When to use the main skills](#when-to-use-the-main-skills).
@@ -553,24 +556,6 @@ The `.dist` folder contains one zip file for each skill, ready to upload to Clau
 
 The uploaded skills are then available in your Claude web conversations. See [scripts/README.md](scripts/README.md) for more options, including custom output directories and skill name prefixes.
 
-## Upgrade notes
-
-### Core 4.0: `writing` is now `writing-for-humans`
-
-Core 4.0 replaces `writing` with `writing-for-humans`. There is no alias, and the old fixed formatting rules are retired.
-
-1. Update saved prompts and external skill references to the new name. In Claude Code, use `/core:writing-for-humans`. In OMP, use `/skill:writing-for-humans`. In Codex, use `$writing-for-humans`.
-2. For standalone copies, remove the installed `writing` skill before you sync or upload `writing-for-humans`. Copying the new skill does not remove the old one.
-
-### Web 2.x: `eyes` and `tdd` move to core
-
-`visual-feedback` replaces `web:eyes`, and `core:tdd` replaces `web:tdd`. No compatibility copies remain in the web plugin. When you upgrade from `web` 1.x to 2.x, install or update `core`.
-
-For standalone installations, keep unrelated user-authored skills. The copier does not prune retired skill directories, so remove only the known old web-plugin copies:
-
-- Without `--prefix`: remove `eyes`, and replace the `tdd` bundle in full.
-- With `--prefix`: remove `web-eyes` and `web-tdd`, then install `core-tdd`.
-
 ## Plugin metadata and validation
 
 A marketplace catalogue lives at the repository root. Each plugin has a manifest inside its own `src/<plugin>/` directory, not another marketplace.
@@ -595,12 +580,3 @@ After you change a plugin:
    ```
 
 The check covers plugin and skill inventories, source paths, repository URLs, versions and MCP configuration paths. It does not execute skills or start MCP servers. Before you publish, also validate and install through the target harness.
-
-## Licence notices
-
-Required third-party copyright and licence notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-## Let's connect
-
-[![Twitter](https://img.shields.io/badge/twitter-blue.svg?&style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/mintuz)
-[![My LinkedIn profile](https://img.shields.io/badge/linkedin-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/adambulmer)
