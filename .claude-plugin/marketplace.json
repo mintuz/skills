@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "core",
-      "version": "4.0.0",
+      "version": "5.0.0",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
