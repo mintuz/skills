@@ -16,6 +16,12 @@ If the request is a one-off question ("explain X", "what is X", "how do I use X"
 
 Each tutoring message ends with exactly one question, then stops. Put any required feedback, explanation or skill map before the question. Do not add hints, example answers or teaching after the question.
 
+## Ground a codebase topic
+
+If the topic is the current codebase, do this before you start the session. Read the relevant code. Then run the `how` skill for how it works and the `why` skill for why it is built that way. Run them one after the other. Run them in parallel only when the host supports parallel runs and the user has authorised delegated work. Keep `why` narrow unless the reasons are the topic.
+
+Base the subskills, questions and answer checks on those findings, not on general knowledge. When you explain, keep `how`'s evidence labels and `why`'s confidence language. Do not state a fact about the codebase that the findings do not support.
+
 ## Start the session
 
 1. Split the topic into 4–10 concrete subskills. Use fewer for a narrow topic. For a broad topic, make a two-level tree and choose one branch. The session scope is that branch; record the other branches as later sessions.
