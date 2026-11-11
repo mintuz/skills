@@ -231,7 +231,7 @@ Review the architecture of the changes that we have made. Use /yagni and /reduce
 
 ### `how` and `why`
 
-Use `how` to explain what the code does now: the execution path and the owner of each piece of state. Use `why` to recover the reason that the code exists in its current form. `why` labels each finding as fact, inference or unknown. Both skills are read-only. `teach` combines them into one plain explanation.
+Use `how` to explain what the code does now: the execution path and the owner of each piece of state. Use `why` to recover the reason that the code exists in its current form. `why` labels each finding as fact, inference or unknown. Both skills are read-only.
 
 ```text
 /how does XState connect to the new CanvasSurface?
@@ -359,7 +359,7 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 | [`correct`](src/core/skills/correct/SKILL.md) | Turn recurring enforceable mistakes into verified structural guards |
 | [`recall`](src/core/skills/recall/SKILL.md) | Recover bounded past context and reconcile it with current evidence |
 | [`adam-mode`](src/core/skills/adam-mode/SKILL.md) | Manual-only. Route a task to Adam's playbooks, principles and skills, and delegate through `adam-agent` |
-| [`teach`](src/core/skills/teach/SKILL.md) | Manual-only. Explain a change or subsystem plainly, using `how` and `why`, at the reader's pace |
+| [`teach`](src/core/skills/teach/SKILL.md) | Manual-only. Tutor you to mastery of a topic with Socratic questions, a 0–5 skill map, spaced review and a final assessment |
 | [`architect`](src/core/skills/architect/SKILL.md) | Sketch types, signatures and modules through `arena`, then implement against the agreed sketch |
 | [`arena`](src/core/skills/arena/SKILL.md) | Run independent attempts at one task, judge them on a rubric, pick a base and graft the best parts |
 | [`sharpen`](src/core/skills/sharpen/SKILL.md) | Manual-only. Make a task deeper, not bigger, then rewrite the prompt |
