@@ -41,4 +41,4 @@ it('should format the current amount', () => {
 });
 ```
 
-`rerender` changes the hook callback's arguments only (see "Hooks and Context" in the main skill file). Choose a hook whose return value derives from the argument; a hook that only seeds `useState` keeps its first value after a `rerender`.
+`rerender` changes the hook callback's arguments only (see "Hooks and context" in `SKILL.md`). Choose a hook whose return value derives from the argument; a hook that only seeds `useState` keeps its first value after a `rerender`.

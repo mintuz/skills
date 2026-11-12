@@ -1,97 +1,68 @@
 ---
 name: react
-description: WHEN building or changing React components, pages, hooks, effects, or apps, including edits to existing components; NOT for test code (react-testing) or styling (css, tailwind); enforces scalable architecture, state management, API layer, performance patterns.
+description: "USE WHEN adding to or changing a React component, hook or page, even a one-line change to what a card shows; NOT WHEN the state changes when a request answers or an interaction has an interruptible middle, such as a double submit, a loading flag, a retry or a drag (use web:xstate), or when writing tests or styling; applies React 19 composition, state, Effect, structure, API and performance rules with only the project's installed libraries."
 ---
 
-# React Best Practices
+# React
 
-## Core Principles
+Write React 19 code with only the project's installed libraries. Do not add a dependency unless the user asks for one.
 
-1. **Easy to start** - patterns new team members can follow
-2. **Simple to maintain** - readable code with obvious intent
-3. **Clean boundaries** - separate features and layers
-4. **Early issue detection** - catch problems at build time, not runtime
-5. **Consistency** - same patterns throughout the codebase
+Before changing code, read every guide that matches the change. A change that crosses a boundary needs more than one guide. Each guide rule has a good example; follow its conditions and exceptions, not only the summaries below. Use the same guides to review components.
 
-## Rules for Every Change
+Return complete, type-correct code for every behaviour you claim, including event handlers and data flow; a comment is not an implementation.
 
-**Authorization.** A client permission check decides only what the UI shows; it cannot stop a crafted request. The server must authenticate the actor, authorize each mutation for that actor and resource, and refuse with 403 before it changes data. When a user action receives a 403, show the failure in the component that made the request. Do not redirect the app or log the user out for a per-action 403. See [api-layer.md](./references/api-layer.md).
+| Change | Required guide |
+| --- | --- |
+| Component APIs, boolean modes, explicit variants, children, compound components, providers, refs or context | [composition.md](references/composition.md) |
+| State placement, URL state, handlers, Effects, actor integration or resource lifetimes | [state-effects.md](references/state-effects.md) |
+| Feature structure, imports, endpoint schemas, fetchers and hooks, permissions or HTTP errors | [structure-api.md](references/structure-api.md) |
+| Rendering, subscriptions, memoisation, deferred rendering, code loading or preloading | [performance.md](references/performance.md) |
 
-**Effects.** Use an effect only to synchronise with an external system. Work caused by a user action belongs in the event handler. For an async effect, cleanup marks that run stale; a stale run writes no state, on success or on failure. When the operation accepts an `AbortSignal`, also create one `AbortController` per run and abort it in cleanup. Identify cancellation by the operation's own contract: a DOM `AbortError` by its `name`, an axios request by `axios.isCancel(error)`. Treat cancellation as no error. Every rejection that is not cancellation is a failure of the current run; write it to state, whatever its class. A class check such as `instanceof DOMException` must not decide which failures reach state. An effect that synchronises an imperative target (an editor, a map, a chart) with a prop or state applies the current value on every run, including the first run after mount. Do not guard it with a previous-value or transition check: such a guard skips the state the component mounts in. See [useeffect.md](./references/useeffect.md).
+Apply these principles within their own triggers and exclusions:
 
-**Boundaries.** A feature imports from shared code only, never from another feature. Do not disable the boundary lint rule. When two features need one component, move it to `src/components/`. A shared component receives its data through props and does not import a feature API hook. The API module stays in the feature that owns the endpoint. Each feature that renders the shared component supplies that data itself: from its own API response, or through a feature-local component that calls the feature's own API hook. Alternatively, the app-level page composes the two features. See [project-structure.md](./references/project-structure.md).
+- `principle-derive-from-one-owner` for a fact repeated across modules, services or stores.
+- `principle-reuse-before-building` before you add a helper or a dependency.
+- `principle-model-the-domain` for legal states and transitions.
+- `principle-type-system-discipline` for distinctions the compiler must enforce.
+- `principle-hide-representations` for private shapes that cross module boundaries.
+- `principle-narrow-state-lifetime` for state that outlives its work.
 
-**URL state.** Filters, search terms, and page numbers live in the URL search params. The URL gives shareable links and browser back and forward history for free; a store does not. Read and update the params through the router, with no `useState` copy to keep in sync (`principle-derive-from-one-owner`). See [state-management.md](./references/state-management.md).
+Render purity is a React rule, not the domain-purity principle. React types (`ReactNode`, ref props, typed actor refs) may cross component boundaries inside UI integration. They must not enter framework-independent domain or API code. State belongs to the nearest common UI owner that needs it. Temporal lifecycles (a request answer, retry, cancellation, polling, optimistic update or drag) belong to an actor; follow `web:xstate`.
 
-**Dependencies.** The decision trees below name preferred libraries. Use a library only when the project already has it. When a task forbids new dependencies, use the built-in hook or browser API (`principle-reuse-before-building`).
+## Permissions and API answers
 
-## Guides
+For a permission change, open the role fetcher and the HTTP wrapper that the action uses before you finish. Repair conflicts with the rules below in the same change, not only in the reply. Leave unrelated endpoints unchanged.
 
-| Guide                                                         | Read for                                                                                                    |
-| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [project-structure.md](./references/project-structure.md)     | Directory layout (app, features, components), feature modules, unidirectional imports, ESLint boundaries, file naming |
-| [component-patterns.md](./references/component-patterns.md)   | Colocation, composition over props, wrapping third-party components, avoiding nested render functions       |
-| [compound-components.md](./references/compound-components.md) | Multi-part components (Card, Accordion), flexible composition, semantic structure                          |
-| [state-management.md](./references/state-management.md)       | State categories (component, application, server cache), useState vs useReducer, React Query, state placement |
-| [api-layer.md](./references/api-layer.md)                     | API client, request structure (schema, fetcher, hook), error handling (interceptors, boundaries), security (auth, sanitization, authorization) |
-| [performance.md](./references/performance.md)                 | Code splitting, state optimisation, children optimisation, styling performance, images                      |
-| [useeffect.md](./references/useeffect.md)                     | When not to use useEffect (most cases), when it fits (external systems), dependency arrays, alternatives    |
-| [project-standards.md](./references/project-standards.md)     | Required tooling (ESLint, Prettier, TypeScript, Husky), pre-commit hooks                                    |
+- A UI permission check decides only what the UI shows; it cannot stop a crafted request. State both facts in the reply: the check only controls what the page shows, and the server must authenticate the actor, authorise each mutation for that actor and resource, and refuse with 403 before it changes data.
+- Put each permission rule in a plain exported function outside components, such as `canInvite(user)`. Include resource ownership in the predicate when access depends on a specific resource. Return `false` when there is no user. The component calls that same function. Test it directly without rendering React (`principle-keep-the-core-pure`).
+- Call the action from its event handler. Show a rejected 403 as a visible failure in the component where the action happened. Do not sign the user out, clear the session or redirect for a 403; repair the wrapper if it does. A 401 still signs the user out.
+- Use the Fetch API, never axios. The wrapper checks `response.ok`. The fetcher parses the JSON body from `unknown` into the app's type; replace an existing `as` cast on this path with a parser that narrows the value with `typeof` and `in` checks. Parse an unknown role or permission to an explicit unknown value that grants nothing, distinct from every real role (`principle-parse-at-the-boundary`).
 
-Test code, including how to allocate tests across unit, integration, and E2E levels, belongs to the `react-testing` skill.
+## State and Effects
 
-## Decision Trees
+- Derive values from props, state, URL parameters or actor snapshots during render. Do not copy them into state through an Effect.
+- Work that a user action causes belongs in its event handler, not in an Effect that watches a flag.
+- Use an Effect only to synchronise with an external system.
+- An Effect that synchronises an imperative target (an editor, a chart, a map, a DOM node) applies the current values on every run, including the first run after mount. Do not guard it with a previous-value or transition check: that guard skips the state the component mounts in. List every value it reads as a dependency. Do not add a separate mount-only update Effect.
+- Async Effect fallback: use it only when neither XState nor a query library is installed and dependencies cannot change. Each run creates its own `AbortController` when the operation accepts a signal. Cleanup marks the run stale, then aborts it. A stale run writes no state on success or on failure. Detect cancellation by `error.name === "AbortError"`, not by error class, and treat it as no error. Every other rejection of the current run reaches the failure state.
 
-### Where should this component live?
+### Effects that call a callback prop
 
-```
-Is it used by multiple features?
-├── Yes → src/components/
-└── No → Is it specific to one feature?
-    ├── Yes → src/features/[feature]/components/
-    └── No → Colocate with the component that uses it
-```
+When an Effect subscribes outside React and calls a callback prop, wrap the callback in `useEffectEvent`. Call the Effect Event only from that Effect or its subscription callbacks, not during render, from another hook or component, or from a user handler. Exclude it from the dependency array: its identity changes every render. Keep reactive subscription values, such as `teamId`, as dependencies. Do not keep the latest callback in a ref, and do not ask callers to wrap it in `useCallback`.
 
-### What state solution should I use?
+### URL state
 
-```
-Is this data from an API?
-├── Yes → React Query / SWR (if installed)
-└── No → Is it form data?
-    ├── Yes → React Hook Form (if installed)
-    └── No → Is it URL state (filters, pagination, search)?
-        ├── Yes → URL search params via the router (React Router if installed)
-        └── No → Is it needed globally?
-            ├── Yes → Zustand / Jotai / Context
-            └── No → useState / useReducer
-```
+Keep filters, search terms and page numbers in router search parameters, not in a store: the URL gives shareable links and browser Back and Forward history, and a store gives neither. Read them through the installed router and write them in each control's handler through the router's setter (for example `setSearchParams`), with no `useState` copy and no synchronising Effect. Parse each value at the boundary: an unknown value falls back to a safe default, such as all roles or page 1. Derive the visible list during render. With an installed query library, pass the parsed values to the fetcher and the query key. To build a link from the current view, read the router's current location inside the click handler, not `window.location`.
 
-### Should I create a new feature folder?
+## Composition
 
-```
-Does this functionality have:
-- Its own routes/pages?
-- Its own API endpoints?
-- Components not shared elsewhere?
-├── Yes to 2+ → Create feature folder
-└── Otherwise → Add to existing feature or shared
-```
+- Do not add boolean or mode props (`isEditing`, `showAudience`, `variant`) that select behaviour or structure. Create explicitly named variant components; each composes the shared parts and its own controls. A native attribute such as a button's `disabled` is not a mode prop.
+- Compose structure with `children`. Use a render prop only when its owner supplies data, such as an item and index.
+- Define every component at module scope, never inside another component.
+- When separate parts share one stateful value, a provider owns it. Parts read a typed contract of `state`, named `actions` (such as `changeText` and `publish`) and `meta` from their own root's context. Do not expose a generic `update(updater)` or raw setter. Providers with different storage (local state, or a value and callback from the page) supply the same contract, so the parts do not change. The provider wraps every consumer, including a preview or action outside the visual frame. Each mounted provider has its own value. Never report child state upward through an Effect and never read sibling state through a ref.
 
-### Do I need useEffect?
+## Markup that two features show
 
-```
-Why does this code need to run?
+A feature never imports from another feature, including its `index.ts`. Do not disable the boundary lint rule. A component that two or more features use belongs in `src/components/`; state that reason when you move one. When a feature needs markup that another feature already shows, such as a person's avatar and name, move that markup into a component in `src/components/`. The component takes data as props, imports no feature code, calls no feature hook and is rendered by both features. Rebuilding the markup from shared parts such as `Card` and `Avatar` copies it; it does not share it. Do not add a mode prop to the original component and do not add a re-export barrel.
 
-"Because the component was displayed"
-├── Is it synchronizing with an external system?
-│   ├── Yes → useEffect is appropriate
-│   └── No → Probably don't need useEffect
-│
-"Because the user did something"
-└── Put it in the event handler, not useEffect
-
-"Because I need to compute a value"
-└── Calculate during render (or useMemo if expensive)
-
-See useeffect.md for detailed guidance.
-```
+The endpoint fetcher and hook stay in the feature that owns the endpoint. Each feature that renders the shared component supplies the data itself: from its own response, or through a feature-local component that calls its own hook. If the moved component called a feature hook, remove that call; the owning feature's component (the original caller or a feature-local wrapper) now calls the hook and passes the result as props. Alternatively, an app-level page composes the two features.

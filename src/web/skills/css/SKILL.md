@@ -1,140 +1,158 @@
 ---
 name: css
-description: WHEN authoring CSS/styles/layout for web UI, including plain-CSS custom-property design scales; NOT for Tailwind projects (tailwind.config.js, utility classes, CVA variants, Tailwind theme tokens), load web:tailwind instead; outputs production-ready, accessible, maintainable CSS.
+description: "USE WHEN writing, fixing or reviewing plain CSS or Sass for a web page, even a one-line style change, including a rule that loses to another, a third-party stylesheet you cannot edit, type sizes and units, spacing between components, shorthands, a skip link or other hidden and focus styles, or deleting styles that look unused; NOT WHEN the project uses Tailwind (tailwind.config.js, utility classes, CVA variants, Tailwind theme tokens); produces CSS that wins the cascade without ID selectors or reactive !important, scales with the reader's text size, keeps spacing in the parent and deletes styles only on evidence."
 ---
 
-# CSS Best Practices
+# CSS
 
-## Core Principles
+Write CSS that wins the cascade without ID selectors or reactive `!important`, scales with the
+reader's text size, keeps spacing in the parent, and deletes nothing on a guess.
 
-1. **Single responsibility**: each class handles one concern.
-2. **Open/closed**: extend with new classes; never modify a base class.
-3. **Immutable CSS**: utilities and objects never change after creation.
-4. **Behaviour over implementation**: focus on what the code does, not how.
-5. **Accessibility first**: semantic HTML before ARIA; sufficient contrast and sizing.
+## Before you edit
 
-## Guides
+1. Read the stylesheets the change touches, the custom-property scale, the utilities, and any
+   README rule about load order or files you must not edit.
+2. If the person asks for a review or findings, report and change nothing
+   (`principle-investigate-read-only`). If the request covers all stylesheets, state which files
+   and selectors you covered and which you left out (`principle-state-the-scope`).
+3. Take sizes and colours from the custom-property scale. When the request names a pixel value,
+   use the step that equals it. Add a step to the scale only when none fits; never put a raw
+   number in a component (`principle-reuse-before-building`, `principle-derive-from-one-owner`).
 
-| Read                                                                    | When you need                                                                                                                                                                                                                      |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [specificity.md](references/specificity.md)                             | Specificity hierarchy and calculations; safe techniques (self-chaining, attribute selectors); cascade layers (`@layer`) and how unlayered styles win; anti-patterns (IDs, deep nesting, qualified selectors); proactive vs reactive !important and alternatives to reactive !important; shorthand gotchas |
-| [units-margins.md](references/units-margins.md)                         | rem vs px; line-height; margin encapsulation; single-direction margins; margin collapse; layout algorithms (Flow, Flexbox, Grid); gotchas (z-index, magic space under images)                                                     |
-| [preprocessors-refactoring.md](references/preprocessors-refactoring.md) | @extend vs mixins; avoiding & concatenation; CSS @import performance; finding dead CSS with beacons; the Three I's refactoring workflow; code smell tables                                                                        |
-| [patterns.md](references/patterns.md)                                   | Examples of single responsibility, open/closed, and immutable CSS (with prefixes); components without margin; utility classes; visually hidden text and focusable (stateful) hidden controls; self-chaining; custom properties for design scales |
+## When a rule loses to another
 
-## Decision Trees
+Read [cascade.md](references/cascade.md) before you write `!important`, touch a selector with an
+ID, or work around a third-party stylesheet.
 
-### Should I use !important?
+- Style with classes only: no ID selectors, no element-qualified classes (`ul.nav`), no nesting
+  four or more levels deep.
+- Fix a conflict in this order and stop at the first that works: source order; your own
+  selectors (simplify the rule you own, or self-chain `.btn.btn`); cascade layers, only when every
+  competing rule can enter the layer order.
+- When the winning rule is in a stylesheet you cannot edit, and its load order and markup cannot
+  change, write one `!important` on the single property that loses, on your own class. Change no
+  other file. Add a comment beside it that names the boundary and says when to remove the
+  `!important` (for example, when the provider drops or changes its rule). Do not copy the foreign ID selector into your CSS. If the foreign declaration is
+  itself `!important`, put yours in a cascade layer instead.
+- When you find a reactive `!important` in code you own, make the rule win another way, then
+  delete the `!important` (`principle-fix-root-causes`). Leave the proactive `!important` on
+  `u-` utilities in place.
+- When you explain the fix, say why the other rule won (for example, its ID outranks your class)
+  and why yours now wins. For the boundary exception, say that an important declaration beats a
+  normal one whatever its specificity or source order, and name the fixed stylesheet, load order
+  and markup as the reason for the exception.
 
-```
-Is this a utility class that must be immutable?
-├── Yes → Use !important (proactive)
-└── No → Is there a specificity conflict?
-    ├── Yes → First change source order, layers, or selectors you own
-    │   (for normal declarations a layered rule never beats an unlayered one,
-    │   so layers help only when every competing rule can enter the layer order)
-    │   └── Immutable external boundary? Use one property-scoped !important on
-    │       the app class and document the boundary; don't copy its ID chain.
-    │       If the foreign declaration is itself !important, specificity decides
-    │       between important declarations, so put the app's important
-    │       declaration in a layer: a layered important declaration beats an
-    │       unlayered one regardless of specificity
-    └── No → Don't use !important
-```
+## Units
 
-### Should I use px or rem?
+Read [units-and-spacing.md](references/units-and-spacing.md) when you choose a unit.
 
-```
-Should this scale with user font preferences?
-├── Yes → Use rem
-│   Examples: font-size, spacing between text blocks (margin, gap), padding
-│   around text in a control, media queries
-└── No → Use px
-    Examples: borders, border-radius, box-shadows, fixed visual details
-```
+- Use `rem` or a scale step for `font-size`, spacing between blocks of text, padding around text
+  in a control, and media queries: `@media (min-width: 48rem)`, not `768px`.
+- Use `px` for borders, `border-radius` and shadows.
+- Write `line-height` without a unit. Never set `html { font-size: 62.5%; }`.
+- When you explain a unit change, say that `px` font sizes ignore the reader's text-size setting
+  and `rem` follows it, and that a unitless line height multiplies each element's own font size.
 
-### Should I use shorthand?
+## Spacing between components
 
-```
-Am I intentionally setting ALL related properties?
-├── Yes → Shorthand is fine
-└── No → Use longhand to avoid unintentional resets
-    Shorthand already wiped a value you need? → Replace the shorthand with
-    the longhands you meant to set. Do not re-declare the lost property
-    after the shorthand; that hides the cause. Name the reset properties
-    in the rationale.
-```
+- A component sets no margin outside its own box. The parent owns the space: `gap` on a grid or
+  flex parent, or a stack rule `.stack > * + * { margin-block-start: … }`.
+- When a component has an outer margin, delete the declaration. Do not set it to `0`, add a
+  `:last-child` reset, or add a context override such as `.sidebar .card { margin-bottom: 0; }`
+  (`principle-subtract-before-you-add`).
+- When you explain the fix, name the cause of each spacing problem, for example a parent with no
+  `gap` or a component's own outer margin.
 
-### Should component have margin?
+## Shorthands
 
-```
-Is this a layout component (grid, stack, container)?
-├── Yes → Margin/gap is appropriate
-└── No → Delete the margin declaration (do not reset it to 0; that is an
-    undoing style) and move spacing to the parent or a utility class
-```
+- Use the longhand when you set one value: `background-color`, not `background`. Use a shorthand
+  only when you mean every value it sets.
+- When a shorthand has wiped a value, replace the shorthand with the longhands you meant. Do not
+  re-declare the lost value after it, and do not fold the lost value into the shorthand
+  (`principle-fix-root-causes`).
+- When you explain the fix, name the properties the shorthand reset, and say that a shorthand
+  resets every property it covers but does not name to its initial value.
 
-### Should I hide this visually?
+## Hidden content and focus
 
-```
-Does the hidden content ever receive focus or become visible?
-├── No → Immutable utility (.u-sr-only with !important)
-└── Yes → Stateful pattern: no !important on hiding properties,
-    one focus rule restores every hiding property, inline size bounded
-    by the viewport, and a forced-colors rule that uses system colors
-```
+Read [patterns.md](references/patterns.md) before you hide anything or style focus.
 
-### @extend or mixin?
+- Text hidden permanently uses the `.u-sr-only` utility. Never put it on an element that can
+  receive focus.
+- A control that appears on focus, such as a skip link, is a stateful component with no
+  `!important`:
+  - Hide it by clipping it to 1px (`clip-path: inset(50%)`). Never use `display: none`,
+    `visibility: hidden`, or off-screen coordinates such as `top: -40px` or `translateY(-100%)`.
+  - Its focus rule restores every hiding property and shows an `outline`, not only a
+    `box-shadow`.
+  - Its focus rule bounds its width to the viewport (`max-inline-size: calc(100vw - 2rem)`), so
+    it fits a 320 CSS px viewport at 400% zoom.
+  - A `@media (forced-colors: active)` rule gives it system colours.
+- Keep a contrast ratio of at least 4.5:1 for text, and 3:1 for large text, control boundaries
+  and focus indicators.
 
-```
-Are these selectors thematically related (same component)?
-├── Yes → @extend might be acceptable
-└── No → Use mixin (safer, doesn't disrupt source order)
-```
+## New classes
 
-### How should I refactor this CSS?
+Read [patterns.md](references/patterns.md) before you add a class. Read
+[refactoring.md](references/refactoring.md) before you write Sass.
 
-```
-Step 1: Identify - Is this frequently used and problematic?
-├── Yes → Continue
-└── No → Skip refactoring, focus elsewhere
+- Give each class one job: keep structure apart from cosmetics. Add a variant as a modifier; do
+  not change a base class for one context. Use the `u-` prefix only for immutable utilities.
+- Load each stylesheet with its own `<link>`, not with CSS `@import`.
 
-Step 2: Isolate - Build new version separately
-├── Use CodePen/jsFiddle
-├── Rebuild with flat class selectors: no IDs, no element qualifiers,
-│   no nesting past 3 levels
-└── Don't build on top of existing CSS
+## Refactoring a stylesheet
 
-Step 3: Implement - Reintegrate carefully
-├── Component fixes → component's partial
-├── Existing reactive !important overrides → make each override win by
-│   source order, self-chaining, or a layer (only when every competing
-│   rule can enter the layer order), then delete the !important
-└── Legacy conflicts → shame.css
+Refactor in three steps. Land each step as a small change that can be reverted on its own; do not
+freeze deploys or rewrite the whole stylesheet.
 
-Suspected dead CSS? → Add a beacon (unique background-image URL) to each
-suspect selector whose matched elements get no background image from any
-rule (check computed styles in every state), monitor production logs for
-2-3 months, then treat zero-request selectors as deletion candidates
-and remove them in small, reversible increments. Zero requests is evidence,
-not proof: caches, CSP, and service workers can hide requests. Coverage tools
-miss logged-in pages and interaction-only states.
-```
+1. Identify: refactor CSS that is used often and causes problems. A selector with an ID, an
+   element qualifier or deep nesting, and a rule overridden with `!important`, already cause
+   problems. Skip stable rules and code that is about to be removed, and say why you skip it. For
+   CSS that may be dead, plan a usage measurement on production traffic (a beacon per selector,
+   logged for two to three months) before any deletion, as in
+   [Deleting styles that look unused](#deleting-styles-that-look-unused).
+2. Isolate: build each replacement in its own partial, not on top of the existing rules. Give
+   every replacement flat class selectors: no IDs, no element qualifiers, no nesting past three
+   levels.
+3. Implement: put a component's fix in that component's partial. For each reactive `!important`,
+   make the rule win by source order, self-chaining, or a layer (only when every competing rule
+   can enter the layer order), then delete the `!important`. Put a legacy conflict you cannot
+   resolve yet in a separate, documented legacy-override file (`shame.css`), and record what
+   allows its removal.
 
-## Pre-commit Checklist
+## Deleting styles that look unused
 
-- [ ] Each class has one responsibility (structure separate from cosmetics)
-- [ ] No ID selectors for styling
-- [ ] Reactive !important appears only as a documented, property-scoped last resort at an immutable external boundary
-- [ ] Components have no margin; the parent controls spacing
-- [ ] rem for font-size and scalable spacing
-- [ ] px for borders, shadows, and fixed visual elements
-- [ ] Longhand when setting one value
-- [ ] No nesting of 4+ levels
-- [ ] No qualified selectors (e.g. `ul.nav`)
-- [ ] Layout algorithm fits the context (Flow, Flex, Grid)
-- [ ] Accessible colour contrast ratios
-- [ ] Hidden content that receives focus uses the stateful pattern (see "Should I hide this visually?"), never `display: none`
-- [ ] Focus indicators do not rely on `box-shadow` alone (forced-colors mode removes it); prefer `outline`
-- [ ] Fixed or absolutely positioned controls fit a 320 CSS px viewport (400% zoom) without horizontal scroll
-- [ ] Semantic HTML before ARIA
+A class missing from a search is not proof that nothing uses it (`principle-observe-dont-infer`).
+Read [refactoring.md](references/refactoring.md) first.
+
+1. Search the markup, templates and scripts, including class names built at run time (template
+   strings, concatenation). A class you find in use stays; name the file and the expression that
+   builds it.
+2. If pages also come from content outside the repository, or the search cannot settle it, delete
+   nothing, and say that the repository search cannot cover those pages. Add a usage beacon to
+   each suspect rule, with a comment that says when the rule may be deleted:
+   `background-image: url("/beacon.gif?selector=<class>");`. Add a beacon only where no rule
+   gives the matched elements a background image; where one does, keep the image and record usage
+   another way, such as a build-time class-usage report or a script that reports matched
+   selectors.
+3. Delete a rule only after two to three months of production logs show no request for it, and
+   only after one test request has been seen to arrive. Zero requests is evidence, not proof:
+   caches, a Content Security Policy `img-src` rule and service workers can drop beacon requests
+   (`principle-gaps-are-not-passes`). Delete in small steps that can each be reverted
+   (`principle-sequence-verifiable-units`).
+4. In the report, give for each suspect rule:
+   - whether you kept it and why, quoting the file and the expression that builds a run-time
+     class and its default value;
+   - what you added to measure it;
+   - the evidence that would allow its deletion: the measurement above, the caveat that zero
+     requests is not proof, and deletion in small, reversible steps.
+
+   Do not call a selector unused because a search did not find it; say that the search could not
+   show it in use.
+
+## Finish
+
+Check the CSS you wrote against every rule above. In the report, name each file you changed, say
+what changed and why it works, and name the values you deliberately kept (for example, a `px`
+border). If you did not see the page in a browser, say that the rendering was not checked
+(`principle-label-the-evidence`).

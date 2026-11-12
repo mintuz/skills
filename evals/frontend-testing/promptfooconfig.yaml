@@ -207,3 +207,297 @@ tests:
         - Reaches the canvas through the application-owned `sales-chart` test id, reads `data-render-count` both before and after the click, and proves it increased by exactly one.
         - Waits for the `Chart updated` status with an async query or a retrying assertion before reading the new render count, rather than reading the count immediately after the click.
         - Uses only real APIs and invents nothing: every Testing Library query it names exists, it reads `data-render-count` through plain DOM access such as `querySelector` and `getAttribute` rather than an invented attribute query, it gives the vendor canvas no role, `aria-label`, or accessible name, and it does not propose editing the vendor bundle.
+
+  - description: Cover both outcomes through the project's MSW server and unnamed live regions
+    vars:
+      skill: file://../../src/web/skills/frontend-testing/SKILL.md
+      scenario: |-
+        A teammate wrote: "Nobody has tested the newsletter box in the footer
+        yet. Add `src/subscribe/mount-subscribe.test.ts` covering two things: a
+        shopper who subscribes sees the thank-you message, and when the
+        newsletter service is down they see the error instead. Last month a
+        successful signup also showed the error, so make sure the tests would
+        catch that again. Don't change the production code."
+
+        The project is plain TypeScript with no UI framework. Tests run in
+        Vitest with jsdom, `@testing-library/dom`, `@testing-library/user-event`
+        and `@testing-library/jest-dom`. Network calls are stubbed with MSW.
+
+        `src/api.ts`:
+
+        ```ts
+        export const API_ORIGIN = "https://api.order-tracker.test";
+        ```
+
+        `src/test/server.ts` exports `server = setupServer(...handlers)` from
+        `msw/node`. `src/test/handlers.ts`:
+
+        ```ts
+        import { delay, http, HttpResponse } from "msw";
+        import { API_ORIGIN } from "../api";
+
+        export const handlers = [
+          // The newsletter service answers after a short wait, as the real one does.
+          http.post(`${API_ORIGIN}/subscriptions`, async () => {
+            await delay(40);
+            return HttpResponse.json({ subscribed: true }, { status: 201 });
+          }),
+        ];
+        ```
+
+        `src/test/setup.ts`, loaded for every test file:
+
+        ```ts
+        import "@testing-library/jest-dom/vitest";
+        import { afterAll, afterEach, beforeAll } from "vitest";
+        import { server } from "./server";
+
+        beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
+        afterEach(() => server.resetHandlers());
+        afterAll(() => server.close());
+        ```
+
+        `src/subscribe/mount-subscribe.ts`:
+
+        ```ts
+        import { API_ORIGIN } from "../api";
+
+        export function mountSubscribe(root: HTMLElement): void {
+          root.innerHTML = `
+            <form class="subscribe" novalidate>
+              <label for="subscribe-email">Email address</label>
+              <input id="subscribe-email" name="email" type="email" autocomplete="email" />
+              <button type="submit">Subscribe</button>
+              <div class="subscribe-outcome"></div>
+            </form>`;
+          const form = root.querySelector<HTMLFormElement>("form.subscribe")!;
+          const email = form.querySelector<HTMLInputElement>("input")!;
+          const button = form.querySelector<HTMLButtonElement>("button")!;
+          const outcome = form.querySelector<HTMLDivElement>(".subscribe-outcome")!;
+
+          form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            button.disabled = true;
+            outcome.replaceChildren();
+            try {
+              const response = await fetch(`${API_ORIGIN}/subscriptions`, {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ email: email.value.trim() }),
+              });
+              outcome.append(response.ok ? subscribed() : failed());
+            } catch {
+              outcome.append(failed());
+            } finally {
+              button.disabled = false;
+            }
+          });
+        }
+
+        function subscribed(): HTMLElement {
+          return message("status", "You're subscribed. Look out for our next newsletter.");
+        }
+
+        function failed(): HTMLElement {
+          return message("alert", "We couldn't subscribe you. Please try again.");
+        }
+
+        function message(role: "status" | "alert", text: string): HTMLElement {
+          const paragraph = document.createElement("p");
+          paragraph.setAttribute("role", role);
+          paragraph.textContent = text;
+          return paragraph;
+        }
+        ```
+
+        Return the complete test file and a short rationale.
+      rubric: |-
+        - Mounts the real `mountSubscribe` from `./mount-subscribe` into the document in each test or a `beforeEach`, types an email address into the field found by its `Email address` label, and presses the `Subscribe` button found by its role and name, through `userEvent` created with `userEvent.setup()`; it writes no form or listener of its own.
+        - The success test awaits the thank-you message, found by the `status` role with no `name` option or by its text, asserts its text, and only after that wait asserts the error is absent with a non-throwing query such as `queryByRole('alert')`.
+        - The failure test overrides the subscriptions handler for that test only with the project's `server.use(http.post(...))` for `${API_ORIGIN}/subscriptions`, returning a non-2xx response or a network error, then awaits the error found by the `alert` role with no `name` option or by its text, and asserts its text.
+        - Does not stub or spy on `fetch` (no `vi.spyOn(globalThis, 'fetch')`, `vi.stubGlobal('fetch', ...)` or `fetch = vi.fn()`), does not edit `src/test/handlers.ts` or remove its 40 ms delay, and does not change `mount-subscribe.ts`.
+        - Waits for each outcome by awaiting it, not with a fixed delay in the test such as `setTimeout`, a sleep promise or a fake-timer advance (a `delay` inside an MSW handler is a stubbed response time, not a wait in the test), and passes no `name` option to any `status` or `alert` role query.
+
+  - description: Tidy class-coupled delivery tests without dropping a check
+    vars:
+      skill: file://../../src/web/skills/frontend-testing/SKILL.md
+      scenario: |-
+        A teammate wrote: "The tests in
+        `src/delivery/mount-delivery-panel.test.ts` are flaky and hard to
+        follow, and they broke the last time someone renamed a CSS class in the
+        panel. Tidy them up so they read like the way a customer uses the
+        panel, but keep checking the same things. Don't change the panel itself
+        or anything in `src/vendor/`."
+
+        The project is plain TypeScript with no UI framework. Tests run in
+        Vitest with jsdom, `@testing-library/dom`, `@testing-library/user-event`
+        and `@testing-library/jest-dom`, which the shared setup file registers.
+        The setup file does not reset `document.body` between tests.
+        `src/vendor/` is copied from the courier's SDK and must not be edited.
+
+        `src/delivery/mount-delivery-panel.ts`:
+
+        ```ts
+        import { mountRouteMap } from "../vendor/route-map";
+
+        export type Delivery = Readonly<{ eta: string; progress: number; stops: number }>;
+        type Options = Readonly<{ loadDelivery: () => Promise<Delivery> }>;
+
+        export function mountDeliveryPanel(root: HTMLElement, { loadDelivery }: Options): void {
+          root.innerHTML = `
+            <section class="delivery" aria-labelledby="delivery-heading">
+              <h2 id="delivery-heading">Your delivery</h2>
+              <p class="eta">Checking your delivery…</p>
+              <div class="progress" role="progressbar" aria-label="Delivery progress"
+                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+              <button type="button" class="refresh-btn" data-testid="refresh-button">Refresh</button>
+              <div class="delivery-error"></div>
+              <div class="route-map-slot"></div>
+            </section>`;
+          const eta = root.querySelector<HTMLParagraphElement>(".eta")!;
+          const progress = root.querySelector<HTMLDivElement>(".progress")!;
+          const refresh = root.querySelector<HTMLButtonElement>(".refresh-btn")!;
+          const error = root.querySelector<HTMLDivElement>(".delivery-error")!;
+          const map = root.querySelector<HTMLDivElement>(".route-map-slot")!;
+
+          const load = async () => {
+            error.replaceChildren();
+            try {
+              const delivery = await loadDelivery();
+              const time = document.createElement("span");
+              time.className = "eta-time";
+              time.textContent = delivery.eta;
+              eta.replaceChildren("Arriving ", time);
+              progress.setAttribute("aria-valuenow", String(delivery.progress));
+              mountRouteMap(map, { stops: delivery.stops });
+            } catch {
+              const alert = document.createElement("p");
+              alert.setAttribute("role", "alert");
+              alert.className = "error";
+              alert.textContent = "We couldn't update your delivery. Please try again.";
+              error.append(alert);
+            }
+          };
+
+          refresh.addEventListener("click", () => void load());
+          void load();
+        }
+        ```
+
+        `src/vendor/route-map.ts`:
+
+        ```ts
+        // Copied from the courier's SDK. Do not edit.
+        // It draws the van's route on a canvas and exposes nothing to assistive technology.
+        export function mountRouteMap(slot: HTMLElement, { stops }: { stops: number }): void {
+          const root = document.createElement("div");
+          root.className = "rm-root";
+          root.dataset.testid = "route-map";
+          root.dataset.stops = String(stops);
+          const canvas = document.createElement("canvas");
+          canvas.width = 320;
+          canvas.height = 180;
+          root.append(canvas);
+          slot.replaceChildren(root);
+        }
+        ```
+
+        The current `src/delivery/mount-delivery-panel.test.ts`:
+
+        ```ts
+        import { fireEvent, getQueriesForElement, waitFor } from "@testing-library/dom";
+        import { beforeEach, describe, expect, it, vi } from "vitest";
+        import { mountDeliveryPanel, type Delivery } from "./mount-delivery-panel";
+
+        let container: HTMLElement;
+        let loadDelivery: ReturnType<typeof vi.fn<() => Promise<Delivery>>>;
+        let refreshButton: HTMLElement;
+
+        beforeEach(() => {
+          container = document.createElement("div");
+          document.body.appendChild(container);
+          loadDelivery = vi.fn<() => Promise<Delivery>>().mockResolvedValue({ eta: "14:30", progress: 60, stops: 3 });
+          mountDeliveryPanel(container, { loadDelivery });
+          refreshButton = getQueriesForElement(container).getByTestId("refresh-button");
+        });
+
+        describe("delivery panel", () => {
+          it("shows the arrival time and progress", async () => {
+            await waitFor(() => {
+              expect(container.querySelector(".eta-time")!.textContent).toBe("14:30");
+              expect(container.querySelector(".progress")!.getAttribute("aria-valuenow")).toBe("60");
+            });
+          });
+
+          it("shows the new arrival time after a refresh", async () => {
+            loadDelivery.mockResolvedValue({ eta: "15:05", progress: 75, stops: 2 });
+            await waitFor(async () => {
+              fireEvent.click(refreshButton);
+              expect(container.querySelector(".eta-time")!.textContent).toBe("15:05");
+            });
+          });
+
+          it("shows an error when the courier cannot be reached", async () => {
+            await waitFor(() => expect(container.querySelector(".eta-time")).not.toBeNull());
+            loadDelivery.mockRejectedValue(new Error("courier offline"));
+            fireEvent.click(refreshButton);
+            await waitFor(() => {
+              expect(container.querySelector(".error")!.textContent).toContain("couldn't update");
+            });
+          });
+
+          it("shows no error after a successful refresh", () => {
+            fireEvent.click(refreshButton);
+            expect(() => getQueriesForElement(container).getByText(/couldn't update/i)).toThrow();
+          });
+
+          it("draws the courier's route map", async () => {
+            await waitFor(() => expect(container.querySelector(".rm-root canvas")).not.toBeNull());
+            expect(container.querySelector(".rm-root")!.getAttribute("data-stops")).toBe("3");
+          });
+        });
+        ```
+
+        Return the complete rewritten test file and a short summary of what
+        changed.
+      rubric: |-
+        - Keeps every original check: the `14:30` arrival time and progress value `60` after loading, the `15:05` arrival time after a refresh, the error message when a refresh fails, no error after a successful refresh, and the route map with `3` stops.
+        - Finds the panel's own parts through `screen`, or `within` an element found through `screen`, by role, label or visible text: the Refresh button by `getByRole('button', { name: ... })`, the progress by its `progressbar` role and its `aria-valuenow`, the arrival time by its text; it uses no CSS class selector, no `getQueriesForElement`, and no test id for the Refresh button.
+        - Reaches the vendor route map, which exposes no role, label or text, through its existing `route-map` test id or plain DOM access such as `querySelector('canvas')` on an element it already holds, with a comment saying why no accessible query reaches it.
+        - Clicks once per action through `userEvent` created with `userEvent.setup()`, never inside `waitFor` or another retrying callback, and uses no `fireEvent`; waiting uses `findBy*` or a `waitFor` that holds only assertions.
+        - Asserts "no error after a successful refresh" with a `queryBy*` query only after awaiting the refreshed arrival time, never with `expect(() => getBy...).toThrow()`, and adds no fixed delay such as `setTimeout` or a sleep.
+        - Stops mounted markup leaking between tests: each test mounts its own panel and the body is reset between tests, or the mount replaces the body content; it changes neither the panel nor `src/vendor/`.
+
+  - description: Decline a single-sign-on journey and visual check, offer the DOM part
+    vars:
+      skill: file://../../src/web/skills/frontend-testing/SKILL.md
+      scenario: |-
+        A teammate wrote: "Our product manager wants one test in our Vitest
+        suite for the order tracker that covers this: the customer signs in
+        through our single sign-on page, clicks the tracking link in their
+        shipping email so it opens in a new tab, and lands on the order page
+        with the delivery panel. It should also check that the session cookie
+        is HttpOnly, and that the delivery progress bar is 60% wide and in our
+        brand green, matching the design screenshot. How would you handle
+        this? Don't write any files yet."
+
+        The project is plain TypeScript with no UI framework. Tests run in
+        Vitest with jsdom, `@testing-library/dom`, `@testing-library/user-event`
+        and `@testing-library/jest-dom`. The repository has no real-browser
+        test runner.
+
+        The delivery panel is mounted with
+        `mountDeliveryPanel(root, { loadDelivery })`, where
+        `loadDelivery: () => Promise<{ eta: string; progress: number; stops: number }>`.
+        It renders a heading `Your delivery`, a
+        `<div role="progressbar" aria-label="Delivery progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">`
+        whose `aria-valuenow` it sets to the loaded `progress`, an
+        `Arriving <time>` line, and a `Refresh` button.
+
+        Respond to the request.
+      rubric: |-
+        - States that the sign-on, the email link opening a new tab and the HttpOnly cookie cannot be proved in a jsdom test, with reasons: at least that jsdom does not navigate between documents or open real tabs, and that an HttpOnly cookie is set by a real server and hidden from page scripts.
+        - Recommends a real-browser end-to-end runner, such as Playwright or Cypress, for that journey.
+        - States that the width, the colour and the match with the design need a real browser because jsdom does not lay out or paint, and names a way to check them there, such as a screenshot or visual-regression comparison.
+        - Offers the part that fits in a jsdom test of the delivery panel: at least that the progress bar reports 60 through its `progressbar` role or `aria-valuenow`, with `loadDelivery` supplied as a mock.
+        - Presents no jsdom test that fakes the sign-on, the new tab, the cookie, the width or the colour as an equivalent of the request, asserts no computed width or colour in jsdom, and does not claim to have written or run any test.

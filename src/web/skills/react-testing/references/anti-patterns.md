@@ -19,7 +19,7 @@ render(<MyComponent />);
 await user.click(button);
 ```
 
-Modern RTL auto-wraps `render()`, `userEvent` methods, `fireEvent`, `waitFor`, and `findBy`. You need manual `act()` for custom hook state updates (`renderHook`) and direct state mutations (rare, usually bad practice).
+RTL wraps `render()`, `userEvent` methods, `fireEvent`, `waitFor` and `findBy*` in `act()`. Use a manual `act()` only around a state-changing hook callback that the test calls directly, such as one returned by `renderHook`, and around a direct state mutation, which is rare and usually bad practice.
 
 ## 2. Manual cleanup() calls
 
@@ -35,7 +35,17 @@ afterEach(() => {
 // Cleanup happens automatically after each test
 ```
 
-RTL registers that cleanup only when the runner exposes a global `afterEach`. In Vitest set `globals: true`, or register `afterEach(cleanup)` once in a shared setup file, not in every test file.
+RTL registers that cleanup only when the runner exposes a global `afterEach`. In Vitest set `globals: true`, or register `afterEach(cleanup)` once in a shared setup file, not in every test file. When the project keeps globals off on purpose, use the setup file and leave the setting alone:
+
+```ts
+// src/test/setup.ts, named in vitest.config.ts under test.setupFiles
+import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
+
+afterEach(() => {
+  cleanup();
+});
+```
 
 ## 3. beforeEach render pattern
 
@@ -66,7 +76,7 @@ it('test 1', () => {
 });
 ```
 
-For factory patterns, see `tdd` skill.
+The factory returns what each test needs, so no test reads state another test left behind.
 
 ## 4. Testing component internals
 

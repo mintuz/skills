@@ -173,3 +173,220 @@ tests:
         - Replaces (a) with a flat class-based selector and describes building the replacement in isolation before reintegrating it.
         - Replaces the eleven reactive `!important` overrides on `.btn` by restructuring the cascade (source order, self-chaining, simpler selectors, or layers when every competing rule is layered), and routes any remaining legacy conflict into a dedicated, documented legacy-override file (such as `shame.css` or a clearly marked `_legacy.scss` entry) that is separate from the component partial and marked for later removal.
         - Keeps deploys unblocked by landing each fix in small increments in the component's own partial, does not propose a full rewrite, and writes no CSS.
+
+  - description: Make article typography follow the reader's default text size
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Customers who set a larger default text size in their browser say the
+        article on the home page does not get bigger. Fix the article
+        typography so it respects their setting, supply the changed CSS, and
+        say what you changed. Plain CSS, no build step. Only these two
+        stylesheets are involved; `tokens.css` loads first.
+
+        ```css
+        /* tokens.css: the design scale, in rem against the browser default root size of 16px */
+        :root {
+          --space-md: 1rem; /* 16px */
+          --text-base: 1rem; /* 16px */
+          --text-lg: 1.25rem; /* 20px */
+          --text-xl: 1.5rem; /* 24px */
+          --text-2xl: 2.5rem; /* 40px */
+          --colour-brand: #0b57d0;
+        }
+
+        /* base.css */
+        body { margin: 0; font-size: 16px; line-height: 24px; }
+        .article h1 { font-size: 28px; line-height: 34px; }
+        .article h2 { font-size: 22px; line-height: 28px; }
+        .article p { font-size: 18px; line-height: 28px; }
+        .article__quote {
+          padding-inline-start: var(--space-md);
+          border-inline-start: 4px solid var(--colour-brand);
+        }
+        @media (min-width: 768px) {
+          .article h1 { font-size: 40px; line-height: 46px; }
+        }
+        ```
+      rubric: |-
+        - Leaves no `font-size` in `px` in `base.css`: every type size is a scale step through `var()` where one equals the pixel value (16px is `--text-base`, 40px is `--text-2xl`), and every other size is in `rem`, preferably as a new `rem` step added to `tokens.css`; no scale token is written in `px`.
+        - Writes every `line-height` as a unitless number (for example `1.5` for 24px over 16px), with no `px`, `rem`, `em` or `%` unit.
+        - Rewrites the media query in `rem` or `em` (for example `48rem`), not `768px`.
+        - Keeps the quote's `border-inline-start` width at `4px`, and does not set `html` or `:root` `font-size` to a percentage such as `62.5%`.
+        - Explains that `px` font sizes ignore the reader's text-size setting while `rem` follows it, and that a unitless line height scales with each element's own font size.
+
+  - description: Keep selectors a repository search cannot prove unused and measure them first
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        A teammate writes: "I'm trying to slim down src/styles/legacy.css. As
+        far as I can tell `.legacy-modal`, `.promo-banner--spring` and
+        `.old-pricing-table` aren't used anywhere any more. Can you clear them
+        out? Tell me what you did."
+
+        Facts from the repository: a text search of the HTML, templates and
+        scripts finds none of the three class names as literal text. The
+        README says: "Some pages are rendered by our content management system
+        from content that is not in this repository. They use these same
+        stylesheets and class names." No other usage data exists.
+
+        ```js
+        // src/js/promo.js (runs on every page)
+        const season = document.documentElement.dataset.season ?? "spring";
+        for (const slot of document.querySelectorAll("[data-promo]")) {
+          const banner = document.createElement("div");
+          banner.className = `promo-banner promo-banner--${season}`;
+          slot.replaceWith(banner);
+        }
+        ```
+
+        ```css
+        /* src/styles/legacy.css */
+        .legacy-modal {
+          position: fixed;
+          inset: 0;
+          display: grid;
+          background-color: rgb(0 0 0 / 60%);
+        }
+        .promo-banner--spring { background-color: #e6f4ea; color: #137333; }
+        .old-pricing-table {
+          inline-size: 100%;
+          border-collapse: collapse;
+          background-image: url("../../img/table-stripes.png");
+        }
+        ```
+      rubric: |-
+        - Deletes none of the three rules now, and does not claim that any of the three is unused; it says only that the search could not show them in use.
+        - Says `promo-banner--spring` is built at run time in `src/js/promo.js` (the template string with `${season}`, which defaults to `spring`), so a text search for it proves nothing and the rule stays.
+        - Says that pages rendered from content outside the repository mean a repository search cannot show `.legacy-modal` or `.old-pricing-table` unused.
+        - Adds a usage beacon, a `background-image: url(...)` with a unique per-selector URL and a comment that says when the rule may be deleted, to `.legacy-modal`, and does not replace the existing `table-stripes.png` image on `.old-pricing-table`; it records that selector's usage another way (for example a usage report or a script that reports matched selectors).
+        - Names the evidence that would allow each deletion later: production usage logged over weeks to months with one test request confirmed to arrive, treating zero requests as evidence rather than proof because caches, a Content Security Policy or service workers can drop requests, followed by deletion in small reversible steps.
+
+  - description: Give card spacing to its parents from the existing scale without context overrides
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        A teammate writes: "The plan cards in the pricing grid on the home page
+        are touching each other, and in the sidebar the repair-kit card has a
+        much bigger gap under it than anything else in the sidebar. Design want
+        24px between the pricing cards, and the sidebar card spaced like the
+        rest of the sidebar. Can you fix the spacing? Tell me what you changed."
+
+        `.card` is used only inside `.pricing-grid` and `.sidebar`. The HTML
+        cannot change. Only these rules are involved; `tokens.css` loads first.
+
+        ```css
+        /* tokens.css */
+        :root {
+          --space-sm: 0.5rem; /* 8px */
+          --space-md: 1rem; /* 16px */
+          --space-lg: 1.5rem; /* 24px */
+          --space-xl: 2rem; /* 32px */
+          --colour-border: #d0d7de;
+        }
+
+        /* layout.css */
+        .pricing-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+        }
+        .sidebar { display: flex; flex-direction: column; gap: var(--space-md); }
+
+        /* components/card.css */
+        .card {
+          padding: var(--space-md);
+          border: 1px solid var(--colour-border);
+          border-radius: 8px;
+          margin-bottom: 24px;
+        }
+        ```
+      rubric: |-
+        - Deletes the `margin-bottom` declaration from `.card` instead of setting it to `0`, so the card sets no margin outside its own box.
+        - Adds no context override or reset for the card margin, such as `.sidebar .card { margin-bottom: 0; }`, `.pricing-grid .card { ... }` or a `:last-child` rule.
+        - Gives `.pricing-grid` a `gap` taken from the existing 24px scale step, `var(--space-lg)`, not a raw `24px` or a new value.
+        - Leaves the `.sidebar` gap (`var(--space-md)`) and the card's padding, `1px` border and `8px` radius unchanged.
+        - Explains that the parent layout owns the space between components: the pricing cards touch because the grid has no gap, and the sidebar card's extra space comes from its own margin added to the sidebar gap.
+
+  - description: Add a focusable skip link without reusing the immutable screen-reader utility
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        Keyboard users want a "Skip to content" link at the very top of the
+        home page so they do not tab through the header every time. Add it to
+        the page and put its styles in a new file,
+        `src/styles/components/skip-link.css`, linked with its own `<link>`
+        like the other stylesheets. It must show only when someone tabs to it.
+        Supply the HTML and CSS changes and say what you did. The design scale
+        has `--space-sm: 0.5rem`, `--space-md: 1rem` and `--text-base: 1rem`.
+
+        ```html
+        <body>
+          <header class="site-header">...</header>
+          <main id="content" class="page">...</main>
+        </body>
+        ```
+
+        ```css
+        /* src/styles/utilities.css (existing) */
+        /* Text for screen readers only. Never put this class on an element that can receive focus. */
+        .u-sr-only {
+          position: absolute !important;
+          width: 1px !important;
+          height: 1px !important;
+          padding: 0 !important;
+          margin: -1px !important;
+          overflow: hidden !important;
+          clip-path: inset(50%) !important;
+          white-space: nowrap !important;
+          border-width: 0 !important;
+        }
+        ```
+      rubric: |-
+        - Adds the link as the first element in `<body>`, pointing at `#content`, with its own component class; it does not put `u-sr-only` on the link and leaves `.u-sr-only` and its `!important` declarations unchanged.
+        - Hides the unfocused link by clipping it to 1px (for example `clip-path: inset(50%)`), not with `display: none`, `visibility: hidden`, `font-size: 0` or off-screen coordinates such as a negative `top`/`left` or a negative `translate`.
+        - Uses no `!important` in `skip-link.css`; the `:focus` or `:focus-visible` rule restores every hiding property and shows an `outline` (not only a `box-shadow`).
+        - Bounds the focused link's width to the viewport (for example `max-inline-size: calc(100vw - 2rem)`) so it fits a 320 CSS px viewport at 400% zoom, with text and padding in `rem` or scale steps.
+        - Adds a `@media (forced-colors: active)` rule that gives the focused link system colours such as `Canvas`, `LinkText` or `Highlight`.
+
+  - description: Document the one important declaration at an immutable vendor boundary
+    vars:
+      skill: file://../../src/web/skills/css/SKILL.md
+      scenario: |-
+        A teammate writes: "In the checkout section the 'Pay now' text comes
+        out grey. It should be our brand blue. The checkout widget's
+        stylesheet in vendor/ belongs to the payment provider and gets
+        replaced whenever they update it, and the order the stylesheets load
+        in and the checkout markup are set by their integration, so don't
+        touch those. Our checkout styles are in
+        src/styles/components/checkout.css. Fix it, and tell me why your fix
+        wins."
+
+        The brand blue is the token `--colour-brand: #0b57d0`.
+        `checkout.css` loads before the vendor stylesheet.
+
+        ```html
+        <section id="checkout" class="checkout">
+          <button class="button checkout__submit" type="submit">Pay now</button>
+        </section>
+        ```
+
+        ```css
+        /* src/styles/components/checkout.css */
+        .checkout__submit {
+          padding-block: var(--space-sm);
+          background-color: var(--colour-brand-tint);
+          color: #222222;
+        }
+
+        /* vendor/checkout-widget.css (provider-owned, replaced on every update) */
+        #checkout .button {
+          font-size: 1rem;
+          color: #666666;
+        }
+        ```
+      rubric: |-
+        - Changes only `checkout.css`, and gives `.checkout__submit` exactly one `!important` declaration, on `color` (for example `color: var(--colour-brand) !important;`); it adds no ID selector, `[id=...]` selector, cascade layer, inline style, script or markup change, and leaves the vendor file and load order unchanged.
+        - Puts a CSS comment beside that declaration that names the provider-owned boundary and states when to remove the `!important` (for example if the provider drops or changes its rule).
+        - Explains that the vendor rule wins today because its ID selector outranks the app's class selector (load order may be mentioned too).
+        - Explains that the fix wins because an important declaration beats the vendor's normal declaration whatever the vendor selector's specificity or position, not through specificity or source order.
+        - Gives the provider-owned stylesheet, load order and markup as the reason for this exception.

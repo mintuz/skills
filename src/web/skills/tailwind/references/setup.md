@@ -1,11 +1,25 @@
-# Tailwind CSS Setup
+# Setup
 
-Follow only the sections that match the installed Tailwind major version.
+Follow only the sections for the installed Tailwind major version.
 
-## Tailwind 3: Configuration File
+## Token hierarchy
 
-Tailwind 4 needs no config file for a new project, but can still load an
-existing one with `@config "./tailwind.config.ts";`.
+```
+Brand tokens (abstract)
+    └── Semantic tokens (purpose)
+        └── Component tokens (specific)
+
+Example: blue-500 → primary → button-bg
+```
+
+- Name colours by purpose (`primary`), not appearance (`blue`).
+- Keep the colour format that the project already uses, such as the bare HSL channels in the Tailwind 3 example or the `oklch()` values of the Tailwind 4 palette.
+- Use CSS variables for values that change at run time without a rebuild, such as themes.
+- For a class-based dark mode, set `darkMode` in the Tailwind 3 config, or use `@custom-variant` in Tailwind 4.
+
+## Tailwind 3: config file
+
+Tailwind 4 needs no config file for a new project. It can still load an existing one with `@config "./tailwind.config.ts";`.
 
 ```typescript
 // tailwind.config.ts
@@ -17,7 +31,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Semantic color tokens
+        // Semantic colour tokens
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -57,10 +71,9 @@ const config: Config = {
 export default config;
 ```
 
-## Tailwind 3: Global CSS with Design Tokens
+## Tailwind 3: global CSS with tokens
 
-Tailwind 4 replaces the three `@tailwind` directives with a single
-`@import "tailwindcss";`.
+Tailwind 4 replaces the three `@tailwind` directives with one `@import "tailwindcss";`.
 
 ```css
 /* globals.css */
@@ -106,15 +119,11 @@ Tailwind 4 replaces the three `@tailwind` directives with a single
 }
 ```
 
-## Tailwind 4: CSS-First Setup
+## Tailwind 4: CSS-first setup
 
-Tailwind 4 declares tokens in CSS. Set the detection base path with `source()`
-on the import when the project root is not the base path, as in a monorepo
-package.
+When the project root is not the detection base path, as in a monorepo package, set the base path with `source()` on the import.
 
-Tailwind 4 still supports PostCSS through `@tailwindcss/postcss`; keep a working
-PostCSS integration rather than replacing it. For a new Vite project, add the
-installed `@tailwindcss/vite` plugin beside the existing plugins:
+Tailwind 4 still supports PostCSS through `@tailwindcss/postcss`. Keep a working PostCSS integration; do not replace it. For a new Vite project, add the installed `@tailwindcss/vite` plugin beside the existing plugins:
 
 ```typescript
 // vite.config.ts
@@ -124,8 +133,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({ plugins: [tailwindcss()] });
 ```
 
-Declare fixed tokens in a `@theme` block. A `--color-*` token generates the
-matching colour utilities, such as `bg-primary` and `text-primary`:
+Declare fixed tokens in a `@theme` block. A `--color-*` token generates the matching colour utilities, such as `bg-primary` and `text-primary`:
 
 ```css
 /* globals.css */
@@ -137,9 +145,7 @@ matching colour utilities, such as `bg-primary` and `text-primary`:
 }
 ```
 
-`@theme inline` places the variable reference in the generated utility, so the
-utility resolves the value at the point of use and picks up a runtime override,
-such as one under a dark-mode selector:
+For a value that changes at run time, use `@theme inline`. It puts the variable reference in the generated utility, so the utility resolves the value where it is used and picks up an override, such as one under a dark-mode selector:
 
 ```css
 @import "tailwindcss";
@@ -157,30 +163,9 @@ such as one under a dark-mode selector:
 }
 ```
 
-Load a legacy JavaScript Tailwind plugin with `@plugin` (only when the project
-installs that plugin package), and define a class-based dark variant with
-`@custom-variant`:
+Load a legacy JavaScript Tailwind plugin with `@plugin`, only when the project installs that plugin package. Define a class-based dark variant with `@custom-variant`:
 
 ```css
 @plugin "tailwindcss-animate";
 @custom-variant dark (&:where(.dark, .dark *));
 ```
-
-## Design Token Hierarchy
-
-```
-Brand Tokens (abstract)
-    └── Semantic Tokens (purpose)
-        └── Component Tokens (specific)
-
-Example:
-    blue-500 → primary → button-bg
-```
-
-## Key Concepts
-
-- **CSS Variables**: runtime theming without rebuilding
-- **HSL Colors**: easier programmatic colour adjustments
-- **Semantic Naming**: colours named by purpose (primary), not appearance (blue)
-- **Dark Mode**: class-based strategy for client-side control; set with
-  `darkMode` in the Tailwind 3 config, or `@custom-variant` in Tailwind 4

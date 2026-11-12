@@ -8,7 +8,7 @@ it('should display user name when provided', () => {
   render(<UserProfile name="Alice" email="alice@example.com" />);
 
   expect(screen.getByText(/alice/i)).toBeInTheDocument();
-  expect(screen.getByText(/alice@example.com/i)).toBeInTheDocument();
+  expect(screen.getByText(/alice@example\.com/i)).toBeInTheDocument();
 });
 ```
 
@@ -33,6 +33,7 @@ it('should call onSubmit when form submitted', async () => {
   await user.type(screen.getByLabelText(/email/i), 'test@example.com');
   await user.click(screen.getByRole('button', { name: /submit/i }));
 
+  expect(handleSubmit).toHaveBeenCalledTimes(1);
   expect(handleSubmit).toHaveBeenCalledWith({
     email: 'test@example.com',
   });
@@ -40,6 +41,8 @@ it('should call onSubmit when form submitted', async () => {
 ```
 
 ## Testing Conditional Rendering
+
+This example uses an MSW `server`. Use the network stub the project already has.
 
 ```tsx
 // ✅ CORRECT - Test what user sees in different states

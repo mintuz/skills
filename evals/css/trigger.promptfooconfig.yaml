@@ -56,3 +56,24 @@ tests:
     assert:
       - type: skill-used
         value: css
+
+  - description: Activates on a new component stylesheet in a plain CSS project
+    vars:
+      request: >-
+        There's a promo banner in index.html (the `.banner` markup near the
+        top) with no styles yet. Write its styles in a new file,
+        src/styles/components/banner.css, with an info look and room for a
+        warning variant later, and link it from the page.
+    assert:
+      - type: skill-used
+        value: css
+
+  - description: Does not activate for a Tailwind config snippet about brand colours
+    vars:
+      request: >-
+        Our app uses Tailwind 3. What do I add to tailwind.config.js so I can
+        write `bg-brand` and `text-brand` on buttons, with brand being
+        #0b57d0? Just the snippet and where it goes.
+    assert:
+      - type: not-skill-used
+        value: css

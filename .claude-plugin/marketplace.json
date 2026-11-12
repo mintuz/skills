@@ -77,7 +77,7 @@
     },
     {
       "name": "web",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": "./src/web",
       "description": "Agents and skills that are specialised in building and maintaining web applications",
       "skills": [

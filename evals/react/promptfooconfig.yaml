@@ -243,3 +243,349 @@ tests:
         - Shows the component reading and updating the search params directly, without a duplicate `useState` copy that must be kept in sync with the URL.
         - States that a global store would not give shareable links or back-button behaviour that the URL gives for free.
         - Adds no Zustand or other dependency and no application-wide state.
+
+  - description: Repair the whole permission path when hiding an action from some roles
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        Only owners and admins should be able to invite people. Today every team
+        member sees the invite form on the members page; hide it from everyone
+        else. The API already refuses an invite from anyone who is not an owner
+        or admin. Installed: React 19.2, React Router 7 (data routes with
+        loaders), XState 5, `@xstate/react` 6 and Vitest. Zod, axios and query
+        libraries are not installed; add no dependency. Return every changed or
+        new file as code, including tests for the permission rule, and a short
+        handover. The complete relevant source follows.
+
+        ```ts
+        // src/types/user.ts
+        export const roles = ["owner", "admin", "member"] as const;
+        export type Role = (typeof roles)[number];
+        export type CurrentUser = Readonly<{ id: string; name: string; teamId: string; role: Role }>;
+        export function parseRole(value: unknown): Role | null {
+          return roles.find((role) => role === value) ?? null;
+        }
+
+        // src/lib/current-user.ts (the root route loader)
+        import { http } from "@/lib/http";
+        import type { CurrentUser } from "@/types/user";
+        export async function getCurrentUser(): Promise<CurrentUser> {
+          return (await http("/api/me")) as CurrentUser;
+        }
+
+        // src/lib/http.ts
+        import { signOut } from "@/lib/sign-out"; // clears the session and assigns /login
+        export class HttpError extends Error {
+          readonly status: number;
+          constructor(status: number) {
+            super(`The request failed with status ${status}`);
+            this.name = "HttpError";
+            this.status = status;
+          }
+        }
+        export async function http(path: string, init?: RequestInit): Promise<unknown> {
+          const response = await fetch(path, init);
+          if (response.status === 401 || response.status === 403) {
+            signOut();
+          }
+          if (!response.ok) throw new HttpError(response.status);
+          return response.json();
+        }
+
+        // src/features/invites/api/send-invite.ts
+        import { http } from "@/lib/http";
+        export async function sendInvite(email: string): Promise<void> {
+          await http("/api/invites", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+        }
+        ```
+
+        ```tsx
+        // src/app/members-page.tsx
+        export function MembersPage() {
+          const members = useLoaderData<typeof getMembers>();
+          const user = useCurrentUser(); // reads the root loader's CurrentUser
+          return (
+            <>
+              <h1>Members</h1>
+              <MemberList members={members} teamId={user.teamId} />
+              <InviteForm />
+            </>
+          );
+        }
+
+        // src/features/invites/components/invite-form.tsx (unchanged so far)
+        export function InviteForm() {
+          const [email, setEmail] = useState("");
+          const actorRef = useActorRef(inviteMachine, { input: { sendInvite } });
+          const sending = useSelector(actorRef, (s) => s.matches("sending"));
+          const sent = useSelector(actorRef, (s) => s.matches("sent"));
+          const error = useSelector(actorRef, (s) => (s.matches("failed") ? s.context.error : null));
+          // submit sends { type: "SEND", email } to the actor; the machine invokes
+          // sendInvite and moves to "failed" with the error message on rejection.
+          return (
+            <form aria-label="Invite someone" onSubmit={(e) => { e.preventDefault(); actorRef.send({ type: "SEND", email }); }}>
+              <label>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+              <Button type="submit" disabled={sending}>Invite</Button>
+              {sent && <p role="status">Invite sent</p>}
+              {error && <p role="alert">{error}</p>}
+            </form>
+          );
+        }
+        ```
+      rubric: |-
+        - Adds a plain exported permission function outside any component (for example `canInvite(user)`) that allows owner and admin and denies member and an unknown role, and `MembersPage` calls that same function to decide whether to render `<InviteForm />`.
+        - Adds Vitest tests that call that production function directly without rendering React and assert owner and admin allowed, member denied, and an explicit unknown role denied.
+        - Keeps an unknown role as an explicit value distinct from owner, admin and member (for example `null` or `"unknown"`) that grants nothing; it does not map an unknown role to member or keep trusting the response through an `as CurrentUser` cast.
+        - Replaces the cast in `getCurrentUser` with a parser that validates the `unknown` response body, including the role, before returning a `CurrentUser`.
+        - Changes `http` so a 403 no longer signs out, clears the session or redirects, while a 401 still signs out and every non-ok status still throws `HttpError`; the refused invite reaches the existing invite machine and shows in the form's alert, with the machine and form wiring kept.
+        - States in the handover that hiding the form only controls what the page shows and that the server must refuse unauthorised invites itself.
+
+  - description: Deliver the newest callback from a subscription without reconnecting
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        Bug report: our presence server shows the members page opening a new
+        connection every time anything on the page re-renders, for example when
+        you page through the list. Fix it in the shared hook
+        `src/hooks/use-presence-notifications.ts`. React 19.2 is installed; add
+        no dependency. `presenceClient.subscribe(teamId, listener)` opens one
+        connection and returns an unsubscribe function. Return the patch and
+        explain the cause and the fix.
+
+        ```ts
+        // src/hooks/use-presence-notifications.ts
+        import { useEffect } from "react";
+        import { presenceClient } from "@/lib/presence-client";
+
+        // Calls onCameOnline with a member's id whenever a member of the team comes online.
+        export function usePresenceNotifications(
+          teamId: string,
+          onCameOnline: (memberId: string) => void,
+        ): void {
+          useEffect(() => presenceClient.subscribe(teamId, onCameOnline), [teamId, onCameOnline]);
+        }
+        ```
+
+        ```tsx
+        // src/features/members/components/member-list.tsx (caller, excerpt)
+        export function MemberList({ members, teamId }: MemberListProps) {
+          const [page, setPage] = useState(1);
+          usePresenceNotifications(teamId, (memberId) => {
+            const member = members.find(({ id }) => id === memberId);
+            if (member) notify(`${member.name} is online`);
+          });
+          // ...renders the current page of member cards and Previous/Next buttons
+        }
+        ```
+      rubric: |-
+        - Wraps the callback in React's `useEffectEvent` inside the hook and calls that Effect Event only from the listener that the subscription Effect creates.
+        - Keeps `teamId` as the Effect's dependency, so a team change unsubscribes and resubscribes and unmount unsubscribes; removes the callback from the dependency list and does not list the Effect Event as a dependency or pass it to another hook or component.
+        - Uses no latest-callback ref or `useLatest`-style workaround and does not wrap the caller's callback in `useCallback`; the fix stays in the shared hook and `MemberList` is unchanged.
+        - After a re-render supplies a different callback, the next notification reaches the newest callback without opening a new connection.
+        - Explains the cause (a new inline callback each render is an Effect dependency, so every render tears down and reopens the subscription) and does not claim the Effect Event's identity is stable.
+
+  - description: Share markup between features through a props-only component, not a mode flag
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        On the billing page, the seat summary should list who holds each seat:
+        their avatar and name, like the cards on the members page but without the
+        email, the role badge or the role menu. The seats response already
+        includes the holders. Features live in `src/features/<name>`, shared code
+        in `src/components/`, and an ESLint rule forbids importing from another
+        feature. Add no dependency. Return every changed or new file as code and
+        a short handover. The complete relevant source follows.
+
+        ```tsx
+        // src/components/avatar.tsx: export function Avatar({ src }: { src: string }) renders a decorative <img alt="">
+        // src/components/card.tsx: exports Card, CardHeader and CardBody, each rendering its children
+
+        // src/features/members/components/member-card.tsx
+        export function MemberCard({ member }: Readonly<{ member: Member }>) {
+          return (
+            <Card>
+              <CardHeader>
+                <Avatar src={member.avatarUrl} />
+                <h3>{member.name}</h3>
+              </CardHeader>
+              <CardBody>
+                <p>{member.email}</p>
+                <RoleBadge role={member.role} />
+                <MemberActions member={member} />
+              </CardBody>
+            </Card>
+          );
+        }
+
+        // src/features/billing/api/get-seat-usage.ts (types; the fetcher already parses them)
+        export type SeatHolder = Readonly<{ id: string; name: string; avatarUrl: string }>;
+        export type SeatUsage = Readonly<{ used: number; limit: number; holders: readonly SeatHolder[] }>;
+
+        // src/features/billing/components/seat-summary.tsx
+        export function SeatSummary({ usage }: Readonly<{ usage: SeatUsage }>) {
+          return (
+            <Card>
+              <CardHeader><h2>Seats</h2></CardHeader>
+              <CardBody><p>{usage.used} of {usage.limit} seats used</p></CardBody>
+            </Card>
+          );
+        }
+        ```
+      rubric: |-
+        - Extracts the avatar-and-name markup into one props-only presentational component in `src/components/` that imports no feature code, calls no feature hook and fetches nothing, and renders it from both `MemberCard` and `SeatSummary`.
+        - `SeatSummary` lists every holder from `usage.holders`, keyed by id, with avatar and name only, and does not fetch holders again.
+        - Billing imports nothing from `features/members` or any other feature, and the change adds no re-export barrel and no new feature folder.
+        - Adds no mode, variant or boolean prop (such as `compact`) to `MemberCard`; `MemberCard` keeps its email, `RoleBadge` and `MemberActions`.
+        - Does not count rebuilding the avatar-and-name markup inside billing from `Card` and `Avatar` as sharing it, and adds no dependency.
+
+  - description: Replace mode booleans with explicit variant components built from shared parts
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        The settings page publishes a new notice with its audience, an attachment
+        action and a Publish notice button. Another page edits an existing notice
+        with Save changes and Cancel edit, but no audience or attachment action.
+        Both need the same text field and frame. The caller already owns the text
+        and the callbacks, and those callbacks must keep receiving the current
+        text. We will add other pages with different controls later. Show the
+        public API and complete TypeScript React code you recommend for these two
+        pages, including how the shared pieces and the caller fit together. Keep
+        the empty-text guard. Installed: React 19.2, React Router 7, XState 5;
+        add no dependency. This is a proposal for review.
+
+        ```tsx
+        // src/features/notices/notice-editor.tsx
+        type NoticeEditorProps = Readonly<{
+          text: string;
+          editing?: boolean;
+          replying?: boolean;
+          showAudience?: boolean;
+          allowAttachments?: boolean;
+          onTextChange: (text: string) => void;
+          onCommit: (text: string) => void;
+          onCancel: () => void;
+          onAttach: () => void;
+        }>;
+
+        export function NoticeEditor({ text, editing = false, replying = false, showAudience = true,
+          allowAttachments = true, onTextChange, onCommit, onCancel, onAttach }: NoticeEditorProps) {
+          return (
+            <section aria-label="Notice editor">
+              <h2>{editing ? "Edit notice" : replying ? "Reply to notice" : "Publish notice"}</h2>
+              {showAudience && <p>Everyone in the team</p>}
+              <label>Notice text<textarea value={text} onChange={(event) => onTextChange(event.currentTarget.value)} /></label>
+              <footer>
+                {allowAttachments && <button type="button" onClick={onAttach}>Attach a file</button>}
+                <button type="button" disabled={text.trim() === ""} onClick={() => onCommit(text)}>
+                  {editing ? "Save changes" : replying ? "Send reply" : "Publish notice"}
+                </button>
+                {editing && <button type="button" onClick={onCancel}>Cancel edit</button>}
+              </footer>
+            </section>
+          );
+        }
+        ```
+      rubric: |-
+        - Provides two distinctly named entry components (for example `PublishNoticeEditor` and `EditNoticeEditor`), each explicitly composing the shared frame, text field and its own controls.
+        - The publishing entry shows the audience line and has the attachment and Publish notice controls; the editing entry has Save changes and Cancel edit and no audience or attachment controls.
+        - The shared frame and text field take no mode booleans and no mode or variant discriminator and hide no layout switch; native attributes such as a button's `disabled` are not mode props.
+        - Structure is composed with `children` rather than `renderHeader`/`renderFooter`/`renderActions` callbacks on one monolith.
+        - Text stays caller-owned: the change callback receives edits, the commit callback receives the current text, and the commit button stays disabled for empty or whitespace-only text; shared controls have real event handlers, with no placeholder or no-op action and no new dependency.
+
+  - description: Share one draft across separate parts through an injectable provider contract
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        A page needs a notice text field inside a form, a live preview in the
+        neighbouring sidebar and a publish control in its toolbar. They must all
+        use the same current notice text. A second editor on that page must stay
+        independent. Some pages keep the text locally; others already receive the
+        text and a change callback from their page owner. Show complete
+        TypeScript React code for reusable parts that support both arrangements
+        without rewriting the text field, preview or publish control, and include
+        both page examples. The sidebar need not sit inside the visible form. Keep
+        this synchronous: the publish callback hands the current text to the
+        page; it does not manage a request. Installed: React 19.2, React Router 7,
+        XState 5, `@xstate/react` 6; no Zustand, query or form library. Add no
+        dependency. This is a proposal for review.
+
+        ```tsx
+        // src/features/notices/draft-parts.tsx (current)
+        import { useEffect, useState } from "react";
+
+        export function DraftField({ initialText, onDraftChange }: Readonly<{
+          initialText: string;
+          onDraftChange: (text: string) => void;
+        }>) {
+          const [text, setText] = useState(initialText);
+          useEffect(() => onDraftChange(text), [text, onDraftChange]);
+          return <label>Notice text<textarea value={text} onChange={(event) => setText(event.currentTarget.value)} /></label>;
+        }
+
+        export function DraftPreview({ initialText }: Readonly<{ initialText: string }>) {
+          const [text] = useState(initialText);
+          return <output aria-label="Notice preview">{text}</output>;
+        }
+
+        export function DraftPublish({ readText, onPublish }: Readonly<{
+          readText: () => string;
+          onPublish: (text: string) => void;
+        }>) {
+          return <button type="button" onClick={() => onPublish(readText())}>Publish notice</button>;
+        }
+        ```
+      rubric: |-
+        - Defines one typed context contract that separates the draft state from named actions (for example `changeText` and `publish`) and exposes no generic `update(updater)` or raw setter; the field, preview and publish control read only that contract from their own root's context.
+        - Provides a local-state provider and a page-controlled provider that both supply the same contract, with complete page examples for each, and the field, preview and publish control are unchanged between them and import neither provider's implementation.
+        - Each provider wraps the field, the sidebar preview and the toolbar publish control even though the preview is outside the form, and two mounted providers keep independent text with no module-level shared draft.
+        - Editing updates the text the preview shows and the text that publish hands to the page, with no child-to-parent Effect synchronisation, no duplicated preview state and no ref read of another component's draft.
+        - The code is complete and runnable, with a real publish callback rather than ellipses, stubs or a no-op, and adds no dependency.
+
+  - description: Build a shareable filtered view from router state at click time
+    vars:
+      skill: file://../../src/web/skills/react/SKILL.md
+      scenario: |-
+        On the members page, add a filter by role (owner, admin, member or
+        everyone) and a search box for names. Add a Copy link button too, so I
+        can send someone exactly the view I am looking at, page included. The app
+        renders under React Router 7's `RouterProvider` with
+        `createBrowserRouter`; React 19.2 is installed and no query, store or form
+        library is. Add no dependency. A member's `role` is
+        `"owner" | "admin" | "member"`. Return the changed component as code and
+        a short handover.
+
+        ```tsx
+        // src/features/members/components/member-list.tsx
+        const pageSize = 10;
+
+        export function MemberList({ members, teamId }: Readonly<{ members: readonly Member[]; teamId: string }>) {
+          const [page, setPage] = useState(1);
+          const pageCount = Math.max(1, Math.ceil(members.length / pageSize));
+          const shown = members.slice((page - 1) * pageSize, page * pageSize);
+
+          return (
+            <section aria-label="Members">
+              <ul>
+                {shown.map((member) => (
+                  <li key={member.id}><MemberCard member={member} /></li>
+                ))}
+              </ul>
+              <nav aria-label="Pages">
+                <Button onClick={() => setPage(page - 1)} disabled={page === 1}>Previous</Button>
+                <span>Page {page} of {pageCount}</span>
+                <Button onClick={() => setPage(page + 1)} disabled={page === pageCount}>Next</Button>
+              </nav>
+            </section>
+          );
+        }
+        ```
+      rubric: |-
+        - Reads and writes role, name search and page through React Router search parameters (for example `useSearchParams`), removes the original `useState` page, and keeps no state copy or Effect that mirrors the URL.
+        - Derives the filtered list and the current page during render from the parsed URL values, so reload and browser Back/Forward restore the view.
+        - Treats an unknown role value as everyone and an invalid or out-of-range page as a valid page, rather than crashing or showing an empty list.
+        - The Copy link handler builds the link inside the click handler from the router's current location or search parameters, not from `window.location`, and the link includes role, search and page.
+        - Keeps rendering `MemberCard` for each shown member and the Previous/Next controls, and adds no dependency.

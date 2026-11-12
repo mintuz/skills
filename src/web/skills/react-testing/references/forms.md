@@ -30,6 +30,7 @@ it('should submit form with user input', async () => {
   await user.type(screen.getByLabelText(/password/i), 'password123');
   await user.click(screen.getByRole('button', { name: /sign up/i }));
 
+  expect(handleSubmit).toHaveBeenCalledTimes(1);
   expect(handleSubmit).toHaveBeenCalledWith({
     name: 'Alice',
     email: 'alice@example.com',
@@ -39,6 +40,8 @@ it('should submit form with user input', async () => {
 ```
 
 ## Form Validation
+
+This form validates synchronously on submit, so the errors are present straight after the click. When validation waits on a request, await them with `findByText`.
 
 ```tsx
 it('should show validation errors for invalid input', async () => {

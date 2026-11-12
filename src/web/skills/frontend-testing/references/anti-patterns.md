@@ -1,124 +1,99 @@
-# Testing Library Anti-Patterns
+# Testing Library anti-patterns
 
 `@testing-library/dom` exports no `render` function. Mount the markup yourself, then query it through `screen`, which is always bound to `document.body`. Only framework wrappers, such as `@testing-library/react`, export `render`.
 
-## 1. Not using `screen` object
+Other references cover these mistakes; this file does not repeat them:
 
-❌ **WRONG - Hold bound queries in local variables**
+- `getBy*` to assert absence, and `getByTestId` where a role is available: [queries.md](queries.md).
+- Side effects in `waitFor`, several unrelated assertions in one `waitFor`, and `findBy*` inside `waitFor`: [async-testing.md](async-testing.md).
+
+## 1. Queries bound to a variable instead of `screen`
+
 ```typescript
+// ❌
 import { getQueriesForElement } from '@testing-library/dom';
 
 document.body.innerHTML = '<button>Submit</button>';
 const { getByRole } = getQueriesForElement(document.body);
 const button = getByRole('button');
-```
 
-✅ **CORRECT - Use screen**
-```typescript
+// ✅
 import { screen } from '@testing-library/dom';
 
 document.body.innerHTML = '<button>Submit</button>';
 const button = screen.getByRole('button', { name: /submit/i });
 ```
 
-**Why:** `screen` needs no destructuring and gives better error messages. Use `within(element)` to scope a query to one region.
+`screen` needs no destructuring and gives better error messages. To scope a query to one region, use `within(element)`.
 
----
+## 2. `querySelector` where an accessible query works
 
-## 2. Using querySelector instead of an available accessible query
+A CSS selector is an escape hatch. It is wrong only when a user-facing query reaches the same element. When no accessible route exists, follow "When no accessible query fits" in `SKILL.md`.
 
-A CSS selector is an escape hatch, wrong only when a user-facing query would reach the same element. See "When No Accessible Query Fits" in the main skill file for the case where no accessible route exists.
-
-❌ **WRONG - Selector where a role query works**
 ```typescript
+// ❌
 document.body.innerHTML = '<button class="submit-btn">Submit</button>';
 const button = document.querySelector('.submit-btn');
-```
 
-✅ **CORRECT - Accessible query**
-```typescript
+// ✅
 document.body.innerHTML = '<button>Submit</button>';
 const button = screen.getByRole('button', { name: /submit/i });
 ```
 
----
+## 3. Implementation details
 
-## 3. Testing implementation details
-
-❌ **WRONG - Internal state**
 ```typescript
+// ❌ Private implementation
 const component = new Component();
-expect(component._internalState).toBe('value'); // Private implementation
-```
+expect(component._internalState).toBe('value');
 
-✅ **CORRECT - User-visible behavior**
-```typescript
+// ✅ User-visible behaviour
 document.body.innerHTML = '<p>value</p>';
 expect(screen.getByText(/value/i)).toBeInTheDocument();
 ```
 
----
+## 4. Property assertions where jest-dom matchers are registered
 
-## 4. Not using jest-dom matchers
-
-❌ **WRONG - Manual assertions**
 ```typescript
+// ❌
 expect(button.disabled).toBe(true);
 expect(element.classList.contains('active')).toBe(true);
-```
+expect(input.value).toBe('test');
+expect(checkbox.checked).toBe(true);
 
-✅ **CORRECT - jest-dom matchers**
-```typescript
+// ✅
 expect(button).toBeDisabled();
 expect(element).toHaveClass('active');
+expect(input).toHaveValue('test');
+expect(checkbox).toBeChecked();
 ```
 
-**Install:** `npm install -D @testing-library/jest-dom`
+These matchers need jest-dom registered in the test setup. When the project does not register it, assert the element's own property, say that jest-dom would read better, and do not add it unasked.
 
----
+## 5. Manual `cleanup()` calls
 
-## 5. Manual cleanup() calls
+`@testing-library/dom` exports no `cleanup`. Framework wrappers export it and register it for you, but only when a global `afterEach` exists at import time. Under Vitest that means `globals: true`. When the project keeps globals off, call the wrapper's `cleanup` once, in an `afterEach` in the shared setup file. Never call it in a test file.
 
-`@testing-library/dom` exports no `cleanup`. Framework wrappers export it and register it for you, but only when a global `afterEach` exists at import time. Under Vitest that means `globals: true`, or an explicit `cleanup` call in your own `afterEach`.
-
-❌ **WRONG - Call the wrapper's cleanup by hand**
 ```typescript
+// ❌ The wrapper's cleanup in a test file
 afterEach(() => {
-  cleanup(); // The framework wrapper already registered this
+  cleanup(); // Belongs once in the setup file, or nowhere when globals are on
 });
-```
 
-✅ **CORRECT - Reset only the markup you mounted yourself**
-```typescript
+// ✅ Reset only the markup you mounted yourself
 afterEach(() => {
   document.body.innerHTML = '';
 });
 ```
 
-**Why:** jsdom keeps one document for the whole test file. Markup you write into `document.body` yourself survives into the next test and makes queries ambiguous.
+jsdom keeps one document for the whole test file. Markup that you write into `document.body` yourself survives into the next test and makes queries ambiguous.
 
----
+## 6. Element captured in `beforeEach`
 
-## 6. Wrong assertion methods
+The hook queries the element before the test arranges its own state, and the stale reference survives a re-render. A mount helper called in each test keeps setup beside the assertions that depend on it.
 
-❌ **WRONG - Property access**
 ```typescript
-expect(input.value).toBe('test');
-expect(checkbox.checked).toBe(true);
-```
-
-✅ **CORRECT - jest-dom matchers**
-```typescript
-expect(input).toHaveValue('test');
-expect(checkbox).toBeChecked();
-```
-
----
-
-## 7. beforeEach mount pattern
-
-❌ **AVOID - Element captured in beforeEach**
-```typescript
+// ❌
 let button;
 beforeEach(() => {
   document.body.innerHTML = '<button>Submit</button>';
@@ -128,12 +103,8 @@ beforeEach(() => {
 it('test 1', () => {
   // The element was queried before this test could arrange anything
 });
-```
 
-**Why:** the hook queries the element before the test arranges its own state, and the stale reference survives any re-render. A mount helper keeps setup beside the assertions that depend on it.
-
-✅ **CORRECT - Mount helper called per test**
-```typescript
+// ✅
 const mountButton = () => {
   document.body.innerHTML = '<button>Submit</button>';
   return {
@@ -146,125 +117,31 @@ it('test 1', () => {
 });
 ```
 
-For framework mount helpers, see the `react-testing` skill.
+For React render factories, see `web:react-testing`.
 
----
+## 7. Exact against flexible text matching
 
-## 8. Several unrelated assertions in one waitFor
+This is a choice, not an anti-pattern; both forms are supported.
 
-`waitFor` reruns the whole callback when any assertion throws, so every assertion retries, but the failure names only the first one that threw. Split unrelated assertions; keep them together when the combined state is the condition you wait for.
+- **Exact string.** Couples the test to the copy. Use it when the exact wording is part of the behaviour you assert: `screen.getByText('Welcome, John Doe')`.
+- **Regex.** Tolerates wording, casing and interpolated values around the part that matters: `screen.getByText(/welcome.*john doe/i)`.
 
-❌ **AVOID - Several unrelated assertions**
-```typescript
-await waitFor(() => {
-  expect(screen.getByText(/name/i)).toBeInTheDocument();
-  expect(screen.getByText(/email/i)).toBeInTheDocument();
-});
-```
+The default normalizer trims and collapses whitespace, so an exact string is not whitespace-fragile. An unanchored regex can match more than you intend; anchor it when the match must be precise.
 
-✅ **CORRECT - Await each condition on its own**
-```typescript
-await screen.findByText(/name/i);
-await screen.findByText(/email/i);
-```
+## 8. ESLint plugins not in use
 
-Never follow one `waitFor` with a plain `getBy*` for the second element: that `getBy*` runs once and fails when the second element arrives later.
-
----
-
-## 9. Side effects in waitFor
-
-❌ **WRONG - Interaction in callback**
-```typescript
-await waitFor(async () => {
-  await user.click(button); // waitFor retries, so this clicks many times!
-  expect(submitOrder).toHaveBeenCalledTimes(1);
-});
-```
-
-✅ **CORRECT - Interact once, then wait**
-```typescript
-await user.click(button);
-await waitFor(() => {
-  expect(submitOrder).toHaveBeenCalledTimes(1);
-});
-```
-
----
-
-## 10. Choosing between exact and flexible matching
-
-A choice, not an anti-pattern; both forms are supported.
-
-**Exact string** - couples the test to the copy. Correct when the exact wording is part of the behaviour you assert.
-```typescript
-screen.getByText('Welcome, John Doe');
-```
-
-**Regex** - tolerates wording, casing, and interpolated values around the part that matters.
-```typescript
-screen.getByText(/welcome.*john doe/i);
-```
-
-The default normalizer already trims and collapses whitespace, so an exact string is not whitespace-fragile. An unanchored regex can match more than you intend; anchor it when the match must be precise.
-
----
-
-## 11. Wrong query variant for assertion
-
-❌ **WRONG - getBy for non-existence**
-```typescript
-expect(() => screen.getByText(/error/i)).toThrow();
-```
-
-✅ **CORRECT - queryBy**
-```typescript
-expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
-```
-
----
-
-## 12. Wrapping findBy in waitFor
-
-❌ **WRONG - Redundant**
-```typescript
-await waitFor(() => screen.findByText(/success/i));
-```
-
-✅ **CORRECT - findBy already waits**
-```typescript
-await screen.findByText(/success/i);
-```
-
----
-
-## 13. Using testId when role available
-
-❌ **WRONG - testId**
-```typescript
-screen.getByTestId('submit-button');
-```
-
-✅ **CORRECT - Role**
-```typescript
-screen.getByRole('button', { name: /submit/i });
-```
-
----
-
-## 14. Not installing ESLint plugins
-
-The plugins catch these anti-patterns automatically.
+The plugins catch these anti-patterns automatically. When a project lacks them, recommend them. Install them only when asked:
 
 ```bash
 npm install -D eslint-plugin-testing-library eslint-plugin-jest-dom
 ```
 
-**.eslintrc.js:**
+`.eslintrc.js`:
+
 ```javascript
 {
   extends: [
-    'plugin:testing-library/dom', // For framework-agnostic
+    'plugin:testing-library/dom', // Framework-agnostic
     // OR 'plugin:testing-library/react' for React
     'plugin:jest-dom/recommended',
   ],

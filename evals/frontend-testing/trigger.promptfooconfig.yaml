@@ -11,6 +11,11 @@ prompts:
   - id: file://prompts/trigger.txt
     label: trigger
 
+# react-testing competes for React requests, so the React case tests the exclusion.
+metadata:
+  fixture_skills:
+    - react-testing
+
 providers:
   - id: openai:codex-sdk
     config:
@@ -63,6 +68,27 @@ tests:
         Set up visual regression testing for our design system: capture
         screenshots of each component in light and dark themes at three
         viewport widths, and diff them against approved baseline images.
+    assert:
+      - type: not-skill-used
+        value: frontend-testing
+
+  - description: Activates on a plain-DOM form failure-message test
+    vars:
+      request: >-
+        Write a test for `src/returns/mount-return-form.ts`, a plain TypeScript
+        returns form with no UI framework, that checks the shopper sees an
+        error message when the return request fails. Tell me what the test
+        would look like.
+    assert:
+      - type: skill-used
+        value: frontend-testing
+
+  - description: Does not activate for a React component test
+    vars:
+      request: >-
+        Our repository uses React Testing Library. Write a test for
+        `src/pricing/price-tag.tsx` that checks the shopper sees the price in
+        euros when the currency is EUR. Tell me what the test would look like.
     assert:
       - type: not-skill-used
         value: frontend-testing

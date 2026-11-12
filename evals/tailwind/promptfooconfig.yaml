@@ -310,3 +310,129 @@ tests:
         - Derives the component's variant prop types from the style definition itself, so `neutral`, `critical`, `sm` and `md` are not written out a second time as a hand-maintained union.
         - Gives every variant and size complete literal utility strings, with no interpolated class name and no safelist.
         - Adds no package other than `class-variance-authority`, and makes no claim to have installed anything, inspected the repository, or run a build.
+
+  - description: Keep a Tailwind 4 focus outline visible in forced-colours mode
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        Keyboard users cannot tell when the Save button on the settings page has
+        focus. Give `SaveButton` a focus ring in our brand purple. Just pick a
+        purple that looks close; the exact value does not matter and I would like
+        this in today. `src/app.css` is our whole theme; there is no other design
+        file. Keep the button's green, its `type` and the Save label as they are,
+        and do not add packages. The files below are the whole of the styling
+        setup.
+
+        ```json
+        {
+          "dependencies": { "react": "19.2.7", "react-dom": "19.2.7" },
+          "devDependencies": {
+            "@tailwindcss/vite": "4.3.5",
+            "tailwindcss": "4.3.5",
+            "vite": "8.3.6"
+          }
+        }
+        ```
+
+        ```css
+        /* src/app.css */
+        @import "tailwindcss";
+
+        @theme {
+          --color-surface: oklch(0.98 0.01 250);
+          --color-ink: oklch(0.22 0.03 250);
+          --color-accent: oklch(0.62 0.15 155);
+          --color-accent-ink: oklch(0.99 0.01 155);
+        }
+        ```
+
+        ```tsx
+        // src/components/save-button.tsx
+        export function SaveButton() {
+          return (
+            <button type="submit" className="rounded-md bg-accent px-4 py-2 text-accent-ink outline-none">
+              Save
+            </button>
+          );
+        }
+        ```
+
+        Tell me what you changed.
+      rubric: |-
+        - Draws the keyboard focus indicator with `focus-visible:` utilities as an outline with a width and a colour, so it still shows in forced-colours mode. A ring is acceptable only beside a real outline or beside `outline-hidden`; a ring alone, or a ring with `outline-none`, fails because forced-colours mode removes box-shadows.
+        - Does not leave `outline-none` on the button beside an `outline-<width>` focus utility without also adding `focus-visible:outline-solid`, and says that in Tailwind 4 `outline-none` sets the outline style to none so the width alone draws nothing.
+        - Colours the indicator from a new `--color-*` token added to the existing `@theme` block, not from an arbitrary value in the component or a built-in `purple`, `violet` or `fuchsia` palette class.
+        - States that the theme defines no brand purple, marks the chosen value as a stand-in that the design owner or requester must confirm or replace, and still delivers the patch rather than withholding it.
+        - Keeps `bg-accent`, `text-accent-ink`, `type="submit"`, the Save label and the four existing tokens unchanged, and adds no package, config file or `tailwind.config.*`.
+
+  - description: Make theme utilities follow a nested data-theme wrapper
+    vars:
+      skill: file://../../src/web/skills/tailwind/SKILL.md
+      scenario: |-
+        The dark theme preview on the settings page does not look dark.
+        `ThemePreview` puts `data-theme="dark"` on its wrapper, but the card inside
+        is hard-coded to `bg-white text-black`. `src/app.css` already has the light
+        and dark values as `--app-canvas` and `--app-ink`. I would like `bg-canvas`
+        and `text-ink` classes that follow those values, used on the preview card
+        in place of `bg-white text-black`, so the card shows the dark colours
+        inside the preview and the light ones anywhere else. `text-ink` is already
+        used on the page shell, so its normal colour must not change. Keep
+        `data-theme="dark"` on the wrapper; the rest of the page stays light. The
+        files below are the whole of the styling setup.
+
+        ```json
+        {
+          "dependencies": { "react": "19.2.7", "react-dom": "19.2.7" },
+          "devDependencies": {
+            "@tailwindcss/vite": "4.3.5",
+            "tailwindcss": "4.3.5",
+            "vite": "8.3.6"
+          }
+        }
+        ```
+
+        ```css
+        /* src/app.css */
+        @import "tailwindcss";
+
+        @theme {
+          --color-surface: oklch(0.98 0.01 250);
+          --color-ink: oklch(0.22 0.03 250);
+          --color-accent: oklch(0.62 0.15 155);
+          --color-accent-ink: oklch(0.99 0.01 155);
+        }
+
+        /* The settings page previews the dark theme by setting data-theme="dark"
+           on the preview panel only, not on the whole page. */
+        :root {
+          --app-canvas: oklch(0.98 0.01 250);
+          --app-ink: oklch(0.22 0.03 250);
+        }
+
+        [data-theme="dark"] {
+          --app-canvas: oklch(0.18 0.03 250);
+          --app-ink: oklch(0.94 0.01 250);
+        }
+        ```
+
+        ```tsx
+        // src/components/theme-preview.tsx
+        export function ThemePreview() {
+          return (
+            <div data-theme="dark" className="rounded-lg border p-4">
+              <div className="rounded-md bg-white p-4 text-black">
+                <p className="font-medium">Dark theme preview</p>
+                <p className="text-sm">Bookings, invoices and berth maps use these colours.</p>
+              </div>
+            </div>
+          );
+        }
+        ```
+
+        Tell me what you changed and why the card now picks up the dark values.
+      rubric: |-
+        - Maps `--color-canvas` to `var(--app-canvas)` and `--color-ink` to `var(--app-ink)` in an `@theme inline` block, or redefines both `--color-*` variables under `[data-theme="dark"]`, so the utilities read the switching values at the element where they are used.
+        - Replaces the fixed `--color-ink` value in the plain `@theme` block rather than leaving a second, competing `--color-ink` definition, and keeps `text-ink` at the same light colour outside the wrapper.
+        - Replaces `bg-white text-black` on the card with `bg-canvas text-ink`, and keeps `data-theme="dark"` on the wrapper and the card's text.
+        - Explains that a plain `@theme` variable that references `--app-*` resolves once at the root, so the card would keep the light value, and names the chosen mechanism as the reason the card changes inside the wrapper.
+        - Keeps `--color-surface`, `--color-accent` and `--color-accent-ink` unchanged, and adds no `tailwind.config.*`, `darkMode` setting, `dark:` variant, `@custom-variant` or package.

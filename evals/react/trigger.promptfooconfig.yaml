@@ -7,6 +7,9 @@
 # which the skill-used heuristic does not recognise.
 description: react skill trigger selection
 
+metadata:
+  fixture_skills: [xstate]
+
 prompts:
   - id: file://prompts/trigger.txt
     label: trigger
@@ -64,6 +67,38 @@ tests:
         Restyle the existing `Card` component with Tailwind: add a dark-mode
         variant, tighter spacing on mobile, and a subtle hover shadow. Do not
         change its props or behaviour.
+    assert:
+      - type: not-skill-used
+        value: react
+
+  - description: Activates on a small display change to an existing component
+    vars:
+      request: >-
+        Show the date a member joined under their name on the member card,
+        formatted like 3 Mar 2026. Have a look at
+        `src/features/members/components/member-card.tsx` and tell me what you
+        would change.
+    assert:
+      - type: skill-used
+        value: react
+
+  - description: Does not activate for a React Testing Library test of the same component
+    vars:
+      request: >-
+        Write a React Testing Library test for
+        `src/features/members/components/member-card.tsx` that checks a
+        member's name and role badge show up. Tell me what the test would look
+        like.
+    assert:
+      - type: not-skill-used
+        value: react
+
+  - description: Does not activate for a submit that waits on a request answer
+    vars:
+      request: >-
+        Our React invite form sends the request twice when people double-click
+        Invite, and the loading flag sticks if the request fails. Model the
+        submit, in-flight, retry and failure states for it properly.
     assert:
       - type: not-skill-used
         value: react

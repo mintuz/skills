@@ -1,25 +1,22 @@
-# MSW Integration
+# MSW integration
 
-## Why MSW
+Use this reference when the project already has MSW (Mock Service Worker). When the project stubs the network another way, use that stub and do not add MSW unasked.
 
-Mock Service Worker intercepts requests at the network layer instead of mocking `fetch` or `axios`. The same mocks work in tests, Storybook, and development, need no client-specific mocking logic, and exercise the real request logic.
+MSW intercepts requests at the network layer instead of replacing `fetch` or `axios`. The same handlers work in tests, Storybook and development, need no client-specific mocking logic, and exercise the real request code.
 
 ```typescript
-// ❌ WRONG - Mocking fetch implementation
+// ❌ Replaces the fetch implementation; tightly coupled, does not work in Storybook
 vi.spyOn(global, 'fetch').mockResolvedValue({
   json: async () => ({ users: [...] }),
-}); // Tight coupling, won't work in Storybook
-```
+});
 
-```typescript
-// ✅ CORRECT - MSW intercepts at network level
-// Works in tests, Storybook, dev server
+// ✅ Intercepts at the network layer
 http.get('https://api.example.com/users', () => {
   return HttpResponse.json({ users: [...] });
 });
 ```
 
-## setupServer Pattern
+## setupServer pattern
 
 ```typescript
 // test-setup.ts
@@ -49,19 +46,16 @@ export const handlers = [
 ];
 ```
 
-## Per-Test Overrides
+## Per-test overrides
 
-Override a handler with `server.use` for one test; `afterEach` restores the defaults.
+Override a handler for one test with `server.use`. The `afterEach` call to `server.resetHandlers()` restores the defaults.
 
 ```typescript
-it('should handle API error', async () => {
+it('shows an error when the API fails', async () => {
   // Override for this test only
   server.use(
     http.get('https://api.example.com/users', () => {
-      return HttpResponse.json(
-        { error: 'Server error' },
-        { status: 500 }
-      );
+      return HttpResponse.json({ error: 'Server error' }, { status: 500 });
     })
   );
 
@@ -73,10 +67,10 @@ it('should handle API error', async () => {
 });
 ```
 
-- Mount the real application code, so the assertion depends on how that code reads `response.ok`. A `fetch` call written inside the test renders the error branch for every response and would still pass against a 200.
-- Match the URL the application actually requests. Here every handler and the application use `https://api.example.com/users`.
-- Prefer absolute URLs in handlers under `msw/node`. A relative path resolves against the current origin, which jsdom supplies but plain Node does not; an absolute URL behaves the same in both.
+- Mount the real application code, so that the assertion depends on how that code reads `response.ok`. A `fetch` call written inside the test renders the error branch for every response and still passes against a 200.
+- Match the URL that the application requests. Here every handler and the application use `https://api.example.com/users`.
+- Prefer absolute URLs in handlers under `msw/node`. A relative path resolves against the current origin, which jsdom supplies and plain Node does not; an absolute URL behaves the same in both.
 
-## When Not to Use MSW
+## When not to use MSW
 
-Use MSW when the test exercises the network boundary. When the component receives its request function by injection, for example `mountOrderForm({ submitOrder })`, pass a mock for that function instead; MSW there would mock a boundary the component does not cross.
+Use MSW when the test exercises the network boundary. When the component receives its request function by injection, for example `mountOrderForm({ submitOrder })`, pass a mock for that function instead. MSW there would stub a boundary that the component does not cross.

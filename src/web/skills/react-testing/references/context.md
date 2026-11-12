@@ -42,6 +42,8 @@ const { result } = renderHook(() => useMyHook(), {
 
 ## Testing Components with Context
 
+When the project already has a custom render helper for its providers, use it. Write one like this only when none exists.
+
 ```tsx
 // ✅ CORRECT - Wrap component in provider
 const renderWithAuth = (ui, { user = null, ...options } = {}) => {

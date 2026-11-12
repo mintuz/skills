@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the tailwind skill description. Not part of the
+# scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- tailwind
+# which refreshes the git-ignored fixture from src/ first. The css skill is a
+# companion so that each case chooses between the two styling skills.
+description: tailwind skill trigger selection
+
+metadata:
+  fixture_skills: [css]
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates for a theme colour in a Tailwind project that the request does not name
+    vars:
+      request: >-
+        Our Vite app's main stylesheet, src/app.css, starts with
+        `@import "tailwindcss";` and declares its colours in an `@theme` block.
+        We need a warning colour in the app. Add it so `bg-warning` and
+        `text-warning` work anywhere in `src/`. Use `oklch(0.75 0.15 75)`.
+    assert:
+      - type: skill-used
+        value: tailwind
+
+  - description: Does not activate for a utility class in a plain CSS site
+    vars:
+      request: >-
+        Our marketing site is plain HTML and CSS with no build step and no
+        framework; src/styles/utilities.css holds single-purpose helper
+        classes. Add a utility class that makes text our brand blue, #0b57d0,
+        and use it on the hero heading in index.html.
+    assert:
+      - type: not-skill-used
+        value: tailwind
