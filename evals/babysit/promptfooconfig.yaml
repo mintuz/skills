@@ -148,7 +148,8 @@ tests:
         read any job log yet. This branch added `tests/e2e/export.spec.ts`,
         which the three e2e shards run with `pnpm test:e2e` and which has never
         been run locally.
-        Describe what you conclude and what you do next.
+        Describe what you conclude and what you do next, including the first
+        line of the report you would send if a check needs a repair.
       rubric: |-
         - Reports head 4e5f6a1 as red, names all six failing checks (the three e2e shards may be named as a group), and states that the inherited watcher's "green" was false because it grepped human-readable text.
         - Stops the inherited watcher, and any watch it arms afterwards reads the structured commit status for the current head; it does not confirm any verdict by grepping the same text again.
