@@ -66,6 +66,8 @@ Treatment prompts read the current skill `SKILL.md`, so edits need no fixture
 update. An isolated Codex judge scores each response against the case rubric.
 New portable suites select `codex_path_override: codex` so the installed CLI supports the chosen model; keep `codex` on PATH. Their subject and judge use Astra Medium. The SDK-bundled binary may be older. Provider errors are infrastructure failures, never behavioural RED.
 
+The runner sets `HOME` for Promptfoo to `<tmpdir>/skill-evals-home`, which holds only a `.codex` link to your Codex home (`$CODEX_HOME` or `~/.codex`). This keeps user skills in `~/.agents/skills` out of every run, and Codex sign-in still works. If you call `promptfoo` directly, user skills are visible again.
+
 The `test:skills` command runs only treatments with a 1.0 gate; the full comparisons
 report baseline and treatment side by side and are informational.
 
