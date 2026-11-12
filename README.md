@@ -242,7 +242,7 @@ Use `how` to explain what the code does now: the execution path and the owner of
 
 ### Combined examples
 
-**Review, fix and ship a PR.** `adam-mode` runs the Review, Implement and Ship playbooks in order. Review and Implement use `yagni` and `reducer`; Ship uses `ship-pr` and `babysit`.
+**Review, fix and ship a PR.** `adam-mode` runs the Review, Implement and Ship playbooks in order. Review and Implement use `yagni` and `reducer`; Ship uses `commit-messages` and `babysit`.
 
 ```text
 /adam-mode Do a deep review of <PR URL>. Look for ways to reduce and flatten complexity. Look for scope creep, features built outside the spec and features deleted without approval. Use /yagni, /reducer, /react, /xstate and /tailwind.
@@ -335,6 +335,7 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 | Skill | Description |
 | --- | --- |
 | [`acceptance-review`](src/core/skills/acceptance-review/SKILL.md) | Verify implementation against an authoritative contract with an explicit verdict |
+| [`babysit`](src/core/skills/babysit/SKILL.md) | Push a committed branch, open its PR, fix red CI and conflicts, and watch it through merge on GitHub, Forgejo or Gitea |
 | [`commit-messages`](src/core/skills/commit-messages/SKILL.md) | Conventional commit messages that explain the "why" not just the "what" |
 | [`yagni`](src/core/skills/yagni/SKILL.md) | Minimum sufficient execution, scope boundaries, TDD, and documentation practices |
 | [`gauntlet-loop`](src/core/skills/gauntlet-loop/SKILL.md) | Improve ambitious artifacts against a concrete bar using separate builders and fresh critics |
@@ -343,7 +344,6 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 | [`pr`](src/core/skills/pr/SKILL.md) | PR descriptions, sizing, and creation with gh CLI |
 | [`pseudocode`](src/core/skills/pseudocode/SKILL.md) | Render module boundaries, signatures, arguments, and a cited call graph for existing or planned code |
 | [`reducer`](src/core/skills/reducer/SKILL.md) | First-principles system simplification with behavioural equivalence proofs |
-| [`ship-pr`](src/core/skills/ship-pr/SKILL.md) | Commit, publish, repair, and monitor a GitHub pull request through merge |
 | [`writing-for-agents`](src/core/skills/writing-for-agents/SKILL.md) | Concise agent handovers and skill instructions that preserve scope, evidence and completion conditions |
 | [`writing-for-humans`](src/core/skills/writing-for-humans/SKILL.md) | Draft, edit and review human prose with contextual word bans, medium-specific voice and factual safeguards |
 | [`wtf`](src/core/skills/wtf/SKILL.md) | Re-explain an unclear response in plain, precise UK English |

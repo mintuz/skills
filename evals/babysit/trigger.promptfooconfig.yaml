@@ -48,6 +48,25 @@ tests:
       - type: skill-used
         value: babysit
 
+  - description: Activates on pushing a committed branch and escorting it to merge
+    vars:
+      request: >-
+        Branch feat/retry has two commits and is not pushed yet. Push it, open
+        the pull request on GitHub, and get it merged once CI is green. I am
+        heading out.
+    assert:
+      - type: skill-used
+        value: babysit
+
+  - description: Does not activate for drafting a PR description only
+    vars:
+      request: >-
+        Draft a reviewer-friendly description for the pull request on branch
+        feat/retry. Do not open the pull request or push anything.
+    assert:
+      - type: not-skill-used
+        value: babysit
+
   - description: Does not activate for watching many PRs as an agent inbox
     vars:
       request: >-
