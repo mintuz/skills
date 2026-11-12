@@ -1,121 +1,99 @@
 ---
 name: frontend-testing
-description: WHEN testing any front-end UI with DOM Testing Library; NOT for end-to-end browser journeys or visual-regression checks; behavior-first queries, userEvent flows, async patterns.
+description: "USE WHEN testing non-React UI (vanilla JavaScript or TypeScript DOM code, a web component, or a Vue, Svelte or Angular component) with DOM Testing Library in Vitest or Jest with jsdom: writing, fixing or reviewing a test, or a request to add an end-to-end journey or a layout check to that suite; NOT WHEN the code or project uses React or React Testing Library (use web:react-testing), for XState actors (web:xstate), or for Playwright, Cypress or screenshot-comparison work in a real browser; covers queries, accessible names, userEvent, async results, network stubs and assertions that pass for the wrong reason, and declines what jsdom cannot prove while offering the part that fits."
 ---
 
-# Front-End Testing with DOM Testing Library
+# Front-end testing with DOM Testing Library
 
-Framework-agnostic DOM Testing Library patterns for behaviour-driven testing. For React-specific patterns (renderHook, context, components), load the `react-testing` skill. For the TDD workflow (RED-GREEN-REFACTOR), load the `tdd` skill.
+Write behaviour-first DOM Testing Library tests for UI built without React. For React components, hooks and providers, load `web:react-testing`. For the TDD workflow, load `tdd`.
 
 ## Scope
 
-This skill covers tests that run against a DOM inside a test runner, such as Vitest or Jest with jsdom.
+This skill covers tests that run against a DOM inside a test runner, such as Vitest or Jest with jsdom. Decline these parts of a request:
 
-Decline these requests and name the correct tool instead of writing the test:
+- **End-to-end and cross-page journeys:** cross-document navigation, redirects, real servers, downloads, extra browser tabs, and real cookie behaviour such as `HttpOnly`, `Secure` and `SameSite`. Reasons: jsdom does not navigate between documents or open real tabs. A real server sets an `HttpOnly` cookie, and page scripts cannot read it, so `document.cookie` in jsdom cannot prove it. Exception: jsdom holds a URL and a cookie jar, so a client-side URL or `document.cookie` check inside one document is in scope.
+- **Visual appearance:** computed layout, real fonts, screenshots and visual-regression diffs. Reason: jsdom does not lay out or paint, so it cannot report a size, a position or a rendered colour.
 
-- **End-to-end and cross-page journeys.** Cross-document navigation, redirects, real servers, downloads, extra browser tabs, and real cookie behaviour such as `HttpOnly`, `Secure`, and `SameSite` need Playwright or Cypress. jsdom does not navigate between documents, so a jsdom version of such a journey proves nothing. jsdom does hold a URL and a cookie jar, so a client-side URL or `document.cookie` check inside one document is still fair game.
-- **Visual appearance.** Computed layout, real fonts, screenshots, and visual-regression diffs need a real browser. jsdom does not lay out or paint, so it cannot report a size, a position, or a rendered colour.
+To decline (`principle-state-the-scope`):
 
-State the boundary, name the replacement tool, and offer the part of the request that fits in the DOM, if any (`principle-state-the-scope`).
+1. For each declined part, write its reason from the list above. A named replacement tool is not a reason.
+2. Name the replacement: Playwright or Cypress for a journey; a screenshot or visual-regression comparison in a real browser for appearance.
+3. Offer the part of the request that fits in the DOM, if any.
 
-`@testing-library/dom` exports no `render`; mount the markup yourself. When a framework wrapper supplies `render`, this skill still governs the queries and the interactions; load `react-testing` for the React-specific parts.
+Do not offer a jsdom test that fakes the navigation, the server or the rendering as an equivalent.
 
-## Core Philosophy
+`@testing-library/dom` exports no `render`. Mount the markup yourself. When a framework wrapper such as `@testing-library/vue` supplies `render`, mount through it; this skill still governs the queries and the interactions.
 
-**Test behaviour users see, not implementation details.** Implementation-coupled tests break on refactor, a false negative; shallow tests pass while bugs exist, a false positive (`principle-test-behavior-not-implementation`).
+## Use the project's test libraries
 
-The UI has two users: **end-users**, who interact through the DOM (clicks, typing, reading text), and **developers**, who refactor the implementation. Kent C. Dodds: "The more your tests resemble the way your software is used, the more confidence they can give you."
+Use the runner, matchers, network stub and helpers the project already has. Do not add a testing dependency or a lint plugin unasked (`principle-reuse-before-building`).
 
-```typescript
-// ❌ WRONG - Testing implementation (will break on refactor)
-it("should update internal state", () => {
-  const component = new CounterComponent();
-  component.setState({ count: 5 }); // Coupled to state implementation
-  expect(component.state.count).toBe(5);
-});
-```
+- **Interactions:** Use `userEvent` from `@testing-library/user-event`, created with `userEvent.setup()` in each test. Use `fireEvent` only for an event that `userEvent` does not support, or when the project shows that `user-event` is not installed. In the second case, say that `user-event` would model the interaction more closely.
+- **Matchers:** Use jest-dom matchers such as `toBeInTheDocument()` and `toBeDisabled()`. Only when the project shows that its setup does not register jest-dom, assert absence with `toBeNull()`, text with `textContent`, and state with the element's own property, such as `disabled`.
+- **Network:** Use the project's existing stub: its MSW `server` and handlers, otherwise its own stub helper. Override an MSW handler for one test with `server.use(...)`. When the project has an MSW server, do not add a `fetch` or `axios` spy. When the code receives its request function by injection, pass a mock for that function.
+- **Lint:** When `eslint-plugin-testing-library` and `eslint-plugin-jest-dom` are missing, recommend them. Install them only when asked.
 
-Mount the component under test and let it own its markup and event wiring. A test that writes its own listener and then asserts that listener ran proves nothing about the component:
+## Test behaviour, not implementation
 
-```typescript
-// ✅ CORRECT - Testing user-visible behavior
-it("should submit form when user clicks submit", async () => {
-  const onSubmit = vi.fn();
-  const user = userEvent.setup();
+Test what users see and do through the DOM: clicks, typing and visible text (`principle-test-behavior-not-implementation`). For each assertion, ask which plausible wrong implementation would still pass. Write the assertion that fails on it.
 
-  // mountLoginForm owns the markup and the event wiring under test
-  mountLoginForm({ onSubmit });
+Mount the real component under test. Let it own its markup and event wiring. Do not read or set its internal state. Do not write your own listener and then assert that it ran. Return a runnable test that imports the code under test. When the task does not give the module path, import from an assumed path beside the test file and say that the path is assumed.
 
-  await user.type(screen.getByLabelText(/email/i), "test@example.com");
-  await user.click(screen.getByRole("button", { name: /submit/i }));
+## Queries and interactions
 
-  expect(onSubmit).toHaveBeenCalledTimes(1);
-  expect(onSubmit).toHaveBeenCalledWith({ email: "test@example.com" });
-});
-```
+- Choose the variant by timing: `getBy*` for state already present, `findBy*` for state that appears later, `queryBy*` for absence.
+- Query through `screen`. Use `within(element)` to scope a query to one region. Do not bind queries to a container, for example with `getQueriesForElement`. Do not use a CSS class selector when an accessible query reaches the element.
+- Re-query an element by its new role or accessible name when you must prove it is discoverable under that identity, or when the update can replace the node. An existing reference stays valid when the same node is reused.
+- Interact once, outside `waitFor` and every other retrying callback. Put only assertions inside a retrying callback.
+- Wait for an observable state with `findBy*` or `waitFor`. Do not put a fixed delay in place of that wait, such as `setTimeout`, a sleep promise or a fake-timer advance.
+- Reset markup that you mounted into `document.body` yourself between tests, for example with `document.body.innerHTML = ''` in `afterEach`. Do not call `cleanup()` in a test file.
 
-## Guides
+## Accessible names come from the markup
 
-| Guide | Load for |
-| --- | --- |
-| [queries.md](references/queries.md) | Query priority order (getByRole → getByLabelText → ...), variant choice (getBy vs queryBy vs findBy), common query mistakes |
-| [user-events.md](references/user-events.md) | userEvent vs fireEvent, the `userEvent.setup()` pattern, clicking, typing, keyboard |
-| [async-testing.md](references/async-testing.md) | findBy, waitFor, waitForElementToBeRemoved; loading states, API responses, debounced inputs |
-| [msw.md](references/msw.md) | Network-level API mocking, setupServer, per-test handler overrides |
-| [anti-patterns.md](references/anti-patterns.md) | Every common mistake and its fix, ESLint plugin setup |
-| [accessibility-first-testing.md](references/accessibility-first-testing.md) | Why accessible queries help, ARIA vs semantic HTML, semantic HTML priority |
-
-## Accessible Names Come From the Markup
-
-A role query's `name` option matches the element's accessible name, not its text.
-
-Some roles take their name from the author, not their content: `status`, `alert`, `region`, `dialog`, `navigation`, and `form` among them. Their visible text is never their accessible name. Without `aria-label` or `aria-labelledby` in the markup they have no name, and `{ name: /order placed/i }` finds nothing.
-
-Find such a region by role alone, then assert its text:
+A role query's `name` option matches the accessible name, not the text. These roles take a name only from `aria-label` or `aria-labelledby`, never from their content: `status`, `alert`, `region`, `dialog`, `navigation` and `form`. Without those attributes they have no name, and `{ name: /order placed/i }` finds nothing. Find such an element by role alone, then assert its text:
 
 ```typescript
 const status = await screen.findByRole("status");
 expect(status).toHaveTextContent(/order placed/i);
 ```
 
-Use `{ name }` for roles named by their content, such as `button`, `link`, `heading`, and `option`.
+Use this form only when the role first appears in its terminal state. When an earlier state uses the same role, such as a pending `status`, `findByRole` returns that earlier element at once. Then retry on the terminal text:
 
-## When No Accessible Query Fits
+```typescript
+await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(/order placed/i));
+```
 
-Work down the priority order in [queries.md](references/queries.md). When an element exposes no role, label, text, alt text, or title:
+Use `{ name }` for roles named by their content, such as `button`, `link`, `heading` and `option`. `<input type="password">` has no ARIA role, so `getByRole('textbox')` does not find it. Find it with `getByLabelText`.
+
+## When no accessible query fits
+
+Work down the priority order in [queries.md](references/queries.md). When an element exposes no role, label, text, alt text or title:
 
 1. Name the queries you tried and say why each fails on the supplied markup.
-2. Fix the markup when you own it. Prefer semantic HTML, then a `<label>`, then an ARIA attribute.
-3. Use `getByTestId` when you cannot change the markup, for example a third-party widget. Record the reason in a comment beside the query.
-4. Read raw attributes and descendants with plain DOM access on the element you already hold, such as `element.querySelector('canvas')` and `getAttribute('data-render-count')`. `screen` has no attribute query; no `screen.getByAttribute` exists. `queryHelpers` and `buildQueries` can build one, worth the effort only for a pattern repeated across many tests.
+2. When you own the markup, fix it. Prefer semantic HTML, then a `<label>`, then an ARIA attribute.
+3. When you cannot change the markup, for example a third-party widget, use `getByTestId`. Record the reason in a comment beside the query.
+4. Read raw attributes and descendants with plain DOM access on the element you already hold, such as `element.querySelector('canvas')` and `getAttribute('data-render-count')`. `screen` has no attribute query; `screen.getByAttribute` does not exist. `queryHelpers` and `buildQueries` can build one; do this only for a pattern repeated across many tests.
 
-Never assume a role, label, or accessible name the supplied markup lacks: an invented accessible name produces a test that fails on the real component. Never invent a query name either: the built-in queries on `screen` are the eight `*By*` families in [queries.md](references/queries.md), each with its `get`, `query`, `find`, and `All` forms.
+Never assume a role, label or accessible name that the supplied markup lacks; the test then fails on the real component. Never invent a query name. The built-in queries on `screen` are the eight `*By*` families in [queries.md](references/queries.md), each with its `get`, `query`, `find` and `All` forms.
 
-## Prove the Whole Rule
+## Prove the whole rule
 
 A test proves a rule only when it observes both sides of that rule.
 
-- **Call counts.** Assert `toHaveBeenCalledTimes(n)`. `toHaveBeenCalledWith(...)` proves one call's arguments, not how many calls happened.
-- **Conditional enablement.** Assert the control is disabled while its condition is unmet, and enabled once it is met.
-- **Repeated interactions.** Assert the full state cycle for every repetition. A rising call count does not prove the second attempt reached the same pending and terminal states.
-- **Absence.** Anchor each absence assertion to a state that can only exist after the async work finished. An absence assertion straight after an interaction is anchored to nothing: it may run before the component could react, so it passes whether the component is correct or broken. Assert absence with `queryBy*`, which returns null for no match. It still throws when several elements match, so use `queryAllBy*` and assert an empty array when duplicates are possible. `waitForElementToBeRemoved` throws when the element is already gone at call time, so reserve it for a removal that has not happened yet.
+- **Call counts:** Assert `toHaveBeenCalledTimes(n)`. `toHaveBeenCalledWith(...)` proves the arguments of one call, not how many calls happened.
+- **Conditional enablement:** Assert that the control is disabled while its condition is unmet, and enabled once the condition is met.
+- **Repeated interactions:** Assert the full state cycle for every repetition. A rising call count does not prove that the second attempt reached the same pending and terminal states.
+- **Absence:** First await a state that exists only after the async work finished, such as the success text. Then assert absence. An absence assertion straight after an interaction can run before the component reacts, so it passes whether the component is correct or broken. Assert absence with `queryBy*`, which returns null when nothing matches; never with a throwing `getBy*` inside `expect(...).toThrow()`. `queryBy*` still throws when several elements match. Only when the supplied markup can render several matches, use `queryAllBy*` and assert an empty array. `waitForElementToBeRemoved` throws when the element is already gone at call time; use it only for a removal that has not happened yet.
 
-## Summary Checklist
+## References
 
-Before merging UI tests, verify:
+Read a reference when the task needs its detail:
 
-- [ ] Query variant chosen by timing: `getBy*` for state already present, `findBy*` for state that appears later, `queryBy*` for absence
-- [ ] Role query constrained by `name` only when that role has an accessible name; otherwise visible text asserted separately
-- [ ] Element re-queried by its new role or accessible name when you must prove it is discoverable under that identity, or when the update may replace the node; an existing reference stays valid when the same node is reused
-- [ ] Every absence assertion anchored to an observable state proving the async work finished
-- [ ] `userEvent` with `setup()`; `fireEvent` only for an event `userEvent` does not support
-- [ ] `screen` by default, `within(element)` to scope a query to one region; no queries bound to a container variable
-- [ ] Interactions and other side effects outside `waitFor` and every other retrying callback
-- [ ] Call counts asserted with `toHaveBeenCalledTimes`, not `toHaveBeenCalledWith` alone
-- [ ] `jest-dom` matchers (`toBeInTheDocument`, `toBeDisabled`, etc.)
-- [ ] User-visible behaviour tested, not implementation details
-- [ ] ESLint plugins installed (`eslint-plugin-testing-library`, `eslint-plugin-jest-dom`)
-- [ ] Markup you mounted into `document.body` yourself is reset; no manual `cleanup()` call
-- [ ] MSW when the test crosses the network boundary (not `fetch` or `axios` spies); a mock for the injected function when the component receives its request function by injection
-- [ ] TDD workflow followed (see `tdd` skill)
-- [ ] Framework-specific patterns (React hooks, context, components): see `react-testing` skill
+| Reference | Read for |
+| --- | --- |
+| [queries.md](references/queries.md) | Query priority, variants, query mistakes |
+| [user-events.md](references/user-events.md) | `userEvent` against `fireEvent`, `userEvent.setup()`, clicking, typing, keyboard, fake timers |
+| [async-testing.md](references/async-testing.md) | `findBy*`, `waitFor`, `waitForElementToBeRemoved`; loading states, API responses, debounced inputs |
+| [msw.md](references/msw.md) | MSW `setupServer`, per-test handler overrides |
+| [anti-patterns.md](references/anti-patterns.md) | Mistakes and fixes, cleanup, ESLint plugin configuration |
+| [accessibility-first-testing.md](references/accessibility-first-testing.md) | ARIA against semantic HTML |

@@ -1,88 +1,61 @@
-# Query Selection
+# Query selection
 
-## Priority Order
+## Priority order
 
-Use queries in this order (accessibility-first):
+Use the first query in this list that reaches the element:
 
-1. **`getByRole`** - highest priority. Matches ARIA role + accessible name, mirrors the screen reader experience, forces semantic HTML.
-2. **`getByLabelText`** - form fields. Finds inputs by their associated `<label>`; ensures accessible forms.
-3. **`getByPlaceholderText`** - input fallback, only when no label is present. A placeholder shouldn't replace a label.
-4. **`getByText`** - content with no useful role: paragraphs, spans, and plain `div` content users read. Use `getByRole` instead when a role identifies the element, such as `heading`, `listitem`, or `cell`.
-5. **`getByDisplayValue`** - current form values, such as pre-filled inputs.
-6. **`getByAltText`** - images; ensures accessible images.
-7. **`getByTitle`** - SVG titles, `title` attributes. Rare, when other queries are unavailable.
-8. **`getByTestId`** - last resort, when no other query works. Not user-facing.
+1. **`getByRole`:** ARIA role and accessible name, as a screen reader finds them. Needs semantic markup.
+2. **`getByLabelText`:** a form field, through its associated `<label>`.
+3. **`getByPlaceholderText`:** an input with no label. A placeholder does not replace a label.
+4. **`getByText`:** content with no useful role, such as paragraphs, spans and plain `div` text. When a role identifies the element, such as `heading`, `listitem` or `cell`, use `getByRole`.
+5. **`getByDisplayValue`:** a current form value, such as a pre-filled input.
+6. **`getByAltText`:** an image.
+7. **`getByTitle`:** an SVG title or a `title` attribute.
+8. **`getByTestId`:** last resort. Users cannot see a test id.
 
-## Query Variants
+## Query variants
 
-Every query name combines a variant with a cardinality. The variants are `getBy*`, `queryBy*`, and `findBy*`. Each has an all-elements form (`getAllBy*`, `queryAllBy*`, `findAllBy*`) that returns an array and, except for `queryAllBy*`, throws when nothing matches.
+Each query name combines a variant with a cardinality. The variants are `getBy*`, `queryBy*` and `findBy*`. Each has an all-elements form (`getAllBy*`, `queryAllBy*`, `findAllBy*`) that returns an array. All forms except `queryAllBy*` throw when nothing matches.
 
-**`getBy*`** - element must exist (throws if not found)
+- **`getBy*`:** the element must exist; throws when not found.
+- **`queryBy*`:** returns null when not found. Use it to assert absence.
+- **`findBy*`:** async; waits for the element to appear.
+
 ```typescript
-// ✅ Use when asserting element EXISTS
-const button = screen.getByRole('button', { name: /submit/i });
-expect(button).toBeDisabled();
-```
-
-**`queryBy*`** - returns null if not found
-```typescript
-// ✅ Use when asserting element DOESN'T exist
-expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-// ❌ WRONG - getBy throws, can't assert non-existence
-expect(() => screen.getByRole('dialog')).toThrow(); // Ugly!
-```
-
-**`findBy*`** - async, waits for the element to appear
-```typescript
-// ✅ Use when element appears after async operation
+expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
 const message = await screen.findByText(/success/i);
+
+// ✅ Absence
+expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+// ❌ getBy throws, so it cannot express absence cleanly
+expect(() => screen.getByRole('dialog')).toThrow();
 ```
 
-## Common Mistakes
+## Common mistakes
 
-❌ **`container.querySelector` where a role query works**
+**CSS selector where an accessible query works.** A class name is an implementation detail. A selector is wrong only when a user-facing query reaches the same element; otherwise follow "When no accessible query fits" in `SKILL.md`.
+
 ```typescript
-const button = container.querySelector('.submit-button'); // DOM implementation detail
+// ❌
+const button = container.querySelector('.submit-button');
+// ✅
+const button = screen.getByRole('button', { name: /submit/i });
 ```
 
-✅ **Query by accessible role**
+**`getByTestId` where a role is available.**
+
 ```typescript
-const button = screen.getByRole('button', { name: /submit/i }); // User-facing
+// ❌
+screen.getByTestId('submit-button');
+// ✅
+screen.getByRole('button', { name: /submit/i });
 ```
 
----
+**No accessible name on a role named by its content.** Several buttons can be on the page, so add `{ name }` to a `button`, `link`, `heading` or `option` query. A `status`, `alert`, `region`, `dialog`, `navigation` or `form` takes its name only from `aria-label` or `aria-labelledby`; see "Accessible names come from the markup" in `SKILL.md`.
 
-❌ **`getByTestId` when a role is available**
 ```typescript
-screen.getByTestId('submit-button'); // Not how users find button
-```
-
-✅ **Query by role**
-```typescript
-screen.getByRole('button', { name: /submit/i }); // How screen readers find it
-```
-
----
-
-❌ **Role query without an accessible name**
-```typescript
-screen.getByRole('button'); // Which button? Multiple on page!
-```
-
-✅ **Specify the accessible name**
-```typescript
-screen.getByRole('button', { name: /submit/i }); // Specific button
-```
-
----
-
-❌ **`getBy` to assert non-existence**
-```typescript
-expect(() => screen.getByText(/error/i)).toThrow(); // Awkward
-```
-
-✅ **Use `queryBy`**
-```typescript
-expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
+// ❌
+screen.getByRole('button');
+// ✅
+screen.getByRole('button', { name: /submit/i });
 ```

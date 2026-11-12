@@ -1,109 +1,51 @@
-# CSS Architectural Patterns and Code Examples
+# Patterns
 
-## Core Architectural Patterns
+## One job per class
 
-### Single Responsibility Principle (SRP)
+Keep structure (box, spacing, layout) and cosmetics (colour, theme) in separate classes.
 
 ```css
-/* Bad - multiple responsibilities */
+/* Wrong: one class owns the box and the theme */
 .promo {
-  padding: 20px;
-  background: blue;
-  color: white;
+  padding: var(--space-lg);
+  background-color: var(--colour-brand);
 }
 
-/* Good - separated concerns */
+/* Right */
 .box {
-  padding: 20px;
+  padding: var(--space-lg);
 }
 .theme-primary {
-  background: blue;
-  color: white;
+  background-color: var(--colour-brand);
 }
 ```
 
-**Benefits:**
+## Extend with a modifier
 
-- Maintainability: changing one responsibility leaves the others untouched
-- Reusability: classes recombine across contexts
-- DRYer code: one edit to a base abstraction reaches every use
+If one context needs a variant, add a modifier class (`.btn--large`, `.btn--primary`). Do not
+change the base class for that context. Keep base classes small. If a base class does not fit a
+context, stop using it there. Fix a defect in the base class itself in the base class.
 
-### Open/Closed Principle
+## Prefixes
 
-```css
-/* Base abstraction - don't modify */
-.btn {
-  padding: 10px 20px;
-}
+| Prefix | Kind | Rule |
+| --- | --- | --- |
+| `o-` | object: a layout pattern | treat as a constant once written |
+| `u-` | utility: one declaration, one purpose | treat as a constant; its declarations are `!important` |
+| `_` | hack: a temporary fix | do not reuse; record what removes it |
 
-/* Extend with new classes */
-.btn--large {
-  padding: 15px 30px;
-}
-.btn--primary {
-  background: blue;
-}
-```
+A class whose look changes with state (a skip link, a disclosure) is a component, not a `u-`
+utility.
 
-- Keep base objects simple and minimal.
-- If an abstraction doesn't fit, stop using it rather than modifying it.
+## Hiding content
 
-### Immutable CSS
+Ask: does the hidden content ever receive focus or become visible?
 
-Treat these classes as constants:
-
-| Prefix | Type      | Purpose                       |
-| ------ | --------- | ----------------------------- |
-| `o-`   | Objects   | Foundational layout patterns  |
-| `u-`   | Utilities | Single-purpose declarations   |
-| `_`    | Hacks     | Temporary, non-reusable fixes |
+**Never.** Use the screen-reader utility. It is immutable, so its declarations are `!important`.
+Never put it on an element that can receive focus: a `:focus` rule could beat it only with its own
+`!important` and enough specificity or later source order, a second contest.
 
 ```css
-/* Immutable utility - use !important proactively */
-.u-hidden {
-  display: none !important;
-}
-.u-text-center {
-  text-align: center !important;
-}
-```
-
-## Common Patterns
-
-### Component Without Margin
-
-```css
-/* Component definition - no margin */
-.card {
-  padding: 1rem;
-  border: 1px solid #ccc;
-  /* No margin here */
-}
-
-/* Parent controls spacing */
-.card-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-/* Or single-direction flow */
-.card-stack > * + * {
-  margin-top: 1rem;
-}
-```
-
-### Utility Classes with !important
-
-```css
-/* Utilities must override everything */
-.u-hidden {
-  display: none !important;
-}
-
-/* Permanently hidden text for screen readers. Never apply this class to an
-   element that receives focus: a :focus rule could win only with its own
-   !important and enough cascade precedence (specificity or later source
-   order), a second important-declaration contest. */
 .u-sr-only {
   position: absolute !important;
   width: 1px !important;
@@ -117,12 +59,10 @@ Treat these classes as constants:
 }
 ```
 
-### Focusable Visually Hidden Control (Stateful)
-
-A skip link or similar control stays hidden until it receives focus.
+**Yes, on focus.** Use a stateful component, such as this skip link:
 
 ```css
-.u-skip-link {
+.skip-link {
   position: absolute;
   inline-size: 1px;
   block-size: 1px;
@@ -133,76 +73,52 @@ A skip link or similar control stays hidden until it receives focus.
   white-space: nowrap;
 }
 
-.u-skip-link:focus-visible {
+.skip-link:focus-visible {
   box-sizing: border-box; /* max-inline-size includes the padding */
   position: fixed;
-  inset-block-start: 1rem;
-  inset-inline-start: 1rem;
+  inset-block-start: var(--space-md);
+  inset-inline-start: var(--space-md);
   z-index: 1000;
   inline-size: auto;
   block-size: auto;
-  max-inline-size: calc(100vw - 2rem); /* Fits a 320 CSS px viewport at 400% zoom */
-  padding: 0.75rem 1rem;
+  max-inline-size: calc(100vw - 2 * var(--space-md)); /* fits a 320 CSS px viewport at 400% zoom */
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
   margin: 0;
   overflow: visible;
   clip-path: none;
   white-space: normal;
-  color: #fff;
   background-color: #1a1a1a;
+  color: #ffffff;
+  font-size: var(--text-base);
   outline: 3px solid #ffbf47;
   outline-offset: 2px;
 }
 
 @media (forced-colors: active) {
-  .u-skip-link:focus-visible {
-    color: LinkText;
+  .skip-link:focus-visible {
     background-color: Canvas;
+    color: LinkText;
     outline-color: Highlight;
   }
 }
 ```
 
-**Rules:**
+- `display: none`, `visibility: hidden` and `font-size: 0` remove it from the accessibility tree
+  or the tab order. Off-screen coordinates (`top: -40px`, `left: -9999px`, `translateY(-100%)`)
+  can put the focused control outside a zoomed or narrow viewport.
+- Forced-colours mode removes `box-shadow` and replaces author colours. Use an `outline` or a
+  border for the focus indicator. Name system colours (`Canvas`, `CanvasText`, `LinkText`,
+  `Highlight`) in the `@media (forced-colors: active)` rule.
+- Use `rem` or the scale for its text and padding, so it grows with the reader's text size.
 
-- Do not hide with `display: none`, `visibility: hidden`, `font-size: 0`, or off-screen coordinates: these remove the control from the accessibility tree or the visible viewport.
-- Forced-colors mode also replaces author colours; an `outline` or a border survives it. Name system colours (`Canvas`, `CanvasText`, `LinkText`, `Highlight`) in a `@media (forced-colors: active)` rule.
-- Use `rem` for text and padding so the control scales with user font preferences.
+## Contrast
 
-### Self-Chaining for Specificity
+Text needs a contrast ratio of at least 4.5:1 against its background, or 3:1 for large text (24px,
+or 18.66px bold). A control's boundary and a focus indicator need 3:1 against
+what is next to them (WCAG 2.2, success criteria 1.4.3 and 1.4.11). State the pairs you checked.
 
-```css
-/* Need to override without !important */
-.btn {
-  color: blue;
-}
+## Semantic HTML first
 
-/* Double specificity without changing markup */
-.btn.btn {
-  color: red;
-} /* (0,2,0) beats (0,1,0) */
-```
-
-### CSS Custom Properties for Scales
-
-```css
-:root {
-  /* Spacing scale */
-  --space-xs: 0.25rem; /* 4px */
-  --space-sm: 0.5rem; /* 8px */
-  --space-md: 1rem; /* 16px */
-  --space-lg: 1.5rem; /* 24px */
-  --space-xl: 2rem; /* 32px */
-
-  /* Font sizes */
-  --text-xs: 0.75rem; /* 12px */
-  --text-sm: 0.875rem; /* 14px */
-  --text-base: 1rem; /* 16px */
-  --text-lg: 1.125rem; /* 18px */
-  --text-xl: 1.25rem; /* 20px */
-}
-
-.component {
-  padding: var(--space-md);
-  font-size: var(--text-base);
-}
-```
+Style the native element (`button`, `a`, `details`, `dialog`, `label`) before you add an ARIA role
+to a `div` and style that.

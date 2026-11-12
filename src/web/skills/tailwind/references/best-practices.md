@@ -1,76 +1,55 @@
-# Best Practices
+# Best practices
 
-## Do's ✓
+For literal class names, variants, focus indicators and refs, follow [SKILL.md](../SKILL.md). For CSS-variable theming, see [setup.md](setup.md).
 
-### Use CSS Variables for Theming
-Runtime theme changes without rebuilding.
+## Semantic colours
 
-Tailwind 3, in `tailwind.config.*`:
+Name colours by purpose, not appearance:
+
 ```typescript
-colors: {
-  primary: "hsl(var(--primary))",
-}
-```
-
-Tailwind 4, in CSS:
-```css
-@theme inline {
-  --color-primary: var(--app-primary);
-}
-```
-
-### Compose Variants with a Literal Map or CVA
-Choose per [Component Variants](../SKILL.md#component-variants):
-```typescript
-const buttonVariants = cva("base-styles", {
-  variants: { size: { sm: "...", lg: "..." } }
-})
-```
-
-### Use Semantic Colors
-Name by purpose, not appearance:
-```typescript
-// Good: semantic naming
-<Button variant="primary">Submit</Button>
+// Correct: semantic token
 <Text className="text-destructive">Error message</Text>
+<div className="bg-primary text-primary-foreground">
 
-// Bad: color-based naming
-<Button className="bg-blue-500">Submit</Button>
+// Incorrect: appearance-based colour
 <Text className="text-red-500">Error message</Text>
+<div className="bg-blue-500 text-white">
 ```
 
-### Forward Refs
-For component composition:
+## Dark mode
+
+Use tokens that adapt to the theme. Test both themes during development.
+
 ```typescript
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => <button ref={ref} {...props} />
-)
+// Incorrect: works only in light mode
+<div className="bg-white text-black">
+
+// Correct: adapts to the theme
+<div className="bg-background text-foreground">
 ```
 
-### Include Accessibility
-Use the native element first: a `<button>`, an `<a href>`, or an `<input>` with a `<label>` already carries its role, keyboard behaviour and accessible name. Add ARIA only when native semantics cannot express the need, such as an icon-only button with no visible text. Always give interactive elements a visible focus state:
-```typescript
-// Visible text names the button: no ARIA needed
-<button className="focus-visible:ring-2 focus-visible:ring-ring">Save</button>
+## Accessible names
 
-// Icon-only button: no visible text, so name it with aria-label
+Use the native element first. A `<button>`, an `<a href>`, or an `<input>` with a `<label>` already has its role, keyboard behaviour and accessible name. Add ARIA only when native semantics cannot express the need, such as an icon-only button with no visible text:
+
+```typescript
 <button
   aria-label="Close dialog"
-  className="focus-visible:ring-2 focus-visible:ring-ring"
+  className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 >
   <XIcon aria-hidden="true" />
 </button>
 ```
 
-## Don'ts ✗
+## Arbitrary values
 
-### Don't Use Arbitrary Values Frequently
-Extend the theme instead:
+Do not use arbitrary values often. Extend the theme instead.
+
 ```typescript
-// Bad
+// Incorrect
 <div className="w-[347px]">
 
-// Good - Tailwind 3, extend the theme in tailwind.config.*
+// Correct in Tailwind 3: extend the theme in tailwind.config.*
 theme: {
   extend: {
     width: { sidebar: '347px' }
@@ -78,88 +57,46 @@ theme: {
 }
 <div className="w-sidebar">
 ```
+
 ```css
-/* Good - Tailwind 4, declare the token in the namespace that owns the
+/* Correct in Tailwind 4: declare the token in the namespace that owns the
    utility. Sizing utilities such as w-*, p-* and gap-* come from --spacing-*. */
 @theme {
   --spacing-sidebar: 347px;
 }
 ```
 
-### Don't Nest @apply
-Hurts readability and defeats Tailwind's purpose:
+## `@apply`
+
+Do not nest `@apply`. Put the utilities in the markup:
+
 ```css
-/* Bad */
+/* Incorrect */
 .button {
   @apply px-4 py-2;
   @apply rounded-md;
 }
 
-/* Good - use utilities directly in JSX */
+/* Correct */
 <button className="px-4 py-2 rounded-md">
 ```
 
-### Don't Build Class Names Dynamically
-See [Literal Class Names](../SKILL.md#literal-class-names):
+## Responsive design
+
+Write mobile-first. The unprefixed class is the mobile default. Add larger breakpoints after it:
+
 ```typescript
-// Bad - `bg-emerald-600` is never generated
-<button className={`bg-${color}-600`}>
-
-// Good - the full name is literal in the source
-const tone = { success: 'bg-emerald-600', warning: 'bg-amber-600' } as const
-<button className={tone[t]}>
-```
-
-### Don't Skip Focus States
-Keyboard navigation requires visible focus:
-```typescript
-// Bad
-<button className="outline-none">
-
-// Good
-<button className="focus-visible:ring-2 focus-visible:ring-ring">
-```
-
-### Don't Hardcode Colors
-Use semantic tokens from theme:
-```typescript
-// Bad
-<div className="bg-blue-500 text-white">
-
-// Good
-<div className="bg-primary text-primary-foreground">
-```
-
-### Don't Forget Dark Mode
-Test both themes during development:
-```typescript
-// Bad - only works in light mode
-<div className="bg-white text-black">
-
-// Good - adapts to theme
-<div className="bg-background text-foreground">
-```
-
-## Additional Guidelines
-
-### Component Organization
-```
-Base styles → Variants → Sizes → States → Overrides
-```
-
-### Responsive Design
-Mobile-first approach:
-```typescript
-// Mobile default, then tablet, then desktop
 <div className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
 ```
 
-### Animation Performance
-Prefer transform and opacity:
+## Animation performance
+
+Animate `transform` and `opacity`. Avoid transitions that change layout.
+
 ```typescript
-// Good - GPU accelerated
+// Correct: compositor-only
 <div className="transition-transform hover:scale-105">
 
-// Avoid - causes reflow
+// Avoid: causes reflow
 <div className="transition-all hover:w-full">
 ```

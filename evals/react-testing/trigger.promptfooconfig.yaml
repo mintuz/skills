@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check for the react-testing skill description. Not part of
+# the scripted suite. Run it from the repo root with:
+#   pnpm test:skills:triggers -- react-testing
+# which refreshes the git-ignored fixture from src/ first.
+# A symlink does not work as the fixture: Codex resolves it to the source path,
+# which the skill-used heuristic does not recognise.
+description: react-testing skill trigger selection
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a test of a component's click behaviour
+    vars:
+      request: >-
+        Write a test for `src/faq/faq-item.tsx` that checks the answer shows up
+        after someone clicks the question. Tell me what the test would look
+        like.
+    assert:
+      - type: skill-used
+        value: react-testing
+
+  - description: Activates on an end-to-end journey requested inside the Vitest suite
+    vars:
+      request: >-
+        Our product manager wants one test in our Vitest and React Testing
+        Library suite that covers the whole paid signup: create an account
+        against the staging API, get the real confirmation email, go through
+        the payment provider's hosted checkout and come back, then see the
+        first invoice on the billing page. How would you handle this?
+    assert:
+      - type: skill-used
+        value: react-testing
+
+  - description: Does not activate for a Playwright end-to-end test
+    vars:
+      request: >-
+        Write a Playwright test for the signup page: fill in the form from
+        `src/signup/signup-form.tsx`, create the account and check the browser
+        lands on the payment provider's hosted checkout. Tell me what the test
+        would look like.
+    assert:
+      - type: not-skill-used
+        value: react-testing

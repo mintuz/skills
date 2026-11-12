@@ -103,6 +103,9 @@ tests:
         resolves the component replaces that text with a list item for every
         task whose status matches the `filter` prop.
 
+        The project has `@testing-library/user-event` installed and its test
+        setup registers the jest-dom matchers.
+
         Prove that the rendered list shows `Ship release` and does not show
         `Write spec` or `Book venue`. Return the complete test and a short
         rationale. In the rationale, say what a careless version of this test
@@ -126,6 +129,9 @@ tests:
         renders the answer text, and adds the class `faq-item--open` to its
         root `<div>`, which also carries `data-testid="faq-item"`. The click
         handler is an internal function named `handleToggle`.
+
+        The project has `@testing-library/user-event` installed and its test
+        setup registers the jest-dom matchers.
 
         Prove that a click expands the item. Return the complete test and a
         short rationale; do not change the component.
@@ -165,6 +171,9 @@ tests:
         labelled `Send invite`. On submit it calls `onInvite(email)` with the
         current input value and awaits the returned promise.
 
+        The project has `@testing-library/user-event` installed and its test
+        setup registers the jest-dom matchers.
+
         The acceptance criterion reads: "shows an error when the invite
         fails".
 
@@ -177,3 +186,124 @@ tests:
         - Types and clicks with `userEvent` after `userEvent.setup()`, awaiting each interaction, and awaits the assertion on the async submit where needed.
         - Does not assert an invented error string, role, or test id as though the packet supplied it; any failure-path code is clearly marked as pending the missing answers.
         - Does not claim to have read the component source, the repository, or the existing test suite.
+
+  - description: Rework brittle tests in a project that keeps Vitest globals off
+    vars:
+      skill: file://../../src/web/skills/react-testing/SKILL.md
+      scenario: |-
+        Two test files break whenever someone restyles or renames something
+        inside the components. Rework them so they break only when what the
+        shopper sees changes. Leave the components and `vitest.config.ts` as
+        they are.
+
+        `vitest.config.ts` sets `environment: 'jsdom'`, `globals: false` and
+        `setupFiles: ['src/test/setup.ts']`. `src/test/setup.ts` contains one
+        line: `import '@testing-library/jest-dom/vitest';`.
+        `@testing-library/user-event` is installed.
+
+        `<FaqItem question answer />` renders a root `<div>` with
+        `data-testid="faq-item"` and a `<button>` whose text is the question
+        and whose `aria-expanded` starts as `"false"`. The answer text is
+        absent from the DOM until the button is clicked. A click sets
+        `aria-expanded` to `"true"`, renders the answer and adds the class
+        `faq-item--open` to the root. A second click closes it again. The
+        click handler is an internal function named `handleToggle`.
+
+        `src/faq/faq-item.test.tsx` today:
+
+        ```tsx
+        import { act, cleanup, render, screen } from '@testing-library/react';
+        import userEvent from '@testing-library/user-event';
+        import { afterEach, beforeEach, expect, it } from 'vitest';
+        import { FaqItem } from './faq-item';
+
+        afterEach(() => {
+          cleanup();
+        });
+
+        beforeEach(() => {
+          render(<FaqItem question="Do you offer refunds?" answer="Yes, within 30 days." />);
+        });
+
+        it('opens and closes', async () => {
+          const user = userEvent.setup();
+          const root = screen.getByTestId('faq-item');
+          await act(async () => {
+            await user.click(root.querySelector('button')!);
+          });
+          expect(root).toHaveClass('faq-item--open');
+          await act(async () => {
+            await user.click(root.querySelector('button')!);
+          });
+          expect(root).not.toHaveClass('faq-item--open');
+        });
+        ```
+
+        `<PriceTag amount={12.5} currency="GBP" />` renders
+        `<p class="price-tag"><span class="price-tag__amount">£12.50</span></p>`.
+        `src/pricing/price-tag.test.tsx` today:
+
+        ```tsx
+        import { cleanup, render } from '@testing-library/react';
+        import { afterEach, expect, it } from 'vitest';
+        import { PriceTag } from './price-tag';
+
+        afterEach(() => cleanup());
+
+        it('shows the amount', () => {
+          const { container } = render(<PriceTag amount={12.5} currency="GBP" />);
+          expect(container.querySelector('.price-tag__amount')?.textContent).toBe('£12.50');
+        });
+        ```
+
+        Return the complete contents of every file you change and a short
+        rationale.
+      rubric: |-
+        - The FAQ test finds the question button with `getByRole('button', { name: ... })`, clicks it with an awaited `userEvent` call after `userEvent.setup()` in the test, and does not wrap `render()` or a click in `act()`.
+        - The FAQ test proves closed, open and closed again through what the shopper sees: the answer text absent, present, then absent, or `aria-expanded` `"false"`, `"true"`, then `"false"`.
+        - Each test renders through its own call or a factory function; neither file keeps a `beforeEach` render or a module-level element variable.
+        - Neither test file asserts on a test id, the `faq-item--open` or `price-tag__amount` class, `handleToggle`, `container`, or `querySelector`; the price test finds the visible `£12.50` text through a `screen` query.
+        - Neither test file calls or imports `cleanup`. One `afterEach(cleanup)` (or an `afterEach` that calls `cleanup()`) is added to `src/test/setup.ts`, and `vitest.config.ts` keeps `globals: false` and is not returned as changed.
+
+  - description: Prove a submit calls back exactly once and leave the undefined failure path as a todo
+    vars:
+      skill: file://../../src/web/skills/react-testing/SKILL.md
+      scenario: |-
+        Write `src/team/invite-form.test.tsx` for the team invite form. Do not
+        change the component. `@testing-library/user-event` is installed and
+        the jest-dom matchers are registered. The component is complete as
+        shown:
+
+        ```tsx
+        export function InviteForm({ onInvite }: { onInvite: (email: string) => Promise<void> }) {
+          const [email, setEmail] = useState('');
+          const [sending, setSending] = useState(false);
+
+          async function handleSubmit(event: FormEvent) {
+            event.preventDefault();
+            setSending(true);
+            await onInvite(email);
+            setSending(false);
+          }
+
+          return (
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="invite-email">Teammate email</label>
+              <input id="invite-email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <button type="submit" disabled={sending}>Send invite</button>
+            </form>
+          );
+        }
+        ```
+
+        The ticket's acceptance criteria are: submitting sends the typed email
+        to `onInvite`, and the form shows an error when the invite fails.
+
+        Return the complete test file and a short reply that says what you
+        wrote.
+      rubric: |-
+        - A runnable test types an email into the field found by its `Teammate email` label, submits with the `Send invite` button, and asserts both `toHaveBeenCalledTimes(1)` and `toHaveBeenCalledWith` the typed email, or the single equivalent `toHaveBeenCalledExactlyOnceWith`, so a double send or a changed email fails the test.
+        - Interactions use `userEvent` created with `userEvent.setup()` in the test and are awaited; no manual `act()` wraps `render()` or an interaction.
+        - The failure criterion is left as an `it.todo` or `test.todo`, not as a passing or skipped test with invented assertions.
+        - The reply names the missing contract in two parts: how a failed invite reaches the form (for example, `onInvite` rejecting) and how the error becomes observable to a test (its role, its text, or a callback); it may note that the component has no failure handling today.
+        - The file does not assert invented error copy, an `alert` or `status` role, or a test id, and the reply does not claim the failure criterion is covered or that the component was changed.

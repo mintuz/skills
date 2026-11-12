@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, lstatSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, lstatSync, symlinkSync } from "node:fs";
+import { homedir, tmpdir } from "node:os";
 import { dirname, join, resolve, relative, isAbsolute, sep } from "node:path";
 
 import { parse } from "yaml";
@@ -148,8 +149,29 @@ function readConfig(path) {
   return config;
 }
 
+// Codex also loads user skills from $HOME/.agents/skills, which can hold another
+// copy of the skill under test. The codex-sdk provider passes HOME but not
+// CODEX_HOME, so give Codex a HOME that holds only a link to the real Codex home:
+// sign-in still works, and only the suite's own fixture skills are visible.
+function isolatedHome() {
+  const home = join(tmpdir(), "skill-evals-home");
+  const link = join(home, ".codex");
+  mkdirSync(home, { recursive: true });
+  try {
+    lstatSync(link);
+  } catch {
+    try {
+      symlinkSync(process.env.CODEX_HOME ?? join(homedir(), ".codex"), link);
+    } catch (error) {
+      if (error.code !== "EEXIST") throw error; // another runner created it first
+    }
+  }
+  return home;
+}
+
 const env = {
   ...process.env,
+  HOME: isolatedHome(),
   PROMPTFOO_CONFIG_DIR: process.env.PROMPTFOO_CONFIG_DIR ?? ".promptfoo",
   PROMPTFOO_DISABLE_TELEMETRY: "1",
   // Comparisons and trigger runs report rather than gate. Trigger activation is

@@ -1,6 +1,8 @@
-# Utility Functions
+# Utilities
 
-## Class Name Utility (cn)
+## Class name utility (`cn`)
+
+`cn` needs `clsx` and `tailwind-merge`. Install them only when the project lacks them and the requester asks for them or accepts the dependency. Never add either on your own initiative.
 
 ```typescript
 // lib/utils.ts
@@ -12,84 +14,35 @@ export function cn(...inputs: ClassValue[]) {
 }
 ```
 
-### Why cn()?
-
-- **clsx**: conditionally construct className strings
-- **twMerge**: merge Tailwind classes (later classes override earlier ones)
-
-### Usage Examples
+`clsx` builds a class string from conditions and ignores `undefined` and `null`. `twMerge` resolves conflicting Tailwind classes: the later class wins.
 
 ```typescript
-// Conditional classes
-cn("base-class", isActive && "active-class", "another-class");
-
-// Object syntax
+cn("base-class", isActive && "active-class");
 cn("base", { "text-red-500": hasError, "text-green-500": isSuccess });
-
-// Array syntax
 cn(["base", "multiple", "classes"]);
-
-// Merging conflicting classes
-cn("px-2", "px-4"); // Result: "px-4" (later class wins)
+cn("px-2", "px-4"); // "px-4"
 ```
 
-## Common Utilities
+Install command, when approved: `pnpm add clsx tailwind-merge` or `yarn add clsx tailwind-merge`.
 
-### Focus Ring
+Without the dependency, join class strings in plain JavaScript, such as `[base, variantClasses, className].filter(Boolean).join(" ")`. A plain join does not resolve conflicts, so make sure that the joined strings never set the same property twice.
+
+## Shared class strings
 
 ```typescript
-export const focusRing = cn(
-  "focus-visible:outline-none focus-visible:ring-2",
-  "focus-visible:ring-ring focus-visible:ring-offset-2"
+// Focus outline: stays visible in forced-colours mode (SKILL.md, Focus indicators)
+export const focusOutline = cn(
+  "focus-visible:outline-2 focus-visible:outline-offset-2",
+  "focus-visible:outline-ring"
 );
 
-// Usage
-<button className={cn("base-styles", focusRing)}>Click me</button>;
-```
-
-### Disabled State
-
-```typescript
+// Disabled state
 export const disabled = "disabled:pointer-events-none disabled:opacity-50";
 
-// Usage
-<button className={cn("base-styles", disabled)} disabled={isDisabled}>
+// Transition
+export const transition = "transition-colors duration-200";
+
+<button className={cn("base-styles", focusOutline, disabled)} disabled={isDisabled}>
   Submit
 </button>;
 ```
-
-### Transition
-
-```typescript
-export const transition = "transition-colors duration-200";
-
-// Usage
-<div className={cn("bg-gray-100 hover:bg-gray-200", transition)}>Hover me</div>;
-```
-
-## Installation
-
-Install `clsx` and `tailwind-merge` only when the project lacks them and the
-requester asks for them or accepts the dependency. Never add either on your own
-initiative; plain string joining is the dependency-free equivalent.
-
-```bash
-yarn add clsx tailwind-merge
-# or
-pnpm add clsx tailwind-merge
-```
-
-Without the dependency, join class strings in plain JavaScript, such as
-`[base, variantClasses, className].filter(Boolean).join(" ")`. Such a join does
-not resolve conflicts, so ensure the joined strings never set the same property
-twice.
-
-## TypeScript Support
-
-`cn` accepts:
-
-- Strings
-- Objects (conditional classes)
-- Arrays
-- Nested combinations
-- undefined/null (ignored)

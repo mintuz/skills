@@ -1,32 +1,24 @@
-# CVA (Class Variance Authority) Components
+# CVA components
 
-## Before You Use CVA
+Use CVA only when [Component variants](../SKILL.md#component-variants) selects it. Otherwise use the exhaustive `Record<Variant, string>` map.
 
-Choose CVA per [Component Variants](../SKILL.md#component-variants): it is a
-dependency (`class-variance-authority`), so without the package and without the
-requester choosing it, use the exhaustive `Record<Variant, string>` map instead.
+A CVA definition has a base string shared by all variants, named variant groups (such as `variant` and `size`), default variants and inferred TypeScript prop types. Order the class layers as: base styles, variants, sizes, states, overrides.
 
-## Pattern Overview
+## Button
 
-CVA defines type-safe component variants with:
-- Base styles shared across all variants
-- Named variant groups (variant, size, state)
-- Default variants
-- TypeScript inference for props
-
-## Button Component Example
+The example is for React 19. On React 18 or earlier, wrap the component in `forwardRef`.
 
 ```typescript
 // components/ui/button.tsx
 import { cva, type VariantProps } from 'class-variance-authority'
-import { forwardRef } from 'react'
+import type { ComponentPropsWithRef } from 'react'
 // cn() comes from utilities.md and needs clsx and tailwind-merge. Without those
 // packages, pass the class string straight to className instead.
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
   // Base styles
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
@@ -51,51 +43,21 @@ const buttonVariants = cva(
   }
 )
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+export type ButtonProps = ComponentPropsWithRef<'button'> &
+  VariantProps<typeof buttonVariants>
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
-    return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Button.displayName = 'Button'
+function Button({ className, variant, size, ...props }: ButtonProps) {
+  return (
+    <button
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
+}
 
 export { Button, buttonVariants }
 ```
 
-## Usage Examples
+Usage: `<Button variant="destructive" size="lg">Delete</Button>`.
 
-```tsx
-// Basic usage
-<Button>Click me</Button>
-
-// With variants
-<Button variant="destructive" size="lg">Delete</Button>
-<Button variant="outline">Cancel</Button>
-<Button variant="ghost" size="sm">Edit</Button>
-
-```
-
-To render the button as another element, add `@radix-ui/react-slot` (only when
-the requester accepts it) and swap the element for `Slot`.
-
-## Component Architecture
-
-```
-Base styles → Variants → Sizes → States → Overrides
-```
-
-## Key Benefits
-
-- **Type Safety**: TypeScript knows valid variant combinations
-- **Consistency**: centralised variant definitions
-- **Composability**: combines with other classes via `cn()`
-- **Maintainability**: single source of truth for component styles
+To render the button as another element, replace the element with `Slot` from `@radix-ui/react-slot`. Add that package only when the requester accepts it.

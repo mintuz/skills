@@ -1,58 +1,47 @@
-# Accessibility-First Testing
+# Accessibility-first testing
 
-## Why Accessible Queries
+## Accessible queries
 
-1. **Tests mirror real usage** - query like screen readers do.
-2. **Improves app accessibility** - tests force accessible markup.
-3. **Refactor-friendly** - coupled to user experience, not implementation.
+Accessible queries find elements as a screen reader does. A refactor does not break them, because they couple the test to the user experience.
 
 ```typescript
-// ❌ WRONG - Implementation detail
+// ❌ Implementation detail
 screen.getByTestId('user-menu');
-
-// ✅ CORRECT - Accessibility query
+// ✅
 screen.getByRole('button', { name: /user menu/i });
 ```
 
-When an accessible query fails, check your markup first for an accessibility issue. Some elements you do not own, such as a third-party widget, expose no accessible route; "When No Accessible Query Fits" in the main skill file gives the fallback.
+When an accessible query fails, first check the markup for an accessibility issue. For markup you do not own, such as a third-party widget, follow "When no accessible query fits" in `SKILL.md`.
 
-## ARIA Attributes
+## Semantic HTML before ARIA
 
-✅ **Add ARIA to custom components** where semantic HTML is unavailable:
+Prefer semantic HTML. It gives keyboard navigation, focus management and screen reader support with less code.
+
+```html
+<!-- ❌ -->
+<div role="button" onclick="handleClick()" tabindex="0">Submit</div>
+<!-- ✅ -->
+<button onclick="handleClick()">Submit</button>
+```
+
+Do not restate a role that the element already has:
+
+```html
+<!-- ❌ -->
+<button role="button">Submit</button>
+```
+
+Add ARIA to a custom component only when no semantic element fits:
+
 ```html
 <div role="dialog" aria-label="Confirmation Dialog">
   <h2>Are you sure?</h2>
-  ...
 </div>
 ```
 
-❌ **Do not restate a role semantic HTML already has:**
-```html
-<!-- ❌ WRONG - Redundant role -->
-<button role="button">Submit</button>
+Add ARIA state to semantic HTML. A role is intrinsic; state is not.
 
-<!-- ✅ CORRECT - Semantic HTML is enough -->
-<button>Submit</button>
-```
-
-✅ **Add ARIA state to semantic HTML.** A role is intrinsic; state is not.
 ```html
 <button aria-expanded="false" aria-controls="filters">Filters</button>
 <button aria-pressed="true">Bold</button>
-```
-
-## Semantic HTML Priority
-
-Prefer semantic HTML over ARIA. It gives built-in keyboard navigation, focus management, and screen reader support with less code.
-
-```html
-<!-- ❌ WRONG - Custom element + ARIA -->
-<div role="button" onclick="handleClick()" tabindex="0">
-  Submit
-</div>
-
-<!-- ✅ CORRECT - Semantic HTML -->
-<button onclick="handleClick()">
-  Submit
-</button>
 ```
