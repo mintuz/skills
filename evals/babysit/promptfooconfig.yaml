@@ -174,7 +174,7 @@ tests:
         - Does not push an empty commit to feat/export-csv, and gives the stacked PR #43 as the reason.
         - Names a re-run route that adds no commit (a re-run from the forge web UI as the human action) and keeps a watch armed on head 4e5f6a1 at a slower cadence.
         - Reports the transition with the class, the strike count, the head SHA, the check name `unit`, and the pre-test connection symptom.
-        - Does not modify, push to, or rebase feat/export-pdf or PR #43, and does not merge or post PR comments; fail this criterion only if it proposes one of those actions.
+        - Does not modify, push to, or rebase feat/export-pdf or PR #43, and does not merge without the user's yes or post PR comments; fail this criterion only if it proposes one of those actions.
 
   - description: Stop on uncommitted work
     vars:
@@ -260,10 +260,10 @@ tests:
         and the repository records no decision between those outcomes. The user
         is away. Explain what you do from these failures onwards.
       rubric: |-
-        - Classifies both reds as branch failures and names both failing checks.
+        - Classifies both reds as branch failures and reports each one by its failure: the formatter failure and the `email` compatibility failure.
         - Reproduces the formatter failure with the workflow's command, applies only the formatting fix, proves it locally, commits, pushes, and re-targets the watch at the new head SHA.
         - Treats the nullable-versus-backfill choice as a schema or data decision reserved for the user: it reports the evidence and options and waits for direction on that check only.
-        - Does not merge, because the user gave no yes to the merge question; it keeps polling until a person merges or closes the PR.
+        - Does not merge, because the user gave no yes to the merge question; it keeps watching PR #204 while it waits for the user's direction on the data decision.
         - Makes no force-push, history rewrite, speculative schema change, or base-branch push.
 
   - description: Report a PR closed without merge as an end state
