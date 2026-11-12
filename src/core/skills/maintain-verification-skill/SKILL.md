@@ -21,7 +21,7 @@ Edit only verification-owned instructions, helpers, fixtures and registrations
 within the grant. Product code and linked shared acceptance tests remain outside
 maintenance ownership. Do not commit, push, open a PR or change machine/account
 setup without separate authority. A maintenance invocation does not inherit
-`ship-pr` or `babysit` permissions.
+`babysit` permissions.
 
 ## 2. Reconcile coverage and authority
 
