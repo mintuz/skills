@@ -1,7 +1,5 @@
 # Patterns
 
-Read this before you write a new class, a modifier, a utility, or styles that hide content.
-
 ## One job per class
 
 Keep structure (box, spacing, layout) and cosmetics (colour, theme) in separate classes.
@@ -11,7 +9,6 @@ Keep structure (box, spacing, layout) and cosmetics (colour, theme) in separate 
 .promo {
   padding: var(--space-lg);
   background-color: var(--colour-brand);
-  color: #ffffff;
 }
 
 /* Right */
@@ -20,36 +17,14 @@ Keep structure (box, spacing, layout) and cosmetics (colour, theme) in separate 
 }
 .theme-primary {
   background-color: var(--colour-brand);
-  color: #ffffff;
 }
 ```
-
-A change to one job then leaves the other untouched, and the classes recombine in new contexts.
 
 ## Extend with a modifier
 
-When one context needs a variant, add a modifier class. Do not change the base class for that
-context.
-
-```css
-.btn {
-  padding-block: var(--space-sm);
-  padding-inline: var(--space-md);
-}
-
-.btn--large {
-  padding-block: var(--space-md);
-  padding-inline: var(--space-lg);
-}
-
-.btn--primary {
-  background-color: var(--colour-brand);
-  color: #ffffff;
-}
-```
-
-Keep base classes small. If a base class does not fit a context, stop using it there rather than
-bending it. A defect in the base class itself is fixed in the base class.
+If one context needs a variant, add a modifier class (`.btn--large`, `.btn--primary`). Do not
+change the base class for that context. Keep base classes small. If a base class does not fit a
+context, stop using it there. Fix a defect in the base class itself in the base class.
 
 ## Prefixes
 
@@ -57,18 +32,18 @@ bending it. A defect in the base class itself is fixed in the base class.
 | --- | --- | --- |
 | `o-` | object: a layout pattern | treat as a constant once written |
 | `u-` | utility: one declaration, one purpose | treat as a constant; its declarations are `!important` |
-| `_` | hack: a temporary fix | not reused; record what removes it |
+| `_` | hack: a temporary fix | do not reuse; record what removes it |
 
 A class whose look changes with state (a skip link, a disclosure) is a component, not a `u-`
-utility, whatever it does.
+utility.
 
 ## Hiding content
 
 Ask: does the hidden content ever receive focus or become visible?
 
 **Never.** Use the screen-reader utility. It is immutable, so its declarations are `!important`.
-Never put it on an element that can receive focus: a `:focus` rule could beat it only with its
-own `!important` and enough specificity or later source order, a second contest.
+Never put it on an element that can receive focus: a `:focus` rule could beat it only with its own
+`!important` and enough specificity or later source order, a second contest.
 
 ```css
 .u-sr-only {
@@ -84,8 +59,7 @@ own `!important` and enough specificity or later source order, a second contest.
 }
 ```
 
-**Yes, on focus.** Use a stateful component, such as this skip link: hidden until it receives
-focus, then a visible, fixed control.
+**Yes, on focus.** Use a stateful component, such as this skip link:
 
 ```css
 .skip-link {
@@ -130,24 +104,21 @@ focus, then a visible, fixed control.
 }
 ```
 
-- Do not hide it with `display: none`, `visibility: hidden` or `font-size: 0`: these take it out
-  of the accessibility tree or the tab order. Do not hide it with off-screen coordinates
-  (`top: -40px`, `left: -9999px`, `translateY(-100%)`): the focused control can land outside a
-  zoomed or narrow viewport.
-- Use no `!important` in either rule. The focus rule restores every property the base rule set
-  to hide it.
-- Use an `outline` or a border for the focus indicator. Forced-colours mode removes
-  `box-shadow` and replaces author colours; name system colours (`Canvas`, `CanvasText`,
-  `LinkText`, `Highlight`) in a `@media (forced-colors: active)` rule.
+- `display: none`, `visibility: hidden` and `font-size: 0` remove it from the accessibility tree
+  or the tab order. Off-screen coordinates (`top: -40px`, `left: -9999px`, `translateY(-100%)`)
+  can put the focused control outside a zoomed or narrow viewport.
+- Forced-colours mode removes `box-shadow` and replaces author colours. Use an `outline` or a
+  border for the focus indicator. Name system colours (`Canvas`, `CanvasText`, `LinkText`,
+  `Highlight`) in the `@media (forced-colors: active)` rule.
 - Use `rem` or the scale for its text and padding, so it grows with the reader's text size.
 
 ## Contrast
 
-Text against its background needs a contrast ratio of at least 4.5:1, or 3:1 for large text
-(24px, or 18.66px bold). A control's boundary and a focus indicator need 3:1 against what is
-next to them (WCAG 2.2, success criteria 1.4.3 and 1.4.11). State the pairs you checked.
+Text needs a contrast ratio of at least 4.5:1 against its background, or 3:1 for large text (24px,
+or 18.66px bold). A control's boundary and a focus indicator need 3:1 against
+what is next to them (WCAG 2.2, success criteria 1.4.3 and 1.4.11). State the pairs you checked.
 
 ## Semantic HTML first
 
-Style the native element (`button`, `a`, `details`, `dialog`, `label`) before you add an ARIA
-role to a `div` and style that.
+Style the native element (`button`, `a`, `details`, `dialog`, `label`) before you add an ARIA role
+to a `div` and style that.

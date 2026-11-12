@@ -13,13 +13,13 @@ Example: blue-500 → primary → button-bg
 ```
 
 - Name colours by purpose (`primary`), not appearance (`blue`).
-- Keep the colour format that the project already uses, such as the bare HSL channels in the Tailwind 3 example or the `oklch()` values of the Tailwind 4 palette.
+- Keep the colour format that the project uses, such as the bare HSL channels in the Tailwind 3 example or the `oklch()` values of the Tailwind 4 palette.
 - Use CSS variables for values that change at run time without a rebuild, such as themes.
 - For a class-based dark mode, set `darkMode` in the Tailwind 3 config, or use `@custom-variant` in Tailwind 4.
 
 ## Tailwind 3: config file
 
-Tailwind 4 needs no config file for a new project. It can still load an existing one with `@config "./tailwind.config.ts";`.
+Tailwind 4 needs no config file for a new project. It can load an existing one with `@config "./tailwind.config.ts";`.
 
 ```typescript
 // tailwind.config.ts
@@ -123,7 +123,7 @@ Tailwind 4 replaces the three `@tailwind` directives with one `@import "tailwind
 
 When the project root is not the detection base path, as in a monorepo package, set the base path with `source()` on the import.
 
-Tailwind 4 still supports PostCSS through `@tailwindcss/postcss`. Keep a working PostCSS integration; do not replace it. For a new Vite project, add the installed `@tailwindcss/vite` plugin beside the existing plugins:
+Keep a working `@tailwindcss/postcss` integration. For a new Vite project, add the installed `@tailwindcss/vite` plugin beside the existing plugins:
 
 ```typescript
 // vite.config.ts
@@ -145,7 +145,7 @@ Declare fixed tokens in a `@theme` block. A `--color-*` token generates the matc
 }
 ```
 
-For a value that changes at run time, use `@theme inline`. It puts the variable reference in the generated utility, so the utility resolves the value where it is used and picks up an override, such as one under a dark-mode selector:
+For a value that changes at run time, use `@theme inline` (see [Version gate](../SKILL.md#version-gate)):
 
 ```css
 @import "tailwindcss";
@@ -163,7 +163,7 @@ For a value that changes at run time, use `@theme inline`. It puts the variable 
 }
 ```
 
-Load a legacy JavaScript Tailwind plugin with `@plugin`, only when the project installs that plugin package. Define a class-based dark variant with `@custom-variant`:
+Load a legacy JavaScript plugin with `@plugin` only when the project installs that plugin package. Define a class-based dark variant with `@custom-variant`:
 
 ```css
 @plugin "tailwindcss-animate";

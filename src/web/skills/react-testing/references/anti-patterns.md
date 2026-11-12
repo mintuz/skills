@@ -2,7 +2,7 @@
 
 ## 1. Unnecessary act() wrapping
 
-❌ **WRONG - Manual act() everywhere**
+❌ **WRONG**
 ```tsx
 act(() => {
   render(<MyComponent />);
@@ -13,29 +13,29 @@ await act(async () => {
 });
 ```
 
-✅ **CORRECT - RTL handles it**
+✅ **CORRECT**
 ```tsx
 render(<MyComponent />);
 await user.click(button);
 ```
 
-RTL wraps `render()`, `userEvent` methods, `fireEvent`, `waitFor` and `findBy*` in `act()`. Use a manual `act()` only around a state-changing hook callback that the test calls directly, such as one returned by `renderHook`, and around a direct state mutation, which is rare and usually bad practice.
+RTL wraps `render()`, `userEvent` methods, `fireEvent`, `waitFor` and `findBy*` in `act()`. Use a manual `act()` only in two cases:
+
+- Around a state-changing hook callback that the test calls directly, such as one returned by `renderHook`.
+- Around a direct state mutation. This is rare and usually bad practice.
 
 ## 2. Manual cleanup() calls
 
-❌ **WRONG - Manual cleanup**
+❌ **WRONG**
 ```tsx
 afterEach(() => {
-  cleanup(); // Automatic since RTL 9!
+  cleanup();
 });
 ```
 
-✅ **CORRECT - No cleanup needed**
-```tsx
-// Cleanup happens automatically after each test
-```
+✅ **CORRECT:** remove the call. RTL cleans up automatically since RTL 9.
 
-RTL registers that cleanup only when the runner exposes a global `afterEach`. In Vitest set `globals: true`, or register `afterEach(cleanup)` once in a shared setup file, not in every test file. When the project keeps globals off on purpose, use the setup file and leave the setting alone:
+RTL registers that cleanup only when the runner exposes a global `afterEach`. In Vitest, set `globals: true`, or register `afterEach(cleanup)` once in a shared setup file, not in every test file. When the project keeps globals off on purpose, use the setup file and leave the setting alone:
 
 ```ts
 // src/test/setup.ts, named in vitest.config.ts under test.setupFiles
@@ -49,75 +49,51 @@ afterEach(() => {
 
 ## 3. beforeEach render pattern
 
-❌ **WRONG - Shared render in beforeEach**
+❌ **WRONG:** shared state across tests.
 ```tsx
 let button;
 beforeEach(() => {
   render(<MyComponent />);
-  button = screen.getByRole('button'); // Shared state across tests
-});
-
-it('test 1', () => {
-  // Uses shared button from beforeEach
+  button = screen.getByRole('button');
 });
 ```
 
-✅ **CORRECT - Factory function per test**
+✅ **CORRECT:** a factory function that each test calls for fresh state.
 ```tsx
 const renderComponent = () => {
   render(<MyComponent />);
-  return {
-    button: screen.getByRole('button'),
-  };
+  return { button: screen.getByRole('button') };
 };
 
 it('test 1', () => {
-  const { button } = renderComponent(); // Fresh state
+  const { button } = renderComponent();
 });
 ```
 
-The factory returns what each test needs, so no test reads state another test left behind.
+## 4. Internals and shallow rendering
 
-## 4. Testing component internals
-
-❌ **WRONG - Accessing component internals**
+❌ **WRONG:** internal state and methods. `shallow` also skips child components, so it hides bugs between parent and child.
 ```tsx
 const wrapper = shallow(<MyComponent />);
-expect(wrapper.state('isOpen')).toBe(true); // Internal state
-expect(wrapper.instance().handleClick).toBeDefined(); // Internal method
+expect(wrapper.state('isOpen')).toBe(true);
+expect(wrapper.instance().handleClick).toBeDefined();
 ```
 
-✅ **CORRECT - Test rendered output**
+✅ **CORRECT:** full rendering and the output the user sees.
 ```tsx
 render(<MyComponent />);
-expect(screen.getByRole('dialog')).toBeInTheDocument(); // What user sees
+expect(screen.getByRole('dialog')).toBeInTheDocument();
 ```
 
-❌ **WRONG - Querying the DOM structure**
+❌ **WRONG:** a DOM structure query.
 ```tsx
 const { container } = render(<LoginForm />);
 const input = container.querySelector('input[name="email"]');
 ```
 
-✅ **CORRECT - Query by accessible name, interact like a user**
+✅ **CORRECT:** an accessible-name query and a user interaction.
 ```tsx
 const user = userEvent.setup();
 render(<LoginForm />);
 await user.type(screen.getByLabelText('Email'), 'test@example.com');
 ```
-
-## 5. Shallow rendering
-
-❌ **WRONG - Shallow rendering**
-```tsx
-const wrapper = shallow(<MyComponent />);
-// Child components not rendered - incomplete test
-```
-
-✅ **CORRECT - Full rendering**
-```tsx
-render(<MyComponent />);
-// Full component tree rendered - realistic test
-```
-
-**Why:** shallow rendering hides integration bugs between parent and child components.

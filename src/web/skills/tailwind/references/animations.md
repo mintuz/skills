@@ -1,6 +1,6 @@
 # Animations
 
-Every example needs `tailwindcss-animate` (for `animate-in` and `animate-out`). The Dialog example also needs `@radix-ui/react-dialog`. Use these patterns only when the project installs those packages or the requester accepts them. Otherwise, build the transition from Tailwind's own `transition`, `duration` and `data-[state=...]` utilities.
+Every example needs `tailwindcss-animate` (for `animate-in` and `animate-out`). The Dialog example also needs `@radix-ui/react-dialog`. Use these patterns only when the project installs those packages or the requester accepts them. Otherwise, build the transition from the built-in `transition`, `duration` and `data-[state=...]` utilities.
 
 ## Presets
 
@@ -26,7 +26,7 @@ export const dropdownExit = cn(fadeOut, "slide-out-to-top", "duration-150");
 
 ## Dialog
 
-The example is for React 19, where `ref` is a regular prop. On React 18 or earlier, wrap each part in `forwardRef`.
+The example is for React 19. On React 18 or earlier, wrap each part in `forwardRef`.
 
 ```typescript
 // components/ui/dialog.tsx

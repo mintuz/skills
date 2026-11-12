@@ -134,7 +134,7 @@ tests:
         - Identifies at least three specific parts of the request as out of reach in jsdom, chosen from cross-document navigation or redirects, the third-party `checkout.stripe.com` page, the real session cookie, and the delivered email.
         - Offers the portion that does fit as a DOM test of `mountSignupForm({ startCheckout })` with an injected mock, and specifies both sides of the disabled rule in it: `Continue` disabled initially, still disabled after only one field is filled, enabled once both are filled, then exactly one `startCheckout` call and the `Redirecting` status.
         - Does not produce or suggest a jsdom test that fakes the journey by assigning `window.location`, stubbing `history`, mocking the Stripe page, or asserting on a mail inbox, and does not claim any jsdom test would give end-to-end confidence.
-        - Adds no facts beyond the packet: it invents no extra routes, endpoints, component names, or existing test tooling.
+        - Adds no facts beyond the packet: it invents no extra routes, endpoints, component names, or existing test tooling. Restating a packet fact, such as the absence of any real browser runner, is not an added fact.
 
   - description: Refuse an absence assertion that passes before the promise settles
     vars:
@@ -166,7 +166,7 @@ tests:
         taken alert. Do not change the component.
       rubric: |-
         - States that the proposed assertion is anchored to no settled state, so it may run before the component reacts and passes whether the component is correct or broken; it proves nothing about the available or taken outcome.
-        - Awaits the positive terminal state first with an async role query for the `Username available` status, and only then asserts the alert is absent.
+        - Awaits the settled available state before the absence check, and only then asserts the alert is absent. Either form proves the settled state: `await findByRole('status')` followed by a `Username available` text assertion, which is sufficient here because the packet says nothing renders until the promise settles; or a retrying wait on the `status` role whose condition includes the `Username available` text, such as `await waitFor(() => expect(getByRole('status')).toHaveTextContent(...))`.
         - Uses `queryByRole('alert')` for the absence assertion and uses no throwing `getBy*` query or `expect(...).toThrow()` wrapper for it.
         - Controls the supplied `checkUsername` mock inside the test to resolve with `{ available: true }`, and asserts it was called exactly once with `'ada'`; it does not stub `fetch`, `axios`, or any other transport in its place.
         - Adds no fixed delay to wait for the update: no `setTimeout`, no sleep promise, no `vi.advanceTimersByTime`, and no arbitrary timeout raise standing in for waiting on the settled state.

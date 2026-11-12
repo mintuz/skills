@@ -1,9 +1,9 @@
 # Testing React Components
 
-## Basic Component Testing
+## Rendered output
 
+✅ **CORRECT:** test the behaviour.
 ```tsx
-// ✅ CORRECT - Test component behavior
 it('should display user name when provided', () => {
   render(<UserProfile name="Alice" email="alice@example.com" />);
 
@@ -12,18 +12,15 @@ it('should display user name when provided', () => {
 });
 ```
 
+❌ **WRONG:** test internal state.
 ```tsx
-// ❌ WRONG - Testing implementation
-it('should set name state', () => {
-  const wrapper = mount(<UserProfile name="Alice" />);
-  expect(wrapper.state('name')).toBe('Alice'); // Internal state!
-});
+const wrapper = mount(<UserProfile name="Alice" />);
+expect(wrapper.state('name')).toBe('Alice');
 ```
 
-## Testing Props
+## Callback props
 
 ```tsx
-// ✅ CORRECT - Test how props affect rendered output
 it('should call onSubmit when form submitted', async () => {
   const handleSubmit = vi.fn();
   const user = userEvent.setup();
@@ -34,23 +31,20 @@ it('should call onSubmit when form submitted', async () => {
   await user.click(screen.getByRole('button', { name: /submit/i }));
 
   expect(handleSubmit).toHaveBeenCalledTimes(1);
-  expect(handleSubmit).toHaveBeenCalledWith({
-    email: 'test@example.com',
-  });
+  expect(handleSubmit).toHaveBeenCalledWith({ email: 'test@example.com' });
 });
 ```
 
-## Testing Conditional Rendering
+## Conditional rendering
 
 This example uses an MSW `server`. Use the network stub the project already has.
 
 ```tsx
-// ✅ CORRECT - Test what user sees in different states
 it('should show error message when login fails', async () => {
   server.use(
-    http.post('/api/login', () => {
-      return HttpResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    })
+    http.post('/api/login', () =>
+      HttpResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+    )
   );
 
   const user = userEvent.setup();

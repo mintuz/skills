@@ -17,7 +17,7 @@ prompts:
 providers:
   - id: openai:codex-sdk
     config:
-      working_dir: ./workspace
+      working_dir: ./trigger-workspace
       skip_git_repo_check: true
       sandbox_mode: read-only
       approval_policy: never

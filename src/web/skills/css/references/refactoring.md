@@ -1,43 +1,32 @@
-# Refactoring, dead CSS and preprocessors
+# Dead CSS, code smells and preprocessors
 
-Read this before you delete selectors, or write Sass or another preprocessor. The refactoring
-steps are in `SKILL.md`.
+The refactoring steps and the deletion procedure are in `SKILL.md`. This file adds detail.
 
 ## Suspected dead CSS
 
-Delete a selector only on evidence from production, never because a search did not find it.
+- A search misses a class built at run time (`` `promo-banner--${season}` ``, `'btn-' + size`, a
+  class list from data). It also misses pages rendered from content outside the repository (a
+  content management system, emails, another app).
+- A beacon is a background image with a unique URL, so a production request shows that the
+  selector matched:
 
-1. **Search first, and distrust a miss.** Search the markup, templates and scripts for each
-   class. A class built at run time (`` `promo-banner--${season}` ``, `'btn-' + size`, a class
-   list from data) does not appear as text, and pages rendered from content outside the
-   repository (a content management system, emails, another app) never appear in the search. A
-   class found in use stays.
-2. **Beacon each suspect** that no search proves used. Add a background image with a unique URL
-   to its rule, so a production request shows the selector matched:
+  ```css
+  .legacy-modal {
+    /* Usage beacon, added 4 Nov 2026. Delete this rule only after the logs show no request
+       for it for two to three months and one test request has been seen to arrive. */
+    background-image: url("/beacon.gif?selector=legacy-modal");
+  }
+  ```
 
-   ```css
-   .legacy-modal {
-     /* Usage beacon, added 4 Nov 2026. Delete this rule only after the logs show no request
-        for it for two to three months and one test request has been seen to arrive. */
-     background-image: url("/beacon.gif?selector=legacy-modal");
-   }
-   ```
-
-   Serve a transparent 1x1 GIF at that URL. Only beacon a selector whose matched elements get no
-   background image from any rule, in any state (check the computed styles): a beacon would
-   replace a real image. Where one does, leave the image alone and record usage another way, such
-   as a build-time class-usage report or a script that reports matched selectors.
-3. **Confirm delivery.** See one beacon request reach the server logs before trusting silence.
-   Caches, a Content Security Policy `img-src` rule and service workers can drop beacon requests.
-4. **Monitor** production logs for two to three months. A selector with zero requests is then a
-   deletion candidate. Zero requests is evidence, not proof: coverage tools and beacons both miss
-   pages behind a login and states only an interaction reaches.
-5. **Delete in small, reversible steps**, one selector or one feature at a time, and watch for
-   regressions after each.
-
-When a person asks you to delete selectors now, do steps 1 and 2, delete nothing that a search
-cannot prove unused, and tell them what you found, what you added, and what evidence would allow
-each deletion.
+  Serve a transparent 1x1 GIF at that URL. Before you add a beacon, check the computed styles: no
+  rule may give the matched elements a background image in any state, because the beacon would
+  replace it.
+- Coverage tools and beacons both miss pages behind a login and states that only an interaction
+  reaches.
+- Delete one selector or one feature at a time, and watch for regressions after each step.
+- If a person asks you to delete selectors now, search and add beacons, delete nothing that a
+  search cannot prove unused, and report what you found, what you added, and what evidence would
+  allow each deletion.
 
 ## Code smells
 
@@ -60,12 +49,11 @@ each deletion.
 ## Preprocessors
 
 Use `@extend` only for rules that are the same for a reason: variants of one component. Use a
-mixin for rules that are only similar by chance. Repetition in compiled output is fine (gzip
-removes it); repetition in source is the problem. Mixins do not move rules in source order and
-do not group unrelated selectors.
+mixin for rules that are similar by chance. Repetition in compiled output is acceptable (gzip
+removes it); repetition in source is not.
 
 ```scss
-// Variants of one component: @extend may be used
+// Variants of one component: @extend is permitted
 %btn-base {
   padding-block: var(--space-sm);
   padding-inline: var(--space-md);
@@ -86,19 +74,15 @@ do not group unrelated selectors.
 .site-header {
   @include clearfix;
 }
-.site-footer {
-  @include clearfix;
-}
 ```
 
-Write full class names. Do not build them with `&` concatenation (`.card { &-header {} }`),
-because `.card-header` then cannot be found by a search. Use `&` only for pseudo-classes
-(`&:hover`), pseudo-elements (`&::before`) and state classes (`&.is-active`).
+Write full class names. Do not build them with `&` concatenation (`.card { &-header {} }`): a
+search then cannot find `.card-header`. Use `&` only for pseudo-classes (`&:hover`),
+pseudo-elements (`&::before`) and state classes (`&.is-active`).
 
 ## Loading stylesheets
 
-Do not use CSS `@import` to load stylesheets: the browser cannot request the imported sheet until
-the importing sheet arrives, and rendering waits for the whole chain. Use one `<link>` element per
-stylesheet, which load in parallel, or concatenate the files in a build step. The exception is
-`@import url(…) layer(…)` to put a third-party sheet you cannot edit into a cascade layer (see
-`cascade.md`); state its cost when you use it.
+CSS `@import` delays the imported sheet until the importing sheet arrives, and rendering waits for
+the whole chain. Use one `<link>` element per stylesheet, which load in parallel, or concatenate
+the files in a build step. The only exception is `@import url(…) layer(…)` for a third-party sheet
+you cannot edit (see `cascade.md`). State its cost when you use it.

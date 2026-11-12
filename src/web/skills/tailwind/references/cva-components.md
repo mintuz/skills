@@ -1,12 +1,12 @@
 # CVA components
 
-Use CVA only when [Component variants](../SKILL.md#component-variants) selects it. CVA is a dependency (`class-variance-authority`). Without the package, and without the requester choosing it, use the exhaustive `Record<Variant, string>` map.
+Use CVA only when [Component variants](../SKILL.md#component-variants) selects it. Otherwise use the exhaustive `Record<Variant, string>` map.
 
-A CVA definition has a base string shared by all variants, named variant groups (such as `variant` and `size`), default variants, and inferred TypeScript prop types.
+A CVA definition has a base string shared by all variants, named variant groups (such as `variant` and `size`), default variants and inferred TypeScript prop types. Order the class layers as: base styles, variants, sizes, states, overrides.
 
 ## Button
 
-The example is for React 19, where `ref` is a regular prop. On React 18 or earlier, wrap the component in `forwardRef`.
+The example is for React 19. On React 18 or earlier, wrap the component in `forwardRef`.
 
 ```typescript
 // components/ui/button.tsx
@@ -58,15 +58,6 @@ function Button({ className, variant, size, ...props }: ButtonProps) {
 export { Button, buttonVariants }
 ```
 
-## Usage
+Usage: `<Button variant="destructive" size="lg">Delete</Button>`.
 
-```tsx
-<Button>Click me</Button>
-<Button variant="destructive" size="lg">Delete</Button>
-<Button variant="outline">Cancel</Button>
-<Button variant="ghost" size="sm">Edit</Button>
-```
-
-To render the button as another element, add `@radix-ui/react-slot` only when the requester accepts it, and replace the element with `Slot`.
-
-Order the class layers as: base styles, variants, sizes, states, overrides.
+To render the button as another element, replace the element with `Slot` from `@radix-ui/react-slot`. Add that package only when the requester accepts it.

@@ -1,13 +1,12 @@
 # Async testing patterns
 
-## findBy queries
+## findBy*
 
-`findBy*` combines `getBy*` with `waitFor`: it retries the `getBy*` query until it succeeds or the timeout expires. Use it when an element appears after an async operation, when a loading state ends, or when an API response renders content.
+`findBy*` retries the matching `getBy*` query until it succeeds or the timeout expires. Use it for an element that appears after async work, such as the end of a loading state or a rendered API response.
 
 ```typescript
 // Default timeout: 1000 ms
 const message = await screen.findByText(/success/i);
-
 // Custom timeout
 const message = await screen.findByText(/success/i, {}, { timeout: 3000 });
 ```
@@ -18,17 +17,13 @@ Use `waitFor` for a condition that `findBy*` cannot express. It retries the call
 
 ```typescript
 await waitFor(() => {
-  expect(screen.getByText(/loaded/i)).toBeInTheDocument();
-});
-
-await waitFor(() => {
   expect(screen.getAllByRole('listitem')).toHaveLength(10);
 });
 ```
 
 ## waitFor mistakes
 
-**Side effect in the callback.** `waitFor` reruns the callback, so an interaction inside it runs on every retry. Interact once, outside the callback; put only assertions inside it.
+**Side effect in the callback.** `waitFor` reruns the callback, so an interaction inside it runs on every retry.
 
 ```typescript
 // ❌ Clicks on every retry
@@ -44,7 +39,7 @@ await waitFor(() => {
 });
 ```
 
-**Several unrelated assertions in one callback.** `waitFor` reruns the whole callback when any assertion throws, so every assertion retries. The failure message names only the first assertion that threw, so diagnosis is harder. Split unrelated assertions so that each failure is specific. Keep assertions together when the combined state is the condition you wait for, and when either element alone would be a false pass.
+**Unrelated assertions in one callback.** Any throwing assertion reruns all of them, and the failure message names only the first. Split unrelated assertions. Keep assertions together only when the combined state is the condition you wait for, and either element alone would be a false pass.
 
 ```typescript
 // ❌
@@ -53,7 +48,7 @@ await waitFor(() => {
   expect(screen.getByText(/email/i)).toBeInTheDocument();
 });
 
-// ✅ Await each condition on its own
+// ✅
 await screen.findByText(/name/i);
 await screen.findByText(/email/i);
 ```
@@ -71,27 +66,24 @@ await screen.findByText(/success/i);
 
 ## waitForElementToBeRemoved
 
-```typescript
-// Wait for a loading spinner to disappear
-await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+Pass a `queryBy*` callback. The element must be in the DOM when the call starts; otherwise `waitForElementToBeRemoved` throws at once.
 
-// Wait for a modal to close
+```typescript
+await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 await waitForElementToBeRemoved(() => screen.queryByRole('dialog'));
 ```
 
-Pass a `queryBy*` callback, which returns null. The element must be in the DOM when the call starts; otherwise `waitForElementToBeRemoved` throws at once.
+## Settled state before absence
 
-## Prove the settled state before you assert absence
-
-The "Absence" rule in `SKILL.md` applies: wait for a settled state first.
+Apply the "Absence" rule in `SKILL.md`.
 
 ```typescript
-// ❌ Passes for the wrong reason: proves nothing
 await user.click(screen.getByRole('button', { name: /save/i }));
+
+// ❌ Can run before the component reacts, so it proves nothing
 expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
 // ✅ Wait for the settled state, then assert absence
-await user.click(screen.getByRole('button', { name: /save/i }));
 const status = await screen.findByRole('status');
 expect(status).toHaveTextContent(/saved/i);
 expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -99,7 +91,7 @@ expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
 ## Common patterns
 
-**Loading states.** The test controls when the load finishes; the helper owns both states.
+**Loading state.** The test controls when the load finishes. The helper owns both states.
 
 ```typescript
 let resolveUser: (name: string) => void;
@@ -108,44 +100,36 @@ const loadUser = vi.fn(() => new Promise<string>((resolve) => {
 }));
 
 mountUserCard({ loadUser }); // Renders the loading state, then the name
-
 expect(screen.getByText(/loading/i)).toBeInTheDocument();
 
 resolveUser('John Doe');
-
 await screen.findByText(/john doe/i);
-
-// The wait above proves the component reacted, so this absence check is anchored
+// The wait above anchors this absence check
 expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
 ```
 
-**API responses.** Mount the application helper, which owns the request and renders the results.
+**API response.** Mount the helper that owns the request, the submit handler and the rendered results.
 
 ```typescript
 const user = userEvent.setup();
 const search = vi.fn().mockResolvedValue(tenResults);
 
-mountSearchForm({ search }); // Owns the markup, the submit handler and the list
-
+mountSearchForm({ search });
 await user.type(screen.getByLabelText(/search/i), 'react');
 await user.click(screen.getByRole('button', { name: /search/i }));
 
-// Wait for the results after the search promise resolves
 await waitFor(() => {
   expect(screen.getAllByRole('listitem')).toHaveLength(10);
 });
 ```
 
-**Debounced inputs.** The helper owns the debounce timer, so the test waits for the rendered suggestion, not for the timer.
+**Debounced input.** The helper owns the debounce timer. Wait for the rendered suggestion, not for the timer; `findBy*` retries past the debounce delay.
 
 ```typescript
 const user = userEvent.setup();
 const suggest = vi.fn().mockResolvedValue(['React Testing Library']);
 
 mountSuggestField({ suggest });
-
 await user.type(screen.getByLabelText(/search/i), 'react');
-
-// findBy retries past the debounce delay
 await screen.findByText(/react testing library/i);
 ```

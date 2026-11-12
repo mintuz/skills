@@ -1,28 +1,25 @@
 # Testing Forms
 
-## Controlled Inputs
+## Controlled inputs
 
 ```tsx
 it('should update input value as user types', async () => {
   const user = userEvent.setup();
-
   render(<SearchInput />);
 
   const input = screen.getByLabelText(/search/i);
-
   await user.type(input, 'react');
 
   expect(input).toHaveValue('react');
 });
 ```
 
-## Form Submissions
+## Submissions
 
 ```tsx
 it('should submit form with user input', async () => {
   const handleSubmit = vi.fn();
   const user = userEvent.setup();
-
   render(<RegistrationForm onSubmit={handleSubmit} />);
 
   await user.type(screen.getByLabelText(/name/i), 'Alice');
@@ -39,20 +36,17 @@ it('should submit form with user input', async () => {
 });
 ```
 
-## Form Validation
+## Validation
 
-This form validates synchronously on submit, so the errors are present straight after the click. When validation waits on a request, await them with `findByText`.
+This form validates synchronously on submit, so the errors are present directly after the click. When validation waits on a request, await the errors with `findByText`.
 
 ```tsx
 it('should show validation errors for invalid input', async () => {
   const user = userEvent.setup();
-
   render(<RegistrationForm />);
 
-  // Submit empty form
   await user.click(screen.getByRole('button', { name: /sign up/i }));
 
-  // Validation errors appear
   expect(screen.getByText(/name is required/i)).toBeInTheDocument();
   expect(screen.getByText(/email is required/i)).toBeInTheDocument();
   expect(screen.getByText(/password is required/i)).toBeInTheDocument();
