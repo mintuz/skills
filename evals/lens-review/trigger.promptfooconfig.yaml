@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check. The runner refreshes the git-ignored fixture from src/.
+# Run: pnpm test:skills:triggers -- lens-review
+description: lens-review skill trigger selection
+metadata:
+  fixture_skills: [double-check, acceptance-review]
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: Activates on a review of a branch through named skills
+    vars:
+      request: >-
+        Review this branch before I open the PR. Use my typescript and react
+        skills as separate reviewers and give me one report.
+    assert:
+      - type: skill-used
+        value: lens-review
+  - description: Activates on a multi-lens review of uncommitted work
+    vars:
+      request: >-
+        Run a multi-lens review of my uncommitted changes, with react-testing
+        and xstate each reviewing in its own agent.
+    assert:
+      - type: skill-used
+        value: lens-review
+  - description: Leaves a cross-provider second opinion to double-check
+    vars:
+      request: >-
+        I finished the billing migration. Get a second opinion from a model by
+        another provider before I ship it.
+    assert:
+      - type: not-skill-used
+        value: lens-review
+  - description: Leaves a specification verdict to acceptance-review
+    vars:
+      request: >-
+        Does PR 77 meet every acceptance criterion in issue 70? Give me a
+        criterion-by-criterion verdict.
+    assert:
+      - type: not-skill-used
+        value: lens-review

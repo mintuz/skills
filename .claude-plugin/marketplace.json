@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "core",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
@@ -19,6 +19,7 @@
         "./skills/yagni",
         "./skills/gauntlet-loop",
         "./skills/graph-engineering",
+        "./skills/lens-review",
         "./skills/record-lesson",
         "./skills/pr",
         "./skills/pseudocode",

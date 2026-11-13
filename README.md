@@ -353,6 +353,7 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 | [`tdd`](src/core/skills/tdd/SKILL.md) | Framework-neutral Red-Green-Refactor workflow with explicit evidence |
 | [`blast-radius`](src/core/skills/blast-radius/SKILL.md) | Trace material change risks and decisive checks |
 | [`double-check`](src/core/skills/double-check/SKILL.md) | Second opinion from a fresh reviewer, ideally on another provider; findings close only on evidence |
+| [`lens-review`](src/core/skills/lens-review/SKILL.md) | Review a diff through installed skills as isolated lenses, verify every finding and return one ranked report |
 | [`how`](src/core/skills/how/SKILL.md) | Explain the current execution path and state ownership |
 | [`why`](src/core/skills/why/SKILL.md) | Recover rationale while separating fact, inference and unknown |
 | [`benchmark-checklist`](src/core/skills/benchmark-checklist/SKILL.md) | Check measurement correctness, repeatability and interpretation |
