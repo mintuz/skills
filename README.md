@@ -13,11 +13,17 @@ Run these commands in your shell:
 
 ```bash
 codex plugin marketplace add mintuz/skills
-codex plugin list --marketplace mintuz-skills --available
 codex plugin add core@mintuz-skills
+codex plugin add web@mintuz-skills
+codex plugin add typescript@mintuz-skills
+codex plugin add system-design@mintuz-skills
+codex plugin add product-management@mintuz-skills
+codex plugin add app@mintuz-skills
+codex plugin add life@mintuz-skills
+codex plugin add principle@mintuz-skills
 ```
 
-To install a different bundle, replace `core` with its name: `web`, `typescript`, `system-design`, `product-management`, `app`, `life` or `principle`.
+To install only some bundles, remove the lines that you do not need. To see the available bundles, run `codex plugin list --marketplace mintuz-skills --available`.
 
 To install from the ChatGPT desktop app:
 
@@ -28,22 +34,23 @@ To install from the ChatGPT desktop app:
 
 ## Install with Claude Code
 
-Run these commands inside Claude Code:
+Run these commands in your shell:
 
 ```bash
-# Add the marketplace
-/plugin marketplace add https://github.com/mintuz/skills
-
-# Install plugins
-/plugin install core@mintuz-skills
-/plugin install web@mintuz-skills
-/plugin install typescript@mintuz-skills
-/plugin install system-design@mintuz-skills
-/plugin install product-management@mintuz-skills
-/plugin install app@mintuz-skills
-/plugin install life@mintuz-skills
-/plugin install principle@mintuz-skills
+claude plugin marketplace add mintuz/skills
+claude plugin install core@mintuz-skills
+claude plugin install web@mintuz-skills
+claude plugin install typescript@mintuz-skills
+claude plugin install system-design@mintuz-skills
+claude plugin install product-management@mintuz-skills
+claude plugin install app@mintuz-skills
+claude plugin install life@mintuz-skills
+claude plugin install principle@mintuz-skills
 ```
+
+To install only some bundles, remove the lines that you do not need.
+
+You can also install from a Claude Code session. Run each command on its own: `/plugin marketplace add mintuz/skills`, then `/plugin install <bundle>@mintuz-skills` for each bundle.
 
 ## Install with OMP
 
