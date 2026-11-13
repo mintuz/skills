@@ -13,3 +13,6 @@
 | Failing log | `gh run list --branch <branch> --commit <sha>` gives the run ID. Then `gh run view <run-id> --log-failed`. |
 | Re-run | `gh run rerun <run-id> --failed` |
 | Stacked PRs | `gh pr list --base <branch>` |
+| PR details | `gh pr view <n> --json title,body,baseRefName,headRefOid` |
+| PR diff | `gh pr diff <n>` |
+| Comment on the PR | `gh pr comment <n> --body-file <file>` |

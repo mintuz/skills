@@ -15,3 +15,6 @@
 | Failing log | `tea actions runs list --branch <branch> -o json`: keep the run whose commit is the head SHA. `tea actions runs view <run-id> --jobs -o json`: pick the job that matches the failing check. Then `tea actions runs logs <run-id> --job <job-id>`. |
 | Re-run | No `tea` command. Use the forge's web UI if you have browser access. |
 | Stacked PRs | `tea pr ls --limit 50 -o json -f index,base`. Step `--page` until a page is empty. |
+| PR details | `tea api '/repos/{owner}/{repo}/pulls/<n>'`: `title`, `body`, `base.ref`, `head.sha` |
+| PR diff | `tea api '/repos/{owner}/{repo}/pulls/<n>.diff'` |
+| Comment on the PR | `tea api -X POST '/repos/{owner}/{repo}/issues/<n>/comments' -F body=@<file>` |

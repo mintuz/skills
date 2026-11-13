@@ -1,0 +1,24 @@
+This is a read-only scenario evaluation. Do not call tools. Apply the skill below using only facts supplied in the scenario; do not claim actions were executed. Give a concise decision and next steps.
+
+<skill>
+{{skill}}
+</skill>
+
+<lenses-reference path="references/lenses.md">
+{{lenses}}
+</lenses-reference>
+
+<workflow-reference path="references/workflow.md">
+{{workflow}}
+</workflow-reference>
+
+<forgejo-reference path="../babysit/references/forgejo.md">
+{{forgejo}}
+</forgejo-reference>
+
+<github-reference path="../babysit/references/github.md">
+{{github}}
+</github-reference>
+
+Scenario:
+{{scenario}}

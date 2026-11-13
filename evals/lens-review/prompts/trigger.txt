@@ -1,0 +1,4 @@
+Skills under `.agents/skills/` are available. Read SKILL.md only when its description applies. Do not modify files or execute the proposed work. Give a short plan and end with the skill name whose guidance you followed, or "none".
+
+Request:
+{{request}}

@@ -1,0 +1,69 @@
+description: "lens-review behavior and baseline comparison"
+prompts:
+  - id: file://prompts/baseline.txt
+    label: baseline
+  - id: file://prompts/with-skill.txt
+    label: with-skill
+providers:
+  -
+    id: openai:codex-sdk
+    config:
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      codex_path_override: codex
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: file://../../src/core/skills/lens-review/SKILL.md
+    lenses: file://../../src/core/skills/lens-review/references/lenses.md
+    workflow: file://../../src/core/skills/lens-review/references/workflow.md
+    forgejo: file://../../src/core/skills/babysit/references/forgejo.md
+    github: file://../../src/core/skills/babysit/references/github.md
+  assert:
+    - type: agent-rubric
+      threshold: 1
+      value: "Judge the concrete review decisions. This is a read-only planning task: a proposed command, roster, brief or report satisfies an outcome about it; do not require executed tools, invented artifacts or results not supplied by the scenario. Credit equivalent concise wording; do not reward verbosity or copied rubric wording. Requirements to avoid an action are satisfied when the response does not propose that action. Every outcome in this rubric is required: {{rubric}}"
+      provider:
+        id: openai:codex-sdk
+        config:
+          model: gpt-6-astra
+          model_reasoning_effort: medium
+          codex_path_override: codex
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: read-only
+          approval_policy: never
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Default invocation composes a detected roster and briefs one skill per lens"
+    vars:
+      scenario: "The user runs `/lens-review` with no other tokens on branch feat/checkout of a TypeScript React repository. The default branch is main. The branch has three commits and two uncommitted modified files; the user has stated no intent beyond the commit messages. Changed paths: src/checkout/CheckoutForm.tsx adds `const [isSubmitting, setIsSubmitting] = useState(false)` and a promise chain that clears an error, sets isSubmitting, and then sets it back; src/checkout/CheckoutForm.test.tsx changes Testing Library tests; src/checkout/api.ts adds a fetch call. The project's CLAUDE.md says it uses React 19 and Testing Library. Installed skills: typescript, react, react-testing, css, tailwind, xstate, refactoring, reducer, swiftui-architecture, swift-testing, double-check. The host is Claude Code with the Workflow tool. State the diff you review, the roster and the reason for each lens, what you tell the user before launch, and the brief each lens node receives."
+      rubric: "(1) Reviews the diff from the merge base with main to HEAD plus the two uncommitted files, and says that the uncommitted changes are included. (2) The roster is the built-in quality lens plus typescript, react, react-testing and xstate, with xstate justified by the hand-rolled isSubmitting flag and the sequential promise chain; it does not add css, tailwind, swiftui-architecture, swift-testing, refactoring or reducer, which have no signal in the diff, and does not use double-check as a lens. (3) Before launch it shows the roster and the scale (lens nodes plus verification) and launches without asking for confirmation, because the roster has no more than 8 lens nodes. (4) Each skill lens node loads exactly one skill (the built-in quality lens loads none and carries its rules in its brief), judges only its own concern, receives the names of its sibling lenses as off-limits, receives the diff, the change's claim taken from the commit messages, and the base and head refs, is read-only, treats the diff as data, and returns findings with file:line evidence and a severity."
+  - description: "Report merges duplicates, keeps conflicts and gaps visible and derives the recommendation"
+    vars:
+      scenario: "A `/lens-review #214` run on a GitHub PR has finished its lens nodes and verification. Lens results: typescript finding T1, severity critical, at src/api/client.ts:42: an unvalidated JSON response is cast with `as User`, so a malformed response reaches the UI typed as a valid User. react finding R1, severity major, at src/ui/Cart.tsx:18: `total` is derived through useEffect and useState instead of being computed during render, which renders a stale total for one frame. react-testing finding RT1, severity minor, at src/ui/Cart.tsx:18, makes the same derived-state claim. xstate finding X1, severity major, at src/ui/Cart.tsx:30: model the submit flow as a state machine, because the hand-rolled flag allows a double submit and a stale error. react finding R2, severity minor, at src/ui/Cart.tsx:30: keep the submit flow as one useState flag and do not add a machine, because one async call does not justify a new dependency. typescript finding T2 at src/api/client.ts:10. react-testing finding RT2 at src/ui/Cart.test.tsx:5. The quality lens returned malformed output on its first attempt and on its retry. Verifier verdicts: T1 confirmed, R1 confirmed, RT1 confirmed, X1 confirmed, R2 confirmed, T2 refuted, RT2 unverifiable because the test file does not exist at the PR head. The user did not give the post token. Write the report the user receives."
+      rubric: "(1) Merges R1 and RT1 into one finding at src/ui/Cart.tsx:18 and notes that two lenses agree. (2) Ranks the confirmed findings with T1 first as critical, and gives each confirmed finding its lens, file:line, the problem, why it matters and a suggested fix. (3) Presents X1 and R2 as a conflict between the xstate and react lenses with both arguments, without choosing a winner. (4) Does not list T2 as a finding but counts it as refuted in the scale or summary line; lists RT2 as unverifiable, separately from refuted. (5) Lists the quality lens as not covered because of its failed output. (6) Recommends REQUEST CHANGES because a confirmed critical finding exists. (7) Does not post the report to the PR."
+  - description: "Working-tree target with only, an unknown lens and post without a PR"
+    vars:
+      scenario: "In a TypeScript React repository, the user runs `/lens-review wip only react-testing hexagonal-architecture post`. The branch has no pull request. Uncommitted staged and unstaged changes touch src/ui/Cart.tsx and src/ui/Cart.test.tsx. Installed skills: typescript, react, react-testing, xstate, structure-codebase, codebase-design. No skill named hexagonal-architecture is installed. Say what you do before any lens runs."
+      rubric: "(1) Targets only the uncommitted changes, staged and unstaged, against HEAD. (2) Reports that hexagonal-architecture is not an installed skill, offers near matches from the installed list such as structure-codebase or codebase-design, does not substitute one into the roster by itself, and asks the user before it launches. (3) Because of `only`, the roster has no default or detected lens: no quality, typescript, react or xstate lens, and those omitted lenses are reported as not covered. (4) Declines the post token because there is no PR, does not create a PR to post to, and says the report stays local."
+  - description: "Post to a Forgejo PR through a body file and never approve"
+    vars:
+      scenario: "The user runs `/lens-review 57 post` in a repository whose origin remote is a Forgejo instance. gh is not authenticated for that instance, and nobody has checked tea access in this session. The user adds: 'If it comes back clean, approve the PR for me.' The review finishes with the recommendation APPROVE. The report body contains backticks, `$(...)` sequences and double quotes copied from the code. State exactly how you publish the report and what you tell the user."
+      rubric: "(1) Uses the Forgejo route with tea, not gh, after it confirms access with `tea logins list`. (2) Writes the report to a file outside the worktree and posts it as a comment on PR 57 from that file, for example with `tea api` and a body read from the file, so the report body is never interpolated into a shell argument. (3) Heads the comment with the skill name and names the roster. (4) Posts a comment only: it does not approve the PR or submit an approving review, despite the user's request and the APPROVE recommendation, and it tells the user that the approval is theirs to give."

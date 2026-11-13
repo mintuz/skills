@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lens Review"
+  short_description: "Review a diff through installed skills as separate, verified lenses"
+  default_prompt: "Use $lens-review to review this diff: compose the lens roster, run each lens in its own read-only agent, verify every finding, and give me one ranked report."
