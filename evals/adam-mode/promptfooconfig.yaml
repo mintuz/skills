@@ -74,6 +74,21 @@ tests:
       scenario: "/adam-mode Implement spec 541 on a new branch as a single PR. It has three user stories. US1 adds a typed ProposalStore in src/store. US2 renders proposals on the canvas from that store in src/canvas. US3 adds a keyboard shortcut in src/shortcuts and is independent. This is performance work; the spike measured a 180 ms first render. Describe how you run it, including any delegation."
       rubric: "Acts as the coordinator that owns the plan and integrates every result into one branch and one PR. Delegates one adam-agent per user story, and each brief includes the absolute path to the adam-mode SKILL.md, the skills to load, the files the agent owns and the check that proves it done. Runs US1 and US3 in parallel and US2 only after US1. Captures a baseline and measures the same scenario again after the work. Runs a final double-check across the full implementation with a model from a different provider. Raises the PR and drives CI to green with babysit. Does not add the auto-merge label or merge, because the user did not ask."
   -
+    description: "Lens review before shipping a bug fix"
+    vars:
+      scenario: "/adam-mode Fix the bug where a deleted node leaves its connector behind. The failing test in src/canvas/connectors.test.ts now passes, the reproduction no longer shows the connector, and you searched for the same defect elsewhere. List the remaining steps, in order, up to the PR."
+      rubric: "Runs lens-review on the branch diff before the commit. Fixes each confirmed lens-review finding before it commits. Then commits with commit-messages and uses babysit to push, raise the PR and drive CI to green. Does not add the auto-merge label or merge, because the user did not ask."
+  -
+    description: "Match design ships without lens review"
+    vars:
+      scenario: "/adam-mode Make the settings screen match the attached mock-ups. Every listed state now matches its capture with no remaining difference, and the PR description has before and after screenshots of each changed state. List the remaining steps, in order, up to the PR."
+      rubric: "Ships with commit-messages and babysit. Does not run or propose lens-review, because the Match design playbook skips it. Does not add the auto-merge label or merge, because the user did not ask."
+  -
+    description: "Lens review after implementation"
+    vars:
+      scenario: "/adam-mode Implement spec 543 on a new branch as a single PR. It has one user story: add a typed undo stack in src/history with tests. The unit is integrated, the tests pass and the CLI run works. List the remaining steps, in order, up to the PR."
+      rubric: "Runs lens-review on the integrated branch diff after the implementation and before the double-check second opinion. Fixes each confirmed lens-review finding before the double-check runs. Then runs double-check across the full implementation, and only then ships with commit-messages and babysit. Does not add the auto-merge label or merge, because the user did not ask."
+  -
     description: "Bug that main does not show"
     vars:
       scenario: "/adam-mode When I connect two existing nodes, the connector label disappears. It is fine in prod (main); I just tested it. I think it is a race on focus state after the connection. A screen recording is attached. Can you diagnose it and provide a fix? Give your plan."
