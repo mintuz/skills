@@ -12,8 +12,12 @@ Adaptations narrow triggers, remove provider dependencies, preserve scoped autho
 
 `writing-for-humans` includes material covered by the Lauren Tan, Peter Yang and Addy Osmani MIT notices below.
 
+The formal-verification pair adapts the [pstack create and maintain workflows](https://github.com/cursor/plugins/tree/e58dd043600587dbaf58ba315e7f2b38373eeb43/pstack/skills) for the Everystate checker.
+
 ## Derived skills
 
+- `create-formal-verification-skill`
+- `maintain-formal-verification-skill`
 - `create-verification-skill`
 - `writing-for-humans`
 - `maintain-verification-skill`

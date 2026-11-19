@@ -354,6 +354,8 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 | [`writing-for-agents`](src/core/skills/writing-for-agents/SKILL.md) | Concise agent handovers and skill instructions that preserve scope, evidence and completion conditions |
 | [`writing-for-humans`](src/core/skills/writing-for-humans/SKILL.md) | Draft, edit and review human prose with contextual word bans, medium-specific voice and factual safeguards |
 | [`wtf`](src/core/skills/wtf/SKILL.md) | Re-explain an unclear response in plain, precise UK English |
+| [`create-formal-verification-skill`](src/core/skills/create-formal-verification-skill/SKILL.md) | Create a project-local Everystate model check and exercise it against real code |
+| [`maintain-formal-verification-skill`](src/core/skills/maintain-formal-verification-skill/SKILL.md) | Audit covered code for model drift and replay the implementation checks |
 | [`create-verification-skill`](src/core/skills/create-verification-skill/SKILL.md) | Create and cold-replay a shared project verification bundle with indexed coverage |
 | [`maintain-verification-skill`](src/core/skills/maintain-verification-skill/SKILL.md) | Repair verification recipes and harness discovery without changing product expectations |
 | [`visual-feedback`](src/core/skills/visual-feedback/SKILL.md) | Reproduce and compare visual states in web and iOS applications |

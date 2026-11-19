@@ -1,0 +1,36 @@
+# Trigger-selection suite against the current canonical source.
+description: "create-formal-verification-skill activation versus creation and routine execution"
+prompts:
+  - id: "file://prompts/trigger.txt"
+    label: "trigger"
+metadata:
+  fixture_skills:
+    - maintain-formal-verification-skill
+providers:
+  - id: "openai:codex-sdk"
+    config: &isolated_provider
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - vars:
+      request: "Build our first project-local Everystate verification skill for worker ownership."
+    assert:
+      - type: skill-used
+        value: create-formal-verification-skill
+  - vars:
+      request: "Audit and refresh our existing Everystate skill after the lease release callback moved."
+    assert:
+      - type: skill-used
+        value: maintain-formal-verification-skill
