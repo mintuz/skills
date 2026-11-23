@@ -162,6 +162,14 @@ struct PreferencesView: View {
     enum Theme: String, CaseIterable, Identifiable {
         case light, dark, system
         var id: String { rawValue }
+
+        var title: LocalizedStringResource {
+            switch self {
+            case .light: "Light"
+            case .dark: "Dark"
+            case .system: "System"
+            }
+        }
     }
 
     var body: some View {
@@ -169,7 +177,7 @@ struct PreferencesView: View {
             Section("Appearance") {
                 Picker("Theme", selection: $theme) {
                     ForEach(Theme.allCases) { theme in
-                        Text(theme.rawValue.capitalized)
+                        Text(theme.title)
                             .tag(theme)
                     }
                 }
@@ -179,7 +187,7 @@ struct PreferencesView: View {
             Section("Language") {
                 Picker("Language", selection: $language) {
                     ForEach(Language.allCases) { language in
-                        Text(language.displayName)
+                        Text(language.localizedTitle)
                             .tag(language)
                     }
                 }

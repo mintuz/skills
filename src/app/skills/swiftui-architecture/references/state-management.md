@@ -4,7 +4,9 @@
 
 ### @State - Local, ephemeral view state
 
-For view-specific state (toggles, text input, local UI state). The view owns it; it dies with the view.
+For view-specific state (toggles, text input, local UI state) and view-owned `@Observable` models. The view owns it; it dies with the view.
+
+Always mark `@State` properties `private`. On iOS 17 / macOS 14+, the `@State` macro defers evaluating the initial value expression into a lazy closure only when the getter is `private` (or `fileprivate`); non-private `@State` properties run their initialiser eagerly on every view value creation. During reviews, recommend making existing non-private `@State` properties `private` rather than changing their visibility unprompted.
 
 ```swift
 struct ContentView: View {
@@ -22,9 +24,14 @@ struct ContentView: View {
 }
 ```
 
-### @Binding - Two-way connection between views
+### @Binding and KeyPath Projections
 
-Shares state between parent and child: the parent owns it, the child reads and writes it.
+Shares mutable state between parent and child: the parent owns it, the child reads and writes it.
+
+Avoid closure-based `Binding(get:set:)` in `body`: it heap-allocates on every body evaluation and breaks comparison, causing unnecessary invalidations. Prefer KeyPath bindings via `@Bindable`:
+
+- For argument-less projections (for example `isPlaying` derived from `rate > 0`), add a computed get/set property on the `@Observable` model and pass `$model.isPlaying`.
+- For parameterised projections, define a labeled `subscript` on the `@Observable` model and pass `$model[scoreFor: player]`.
 
 ```swift
 struct ParentView: View {
@@ -46,13 +53,14 @@ struct ChildView: View {
 }
 ```
 
-### @Observable - Shared state across views (preferred for new code)
+### @Observable - Shared state and invalidation control (preferred for new code)
 
-For shared state, services, and managers. Replaces `ObservableObject`, with finer-grained, more efficient updates.
+For shared services, managers, and view-local caching/coarsening models. Replaces `ObservableObject` with per-property tracking. Mark `@Observable` classes `@MainActor` (unless default actor isolation is MainActor) and make stored property types `Equatable` (see `references/observable-patterns.md`).
 
 ```swift
 @Observable
-class AppAccountsManager {
+@MainActor
+final class AppAccountsManager {
     var currentAccount: Account?
     var availableAccounts: [Account] = []
 
@@ -154,3 +162,8 @@ struct SearchView: View {
     // ...
 }
 ```
+
+### Narrow Value-Type Inputs and `.onChange(of:)` Isolation
+
+- **Value vs reference inputs:** SwiftUI compares `struct` inputs field by field, so any changed field invalidates `body` even if unread. Pass every view (including top-level screens) only the fields it reads or forwards. For large decoded structs (nested arrays, long strings, dozens of fields), split into per-view structs or hold the payload inside an `@Observable` model to avoid deep comparisons.
+- **Isolate `.onChange(of:)` side effects:** Reading an `@Environment`, `@Binding`, or `@Observable` value inside `.onChange(of:)` subscribes the enclosing view even if the value is not rendered. When a view has an expensive `body` and reads a dependency solely for `.onChange(of:)`, move the read and `.onChange(of:)` into a dedicated `ViewModifier` so only the modifier body re-runs. Do not apply this extraction when the view already renders that dependency or its `body` is trivial.

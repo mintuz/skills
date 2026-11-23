@@ -97,7 +97,7 @@
     },
     {
       "name": "app",
-      "version": "1.10.1",
+      "version": "1.11.0",
       "source": "./src/app",
       "description": "Agents and skills for Swift app development on iOS",
       "skills": [
@@ -111,7 +111,15 @@
         "./skills/ios-localize-copy",
         "./skills/xcode-dev-loop",
         "./skills/asc-screenshots",
-        "./skills/local-ai-models"
+        "./skills/local-ai-models",
+        "./skills/app-intents-whats-new-27",
+        "./skills/app-resizability",
+        "./skills/audit-xcode-security-settings",
+        "./skills/building-document-based-swiftui-applications",
+        "./skills/siri-app-integration",
+        "./skills/siri-evaluations",
+        "./skills/swiftui-whats-new-27",
+        "./skills/xctrace"
       ]
     },
     {

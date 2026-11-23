@@ -10,6 +10,9 @@ prompts:
 providers:
   - id: openai:codex-sdk
     config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
       working_dir: ./workspace
       skip_git_repo_check: true
       sandbox_mode: read-only
@@ -38,6 +41,9 @@ defaultTest:
       provider:
         id: openai:codex-sdk
         config:
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
           working_dir: ./workspace
           skip_git_repo_check: true
           sandbox_mode: read-only
@@ -157,3 +163,32 @@ tests:
         - Guarantees a superseded save cannot write the status, for example by cancelling it and checking cancellation before publishing any result or error.
         - Decides explicitly what happens on disappearance, either cancelling the task from the view or handing it to a longer-lived owner, and says which behaviour it chose.
         - Treats cancellation as a non-error outcome so no error alert is shown for a cancelled or superseded save, and does not invent APIs or persistence details beyond `save(_:) async throws`.
+
+  - description: Fix @Observable invalidation granularity, @Entry pitfalls, and ForEach/List fast-path bugs
+    vars:
+      skill: file://../../src/app/skills/swiftui-architecture/SKILL.md
+      reference: file://../../src/app/skills/swiftui-architecture/references/observable-patterns.md
+      scenario: >-
+        Review a SwiftUI screen from these facts only; do not execute commands
+        or invent project details.
+        (1) An `@Observable` `FeedModel` (missing `@MainActor`) holds a nested
+        `var user: UserProfile` struct (non-`Equatable`) and a computed
+        `var activeItems: [FeedItem] { items.filter(\.isActive) }`. Every row
+        passes `index` and reads `model.items[index].title`.
+        (2) A custom `@Entry var onSelect: (UUID) -> Void = { _ in }` and
+        `@Entry var cache = ImageCache()` (where `ImageCache` is a class) emit
+        Xcode `@Entry` invalidation warnings, and another view writes live
+        scroll offset into `.environment(\.scrollOffset, offset)` on every frame.
+        (3) `List` wraps `ForEach(model.items.enumerated(), id: \.offset)` whose
+        row body is a bare top-level `if`/`else` returning `AnyView`, and a
+        conditional `.foregroundStyle` branch uses an `.if(...)` `@ViewBuilder`
+        extension when switching between `.primary` and `.tint`.
+        (4) Inside a Swift package, a view uses `Text("Explore")` without a
+        bundle and formats a date with `DateFormatter` in `View.init`.
+        Identify every defect and give the exact modern SwiftUI fix for each.
+      rubric: |-
+        - Fixes `FeedModel`: marks `@Observable` `@MainActor` (unless default actor isolation is MainActor), makes stored property and collection element types `Equatable`, flattens nested value-type structs or caches derived filtered collections instead of recomputing inline in `body`, and stops rows from indexing back into `model.items[index]` (passing narrow fields or persisted per-row `@Observable` models instead).
+        - Fixes `@Entry` and environment performance: removes the custom closure from `@Entry` (defunctionalised struct with `callAsFunction` or `@Observable` model), fixes the unstable class default (`private static let` or optional `@Entry var cache: ImageCache?` instead of fresh `ImageCache()`), and moves high-frequency scroll offset out of `.environment` into a coarsened `@Observable` model or `scrollTransition`/`visualEffect`.
+        - Fixes `ForEach`/`List` and modifiers: replaces `id: \.offset` with stable element identity (`id: \.element.id`), replaces `AnyView` and multi-shape bare `if`/`else` rows with a unary single-root concrete row `View` struct (noting `List` templating fast path), and replaces the `.if(...)` `@ViewBuilder` modifier with a ternary using `AnyShapeStyle(...)` to unify `.primary` and `.tint`.
+        - Fixes package localization and `View.init`: passes `bundle: #bundle` for strings inside a Swift package, removes `DateFormatter` work from `View.init` (keeping `init` constant-time), and uses `Text(date, format: ...)` in `body`.
+        - Does not invent unrelated files or APIs and does not claim to have compiled or run anything.

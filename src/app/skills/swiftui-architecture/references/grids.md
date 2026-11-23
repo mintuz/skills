@@ -308,16 +308,23 @@ struct PhotoCell: View {
 
 ### Stable IDs
 
+Use a stored stable ID or derive `id` from an immutable (`let`) natural key. Never derive `id` from a mutable (`var`) property or construct fresh `UUID()` values inside `body` (see `references/foreach.md`):
+
 ```swift
-// Good: Stable identifier
+// Good: Stored stable identifier or immutable natural key
 struct Photo: Identifiable {
-    let id: UUID  // Consistent
+    let id: UUID
     var url: URL
 }
 
-// Bad: Computed ID
-struct Photo: Identifiable {
-    var id: String { url.absoluteString }  // Changes if URL changes
+struct RemotePhoto: Identifiable {
+    let url: URL
+    var id: URL { url }  // Safe because `url` is immutable (`let`)
+}
+
+// Bad: Derived from a mutable property
+struct MutablePhoto: Identifiable {
+    var id: String { url.absoluteString }  // Changes if `url` mutates
     var url: URL
 }
 ```

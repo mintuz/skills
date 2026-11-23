@@ -412,6 +412,14 @@ The `writing-for-humans` [behavioural suite](evals/writing-for-humans/promptfooc
 | [`ios-localize-copy`](src/app/skills/ios-localize-copy/SKILL.md) | Localise iOS and App Store copy across every supported locale |
 | [`xcode-dev-loop`](src/app/skills/xcode-dev-loop/SKILL.md) | Canonical xcodebuild build/test/simulator loop: background runs, result reading, screenshots |
 | [`asc-screenshots`](src/app/skills/asc-screenshots/SKILL.md) | Upload App Store screenshots and previews through helm-asc: staging, locales, verification |
+| [`app-intents-whats-new-27`](src/app/skills/app-intents-whats-new-27/SKILL.md) | Apple Xcode 27 guide to new iOS 26 and iOS 27 App Intents APIs, behaviours, and deprecations |
+| [`app-resizability`](src/app/skills/app-resizability/SKILL.md) | Apple Xcode 27 guide to resizable UIKit apps for Stage Manager, split-screen, and foldable iPhone Duo |
+| [`audit-xcode-security-settings`](src/app/skills/audit-xcode-security-settings/SKILL.md) | Apple Xcode 27 guide to auditing and enabling security-oriented Xcode build settings and hardening |
+| [`building-document-based-swiftui-applications`](src/app/skills/building-document-based-swiftui-applications/SKILL.md) | Apple Xcode 27 guide to building and migrating SwiftUI document-based apps with the `Document` protocol |
+| [`siri-app-integration`](src/app/skills/siri-app-integration/SKILL.md) | Apple Xcode 27.3 guide to integrating apps with Siri's model (`@AppIntent(.tool)`, generable entities, `Skills.skillsbundle`) |
+| [`siri-evaluations`](src/app/skills/siri-evaluations/SKILL.md) | Apple Xcode 27.3 guide to writing, running, and analysing `SiriEvaluations` scenarios |
+| [`swiftui-whats-new-27`](src/app/skills/swiftui-whats-new-27/SKILL.md) | Apple Xcode 27 guide to new SwiftUI 27 APIs, behaviours, and `@State` macro migration |
+| [`xctrace`](src/app/skills/xctrace/SKILL.md) | Apple Xcode 27 guide to profiling, capturing traces, and triaging hangs with `xctrace` |
 
 ### TypeScript
 

@@ -32,14 +32,15 @@ Use `LazyVStack` for large collections to defer loading, and a plain `VStack` fo
 ### Horizontal Scrolling
 
 ```swift
-ScrollView(.horizontal, showsIndicators: false) {
+ScrollView(.horizontal) {
     LazyHStack(spacing: 12) {
         ForEach(tags) { tag in
-            TagChip(tag: tag)
+            TagChip(title: tag.name)
         }
     }
     .padding(.horizontal)
 }
+.scrollIndicators(.hidden)
 ```
 
 ## Scroll Position Management
@@ -73,39 +74,28 @@ struct ChatView: View {
 }
 ```
 
-### Track Scroll Position (iOS 17+)
+### Track Scroll Geometry (iOS 18+)
+
+Use `onScrollGeometryChange` and coarsen values into a boolean or bucket rather than writing per-frame raw offsets into `@Environment` or broad `@State` (see `references/environment.md`). For purely visual scroll effects (scale, opacity, rotation), prefer `scrollTransition` or `visualEffect(in:)`.
 
 ```swift
 struct TrackingScrollView: View {
-    @State private var scrollPosition: CGPoint = .zero
+    let items: [Item]
+    @State private var isScrolledPastHeader = false
 
     var body: some View {
         ScrollView {
             LazyVStack {
                 ForEach(items) { item in
-                    ItemView(item: item)
+                    ItemView(title: item.name, date: item.date)
                 }
             }
-            .background(
-                GeometryReader { geometry in
-                    Color.clear.preference(
-                        key: ScrollOffsetKey.self,
-                        value: geometry.frame(in: .named("scroll")).origin
-                    )
-                }
-            )
         }
-        .coordinateSpace(name: "scroll")
-        .onPreferenceChange(ScrollOffsetKey.self) { value in
-            scrollPosition = value
+        .onScrollGeometryChange(for: Bool.self) { geometry in
+            geometry.contentOffset.y > 120
+        } action: { _, passed in
+            isScrolledPastHeader = passed
         }
-    }
-}
-
-struct ScrollOffsetKey: PreferenceKey {
-    static var defaultValue: CGPoint = .zero
-    static func reduce(value: inout CGPoint, nextValue: () -> CGPoint) {
-        value = nextValue()
     }
 }
 ```
@@ -234,28 +224,38 @@ ScrollView {
 
 ### Avoid Expensive Operations in Rows
 
+Keep `View.init` and `body` free of `DateFormatter` allocations, JSON decoding, or file I/O. For dates and numbers, use SwiftUI's cached, locale-aware `Text(_:format:)` directly in `body` (see `references/structure.md` and `references/localization.md`):
+
 ```swift
-// Good: Cache or pre-compute
+// Good: Narrow inputs and cached locale-aware formatting
 struct ItemView: View {
-    let item: Item
-    let formattedDate: String  // Pre-computed
+    let title: String
+    let date: Date
 
     var body: some View {
-        VStack {
-            Text(item.name)
-            Text(formattedDate)
+        VStack(alignment: .leading) {
+            Text(title)
+            Text(date, format: .dateTime.day().month().year())
         }
     }
 }
 
-// Bad: Compute on every render
-struct ItemView: View {
+// Bad: Allocating DateFormatter in init or body on every render
+struct BadItemView: View {
     let item: Item
+    let formattedDate: String
+
+    init(item: Item) {
+        self.item = item
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        self.formattedDate = formatter.string(from: item.date)
+    }
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Text(item.name)
-            Text(item.date.formatted())  // Formats every render!
+            Text(formattedDate)
         }
     }
 }

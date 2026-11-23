@@ -10,6 +10,9 @@ prompts:
 providers:
   - id: openai:codex-sdk
     config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
       working_dir: ./workspace
       skip_git_repo_check: true
       sandbox_mode: read-only
@@ -38,6 +41,9 @@ defaultTest:
       provider:
         id: openai:codex-sdk
         config:
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
           working_dir: ./workspace
           skip_git_repo_check: true
           sandbox_mode: read-only
@@ -168,3 +174,29 @@ tests:
         - Traces the empty run to the `-only-testing` selector no longer matching the renamed suite, so no test was selected, instead of concluding that the tests were deleted or that they passed.
         - Names the missing evidence and how to obtain it: an expected test count taken from the target's tests or test plan rather than from the run under judgement, then a run whose selector is corrected or removed, written to a fresh result bundle that reports that count.
         - Does not state a current test count, a per-test outcome, or any log line that the scenario did not supply.
+
+  - description: Preserve continueAfterFailure, tearDown, expectations, skips, and Foundation imports during XCTest migration
+    vars:
+      skill: file://../../src/app/skills/swift-testing/SKILL.md
+      scenario: >-
+        Migrate one XCTestCase subclass, `SyncClientTests`, to Swift Testing
+        from these facts only; do not execute anything or invent results.
+        The file currently imports `XCTest` only (not `Foundation`), even though
+        it constructs `URL` and `Data`. `setUp()` sets `continueAfterFailure = false`
+        and creates a temporary file on disk; `tearDown()` deletes that temporary
+        file. `testRetriesAndTolerance` has three assertions: `XCTAssertNoThrow(try client.prepare())`,
+        `XCTAssertEqual(client.progress, 0.5, accuracy: 0.01)`, and an
+        `XCTestExpectation` with `expectedFulfillmentCount = 3` and
+        `assertForOverFulfill = false` awaited with `await fulfillment(of:)`.
+        `testOptionalSync` calls `try XCTSkipIf(!env.enabled)` at the top, then
+        calls `throw XCTSkip("feature disabled on server")` mid-test if the
+        server flag is false, wraps a known intermittent bug in
+        `XCTExpectFailure("flaky", options: .nonStrict()) { ... }`, and saves a
+        `Codable` diagnostics payload with `XCTAttachment` + `self.add(...)`.
+        Give the migration decisions and converted Swift Testing patterns.
+      rubric: |-
+        - Adds explicit `import Foundation` when removing `import XCTest`, because `Testing` does not re-export Foundation (`URL`, `Data`).
+        - Uses a `final class` or `actor` suite with `deinit` (not a `struct`) to preserve `tearDown()` cleanup, and converts every assertion in the class to `try #require` (in `throws` tests) because `continueAfterFailure = false` in `setUp()` applies to all assertions across all methods and must not be downgraded to `#expect`.
+        - Replaces `XCTAssertNoThrow` with `#expect(throws: Never.self)` or `try #require(throws: Never.self)`, replaces `XCTAssertEqual(_:_:accuracy:)` with an explicit floating-point tolerance check (noting Swift Testing has no accuracy overload), and replaces `XCTestExpectation` (`expectedFulfillmentCount = 3`, `assertForOverFulfill = false`) with `await confirmation(expectedCount: 3...)`.
+        - Maps `XCTSkipIf` to `@Test(.disabled(if:))`, mid-test `throw XCTSkip(...)` to `try Test.cancel(...)`, non-strict `XCTExpectFailure` to `withKnownIssue(..., isIntermittent: true)`, and `XCTAttachment` + `add(...)` to `Attachment.record(...)`.
+        - Does not add defensive `@MainActor` or `.serialized` without evidence, does not invent underscore-prefixed private Swift Testing APIs, and does not claim to have compiled or run the code.
