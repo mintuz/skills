@@ -132,24 +132,32 @@ List(items) { item in
 
 ## Search Integration
 
+Cache filtered items instead of filtering inline inside `List` on every `body` evaluation (see `references/foreach.md`):
+
 ```swift
 struct SearchableList: View {
     @State private var items: [Item] = []
+    @State private var filteredItems: [Item] = []
     @State private var searchText = ""
-
-    var filteredItems: [Item] {
-        if searchText.isEmpty {
-            return items
-        }
-        return items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-    }
 
     var body: some View {
         List(filteredItems) { item in
-            ItemRow(item: item)
+            ItemRow(title: item.name)
         }
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
         .navigationTitle("Items")
+        .onChange(of: searchText, initial: true) { _, query in
+            updateFilteredItems(query: query)
+        }
+        .onChange(of: items) { _, _ in
+            updateFilteredItems(query: searchText)
+        }
+    }
+
+    private func updateFilteredItems(query: String) {
+        filteredItems = query.isEmpty
+            ? items
+            : items.filter { $0.name.localizedCaseInsensitiveContains(query) }
     }
 }
 ```

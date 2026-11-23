@@ -97,8 +97,13 @@ enum AppTab: String, TabType, CaseIterable {
         }
     }
 
-    var title: String {
-        rawValue.capitalized
+    var title: LocalizedStringResource {
+        switch self {
+        case .home: "Home"
+        case .search: "Search"
+        case .profile: "Profile"
+        case .settings: "Settings"
+        }
     }
 }
 
@@ -108,16 +113,14 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $router.selectedTab) {
             ForEach(AppTab.allCases) { tab in
-                NavigationStack(path: $router[tab]) {
-                    tabContent(for: tab)
-                        .navigationDestination(for: Destination.self) { destination in
-                            destinationView(for: destination)
-                        }
+                Tab(tab.title, systemImage: tab.icon, value: tab) {
+                    NavigationStack(path: $router[tab]) {
+                        tabContent(for: tab)
+                            .navigationDestination(for: Destination.self) { destination in
+                                destinationView(for: destination)
+                            }
+                    }
                 }
-                .tabItem {
-                    Label(tab.title, systemImage: tab.icon)
-                }
-                .tag(tab)
             }
         }
         .sheet(item: $router.presentedSheet) { sheet in

@@ -1,0 +1,53 @@
+description: "create-formal-verification-skill workflow versus no-skill baseline"
+prompts:
+  - id: "file://prompts/baseline.txt"
+    label: "baseline"
+  - id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  - id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: "file://../../src/core/skills/create-formal-verification-skill/SKILL.md"
+  assert:
+    - type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented execution claims. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "create an Everystate project skill"
+    vars:
+      scenario: "Our queue releases its lease after an await. A retry can install a new worker under the same key. Build a reusable project skill for checking that cleanup preserves its successor. We have ordered runtime events and CI. Provide the verification design and the evidence needed for handoff."
+      rubric: "Maps distinct worker identity and the await to separate model actions; states finite bounds and coverage. Specifies pinned Everystate, passing JSON outcome, broken guard exiting 12 on the specific ownership invariant, and conform using ordered implementation observations. Requires a real-code scratch mutation caught by the gate and a checked source revision in the generated project skill."

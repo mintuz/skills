@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "core",
-      "version": "6.3.0",
+      "version": "6.4.0",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
@@ -28,7 +28,9 @@
         "./skills/writing-for-humans",
         "./skills/wtf",
         "./skills/github-monitor",
+        "./skills/create-formal-verification-skill",
         "./skills/create-verification-skill",
+        "./skills/maintain-formal-verification-skill",
         "./skills/maintain-verification-skill",
         "./skills/visual-feedback",
         "./skills/tdd",
@@ -102,7 +104,7 @@
     },
     {
       "name": "app",
-      "version": "1.10.1",
+      "version": "1.11.0",
       "source": "./src/app",
       "description": "Agents and skills for Swift app development on iOS",
       "skills": [
@@ -116,7 +118,15 @@
         "./skills/ios-localize-copy",
         "./skills/xcode-dev-loop",
         "./skills/asc-screenshots",
-        "./skills/local-ai-models"
+        "./skills/local-ai-models",
+        "./skills/app-intents-whats-new-27",
+        "./skills/app-resizability",
+        "./skills/audit-xcode-security-settings",
+        "./skills/building-document-based-swiftui-applications",
+        "./skills/siri-app-integration",
+        "./skills/siri-evaluations",
+        "./skills/swiftui-whats-new-27",
+        "./skills/xctrace"
       ]
     },
     {

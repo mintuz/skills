@@ -139,6 +139,22 @@ a migration. Return here to execute and interpret the real result.
   or another public-action boundary.
 - Read the accessibility hierarchy before you tap; coordinates are the last resort.
 
+### 4b. Xcode 27 Device Interaction MCP (`DeviceInteraction*`)
+
+When Xcode's `DeviceInteraction*` MCP tools are available (and you want Xcode to build, install, drive, and capture on a device or simulator), use this lifecycle — and read `references/device-interaction.md` for the full `interactionCommand` syntax (gestures, keyboard, foldable `hinge`, watchOS crown, and tvOS focus-based Siri Remote chaining):
+
+1. **Start session:** Use `DeviceInteractionStartWorkspaceSession` (workspace-backed; start early, runs in the background; required before `DeviceInteractionInstallAndRun`) when verifying the app you are building, or `DeviceInteractionStartSession` only for an already-installed app. Pass a device identifier, omit it for the current destination, or pass `""` to list available targets.
+2. **Build, install, and launch:** Call `DeviceInteractionInstallAndRun` after each code change. Pass per-run `commandLineArguments` (for example `["$(inherited)", "--reset-state"]`) and `environmentVariables` (for example `{"$(inherited)": "", "DEBUG_MODE": "1"}`) instead of editing the Xcode scheme directly.
+3. **Observe before and after interacting (`DeviceEventSynthesize`):**
+   - Call `DeviceEventSynthesize` with an empty `interactionCommand` to capture the hierarchy and screenshot before interacting, and capture again after each interaction to verify the outcome.
+   - **Coordinate priority:** Prefer calculated `hitPoint` coordinates from the hierarchy over raw screenshot estimates. State the fallback explicitly: fall back to screenshot-estimated coordinates only after confirming (via recapture) that a `hitPoint` tap had no effect, or when an element is marked `isRemoteLeafPlaceholder`.
+   - **Multi-app overlap (`activationBundleId`):** Application activation is expensive, so pass `activationBundleId` to `DeviceEventSynthesize` **only** when interacting with an element whose hierarchy line carries `activationBundleId: <bundle-id>` (never on ordinary controls).
+4. **Timing, retries, and judging results:**
+   - If the post-launch hierarchy is empty, shows a launch screen, or shows a loading spinner, recapture after it settles; avoid arbitrary fixed wait delays.
+   - If a tap or swipe produces no expected change (for example during an animation), recapture the hierarchy and retry **at most once**; if it still fails, report the failure instead of retrying indefinitely.
+   - Always report **functional bugs**, **visual/layout bugs** (overlapping or clipped text/images, wrong colours, alignment defects), and **unexpected exits/crashes** (track PID and stdout). Do **not** report **transient states** (spinners, brief animations, keyboard transitions) or **expected states** (empty placeholders, disabled incomplete-form buttons, permission dialogs) as bugs.
+5. **End session:** Always call `DeviceInteractionEndSession` when verification finishes — leaving sessions open is resource-heavy.
+
 ## 5. Screenshots
 
 - Pick ONE capture mechanism per run: `xcrun simctl io <udid> screenshot <path>.png` when

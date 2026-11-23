@@ -248,3 +248,28 @@ tests:
         - Does not shut down, reset, erase or replace the user's pre-existing simulator, or equate a pinned UDID or serial test lease with lifecycle ownership.
         - Reports shutdown-based recovery as blocked by the missing ownership/authority, retains the original log/status/result evidence and does not launch a blind or concurrent retry.
         - Limits any cleanup to resources this run still owns, preserves user state and makes no unobserved test-count, per-case or recovery-success claim.
+
+  - description: Drive and verify a UI change using Xcode Device Interaction MCP tools
+    vars:
+      skill: file://../../src/app/skills/xcode-dev-loop/SKILL.md
+      scenario: >-
+        You just changed a login form in an Xcode workspace and Xcode's
+        `DeviceInteraction*` MCP tools (`DeviceInteractionStartWorkspaceSession`,
+        `DeviceInteractionInstallAndRun`, `DeviceEventSynthesize`,
+        `DeviceInteractionEndSession`) are available. The login screen needs the
+        launch argument `--reset-state` and environment variable `DEBUG_MODE=1`
+        for this run only without modifying the shared Xcode scheme. A banner
+        from another app overlaps the top of the screen, so the hierarchy
+        annotates an element with `activationBundleId: com.example.banner`.
+        After tapping the Sign In button using its hierarchy `hitPoint`, nothing
+        changes on the first capture while an animation is finishing; a loading
+        spinner then appears briefly before the home screen renders. Give the
+        exact session lifecycle, launch-option strategy, interaction rules,
+        retry/judgement rules, and teardown; do not execute commands or invent
+        results.
+      rubric: |-
+        - Uses `DeviceInteractionStartWorkspaceSession` (workspace-backed, required for install-and-run), then `DeviceInteractionInstallAndRun` passing `commandLineArguments` and `environmentVariables` with `$(inherited)` so the scheme is not edited directly, and ends with `DeviceInteractionEndSession` so the resource-heavy session is not left open.
+        - Captures hierarchy and screenshot before interacting (for example `DeviceEventSynthesize` with an empty `interactionCommand`), prefers hierarchy `hitPoint` coordinates over raw screenshot estimates, and falls back to screenshot coordinates only if a `hitPoint` fails or an element is `isRemoteLeafPlaceholder`.
+        - Passes `activationBundleId` only when interacting with an element carrying that annotation, omitting it for ordinary login controls.
+        - Handles timing cleanly: recaptures and retries an ineffective tap at most once (never retrying indefinitely), treats the loading spinner as a transient state rather than a bug (recapturing once it settles), and distinguishes real functional/visual bugs or unexpected exits from transient or expected UI states.
+        - Does not invent Xcode scheme names, bundle identifiers, coordinates, or claim to have run the tools.
