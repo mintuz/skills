@@ -4,34 +4,35 @@ Builds on the AppRouter setup in `references/navigation-patterns.md`.
 
 ## Tab Selection Hooks
 
-Use a custom binding to intercept tab selection:
+Expose a KeyPath computed property on the `@Observable` router/model (avoid closure `Binding(get:set:)` in `body`; see `references/state-management.md`) and use the modern `Tab` API (iOS 18+, avoiding soft-deprecated `.tabItem` and `.tag`):
 
 ```swift
-struct ContentView: View {
-    @State private var router = Router<AppTab, Destination, Sheet>(initialTab: .home)
-
-    var tabBinding: Binding<AppTab> {
-        Binding(
-            get: { router.selectedTab },
-            set: { newTab in
-                handleTabSwitch(to: newTab)
+extension Router where Tab == AppTab, Sheet == AppSheet {
+    var interceptedTab: AppTab {
+        get { selectedTab }
+        set {
+            if newValue == .compose {
+                presentSheet(.compose)
+                return
             }
-        )
+            selectedTab = newValue
+        }
     }
+}
+
+struct ContentView: View {
+    @State private var router = Router<AppTab, Destination, AppSheet>(initialTab: .home)
 
     var body: some View {
-        TabView(selection: tabBinding) {
-            // Tab content
+        TabView(selection: $router.interceptedTab) {
+            ForEach(AppTab.allCases) { tab in
+                Tab(tab.title, systemImage: tab.icon, value: tab) {
+                    NavigationStack(path: $router[tab]) {
+                        TabRootView(tab: tab)
+                    }
+                }
+            }
         }
-    }
-
-    private func handleTabSwitch(to newTab: AppTab) {
-        if newTab == .compose {
-            router.presentSheet(.compose)
-            return
-        }
-
-        router.selectedTab = newTab
     }
 }
 ```
@@ -41,19 +42,17 @@ struct ContentView: View {
 ```swift
 TabView(selection: $router.selectedTab) {
     ForEach(AppTab.allCases) { tab in
-        NavigationStack(path: $router[tab]) {
-            tabContent(for: tab)
-        }
-        .tabItem {
-            Label(tab.title, systemImage: tab.icon)
+        Tab(tab.title, systemImage: tab.icon, value: tab) {
+            NavigationStack(path: $router[tab]) {
+                TabRootView(tab: tab)
+            }
         }
         .badge(badgeCount(for: tab))
-        .tag(tab)
     }
 }
 
-func badgeCount(for tab: AppTab) -> Int? {
-    tab == .notifications && unreadNotifications > 0 ? unreadNotifications : nil
+func badgeCount(for tab: AppTab) -> Int {
+    tab == .notifications ? unreadNotifications : 0
 }
 ```
 
@@ -111,13 +110,11 @@ struct DynamicTabView: View {
     var body: some View {
         TabView(selection: $router.selectedTab) {
             ForEach(enabledTabs) { tab in
-                NavigationStack(path: $router[tab]) {
-                    tabContent(for: tab)
+                Tab(tab.title, systemImage: tab.icon, value: tab) {
+                    NavigationStack(path: $router[tab]) {
+                        TabRootView(tab: tab)
+                    }
                 }
-                .tabItem {
-                    Label(tab.title, systemImage: tab.icon)
-                }
-                .tag(tab)
             }
         }
     }

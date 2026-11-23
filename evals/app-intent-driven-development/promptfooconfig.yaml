@@ -10,6 +10,9 @@ prompts:
 providers:
   - id: openai:codex-sdk
     config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
       working_dir: ./workspace
       skip_git_repo_check: true
       sandbox_mode: read-only
@@ -37,6 +40,9 @@ defaultTest:
       provider:
         id: openai:codex-sdk
         config:
+          codex_path_override: codex
+          model: gpt-6-astra
+          model_reasoning_effort: medium
           working_dir: ./workspace
           skip_git_repo_check: true
           sandbox_mode: read-only
@@ -176,3 +182,31 @@ tests:
         - Carries the brew data across the intent boundary as a flat, already-resolved value, and does not refetch persistence inside the snippet view.
         - Keeps the intent returning the brew value alongside the snippet, so the following action in the user's existing shortcut still receives it.
         - States that the result snippet is static on the app's supported releases, so the "Log another" button does not act in the Siri result, and names the separate mechanism and minimum release needed for an interactive snippet, without inventing other app state.
+
+  - description: Fix App Intent execution isolation, retry idempotency, @Dependency, AppEnum, error, donation, and widget-config traps
+    vars:
+      skill: file://../../src/app/skills/app-intent-driven-development/SKILL.md
+      scenario: >-
+        Review an App Intents feature from these facts only; do not execute
+        commands or invent project details.
+        (1) `@MainActor struct ArchiveNoteIntent: AppIntent` deletes a note first
+        in `perform()`, then checks an optional `folder` parameter and throws
+        `$folder.needsValueError(...)` if missing, and wraps `requestConfirmation`
+        in `try?`. It injects `@Dependency var store: NoteStore` where `NoteStore`
+        is a plain `@Observable final class` registered inside the root view's
+        `.onAppear`, and also puts `@Dependency` on `NoteEntity`.
+        (2) `NotePriority: Int, AppEnum` uses implicit `Int` raw values and
+        returns a `caseDisplayRepresentations` dictionary missing one case.
+        (3) `perform()` throws a plain `LocalizedError` for user-facing failures
+        and calls `IntentDonationManager.shared.donate(intent: self)` inside
+        `perform()`, while the in-app button calls `NoteStore` directly without
+        donating.
+        (4) `FeaturedNoteWidgetIntent: WidgetConfigurationIntent` implements a
+        custom `perform()` to load widget timeline entries.
+        Identify every defect and give the exact App Intents fix for each.
+      rubric: |-
+        - Fixes execution and retry safety: removes `@MainActor` from the `AppIntent` struct (hop to `@MainActor` inside `perform()` or mark only `perform()` `@MainActor`), resolves/validates parameters and runs `requestConfirmation` (never wrapped in `try?`) before any irreversible deletion because `needsValueError` restarts `perform()` from the top with no rollback.
+        - Fixes `@Dependency`: registers `AppDependencyManager.shared.add(dependency:)` in `App.init()` (not `.onAppear`), removes `@Dependency` from `AppEntity` (supported only on `AppIntent`, `EntityQuery`, and `DynamicOptionsProvider`), and makes `NoteStore` `Sendable` (e.g. `@MainActor @Observable final class` or `actor`).
+        - Fixes `AppEnum` and errors: gives `NotePriority` explicit stable raw values (preferring `String`, never renumbering/reordering shipped raw values), ensures every case has a `caseDisplayRepresentations` entry (missing entry is a runtime `fatalError`), and replaces plain `LocalizedError` with `CustomLocalizedStringResourceConvertible` or prebuilt `AppIntentError` categories (`PermissionRequired`, `UserActionRequired`, `Unrecoverable`) so Siri/Shortcuts shows a real error message.
+        - Fixes donation and widget configuration: removes `IntentDonationManager.shared.donate` from `perform()` (system runs are already donated; donate only after direct in-app actions succeed), and removes the data-loading `perform()` from `WidgetConfigurationIntent` (parameter-only schema; WidgetKit reads parameters in `TimelineProvider` without calling `perform()`).
+        - Uses public grounded APIs only and does not claim to have compiled or run anything.

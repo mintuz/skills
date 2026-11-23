@@ -83,15 +83,18 @@ struct ContentView: View {
 }
 ```
 
-## ❌ Don't Own One Service Through Another
+## ❌ Don't Own One Service Through Another (or Nest Value Structs on `@Observable`)
 
-Nesting does not break observation: a view tracks the properties it reads through a nested `@Observable` object. Nesting does make the outer service own the inner one, which hides the inner service's lifetime and forces every test of the outer service to build the inner one.
+Nesting does not break observation for nested `@Observable` objects, but it makes the outer service own the inner one, hiding the inner service's lifetime and complicating tests.
+
+By contrast, nesting a **value-type `struct`** inside an `@Observable` class *does* hurt invalidation granularity: reading `session.user.name` subscribes the view to `session.user`, so editing `session.user.preferences` invalidates the view. Flatten independently read struct fields onto the `@Observable` class (see `references/observable-patterns.md`).
 
 **AVOID:**
 
 ```swift
 @Observable
-class AppState {
+@MainActor
+final class AppState {
     var userManager: UserManager  // AppState now owns UserManager's lifetime
 
     init(userManager: UserManager) {
@@ -195,16 +198,17 @@ struct ItemListView: View {
 }
 ```
 
-## ❌ Don't Put UI Logic in @Observable Classes
+## ❌ Don't Put Screen UI State in Shared `@Observable` Services
 
-`@Observable` classes hold business logic and data; UI state stays in the view.
+App-wide shared `@Observable` services hold domain logic and shared data; screen-local presentation state (alerts, search text, sheet flags) stays in the view's `@State`. (A view-local `@State`-owned `@Observable` model is acceptable when needed specifically for derived-collection caching or coarsening high-frequency geometry/scroll values.)
 
 **WRONG:**
 
 ```swift
 @Observable
-class ItemManager {
-    var showAlert = false  // UI state doesn't belong here
+@MainActor
+final class ItemManager {
+    var showAlert = false  // Screen UI state doesn't belong in a shared service
     var alertMessage = ""
 }
 ```
@@ -213,8 +217,8 @@ class ItemManager {
 
 ```swift
 @Observable
-class ItemManager {
-    // Only business logic and data
+@MainActor
+final class ItemManager {
     var items: [Item] = []
     func addItem(_ item: Item) { }
 }
@@ -225,3 +229,12 @@ struct ContentView: View {
     @State private var alertMessage = ""
 }
 ```
+
+## Additional Performance and API Anti-Patterns
+
+- **Conditional `.if` `@ViewBuilder` modifiers:** Destroy structural identity, reset `@State`, and break animations; use ternary arguments and `AnyShapeStyle` instead (`references/modifiers.md`).
+- **Single-child `Group` and heavy `View.init`:** Drop `Group { SingleView() }`, split multi-section views into separate `View` structs, and keep `init` constant-time (`references/structure.md`).
+- **Closures, unstable defaults, high-frequency values, or unused KeyPath reads in `@Environment` / `@FocusedValue`:** Defunctionalise closures, stabilise defaults (`private static let` or `Optional`), coarsen high-frequency updates into `@Observable` or `scrollTransition`/`visualEffect(in:)`, and remove unused KeyPath reads (`references/environment.md`).
+- **Closure `Binding(get:set:)` in `body`:** Heap-allocates and breaks equality; use `@Bindable` KeyPath computed properties or subscripts (`references/state-management.md`).
+- **Inline `.filter`/`.sorted`, `indices`/`\.offset`, `id: \.self` on large structs, `AnyView` rows, and multi-shape `List` rows:** Cache derived collections, use stable cheap-to-hash IDs, and keep `List` rows unary single-root concrete `View` structs (`references/foreach.md`).
+- **Soft-deprecated APIs in new code:** Check `references/soft-deprecated-apis.md` (`references/soft-deprecation.md`).
