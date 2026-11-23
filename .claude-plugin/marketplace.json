@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "core",
-      "version": "6.3.0",
+      "version": "6.4.0",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
@@ -34,6 +34,7 @@
         "./skills/maintain-verification-skill",
         "./skills/visual-feedback",
         "./skills/tdd",
+        "./skills/test-seams",
         "./skills/blast-radius",
         "./skills/double-check",
         "./skills/how",
@@ -59,10 +60,16 @@
     },
     {
       "name": "system-design",
-      "version": "1.4.5",
+      "version": "1.5.0",
       "source": "./src/system-design",
-      "description": "Skills for visualising Web Application architecture and relationships",
-      "skills": ["./skills/mermaid-generator"]
+      "description": "Skills for language-agnostic codebase architecture, layout, operational discipline, and Mermaid visualisation",
+      "skills": [
+        "./skills/mermaid-generator",
+        "./skills/architecture-audit",
+        "./skills/codebase-layout",
+        "./skills/hexagonal-architecture",
+        "./skills/twelve-factor"
+      ]
     },
     {
       "name": "product-management",

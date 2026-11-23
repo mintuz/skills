@@ -1,0 +1,102 @@
+description: "hexagonal-architecture activation and exclusion"
+metadata:
+  fixture_skills: [codebase-layout, test-seams]
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use hexagonal-architecture for this task. Our README adopts hexagonal architecture. Add a refund approval rule to our opted-in TypeScript billing service and wire the payment gateway behind a driven port."
+    assert:
+      -
+        type: "skill-used"
+        value: "hexagonal-architecture"
+  -
+    description: "Natural opted-in web backend request selects the skill"
+    vars:
+      request: "Our repository ADR explicitly adopts hexagonal (ports and adapters) architecture. Fix a discount calculation bug in `src/orders/checkout.ts`, which still calls `StripeClient` directly, and add tests for the updated rule."
+    assert:
+      -
+        type: "skill-used"
+        value: "hexagonal-architecture"
+  -
+    description: "Natural opted-in iOS Swift request selects the skill"
+    vars:
+      request: "Our iOS app's AGENTS.md states we follow hexagonal architecture with a local Swift Package. Add a bookmark sync feature driven by SwiftUI and an App Intent while keeping our third-party SyncSDK behind a driven port."
+    assert:
+      -
+        type: "skill-used"
+        value: "hexagonal-architecture"
+  -
+    description: "Exclusion keeps non-opted-in test-seam request outside hexagonal workflow"
+    vars:
+      request: "Our standard Express repository has no hexagonal architecture opt-in or ADR. Add the smallest test seam around the global clock and Stripe SDK in `src/billing/charge.ts` so we can write characterisation tests."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "Does not impose the hexagonal-architecture workflow (no full ports-and-adapters restructuring, driving/driven port ceremony, or claiming hexagonal-architecture applies to a non-opted-in repo). Routes the work to `test-seams` or a minimal seam for characterisation tests, and does not claim execution."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Exclusion routes physical folder layout and import enforcement to codebase-layout"
+    vars:
+      request: "Reorganise our monorepo folders into workspace packages and add ESLint import-boundary rules to enforce allowed dependency directions across packages. We are not designing port interfaces or adapters yet."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "Does not apply the hexagonal-architecture port/adapter workflow to a purely physical folder and package-boundary layout request. Routes physical source layout and automated import enforcement to `codebase-layout`, and does not claim execution."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

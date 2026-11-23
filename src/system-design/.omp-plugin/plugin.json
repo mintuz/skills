@@ -1,7 +1,7 @@
 {
   "name": "system-design",
-  "version": "1.4.5",
-  "description": "Skills for visualising Web Application architecture and relationships",
+  "version": "1.5.0",
+  "description": "Skills for language-agnostic codebase architecture, layout, operational discipline, and Mermaid visualisation",
   "author": {
     "name": "Adam Bulmer",
     "email": "[email protected]",

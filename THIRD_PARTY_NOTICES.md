@@ -14,10 +14,17 @@ Adaptations narrow triggers, remove provider dependencies, preserve scoped autho
 
 The formal-verification pair adapts the [pstack create and maintain workflows](https://github.com/cursor/plugins/tree/e58dd043600587dbaf58ba315e7f2b38373eeb43/pstack/skills) for the Everystate checker.
 
+`architecture-audit`, `codebase-layout`, `hexagonal-architecture`, `twelve-factor`, `test-seams`, and the contract/dependency-check additions to `architect` adapt material from Paul Hammond's [citypaul/.dotfiles](https://github.com/citypaul/.dotfiles/tree/67d1b74409be1023016e2e6bc8731a33ce0ed4a9/claude/.claude/skills) skills, pinned at commit [`67d1b74409be1023016e2e6bc8731a33ce0ed4a9`](https://github.com/citypaul/.dotfiles/tree/67d1b74409be1023016e2e6bc8731a33ce0ed4a9/claude/.claude/skills). Within that set, `architecture-audit` and the `codebase-design` additions to `architect` also adapt Matt Pocock's [mattpocock/skills](https://github.com/mattpocock/skills/tree/66898f60e8c744e269f8ce06c2b2b99ce7660d5f/skills/engineering) pinned at commit [`66898f60e8c744e269f8ce06c2b2b99ce7660d5f`](https://github.com/mattpocock/skills/tree/66898f60e8c744e269f8ce06c2b2b99ce7660d5f/skills/engineering). Both upstream MIT notices appear below.
+
 ## Derived skills
 
 - `create-formal-verification-skill`
 - `maintain-formal-verification-skill`
+- `architecture-audit`
+- `codebase-layout`
+- `hexagonal-architecture`
+- `twelve-factor`
+- `test-seams`
 - `create-verification-skill`
 - `writing-for-humans`
 - `maintain-verification-skill`
@@ -136,6 +143,54 @@ SOFTWARE.
 MIT License
 
 Copyright (c) 2026 Addy Osmani
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Paul Hammond (.dotfiles) MIT license
+
+MIT License
+
+Copyright (c) 2024 Paul Hammond
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Matt Pocock (skills) MIT license
+
+MIT License
+
+Copyright (c) 2026 Matt Pocock
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

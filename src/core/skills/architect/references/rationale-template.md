@@ -12,7 +12,7 @@ _Write this first, before the type sketch. Show the README or quickstart the con
 
 ## Shape
 
-_The recommended architecture. Data structures first, then how data flows through the signatures. Name the load-bearing decisions. State which invariants are encoded in types, where validation lives, and what the system deliberately does not do. Judge interface depth explicitly: state what complexity the public surface hides, what remains exposed to callers, and why the interface is no larger than needed. Cite the principle behind each decision (for example, `per principle-parse-at-the-boundary`) without restating it._
+_The recommended architecture. Data structures first, then how data flows through the signatures. Name the load-bearing decisions. State which invariants are encoded in types, where validation lives, what non-type obligations remain (ordering, lifecycle, retries, partial failure, cancellation, consistency), what each test substitute cannot prove, and what the system deliberately does not do. Judge interface depth explicitly: state what complexity the public surface hides, what remains exposed to callers, and why the interface is no larger than needed. Cite the principle behind each decision (for example, `per principle-parse-at-the-boundary`) without restating it._
 
 ## Synthesis decision
 

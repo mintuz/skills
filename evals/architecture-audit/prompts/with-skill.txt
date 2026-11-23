@@ -1,0 +1,16 @@
+This is a read-only scenario evaluation. Do not use tools. Treat the supplied scenario as the complete evidence packet and the skill below as the procedure. Answer the request, including concrete next steps when execution is unavailable; do not claim those steps ran.
+
+<skill>
+{{skill}}
+</skill>
+
+<report-template-reference path="references/report-template.md">
+{{reportTemplate}}
+</report-template-reference>
+
+<signals-web-and-ios-reference path="references/signals-web-and-ios.md">
+{{signalsWebAndIos}}
+</signals-web-and-ios-reference>
+
+Scenario:
+{{scenario}}

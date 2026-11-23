@@ -14,6 +14,8 @@ Look for these signs:
 - Public options expose internal stages or implementation choices.
 - Learning the interface does not save the caller from learning the implementation.
 
+**Exception — intentionally thin edges:** Do not flag an HTTP route handler, CLI command, adapter, generated client, composition root, SwiftUI view or `AppIntent` as shallow merely because it is thin. Translation, request parsing, result formatting and dependency wiring belong in thin edges. Judge an edge on two questions instead: does domain policy live in the owned module behind it, and does the edge stop transport or provider types from leaking inward?
+
 ## Information leakage
 
 Information leakage makes multiple modules depend on the same internal decision. A representation, policy or protocol detail appears in more than one place, so changing it requires coordinated edits.

@@ -1,0 +1,72 @@
+description: "codebase-layout portable workflow versus no-skill baseline"
+prompts:
+  - id: "file://prompts/baseline.txt"
+    label: "baseline"
+  - id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  - id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: "file://../../src/system-design/skills/codebase-layout/SKILL.md"
+    webLayouts: "file://../../src/system-design/skills/codebase-layout/references/web-layouts.md"
+    iosLayouts: "file://../../src/system-design/skills/codebase-layout/references/ios-layouts.md"
+    migrationAndEnforcement: "file://../../src/system-design/skills/codebase-layout/references/migration-and-enforcement.md"
+  assert:
+    - type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  - description: "Selects smallest honest shape and refuses speculative hexagonal tree"
+    vars:
+      scenario: "/codebase-layout Proposal only; do not move files. We have a small internal office-booking backend with three CRUD routes (create booking, cancel booking, list rooms) backed by one Postgres database, zero external payment or messaging providers, and 12 source files currently split across src/controllers/, src/services/, and src/models/. Someone suggested reorganising it into packages/bookings/hexagon/domain/, packages/bookings/hexagon/application/, packages/bookings/adapters/driving/, packages/bookings/adapters/driven/, packages/shared/, and empty folders for future notifications and billing. Propose the physical layout."
+      rubric: "Preserves proposal-only scope and does not claim to move files. Rejects the cargo-cult hexagonal multi-package skeleton, empty speculative directories (notifications, billing), and unowned shared dumping grounds because this small CRUD service has not earned a hexagonal test wall. Selects a small honest feature-first (or flat/feature-colocated) shape backed by the supplied evidence. Produces the full output contract: selected shape and evidence, an annotated ASCII tree where every new directory owns named files or concrete responsibilities (no empty folders), placement rules for new files, allowed and forbidden dependency directions, proportionate automated enforcement, a brief staged migration note for moving off src/controllers/services/models, and explicitly omitted structures (including why hexagonal packages and future folders were omitted)."
+  - description: "Web project layout, state ownership, dependency rules, and workspace/ESLint enforcement"
+    vars:
+      scenario: "/codebase-layout Propose a physical layout and enforcement plan for a TypeScript monorepo containing a Next.js storefront web app (with checkout and order-history routes, a shared discount-application flow reused on two routes, an XState v5 checkout statechart, and a server-only Stripe client), a reusable button/dialog UI kit consumed by two web apps, and a BFF API service. Right now everything sits in global src/components/, src/hooks/, src/stores/, and src/utils/ folders with catch-all index.ts barrels."
+      rubric: "Classifies routes, reused product features (such as apply-discount), design-system primitives (promoted to an explicit package because two apps consume it), platform/runtime boundaries (server-only Stripe isolation), and the BFF endpoint tree (endpoints/ plus sibling workflows and composition). Explicitly declares which layer owns the XState checkout machine/actors and enforces that rule mechanically. Provides concrete placement rules and allowed/forbidden dependency directions (design system must not import product features, API clients, or app state; client graph must not import server-only modules; sibling features must not import each other's internals). Specifies proportionate web enforcement combining package.json exports, workspace dependency validation, ESLint restricted-import/boundary checks, and client/server build-graph guards. Calls out barrel and code-splitting hazards (rejecting catch-all index.ts barrels that pull server code into client bundles or collapse lazy chunks) and replaces global components/hooks/stores/utils dumping grounds."
+  - description: "iOS multi-target local Swift Package layout enforcing import direction"
+    vars:
+      scenario: "/codebase-layout Propose a physical source and package layout for a Swift 6 iOS, watchOS, and WidgetKit task-capture app. It uses SwiftUI, SwiftData, App Intents (shared by Siri and widget buttons), AVFAudio voice capture, WatchConnectivity sync, and a pure scheduling/scoring engine. Today every file sits inside one Xcode app target organised into Xcode groups named Models/, ViewModels/, Services/, and Views/, and the widget extension checks target-membership boxes on core SwiftData files."
+      rubric: "Explains that Xcode groups or folders inside one Swift target share a single internal namespace and enforce no import rules. Proposes a single local Swift Package (for example <App>Kit/Package.swift) using separate SPM targets plus public/package/internal access control to mechanically enforce dependency direction across: a Foundation-only pure domain/engine target, a Core target (domain rules, services, app-owned Sendable ports, and SwiftData persistence core without UI/hardware imports), a Platform adapter target (AVFAudio, WatchConnectivity), an Intents target (AppIntents depending on Core), a Features target (SwiftUI views depending on Core), a TestSupport/fakes target (linked only by tests), and thin executable composition roots for iPhone, Watch, and Widget targets. Rejects the ViewModels/ bucket and defers SwiftUI state/data flow to swiftui-architecture; keeps the Widget extension thin (views and Button(intent:) rather than opening the app database directly); notes Xcode synchronized folders versus .xcodeproj target membership and avoiding duplicating target-membership checkboxes across extensions."
+  - description: "Staged migration separating dependency inversion from file moves and verifying discovery"
+    vars:
+      scenario: "/codebase-layout We need a migration plan for an existing Node/TypeScript monorepo where src/services/orders.ts is a 900-line file mixing order pricing rules, direct Postgres queries, and Stripe SDK calls, and packages currently live one level deep under packages/*. The team wants one PR to move packages three levels deep under packages/<capability>/hexagon/ and packages/<capability>/adapters/ while also rewriting the Postgres and Stripe calls into ports and adapters. Produce the migration plan and validation gates."
+      rubric: "Rejects combining mass file moves, god-file decomposition, and dependency inversion in one big-bang PR, and forbids labelling provider-dependent code as inside before dependency inversion makes the claim true. Sequences a staged migration that: (1) records the architectural decision and maps current public APIs/consumers/leaks, (2) protects behaviour with characterisation or use-case tests first (referencing refactoring and test-seams if hidden dependencies block testing), (3) prepares recursive discovery and tests a synthetic fixture at the deepest proposed target path across workspace globs, build/project references, lint/boundary checks, and test/coverage discovery BEFORE moving real packages there, (4) decomposes the god file under stable exports, (5) performs dependency inversion as separate behavioural work before reparenting packages, (6) moves one capability or role at a time while preserving exports, and (7) deletes legacy compatibility exports only after the final consumer migrates. Lists per-slice validation gates (build/typecheck, tests, manifests/lockfile, boundary checks, production vs dev/test graphs)."
+  - description: "Explicit handovers to companion skills without uninstalled upstream names"
+    vars:
+      scenario: "/codebase-layout Our team has six open questions across our web and iOS repos: (1) we do not know which subsystem in the whole repository is our highest-priority structural hotspot, (2) we need caller-first TypeScript types and signatures designed for a new invoice-reconciliation module, (3) we opted into ports and adapters for billing and need rules for Domain Probes, CQRS-lite, and stateful fake swappability, (4) we want to prove that collapsing three forwarding layers actually eliminated runtime states and dependencies, (5) we need safe characterisation tests before moving legacy files, and (6) we need SwiftUI @State, @Observable, and @Environment data-flow rules for our iOS screens. Tell us which part belongs to codebase-layout and which exact installed skill owns each of the six questions."
+      rubric: "Keeps physical layout, placement rules, import/target enforcement, and tree migration planning inside codebase-layout, and explicitly routes all six adjacent questions to the exact canonical skills: (1) architecture-audit for repo-wide hotspot discovery/triage, (2) architect for one module's logical types, signatures, and caller contract, (3) hexagonal-architecture for opted-in semantic port/adapter, Domain Probe, CQRS-lite, and swappability rules, (4) reducer for whole-system complexity reduction (explicitly noting that a physical folder move alone is not complexity reduction), (5) refactoring for safe behaviour-preserving moves and characterisation tests (optionally noting test-seams for breaking hidden dependencies), and (6) swiftui-architecture for SwiftUI state ownership and view data flow. Uses zero uninstalled upstream skill names (must not cite codebase-design, improve-codebase-architecture, structure-codebase, domain-driven-design, reduce-system-complexity, finding-seams, bff-design, or bff-entry-points)."

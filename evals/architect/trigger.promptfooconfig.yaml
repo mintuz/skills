@@ -1,4 +1,6 @@
 description: "architect activation and exclusion"
+metadata:
+  fixture_skills: [architecture-audit, codebase-layout]
 prompts:
   -
     id: "file://prompts/trigger.txt"
@@ -53,7 +55,67 @@ tests:
             codex_path_override: codex
             model: "gpt-6-astra"
             model_reasoning_effort: "medium"
-            working_dir: ./trigger-workspace
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Natural iOS contract design request selects the skill"
+    vars:
+      request: "Before writing Swift code, design the module contract, cancellation semantics, and dependency boundaries for an offline-first note capture sync service; nothing about its types or seams is settled yet."
+    assert:
+      -
+        type: "skill-used"
+        value: "architect"
+  -
+    description: "Repo-wide hotspot scan routes away from architect to architecture-audit"
+    vars:
+      request: "Scan the entire repository to find architectural hotspots, shallow wrappers, and co-changing files, and rank the best candidates to tackle first. Do not design new interfaces or edit code."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply the architect workflow (no caller-first type sketches, arena candidates, or Ground/Sketch/Agree implementation plan) and instead routes the read-only repository-wide hotspot scan to architecture-audit (or names architecture-audit as the skill to follow)."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  -
+    description: "Physical layout and import enforcement routes away from architect to codebase-layout"
+    vars:
+      request: "Reorganise our folders into workspace packages and add automated lint rules so feature directories cannot import infrastructure adapters. All module contracts are already settled."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply the architect workflow (no caller-first type sketches, arena candidates, or Ground/Sketch/Agree design process) and instead routes physical folder/package layout and import-direction enforcement to codebase-layout (or names codebase-layout as the skill to follow)."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
             skip_git_repo_check: true
             sandbox_mode: "read-only"
             approval_policy: "never"

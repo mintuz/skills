@@ -1,0 +1,82 @@
+description: "hexagonal-architecture portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: "file://../../src/system-design/skills/hexagonal-architecture/SKILL.md"
+    reference: "None loaded for this scenario."
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Opt-in gate refuses hexagonal ceremony in non-opted-in repo and hands off to test-seams"
+    vars:
+      scenario: "The repository README describes a standard layered Express service (`routes/`, `services/`, `db/`) with no mention of hexagonal architecture, ports and adapters, or any ADR adopting it. A developer asks: 'Add a test seam around the Stripe billing client in `src/billing/charge.ts` so we can unit test refund eligibility without calling Stripe.' Describe what you do next."
+      rubric: "Enforces the strict opt-in gate: refuses to impose hexagonal architecture (does not introduce driving/driven port hierarchies, a composition-root rewrite, or hexagonal restructuring) because the repository has not opted in via a README, AGENTS.md, CLAUDE.md, ADR, or explicit user request to adopt it. Hands off to `test-seams` to break the hidden Stripe dependency with a minimum seam and fake for characterisation tests."
+  -
+    description: "TypeScript backend extracts all legacy SDK dependencies behind ports with stateful fakes and composition root"
+    vars:
+      reference: "file://../../src/system-design/skills/hexagonal-architecture/references/typescript-backend.md"
+      scenario: "This TypeScript backend repository explicitly opted into hexagonal architecture in `README.md`. `src/warranty/issue-warranty.ts` predates the migration and imports `PurchasesSdkClient`, `PurchaseDto`, and `SmsProviderClient` directly from `src/lib/sdk/`. Existing tests pass `vi.fn()` mocks for those SDK clients. The developer asks: 'Just add a 14-day claim window check right where `purchasesApi.getPurchase` returns in `issue-warranty.ts`, and add another `vi.fn()` mock assertion for the skipped SMS.' Describe your step-by-step plan and file/port structure."
+      rubric: "Treats vendor/SDK client types and SDK DTOs (including `import type` from `src/lib/sdk/`) as outside the hexagon and never as ports. Treats extracting ALL SDK dependencies in the touched file (`PurchasesSdkClient` and `SmsProviderClient`, not just one) behind application-owned driven ports plus declaring an explicit driving port (`ForIssuingWarranties` or equivalent) as a behaviour-preserving refactor step taken while existing tests are green before adding the 14-day rule. Places the 14-day claim window rule in a pure inside function taking domain types and `now` as values, and explains concisely why the rule goes inside despite the user asking to place it beside the SDK call. Places new adapters and fakes as first-party code beside the feature or in `adapters/` (never inside `src/lib/sdk/`), wires SDK clients to adapters to the use case in the composition root without changing the root's caller signature, and replaces `vi.fn()` SDK mocks with hand-written stateful/recording fakes of the driven ports."
+  -
+    description: "iOS Swift 6 opted-in feature uses pure domain, Sendable ports where earned, zero ViewModels, and AppIntent DI"
+    vars:
+      reference: "file://../../src/system-design/skills/hexagonal-architecture/references/swift-ios.md"
+      scenario: "This iOS Swift 6 app explicitly opted into hexagonal architecture in `AGENTS.md`. It uses a single local Swift Package `WorkoutKit` and SwiftData for local persistence. Add a 'Complete Session' feature triggered from both a SwiftUI workout summary screen and a Siri/Shortcuts `AppIntent`, which also publishes completion summaries to an external third-party `FitnessCloudSDKClient`. Explain how you structure the domain, persistence, ports, adapters, SwiftUI state, `AppIntent`, composition root, and tests."
+      rubric: "Places pure session-completion business rules in a `Foundation`-only domain layer with plain `Sendable` values and injected clock/IDs (no SwiftUI or SDK imports). Uses pragmatic SwiftData persistence (keeping `@Model` with a single `@ModelActor` writer passing `Sendable` IDs/values across actors rather than mandating parallel DTO duplication). Declares a `Sendable` protocol port only where earned (such as the external cloud-publish boundary) using plain `Sendable` domain values instead of `FitnessCloudSDKClient` types. Models SwiftUI views as declarative driving adapters holding view-local `@State` and calling an `@Observable` service injected via `.environment(...)` with zero ViewModels and no nested `@Observable` services. Implements the `AppIntent` as a thin driving adapter using `@AppDependency` registered from the composition root (`AppGraph.live()` vs `AppGraph.scripted()`). Tests through the driving boundary with an `actor`- or `Mutex`-backed stateful fake and Swift Testing (`@Test`, `#expect`), and references `swiftui-architecture`, `app-intent-driven-development`, and `swift-testing`."
+  -
+    description: "Backend CQRS-lite splits cross-aggregate read queries from single-aggregate write ports"
+    vars:
+      reference: "file://../../src/system-design/skills/hexagonal-architecture/references/cqrs-lite-and-transactions.md"
+      scenario: "In an opted-in backend service, a dashboard screen needs to display an order summary joined across `orders`, `customers`, `shipments`, and `invoices`, including a business flag `isOverdue` based on due date and current time. Meanwhile, recording a shipment must atomically update the `Order` aggregate and append a `ShipmentRecorded` outbox event. How do you model both paths under hexagonal architecture?"
+      rubric: "Explicitly splits reads from writes using backend CQRS-lite: keeps the shipment write behind an application-owned driven persistence port whose adapter owns the atomic transaction (optimistic version check + outbox insert, domain unaware of transaction APIs), and implements the cross-aggregate dashboard read as a dedicated driven query function/adapter that joins across tables freely instead of forcing N+1 loads through aggregate repositories. Keeps business interpretation (`isOverdue` taking `now` as an input) in a pure inside function while keeping display formatting at the driving edge."
+  -
+    description: "Explicit handovers route layout, legacy test seams, and TDD to canonical companion skills"
+    vars:
+      scenario: "A team just wrote an ADR adopting hexagonal architecture for their existing TypeScript monorepo. They ask three things: (1) reorganize their top-level folders and enforce ESLint package import boundaries, (2) get an untestable legacy billing module with hardcoded globals under characterisation tests before extracting ports, and (3) drive the first new feature with Red-Green-Refactor. Which companion skills handle each part, and what stays owned by `hexagonal-architecture`?"
+      rubric: "Hands off physical directory/package layout and automated import enforcement to `codebase-layout`, breaking hidden legacy dependencies for characterisation tests to `test-seams`, and the Red-Green-Refactor test loop to `tdd` (loaded alongside `hexagonal-architecture`, never instead of it). Keeps semantic ports-and-adapters rules (inside/outside zones, port contracts, thin adapters, composition root, stateful fakes) owned by `hexagonal-architecture`, and does not reference uninstalled upstream skills such as `structure-codebase`, `finding-seams`, or `codebase-design`."

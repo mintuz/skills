@@ -1,0 +1,4 @@
+*.log
+workspace/.agents/
+trigger-workspace/.agents/
+prechange-check.promptfooconfig.yaml

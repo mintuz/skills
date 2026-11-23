@@ -1,0 +1,16 @@
+This is a read-only scenario evaluation. Do not use tools. Treat the supplied scenario as the complete evidence packet and the skill below as the procedure. Answer the request, including concrete next steps when execution is unavailable; do not claim those steps ran.
+
+<skill>
+{{skill}}
+</skill>
+
+<typescript-seams-reference path="references/typescript-seams.md">
+{{typescriptSeams}}
+</typescript-seams-reference>
+
+<swift-seams-reference path="references/swift-seams.md">
+{{swiftSeams}}
+</swift-seams-reference>
+
+Scenario:
+{{scenario}}
