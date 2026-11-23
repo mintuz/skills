@@ -1,0 +1,124 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Trigger-selection check. The runner refreshes the git-ignored fixture from src/.
+# Run: pnpm test:skills:triggers -- test-seams
+description: "test-seams skill trigger selection and exclusions"
+metadata:
+  fixture_skills: [tdd, architecture-audit, refactoring]
+
+prompts:
+  - id: file://prompts/trigger.txt
+    label: trigger
+
+providers:
+  - id: openai:codex-sdk
+    config:
+      codex_path_override: codex
+      model: gpt-6-astra
+      model_reasoning_effort: medium
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: read-only
+      approval_policy: never
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+
+tests:
+  - description: "Explicit invocation selects test-seams"
+    vars:
+      request: >-
+        Use test-seams to make `syncInvoices` in `src/billing/sync.ts` testable. It reads
+        `process.env.LEDGER_URL`, calls `Date.now()`, and instantiates `new LedgerClient()` inside
+        the function body, and we cannot change existing callers yet.
+    assert:
+      - type: skill-used
+        value: test-seams
+
+  - description: "Natural web legacy-code prompt selects test-seams"
+    vars:
+      request: >-
+        I cannot write a unit test for our legacy `dispatchDigest` TypeScript function because it
+        reads `process.env.SMTP_HOST`, calls `Date.now()`, and directly imports and calls our live
+        email client without any injection point. How do I break those hidden dependencies without
+        breaking existing callers or resorting to `vi.mock()`?
+    assert:
+      - type: skill-used
+        value: test-seams
+
+  - description: "Natural iOS legacy-code prompt selects test-seams"
+    vars:
+      request: >-
+        Our existing Swift `BackupCoordinator` struct calls `UserDefaults.standard`, `FileManager.default`,
+        and `URLSession.shared` directly inside `runBackup()`, so we cannot isolate it in unit tests
+        without hitting disk and the live network. How do we break these hidden singleton dependencies
+        safely for Swift Testing without breaking call sites?
+    assert:
+      - type: skill-used
+        value: test-seams
+
+  - description: "Excludes greenfield TDD in favour of tdd"
+    vars:
+      request: >-
+        Build a brand-new coupon eligibility calculator from scratch using Red-Green-Refactor. There
+        is no existing legacy code or hidden dependency to untangle yet.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          Judge only the response text.
+          - The response treats this as greenfield Red-Green-Refactor work and names `tdd` (or `core:tdd`) as the skill followed; it does not name `test-seams` as the skill followed.
+          - The plan does not run the legacy hidden-dependency audit or seam-introduction workflow.
+          - The response does not claim to have edited files or executed tests.
+        provider: &judge
+          id: openai:codex-sdk
+          config:
+            codex_path_override: codex
+            model: gpt-6-astra
+            model_reasoning_effort: medium
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: read-only
+            approval_policy: never
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+
+  - description: "Excludes repository-wide architecture audit in favour of architecture-audit"
+    vars:
+      request: >-
+        Audit this entire monorepo read-only to find our worst structural hotspots, tight cross-module
+        coupling, and candidate refactors ranked by leverage, and produce a Markdown + Mermaid report
+        without editing code.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          Judge only the response text.
+          - The response treats this as a read-only repository-wide architecture hotspot audit and names `architecture-audit` (or `system-design:architecture-audit`) as the skill followed; it does not name `test-seams` as the skill followed.
+          - The plan does not introduce test seams or edit production signatures.
+          - The response does not claim to have scanned files or executed commands.
+        provider: *judge
+
+  - description: "Excludes refactoring already-tested code in favour of refactoring"
+    vars:
+      request: >-
+        Our `pricingEngine.ts` module already has a green, fast unit test suite with full isolation
+        and no hidden dependencies. Plan a behaviour-preserving refactor to simplify its nested
+        conditionals and clean up duplicated branches.
+    assert:
+      - type: agent-rubric
+        threshold: 1
+        value: |-
+          Judge only the response text.
+          - The response treats this as a behaviour-preserving refactor of already-tested code and names `refactoring` (or `web:refactoring`) as the skill followed; it does not name `test-seams` as the skill followed.
+          - The plan does not introduce dependency-breaking seams or swap hidden collaborators.
+          - The response does not claim to have edited files or executed tests.
+        provider: *judge

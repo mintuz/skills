@@ -1,0 +1,74 @@
+description: "twelve-factor activation and exclusion"
+prompts:
+  -
+    id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  -
+    description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use twelve-factor to audit our order service's environment configuration, graceful shutdown, and structured logging before container deployment."
+    assert:
+      -
+        type: "skill-used"
+        value: "twelve-factor"
+  -
+    description: "Natural backend operational and deployment config request selects skill"
+    vars:
+      request: "Our Node API reads process.env across six files, branches on NODE_ENV for cookie security and DB pool size, writes logs to /var/log/app.log, and drops active connections during Kubernetes deploys. How should we fix its config, logging, and shutdown lifecycle?"
+    assert:
+      -
+        type: "skill-used"
+        value: "twelve-factor"
+  -
+    description: "Natural iOS operational config and lifecycle request selects skill"
+    vars:
+      request: "We want to apply twelve-factor principles to our Swift 6 iOS app: should we put API keys in .xcconfig, remove SwiftData local persistence to stay stateless, and log JSON to stdout?"
+    assert:
+      -
+        type: "skill-used"
+        value: "twelve-factor"
+  -
+    description: "Exclusion keeps pure UI styling and internal helper refactoring outside twelve-factor"
+    vars:
+      request: "Update the padding and focus ring colours on CheckoutButton and extract the pure formatCurrency rounding helper inside priceUtils.ts. No deployment config, secrets, logging, backing services, or process lifecycle changes are needed."
+    assert:
+      -
+        type: "agent-rubric"
+        threshold: 1
+        value: "The response does not apply the twelve-factor workflow (no twelve-factor audit, Platform Applicability Gate, environment configuration refactor, shutdown handlers, or process-stream logging changes, and does not name twelve-factor as the skill followed) and stays scoped to the requested UI styling and pure helper refactor without claiming to have executed unavailable edits."
+        provider:
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false

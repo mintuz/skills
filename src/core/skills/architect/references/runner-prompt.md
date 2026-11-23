@@ -9,6 +9,7 @@ Apply the following discipline. The judge and picker compare candidates on these
 - Caller's usage first. Write the README-style usage and two or three real call sites before the types, then derive the type sketch from them. The usage is the spec. The two must agree, so reconcile the sketch to the usage, not the reverse.
 - Data structures first. Get the core types right and the code becomes obvious. Trace each dominant access pattern through the proposed structure. If the answer is "we'll add a map / index / cache later", the structure is wrong.
 - Interface depth. Compare the capability hidden behind the public surface relative to the size of that surface. Prefer a simple interface that pulls complexity into the callee, even when the implementation becomes less simple. Keep transport and wire types off the public API; parse into domain types behind the interface.
+- Full contract burden and dependency fidelity. Check non-type obligations (call ordering, lifecycle, dependency construction, retries, partial failure, cancellation, consistency) and classify every cross-boundary dependency on all eight axes—explicitly naming what test substitutes cannot prove—per [`contract-and-dependency-checks.md`](contract-and-dependency-checks.md).
 - Shared state: if two actors might both write, ask "what happens?" If the answer is not "nothing", default to per-actor state with a merge at the read boundary (`principle-separate-before-serializing-shared-state`).
 - Make boundaries visible. `not implemented` errors for bodies, `// TODO` pseudocode for tricky logic, doc comments stating intent and invariants. A reader should trace data from input to output by reading types and signatures alone.
 - Encode invariants in types: hard-to-misuse types > runtime checks > prose comments (`principle-encode-lessons-in-structure`).
@@ -16,5 +17,15 @@ Apply the following discipline. The judge and picker compare candidates on these
 - Single source of truth per invariant. Derive instead of sync.
 - Idempotent state transitions where applicable (`principle-make-operations-idempotent`). Ask what happens if the operation runs twice or crashes halfway.
 - Short call chains. If tracing the flow needs more than three files, flatten the hierarchy (`principle-minimize-reader-load`).
+
+## Constraint lenses for distinct candidates
+
+Assign each candidate a different lens from this list (pick two or three that expose real trade-offs for the task) so candidates diverge structurally instead of converging on a middle ground:
+
+1. **Minimum caller burden** — minimise what the common caller must know, construct, order and recover from.
+2. **Policy locality** — concentrate changing decisions and invariants in one coherent owner.
+3. **Failure honesty** — make partial failure, cancellation, retries and effects explicit without leaking the collaborator graph.
+4. **Compatibility-first migration** — preserve existing callers while defining a clear removal path for the old contract.
+5. **Role-shaped contracts** — keep each caller role narrow when actors have distinct purposes, avoiding a generic god interface.
 
 You are one of several independent candidates. Produce the best design you can, and do not hedge against the others. Differences between candidates are the signal used to pick a base and graft; converging on a safe-looking middle defeats the exploration.

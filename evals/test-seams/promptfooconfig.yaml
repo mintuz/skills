@@ -1,0 +1,215 @@
+description: "test-seams portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: "file://../../src/core/skills/test-seams/SKILL.md"
+    typescriptSeams: "file://../../src/core/skills/test-seams/references/typescript-seams.md"
+    swiftSeams: "file://../../src/core/skills/test-seams/references/swift-seams.md"
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps and code satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "TypeScript legacy function with multiple hidden dependencies"
+    vars:
+      scenario: >-
+        Make `dispatchDigestEmail` in `src/notifications/digest.ts` testable without changing any existing
+        production call sites. Current code:
+
+        ```ts
+        // src/notifications/digest.ts
+        import { MailGatewayClient } from './mail-gateway';
+
+        export async function dispatchDigestEmail(memberId: string, lastSentAtMs: number): Promise<boolean> {
+          const cooldownHours = Number(process.env.DIGEST_COOLDOWN_HOURS ?? '24');
+          const earliestNextMs = lastSentAtMs + cooldownHours * 3_600_000;
+          if (Date.now() < earliestNextMs) {
+            return false;
+          }
+          const client = new MailGatewayClient(process.env.MAIL_GATEWAY_URL!);
+          await client.post('/messages/digest', { memberId, sentAtMs: Date.now() });
+          return true;
+        }
+        ```
+
+        Existing test file `src/notifications/digest.test.ts` currently uses `vi.mock('./mail-gateway', ...)`
+        and `vi.useFakeTimers()`, and a teammate suggests keeping `vi.mock` or passing the real
+        `MailGatewayClient` pointed at localhost. Show the refactored code, the test, what to remove
+        from the existing test file, and your handover summary. This is a planning exercise; do not call tools.
+      rubric: >-
+        (1) Audits and lists every hidden dependency in `dispatchDigestEmail`: `Date.now()`,
+        `process.env.DIGEST_COOLDOWN_HOURS`, `process.env.MAIL_GATEWAY_URL`, and `new MailGatewayClient(...)`.
+        (2) Moves all hidden dependencies into explicit parameters (or a narrow deps parameter) with
+        production defaults that preserve existing behaviour so production call sites remain unchanged
+        and the function body reads no global and constructs no collaborator.
+        (3) Tests the function by passing hand-written fakes (covering separation and/or sensing),
+        explicitly rejecting `vi.mock()`, `vi.stubEnv()`, `vi.useFakeTimers()`, and passing the real
+        `MailGatewayClient` through the seam.
+        (4) Removes the superseded `vi.mock('./mail-gateway', ...)` and `vi.useFakeTimers()` from
+        `src/notifications/digest.test.ts`.
+        (5) Reports the seam type(s) introduced, the exact enabling point(s) (location of the parameter
+        defaults or argument list), and confirms existing production call sites are unchanged.
+  -
+    description: "Swift 6 iOS legacy service with Apple singletons"
+    vars:
+      scenario: >-
+        Make `BadgeRefreshService` in `Sources/RewardsCore/BadgeRefreshService.swift` testable with Swift Testing
+        under Swift 6 strict concurrency without breaking existing call sites. Current code:
+
+        ```swift
+        // Sources/RewardsCore/BadgeRefreshService.swift
+        import Foundation
+
+        public struct BadgeRefreshService: Sendable {
+            public init() {}
+
+            public func refreshBadge(for memberID: String) async throws -> Bool {
+                let lastFetched = UserDefaults.standard.object(forKey: "badge.\(memberID)") as? Date
+                if let lastFetched, Date.now.timeIntervalSince(lastFetched) < 600 {
+                    return false
+                }
+                let url = URL(string: "https://rewards.example.com/badges/\(memberID)")!
+                let (data, _) = try await URLSession.shared.data(from: url)
+                let unlocked = String(decoding: data, as: UTF8.self) == "unlocked"
+                UserDefaults.standard.set(Date.now, forKey: "badge.\(memberID)")
+                return unlocked
+            }
+        }
+        ```
+
+        Show how to introduce seams, write isolated Swift Testing tests, and report the seam types and
+        enabling points. This is a planning exercise; do not call tools.
+      rubric: >-
+        (1) Audits and lists all three hidden dependencies: `UserDefaults.standard`, `Date.now`, and
+        `URLSession.shared`.
+        (2) Introduces Swift 6 concurrency-safe seams (`@Sendable` closures and/or narrow `Sendable`
+        protocol or witness-struct dependencies) with production defaults so existing `BadgeRefreshService()`
+        call sites remain unchanged (optionally noting a custom `URLProtocol` on `URLSessionConfiguration`
+        as a boundary option for HTTP tests).
+        (3) Respects Swift's static-compilation limits: does not attempt runtime module mocking (such as
+        `vi.mock`-style import replacement) and does not try Extract-and-Override subclassing on the
+        `struct`.
+        (4) Writes Swift Testing tests (`@Test`, `#expect`) using isolated per-test stateful fakes
+        (such as an `actor` or `Synchronization.Mutex`-backed fake, with controllable responses or faults)
+        rather than `UserDefaults.standard` or shared global state.
+        (5) Names the seam type(s), exact enabling point(s), and confirms existing call sites are unchanged.
+  -
+    description: "Seam granularity refuses unnecessary seams for pure code"
+    vars:
+      scenario: >-
+        A developer asks you to add dependency-injection seams to `calculateCartDiscount` in
+        `src/pricing/discount.ts` so every helper it calls can be substituted in tests:
+
+        ```ts
+        // src/pricing/discount.ts
+        const roundMinorUnits = (value: number): number => Math.round(value);
+        const formatPercent = (rate: number): string => `${Math.round(rate * 100)}%`;
+
+        export function calculateCartDiscount(
+          pricesMinor: ReadonlyArray<number>,
+          rate: number,
+        ): { discountMinor: number; label: string } {
+          const subtotal = pricesMinor.reduce((sum, price) => sum + price, 0);
+          const cappedRate = Math.min(Math.max(rate, 0), 0.5);
+          const discountMinor = roundMinorUnits(subtotal * cappedRate);
+          return { discountMinor, label: formatPercent(cappedRate) };
+        }
+        ```
+
+        Respond to the developer's request. This is a planning exercise; do not call tools.
+      rubric: >-
+        (1) Refuses to introduce seams or dependency parameters for `roundMinorUnits`, `formatPercent`,
+        `Array.prototype.reduce`, or `Math.min`/`Math.max`.
+        (2) Explains the seam granularity rule: if a test can call the code directly without setup or
+        teardown—because the dependencies are fast, deterministic, same-module pure helpers with no
+        external I/O, clock, randomness, or side effects—it needs no seam.
+        (3) Recommends testing `calculateCartDiscount` directly through its public signature using plain
+        inputs and assertions on observable outputs.
+  -
+    description: "Distinguishes temporary test seam from permanent architectural port"
+    vars:
+      scenario: >-
+        We just added a default parameter seam `uploadBlob: (key: string, body: string) => Promise<string> = defaultS3Upload`
+        to `archiveInvoice` in `src/billing/archive.ts` so we could put legacy behaviour under test.
+        Now the team asks: "Can we use this skill to promote `uploadBlob` into a permanent driven port
+        for the entire billing subsystem, design the inside/outside boundary rules, build the production
+        composition root, and define all adapter packages?" How do you respond? This is a planning
+        exercise; do not call tools.
+      rubric: >-
+        (1) Clearly distinguishes a temporary or minimal test seam (introduced to break a hidden
+        dependency and place existing code under test) from a durable architectural port or public module
+        contract.
+        (2) States that designing permanent ports, inside/outside boundaries, adapter layers, and a
+        composition root is outside `test-seams`.
+        (3) Hands off the permanent ports-and-adapters work to `hexagonal-architecture` (and may note
+        `architect` for general module-contract design if the team does not opt into ports and adapters),
+        keeping the current seam narrow and private/local until that architectural decision is made.
+  -
+    description: "Explicit handovers to refactoring, tdd, and framework testing skills"
+    vars:
+      scenario: >-
+        Our legacy TypeScript billing function and Swift iOS sync service now have seams and basic
+        isolation tests passing. We have three next tasks:
+        1. Safely restructure the 200-line legacy billing function into smaller pieces without changing
+           its behaviour, backed by characterisation tests.
+        2. Build a brand-new greenfield promo-code validator from scratch (no existing legacy code).
+        3. Expand the Swift Testing suite (parameterised tests, tags, isolated fixtures) for the iOS sync
+           service and write React Testing Library component tests (accessible queries, userEvent) for
+           the React checkout panel.
+
+        State which tasks belong to `test-seams` and name the exact skill that owns each follow-on task.
+        This is a planning exercise; do not call tools.
+      rubric: >-
+        (1) States that none of these three follow-on tasks belong to `test-seams` because the hidden
+        dependencies are already broken and the code is testable.
+        (2) Hands task 1 (behaviour-preserving structural cleanup and characterisation-test-backed
+        restructuring) to `refactoring`.
+        (3) Hands task 2 (greenfield feature development from scratch) to `tdd`.
+        (4) Hands task 3's Swift Testing suite authoring to `swift-testing` and React component test
+        authoring to `react-testing` (and may optionally mention `frontend-testing` for non-React DOM UI).
+        (5) Uses only real installed skill names and does not name uninstalled upstream skills such as
+        `characterisation-tests`, `testing`, `finding-seams`, or `codebase-design`.

@@ -1,0 +1,85 @@
+description: "codebase-layout activation and exclusion"
+metadata:
+  fixture_skills:
+    - architect
+    - architecture-audit
+    - hexagonal-architecture
+prompts:
+  - id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  - id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Explicit invocation reaches skill"
+    vars:
+      request: "Use codebase-layout to propose a directory layout, placement rules, and import-direction enforcement for our TypeScript web app that currently puts everything in src/components, src/hooks, and src/utils."
+    assert:
+      - type: "skill-used"
+        value: "codebase-layout"
+  - description: "Natural web folder and package boundary request selects skill"
+    vars:
+      request: "Our monorepo has flat src/services and src/controllers folders plus catch-all barrel files leaking server code into client bundles. Propose a feature-first folder and workspace package structure, allowed and forbidden import directions, and ESLint/exports boundary rules."
+    assert:
+      - type: "skill-used"
+        value: "codebase-layout"
+  - description: "Natural iOS Swift Package target layout request selects skill"
+    vars:
+      request: "Our iOS, watchOS, and WidgetKit app keeps every Swift file in one Xcode target under Models, ViewModels, and Services groups. How should we organise a local Package.swift with separate targets and Swift access control so UI and hardware imports cannot leak into core domain logic?"
+    assert:
+      - type: "skill-used"
+        value: "codebase-layout"
+  - description: "Exclusion: single-module type signatures route to architect"
+    vars:
+      request: "Before we write code, design the TypeScript types, function signatures, and caller-facing module contract for our new per-tenant webhook rate limiter; do not redesign our repository folders."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "The response routes designing a single module's caller-facing types and signatures to architect, not codebase-layout. It does not produce a repository folder tree, placement rules, or directory migration plan, and does not claim to have modified files."
+        provider: &judge
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: "Exclusion: repo-wide hotspot triage routes to architecture-audit"
+    vars:
+      request: "Audit the whole repository read-only to find which architectural hotspots and shallow modules are causing the most friction across our codebase and rank which structural investment we should tackle first."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "The response routes repository-wide architectural hotspot discovery and investment ranking to architecture-audit, not codebase-layout. It does not jump straight into proposing a target directory tree or folder migration plan, and does not claim to have executed scans."
+        provider: *judge
+  - description: "Exclusion: semantic port and adapter rules route to hexagonal-architecture"
+    vars:
+      request: "We already settled our folder tree. Now we need semantic ports-and-adapters guidance for our billing service: how to model Domain Probes, CQRS-lite read paths, and stateful fake swappability tests against driving and driven ports."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "The response routes semantic ports-and-adapters modelling (Domain Probes, CQRS-lite, stateful fake swappability) to hexagonal-architecture, not codebase-layout. It does not turn the answer into a directory-tree layout proposal or claim to have edited files."
+        provider: *judge

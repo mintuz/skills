@@ -8,5 +8,9 @@ This is a read-only scenario evaluation. Do not use tools. Treat the supplied sc
 {{redFlags}}
 </design-red-flags-reference>
 
+<contract-and-dependency-checks-reference path="references/contract-and-dependency-checks.md">
+{{contractAndDependencyChecks}}
+</contract-and-dependency-checks-reference>
+
 Scenario:
 {{scenario}}

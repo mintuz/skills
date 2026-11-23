@@ -329,7 +329,7 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 | **core** | Core workflows: commits, learning, code review, prompts, PRs, writing, and persistent memory |
 | **web** | Web development with CSS, React, Tailwind, TDD, testing, and design patterns |
 | **typescript** | TypeScript strict mode, schema-first development, and best practices |
-| **system-design** | Architecture visualisation with Mermaid diagrams |
+| **system-design** | Language-agnostic architecture auditing, physical layout, hexagonal architecture, twelve-factor discipline, and Mermaid diagrams |
 | **product-management** | PRDs, task management with Task Master MCP, decision tracing, and status updates |
 | **app** | Swift iOS development with App Intents, Swift Testing, and SwiftUI architecture |
 | **principle** | Independent engineering principles, each invoked for a specific decision |
@@ -358,6 +358,7 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 | [`maintain-verification-skill`](src/core/skills/maintain-verification-skill/SKILL.md) | Repair verification recipes and harness discovery without changing product expectations |
 | [`visual-feedback`](src/core/skills/visual-feedback/SKILL.md) | Reproduce and compare visual states in web and iOS applications |
 | [`tdd`](src/core/skills/tdd/SKILL.md) | Framework-neutral Red-Green-Refactor workflow with explicit evidence |
+| [`test-seams`](src/core/skills/test-seams/SKILL.md) | Break hidden dependencies in untestable legacy code with minimum seams and hand-written fakes across web and iOS |
 | [`blast-radius`](src/core/skills/blast-radius/SKILL.md) | Trace material change risks and decisive checks |
 | [`double-check`](src/core/skills/double-check/SKILL.md) | Second opinion from a fresh reviewer, ideally on another provider; findings close only on evidence |
 | [`lens-review`](src/core/skills/lens-review/SKILL.md) | Review a diff through installed skills as isolated lenses, verify every finding and return one ranked report |
@@ -427,7 +428,11 @@ The `writing-for-humans` [behavioural suite](evals/writing-for-humans/promptfooc
 
 | Skill | Description |
 | --- | --- |
+| [`architecture-audit`](src/system-design/skills/architecture-audit/SKILL.md) | Read-only repository-wide architectural hotspot audit with qualitative ranking, counterevidence, and Mermaid diagrams |
+| [`codebase-layout`](src/system-design/skills/codebase-layout/SKILL.md) | Physical source tree, package/target layout, placement rules, import enforcement, and staged migrations across web and iOS |
+| [`hexagonal-architecture`](src/system-design/skills/hexagonal-architecture/SKILL.md) | Opt-in ports-and-adapters architecture with language-agnostic rules and web/iOS references |
 | [`mermaid-generator`](src/system-design/skills/mermaid-generator/SKILL.md) | Generate Mermaid diagrams from code to visualise architecture and relationships |
+| [`twelve-factor`](src/system-design/skills/twelve-factor/SKILL.md) | Twelve-Factor operational discipline with an upfront platform applicability gate for backend, edge, SPA, and iOS |
 
 ### Product management
 

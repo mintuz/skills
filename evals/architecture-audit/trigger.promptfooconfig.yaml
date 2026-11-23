@@ -1,0 +1,83 @@
+description: "architecture-audit activation and exclusion"
+metadata:
+  fixture_skills: [architect, codebase-layout, test-seams]
+prompts:
+  - id: "file://prompts/trigger.txt"
+    label: "trigger"
+providers:
+  - &subject
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./trigger-workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+tests:
+  - description: "Explicit invocation reaches architecture-audit"
+    vars:
+      request: "Use architecture-audit to scan our repository and rank which architectural hotspots are worth fixing right now."
+    assert:
+      - type: "skill-used"
+        value: "architecture-audit"
+  - description: "Natural web repo-wide triage selects architecture-audit"
+    vars:
+      request: "Our TypeScript web monorepo has growing shotgun changes, provider leakage and brittle tests across checkout, billing and notifications. Audit the codebase and rank where architecture investment would pay off most right now."
+    assert:
+      - type: "skill-used"
+        value: "architecture-audit"
+  - description: "Natural iOS repo-wide triage selects architecture-audit"
+    vars:
+      request: "Before we refactor our Swift 6 SwiftUI and Swift Package iOS codebase, audit the modules and tell us which coupling or boundary hotspots are actually worth investing in right now, or whether we should leave it alone."
+    assert:
+      - type: "skill-used"
+        value: "architecture-audit"
+  - description: "Exclusion: designing one already-selected module routes to architect"
+    vars:
+      request: "We already picked the target module. Before writing code, design the caller-facing types, signatures and module boundaries for our new per-tenant WebhookRateLimiter module."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "Routes the request to architect (designing one selected module's types, signatures and contract), not architecture-audit (repo-wide hotspot triage), and does not claim to have executed tools or edited files."
+        provider: &judge
+          id: "openai:codex-sdk"
+          config:
+            codex_path_override: codex
+            model: "gpt-6-astra"
+            model_reasoning_effort: "medium"
+            working_dir: ./grading-workspace
+            skip_git_repo_check: true
+            sandbox_mode: "read-only"
+            approval_policy: "never"
+            network_access_enabled: false
+            web_search_enabled: false
+            cli_config:
+              features:
+                apps: false
+                plugins: false
+                skill_search: false
+  - description: "Exclusion: breaking hidden dependencies in one untestable function routes to test-seams"
+    vars:
+      request: "The legacy function calculateRenewalPrice in billing.ts reads Date.now() and calls a global Stripe singleton directly, so I cannot write unit tests for it. Show me the minimum seam to get it under characterisation test."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "Routes the request to test-seams (breaking hidden dependencies in one untestable legacy unit), not architecture-audit (repo-wide hotspot triage), and does not claim to have executed tools or edited files."
+        provider: *judge
+  - description: "Exclusion: physical folder layout and import lint enforcement routes to codebase-layout"
+    vars:
+      request: "Audit our src/ folder layout and workspace package structure, and propose the exact directory tree and ESLint import-boundary rules to migrate to."
+    assert:
+      - type: "agent-rubric"
+        threshold: 1
+        value: "Routes the request to codebase-layout (physical source tree, package layout and import-direction enforcement), not architecture-audit (repo-wide hotspot triage), and does not claim to have executed tools or edited files."
+        provider: *judge

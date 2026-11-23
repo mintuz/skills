@@ -1,6 +1,6 @@
 ---
 name: architect
-description: "WHEN shaping non-trivial code whose types, signatures or module boundaries are not settled, before implementation; NOT for edits inside one function, read-only explanation, or work whose design is already agreed; sketches caller usage, types and module boundaries through arena, then implements against the agreed sketch when authorised"
+description: "WHEN shaping non-trivial code whose types, signatures, non-type contracts or module boundaries are not settled, before implementation; NOT for edits inside one function, read-only explanation, repo-wide hotspot scans, physical folder/package layout, or work whose design is already agreed; sketches caller usage, types, dependencies and module boundaries through arena, then implements against the agreed sketch when authorised"
 ---
 
 # Architect
@@ -34,10 +34,11 @@ Run the `arena` skill to produce the sketch. Hand it:
 - **Runner prompt:** [`references/runner-prompt.md`](references/runner-prompt.md), as each candidate's prompt.
 - **Candidates:** at least two.
 - **Extra criteria**, added to the rubric arena derives:
-  1. **Design it twice.** Candidates are structurally distinct whole-shape alternatives, not point fixes inside one shape (`principle-exhaust-the-design-space`), even when the first looks sufficient. Each candidate commits to its own shape; one that hedges toward a safe middle fails.
+  1. **Design it twice.** Candidates are structurally distinct whole-shape alternatives, not point fixes inside one shape (`principle-exhaust-the-design-space`), even when the first looks sufficient. Assign each candidate a distinct constraint lens from [`references/runner-prompt.md`](references/runner-prompt.md) so each commits to its own shape; one that hedges toward a safe middle fails.
   2. **Caller first.** Each candidate writes the caller's usage (the README or quickstart a consumer reads, plus two or three realistic call sites) before its types, and its type sketch agrees with that usage.
-  3. **Red flags.** Each candidate passes [`references/design-red-flags.md`](references/design-red-flags.md); revise or reject flagged shapes. Assume the next contributor is an agent that sees only the files it opened, copies the nearest example and takes the shortest path that compiles. Prefer the design where a change that looks right from one file is right for the whole repository.
+  3. **Red flags.** Each candidate passes [`references/design-red-flags.md`](references/design-red-flags.md); revise or reject flagged shapes, while keeping intentionally thin edges thin. Assume the next contributor is an agent that sees only the files it opened, copies the nearest example and takes the shortest path that compiles. Prefer the design where a change that looks right from one file is right for the whole repository.
   4. **Interface depth.** Prefer the design that hides more complexity behind a smaller, simpler public surface. A rich interface can keep call chains short by concentrating capability instead of scattering it across layers.
+  5. **Full contract and dependency fidelity.** When the design crosses a module, process, storage or third-party boundary, read [`references/contract-and-dependency-checks.md`](references/contract-and-dependency-checks.md): audit non-type obligations (call ordering, lifecycle, dependency construction, retries, partial failure, cancellation, consistency) and classify each dependency across all eight axes, stating what test substitutes cannot prove.
 
 Arena decides whether candidates run as subagents or are drafted in turn, each to completion before reading any other, and handles judging, picking the base and grafting. Copy its synthesis note into the rationale's "Synthesis decision" section. The note names the base and why, each graft with its source candidate, and each rejected candidate or part with its reason.
 
@@ -82,3 +83,15 @@ When you scrap:
 ## Outputs
 
 The caller's usage comes first and the type sketch derives from it. Small changes get one file with new types and signatures; larger work gets a module map plus type definitions. The rationale ships alongside, shaped per [`references/rationale-template.md`](references/rationale-template.md), including the usage sketch and the synthesis decision.
+
+## Handovers
+
+Use `architect` for logical module contracts, types, seams and depth. Route adjacent work to its owning skill:
+
+- `how` / `why`: ground existing subsystems in Phase A before sketching (`why` whenever ownership or layering changes).
+- `arena`: run competing candidate generation, judging, base selection and grafting in Phase B.
+- `architecture-audit`: run a read-only repository-wide hotspot scan and rank candidates when the target module is not yet chosen; re-enter `architect` once a candidate is selected.
+- `codebase-layout`: decide physical folder, package or target placement and automated import-direction enforcement.
+- `hexagonal-architecture`: apply ports-and-adapters boundaries when the codebase explicitly opts into hexagonal architecture.
+- `reducer`: simplify an already-selected path by removing whole-system mechanism without adding new capability.
+- `test-seams`: break hidden hard-coded dependencies in untestable legacy code with minimum seams and fakes so characterisation tests can run before changing contracts.

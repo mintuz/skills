@@ -1,0 +1,20 @@
+This is a read-only scenario evaluation. Do not use tools. Treat the supplied scenario as the complete evidence packet and the skill below as the procedure. Apply only the reference sections whose load condition matches the scenario. Answer the request, including concrete next steps when execution is unavailable; do not claim those steps ran.
+
+<skill>
+{{skill}}
+</skill>
+
+<reference path="references/typescript-node.md">
+{{typescriptNodeRef}}
+</reference>
+
+<reference path="references/edge-and-serverless.md">
+{{edgeServerlessRef}}
+</reference>
+
+<reference path="references/client-web-and-ios.md">
+{{clientWebIosRef}}
+</reference>
+
+Scenario:
+{{scenario}}

@@ -1,0 +1,81 @@
+description: "twelve-factor operational discipline versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  vars:
+    skill: "file://../../src/system-design/skills/twelve-factor/SKILL.md"
+    typescriptNodeRef: "file://../../src/system-design/skills/twelve-factor/references/typescript-node.md"
+    edgeServerlessRef: "file://../../src/system-design/skills/twelve-factor/references/edge-and-serverless.md"
+    clientWebIosRef: "file://../../src/system-design/skills/twelve-factor/references/client-web-and-ios.md"
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Backend config refactor centralises all env reads, removes env-name branches, and ships operator template"
+    vars:
+      scenario: "Our Node/TypeScript API service reads process.env.DATABASE_URL in db.ts, process.env.LOG_LEVEL in logger.ts, and process.env.FEATURE_BILLING_V2 in billingHandler.ts. In server.ts it checks `if (process.env.NODE_ENV === 'production') { secureCookies = true; dbPoolMax = 50; } else { secureCookies = false; dbPoolMax = 5; }`. There is no .env.example and missing STRIPE_WEBHOOK_SECRET currently crashes mid-request. Add a startup config module for DATABASE_URL and STRIPE_WEBHOOK_SECRET. Describe the exact refactor, files to update, and completion checks."
+      rubric: "Centralises every environment read in the application into one startup-validated config module—including LOG_LEVEL and FEATURE_BILLING_V2, not only DATABASE_URL and STRIPE_WEBHOOK_SECRET—and injects config via options objects. Fails fast at startup (non-zero exit with a clear error) on invalid or missing settings. Replaces the NODE_ENV branch with explicit validated settings (such as SECURE_COOKIES and DB_POOL_MAX) and deletes the environment-name comparison rather than leaving or merely noting it. Creates or updates .env.example (or the platform's operator config template) in the same change listing every required setting with placeholder values only, no real credentials, and no committed .env. Includes a completion grep/search check verifying that only the config module and process entry points read environment variables."
+  -
+    description: "Backend graceful shutdown, probes, and per-request correlated structured logging"
+    vars:
+      scenario: "Our long-running Node/TypeScript order service writes logs via `fs.appendFileSync('/var/log/orders.log', ...)` and `console.log(\\`Order \\${id} created\\`)`, hardcodes the log threshold inside createLogger(), has no health or readiness routes, and exits abruptly during container deploys without draining HTTP connections or closing its Postgres pool and Redis client. Plan the exact operational changes to make its logging and lifecycle container-safe."
+      rubric: "Removes all file transports and unstructured string logs so structured machine-parseable records (JSON) write only to platform-captured process streams (stdout/stderr) with ISO 8601 timestamps, an externally injected severity threshold, and an allowlisted set of structured fields without raw credentials or PII. Requires every request-scoped log record to carry a request or trace ID—reading an inbound trace/request-id header or generating one when absent—and binds a per-request child logger at handler entry before migrating call sites. Adds liveness (/health) and readiness (/ready checking critical backing dependencies) probes. Adds idempotent SIGTERM and SIGINT graceful shutdown that drains in-flight connections, closes the database pool and Redis client through one shutdown coordinator, enforces a forced-exit drain timeout, and exits non-zero on shutdown failure."
+  -
+    description: "Edge and serverless deployment adapts factors and rejects server-only rules"
+    vars:
+      scenario: "We are building an edge/serverless webhook-ingestion function (Cloudflare Workers / serverless isolate) that validates inbound events, pushes work to a managed queue binding, reads secrets from platform bindings, and runs nightly cleanup on a platform cron trigger. A teammate proposes applying twelve-factor by binding an HTTP server to PORT, adding a SIGTERM drain handler, running a long-lived Procfile worker process, and batching events on local /tmp disk before flushing. Review this proposal and provide the right operational design."
+      rubric: "Explicitly applies the Platform Applicability Gate for edge/serverless: marks Port Binding (Factor VII) and OS-signal SIGTERM/SIGINT graceful shutdown (server-form Factor IX) as N/A because the platform owns socket binding and isolate lifecycle. Rejects local /tmp batching (Stateless Processes, Factor VI) in favour of durable external queue/storage bindings. Adapts Disposability (Factor IX) to fast cold starts, bounded work within platform execution limits, and idempotent/reentrant handlers. Adapts Concurrency (Factor VIII) to platform-managed isolate scaling with managed queues and cron triggers rather than a long-running Procfile worker. Uses platform bindings/secrets for Config and Backing Services (Factors III/IV) and writes structured logs with request/trace correlation IDs to platform-captured streams (Factor XI)."
+  -
+    description: "iOS app under twelve-factor adapts client realities and refuses server dogma"
+    vars:
+      scenario: "We are auditing a Swift 6 iOS app (SwiftData persistence, local audio/document files, URLSession API client, and WidgetKit extension) under twelve-factor. Should we remove SwiftData and local files to stay stateless, put our third-party API key in .xcconfig, gate sync and pricing rules with #if DEBUG, add a local health-check port plus SIGTERM handler, and emit JSON logs to stdout?"
+      rubric: "Uses the Platform Applicability Gate for client-side iOS apps and explicitly refuses to ban local persistence (SwiftData, app container files, Keychain), explaining that server-form Stateless Processes (VI), Port Binding (VII), and server Concurrency (VIII) are N/A for a single-user client app. Specifies local persistence hygiene: explicit URLFileProtection, backup exclusion where appropriate, and versioned in-app migrations (VersionedSchema and SchemaMigrationPlan) instead of server admin shells. Forbids putting API secrets in .xcconfig, Info.plist, or the .ipa bundle: non-secret build settings go in .xcconfig/Info.plist, user secrets go in Keychain, and third-party API secrets live on a backend. Restricts #if DEBUG strictly to the composition root (for example selecting live vs scripted app graphs or diagnostic logging) and forbids branching business logic on #if DEBUG. Replaces SIGTERM/port binding with iOS Disposability: fast launch, crash-safe recovery journal treating abrupt OS kill as interrupted, UIApplication.beginBackgroundTask / BGTaskScheduler expiration handlers, and SwiftUI .task cancellation. Replaces stdout JSON with Apple unified OSLog Logger(subsystem:category:) using explicit privacy annotations (such as privacy: .private(mask: .hash) for IDs/PII and .public for safe values). Notes that simulator runs do not prove physical-device Release parity."
+  -
+    description: "Brownfield risk-ordered adoption sequence and companion skill handovers"
+    vars:
+      scenario: "Our legacy Node/TypeScript monolith runs across two VMs with scattered process.env reads, logs written to rotating local files, in-memory sessions, abrupt restarts that duplicate webhook jobs, and Postgres/Redis SDK calls tangled inside domain code. We cannot pause feature work for a rewrite. Give a risk-ordered incremental twelve-factor adoption plan and name the exact companion skills to invoke for isolating backing services behind ports, testing the operational changes, validating boundary inputs/config, keeping secrets out of templates/logs, and making retried jobs safe."
+      rubric: "Orders brownfield adoption by risk in the canonical sequence: (1) Config (Factor III), (2) Logs (Factor XI), (3) Disposability (Factor IX), (4) Backing services (Factor IV), and (5) Stateless processes (Factor VI). Names all five companion handovers accurately: hexagonal-architecture (isolating backing services behind driven ports and adapters), tdd (behaviour-driven tests for config, shutdown, and backing-service wiring), principle-parse-at-the-boundary (validating config and external payloads at trust boundaries), principle-keep-secrets-out (preventing real credentials in operator templates, logs, or artifacts), and principle-make-operations-idempotent (safe re-entrancy and retries for interrupted jobs). Does not cite uninstalled upstream skills such as testing, typescript-strict, observability, or functional."
