@@ -1,0 +1,19 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "principle",
+  "displayName": "Principles",
+  "version": "2.1.1",
+  "description": "Independent engineering principles for focused decisions and execution.",
+  "suggestedPrompts": [
+    "Apply principle-prove-it-works to this change."
+  ],
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "homepage": "https://github.com/mintuz/skills",
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["principles", "engineering", "verification", "design"]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "core",
+  "displayName": "Core",
+  "version": "6.4.0",
+  "description": "Core skills and tools that aid software development workflows.",
+  "suggestedPrompts": [
+    "Review this change against its acceptance criteria."
+  ],
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "homepage": "https://github.com/mintuz/skills",
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["core", "software", "development", "workflows"]
+}

@@ -4,7 +4,7 @@ This file guides coding agents that work in this repository.
 
 ## Project Overview
 
-This repository is a plugin marketplace for Codex, Claude Code and OMP. It contains eight plugins for software development and personal productivity workflows:
+This repository is a plugin marketplace for Codex, Claude Code, OMP and Antigravity. It contains eight plugins for software development and personal productivity workflows:
 
 - **core** – memory, commit hygiene, refactoring, prompt refinement and branch review
 - **web** – CSS, React, Tailwind, testing, refactoring and design practices
@@ -23,10 +23,11 @@ A plugin can contain three types of content:
 2. **Skills** – knowledge bases that load into context, defined in `skills/*/SKILL.md`.
 3. **Commands** – slash commands for quick actions, defined in `commands/*.md`.
 
-Each harness has its own marketplace catalogue. Each plugin has one manifest per harness. Discovery differs by harness:
+Each harness has its own root catalogue or discovery manifest. Each plugin has one manifest per harness. Discovery differs by harness:
 
 - The Claude Code and OMP catalogues list the explicit skill paths of each plugin. Keep the OMP catalogue and the OMP plugin manifests identical to the Claude Code copies.
 - The Codex catalogue lists plugin sources only. Each Codex plugin manifest declares the skills directory.
+- Antigravity discovers plugins under `src/` through `.agents/plugins.json`, loads each bundle from `.antigravity-plugin/plugin.json`, auto-discovers `skills/` and `agents/`, and reads MCP servers from `mcp_config.json`.
 
 Do not assume that the invocation syntax is the same in each harness. Validate each target harness.
 
@@ -36,11 +37,14 @@ Do not assume that the invocation syntax is the same in each harness. Validate e
 .claude-plugin/marketplace.json   # Claude Code catalogue with explicit skill paths
 .omp-plugin/marketplace.json      # OMP catalogue; identical to the Claude Code catalogue
 .agents/plugins/marketplace.json  # Codex catalogue with local plugin sources
+.agents/plugins.json              # Antigravity plugin discovery manifest pointing at src/
 src/<plugin>/
   .claude-plugin/plugin.json
   .omp-plugin/plugin.json         # Identical to .claude-plugin/plugin.json
   .codex-plugin/plugin.json
-  .mcp.json                       # Optional MCP server configuration
+  .antigravity-plugin/plugin.json # Antigravity plugin manifest
+  .mcp.json                       # Optional MCP server configuration (Claude Code, Codex, OMP)
+  mcp_config.json                 # Optional MCP server configuration (Antigravity; mirrors .mcp.json)
   skills/<skill-name>/SKILL.md
   agents/                         # Optional agent definitions
   commands/                       # Optional host-specific commands
@@ -74,7 +78,7 @@ Agent instructions...
 **Required:** `name`, `description`.
 **Optional:** `tools`, `model` (`sonnet`, `opus` or `haiku`), `color`.
 
-If an agent runs in more than one harness, omit `tools` and `model`. Tool names and model names differ between Claude Code, Codex and OMP. OMP ignores the `model` of a Claude-format plugin agent.
+If an agent runs in more than one harness, omit `tools` and `model`, and declare `skills` as a YAML list rather than a comma-separated string. Tool names and model names differ between Claude Code, Codex, OMP and Antigravity. Antigravity requires YAML arrays for list fields and rejects comma-separated strings in agent frontmatter. OMP ignores the `model` of a Claude-format plugin agent.
 
 ## Command Definition Format
 
@@ -156,27 +160,27 @@ A skill change is complete only when all of these are true:
 
 **New plugin:**
 
-1. Create `.claude-plugin/plugin.json`, `.omp-plugin/plugin.json` and `.codex-plugin/plugin.json` under `src/<plugin>/`. Give them the same name and version, and the applicable host fields. The Codex manifest declares `"skills": "./skills/"`.
-2. Register the plugin in all three catalogues. Copy the structure of an existing entry in each file:
+1. Create `.claude-plugin/plugin.json`, `.omp-plugin/plugin.json`, `.codex-plugin/plugin.json` and `.antigravity-plugin/plugin.json` under `src/<plugin>/`. Give them the same name and version, and the applicable host fields. The Codex manifest declares `"skills": "./skills/"`. The Antigravity manifest uses `"$schema": "https://antigravity.google/schemas/v1/plugin.json"` and omits `"skills"` when using the default `skills/` directory.
+2. Register the plugin in all three catalogues (`.agents/plugins.json` discovers every plugin folder under `src/` automatically). Copy the structure of an existing entry in each file:
    - Claude Code and OMP: `"source": "./src/<plugin>"` and explicit `skills` paths.
    - Codex: `"source": {"source": "local", "path": "./src/<plugin>"}` with `policy` and `category` metadata.
-3. Add the necessary skills, agents or commands. Add `.mcp.json` only when the plugin needs an MCP server.
-4. Validate discovery and packaging in each target harness. Matching Markdown does not prove that every harness loads the plugin.
+3. Add the necessary skills, agents or commands. Add both `.mcp.json` and `mcp_config.json` only when the plugin needs an MCP server.
+4. Validate discovery and packaging in each target harness, including `agy plugin validate ./src/<plugin>` for Antigravity. Matching Markdown does not prove that every harness loads the plugin.
 
 ## Version Bumping
 
 For each affected plugin, bump the version with semver. Keep these versions the same:
 
-- the three plugin manifests (`.claude-plugin`, `.omp-plugin` and `.codex-plugin`)
+- the four plugin manifests (`.claude-plugin`, `.omp-plugin`, `.codex-plugin` and `.antigravity-plugin`)
 - the plugin entry in the Claude Code and OMP catalogues
 
 OMP uses the catalogue entry version to detect available upgrades.
 
-Before you publish plugin metadata changes, run `pnpm check:plugins`. This check compares the catalogues with `src/`. It does not call a model, install plugins or start MCP servers.
+Before you publish plugin metadata changes, run `pnpm check:plugins`. This check compares the catalogues and `.agents/plugins.json` with `src/`. It does not call a model, install plugins or start MCP servers.
 
 ## MCP Server Integrations
 
-These plugins include MCP server configurations in `.mcp.json`:
+These plugins include MCP server configurations in `.mcp.json` (for Claude Code, Codex and OMP) and `mcp_config.json` (for Antigravity):
 
 - **core** – Memory MCP (`@modelcontextprotocol/server-memory`)
 - **product-management** – Task Master AI MCP (`task-master-ai`) for task orchestration workflows

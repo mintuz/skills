@@ -1,0 +1,26 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "life",
+  "displayName": "Life",
+  "version": "1.0.5",
+  "description": "Skills for personal life management.",
+  "suggestedPrompts": [
+    "Turn this goal into a practical plan and system."
+  ],
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "homepage": "https://github.com/mintuz/skills",
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": [
+    "life",
+    "personal",
+    "management",
+    "planning",
+    "documentation",
+    "finance"
+  ]
+}
