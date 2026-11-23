@@ -6,11 +6,11 @@ This file guides coding agents that work in this repository.
 
 This repository is a plugin marketplace for Codex, Claude Code, OMP and Antigravity. It contains eight plugins for software development and personal productivity workflows:
 
-- **core** – memory, commit hygiene, refactoring, prompt refinement and branch review
+- **core** – commit hygiene, refactoring, prompt refinement and branch review
 - **web** – CSS, React, Tailwind, testing, refactoring and design practices
 - **typescript** – strict, schema-first TypeScript guidance
 - **system-design** – Mermaid diagram generation from code
-- **product-management** – PRD creation, status updates and task orchestration
+- **product-management** – decision tracing, meeting briefs, status updates and story PR orchestration
 - **app** – Swift iOS testing, App Intent-first development and SwiftUI architecture
 - **principle** – independent `principle-*` engineering skills
 - **life** – personal life management with the GPS method for goal achievement
@@ -182,8 +182,6 @@ Before you publish plugin metadata changes, run `pnpm check:plugins`. This check
 
 These plugins include MCP server configurations in `.mcp.json` (for Claude Code, Codex and OMP) and `mcp_config.json` (for Antigravity):
 
-- **core** – Memory MCP (`@modelcontextprotocol/server-memory`)
-- **product-management** – Task Master AI MCP (`task-master-ai`) for task orchestration workflows
 - **web** – Playwright MCP (`@playwright/mcp`)
 - **app** – XcodeBuildMCP (`xcodebuildmcp`) and iOS Simulator MCP (`ios-simulator-mcp`)
 

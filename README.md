@@ -363,11 +363,11 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 
 | Plugin | Description |
 | --- | --- |
-| **core** | Core workflows: commits, learning, code review, prompts, PRs, writing, and persistent memory |
+| **core** | Core workflows: commits, learning, code review, prompts, PRs, and writing |
 | **web** | Web development with CSS, React, Tailwind, TDD, testing, and design patterns |
 | **typescript** | TypeScript strict mode, schema-first development, and best practices |
 | **system-design** | Language-agnostic architecture auditing, physical layout, hexagonal architecture, twelve-factor discipline, and Mermaid diagrams |
-| **product-management** | PRDs, task management with Task Master MCP, decision tracing, and status updates |
+| **product-management** | Decision tracing, meeting briefs, status updates, story PR orchestration, and design handovers |
 | **app** | Swift iOS development with App Intents, Swift Testing, and SwiftUI architecture |
 | **principle** | Independent engineering principles, each invoked for a specific decision |
 | **life** | Personal life management with the GPS method for goal achievement |
@@ -566,9 +566,7 @@ Each principle is an independent skill under `src/principle/skills/`, with its f
 
 Some plugins include Model Context Protocol (MCP) server configurations:
 
-- **core**: Memory MCP for persistent knowledge storage across sessions
 - **web**: Playwright MCP for browser automation and visual checks
-- **product-management**: Task Master MCP for task management workflows
 - **app**: XcodeBuildMCP and iOS Simulator MCP for app development workflows
 
 ## Other ways to install skills
