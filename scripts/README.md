@@ -1,6 +1,6 @@
 # Skill Packaging and Evaluation
 
-This directory contains packaging and evaluation tools for shared skills used by Codex, Claude Code and OMP.
+This directory contains packaging and evaluation tools for shared skills used by Codex, Claude Code, OMP and Antigravity.
 
 ## Overview
 
@@ -16,17 +16,19 @@ This directory contains two main tools:
 ## Check Plugin Metadata
 
 Run `pnpm check:plugins` before publishing plugin metadata changes. This checks
-the Codex, Claude Code and OMP catalogues against `src/`, including plugin
-names, source paths, skill inventories, repository URLs, manifest versions
-and MCP configuration paths.
+the Codex, Claude Code, OMP and Antigravity catalogues and discovery manifests
+against `src/`, including plugin names, source paths, skill inventories,
+repository URLs, manifest versions, Antigravity manifest schema fields and MCP
+configuration parity between `.mcp.json` and `mcp_config.json`.
 
 Keep the OMP catalogue and per-plugin manifests identical to the Claude Code
-copies. Keep each catalogue entry's `version` aligned with all three host
+copies. Keep each catalogue entry's `version` aligned with all four host
 manifests. OMP uses the entry version to detect available upgrades. The check
 rejects differences between the OMP and Claude Code metadata.
 
 This check does not call a model, install plugins or start MCP servers.
-Also validate and install through each target harness. See the
+Also validate and install through each target harness (for Antigravity, run
+`agy plugin validate ./src/<plugin>`). See the
 [installation instructions](../README.md#install-with-codex).
 
 ---

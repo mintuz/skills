@@ -1,6 +1,6 @@
 {
   "name": "mintuz-skills",
-  "description": "Development and productivity plugins for Codex, Claude Code and OMP",
+  "description": "Development and productivity plugins for Codex, Claude Code, OMP and Antigravity",
   "owner": {
     "name": "Adam Bulmer",
     "email": "[email protected]",
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "core",
-      "version": "6.4.0",
+      "version": "7.0.0",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
@@ -73,7 +73,7 @@
     },
     {
       "name": "product-management",
-      "version": "1.9.2",
+      "version": "2.0.0",
       "source": "./src/product-management",
       "description": "Agents and skills that are specialised in Product Management workflows",
       "skills": [

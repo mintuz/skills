@@ -1,0 +1,28 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "web",
+  "displayName": "Web",
+  "version": "2.1.0",
+  "description": "Skills and tools for building and maintaining web applications.",
+  "suggestedPrompts": [
+    "Review and improve this web interface."
+  ],
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "homepage": "https://github.com/mintuz/skills",
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": [
+    "web",
+    "design",
+    "ui",
+    "ux",
+    "css",
+    "html",
+    "javascript",
+    "typescript"
+  ]
+}

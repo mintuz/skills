@@ -1,0 +1,25 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "product-management",
+  "displayName": "Product Management",
+  "version": "2.0.0",
+  "description": "Product management skills and tools that speed up delivery workflows.",
+  "suggestedPrompts": [
+    "Turn these notes into decisions and actions."
+  ],
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "homepage": "https://github.com/mintuz/skills",
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": [
+    "product",
+    "management",
+    "planning",
+    "roadmap",
+    "documentation"
+  ]
+}

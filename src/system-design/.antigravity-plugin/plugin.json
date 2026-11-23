@@ -1,0 +1,24 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "system-design",
+  "displayName": "System Design",
+  "version": "1.5.0",
+  "description": "Skills for language-agnostic codebase architecture, layout, operational discipline, and Mermaid visualisation.",
+  "suggestedPrompts": [
+    "Map this codebase architecture with Mermaid."
+  ],
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "homepage": "https://github.com/mintuz/skills",
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": [
+    "system-design",
+    "architecture",
+    "hexagonal-architecture",
+    "twelve-factor"
+  ]
+}

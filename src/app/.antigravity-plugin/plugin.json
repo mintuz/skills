@@ -1,0 +1,19 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "app",
+  "displayName": "App",
+  "version": "1.11.0",
+  "description": "Skills and tools for Swift app development on iOS.",
+  "suggestedPrompts": [
+    "Help me build and verify this SwiftUI feature."
+  ],
+  "author": {
+    "name": "Adam Bulmer",
+    "email": "[email protected]",
+    "url": "https://github.com/mintuz"
+  },
+  "homepage": "https://github.com/mintuz/skills",
+  "repository": "https://github.com/mintuz/skills",
+  "license": "MIT",
+  "keywords": ["swift", "ios", "architecture", "microapps", "spm"]
+}

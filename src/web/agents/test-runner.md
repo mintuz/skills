@@ -1,8 +1,12 @@
 ---
 name: test-runner
 description: Run tests and return concise pass/fail summary. Auto-detects test framework. Returns only essential info to minimize context usage.
-tools: Bash,Read,Glob
-skills: yagni, frontend-testing, react-testing, refactoring, tdd
+skills:
+  - yagni
+  - frontend-testing
+  - react-testing
+  - refactoring
+  - tdd
 ---
 
 # Test Runner Agent
