@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "core",
-      "version": "7.0.0",
+      "version": "7.1.0",
       "source": "./src/core",
       "description": "Core Agents and skills that aid software development workflows",
       "skills": [
@@ -47,6 +47,7 @@
         "./skills/architect",
         "./skills/arena",
         "./skills/sharpen",
+        "./skills/reframe",
         "./skills/in-your-own-words",
         "./skills/creative-seed"
       ]

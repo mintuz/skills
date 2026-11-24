@@ -411,6 +411,7 @@ The [verification evidence record](evals/verification-skillset-native-results.js
 | [`architect`](src/core/skills/architect/SKILL.md) | Sketch types, signatures and modules through `arena`, then implement against the agreed sketch |
 | [`arena`](src/core/skills/arena/SKILL.md) | Run independent attempts at one task, judge them on a rubric, pick a base and graft the best parts |
 | [`sharpen`](src/core/skills/sharpen/SKILL.md) | Manual-only. Make a task deeper, not bigger, then rewrite the prompt |
+| [`reframe`](src/core/skills/reframe/SKILL.md) | Manual-only. Teach the expert terms for what you are building, borrow terms from neighbouring fields, then rewrite your description |
 | [`in-your-own-words`](src/core/skills/in-your-own-words/SKILL.md) | Manual-only. Restate the user's goals and the problem they are trying to solve |
 | [`creative-seed`](src/core/skills/creative-seed/SKILL.md) | Derive each UI concept's creative direction from a deterministic seed string that the design never shows |
 

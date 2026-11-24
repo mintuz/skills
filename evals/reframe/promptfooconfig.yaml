@@ -1,0 +1,75 @@
+description: "reframe portable workflow versus no-skill baseline"
+prompts:
+  -
+    id: "file://prompts/baseline.txt"
+    label: "baseline"
+  -
+    id: "file://prompts/with-skill.txt"
+    label: "with-skill"
+providers:
+  -
+    id: "openai:codex-sdk"
+    config:
+      codex_path_override: codex
+      model: "gpt-6-astra"
+      model_reasoning_effort: "medium"
+      working_dir: ./workspace
+      skip_git_repo_check: true
+      sandbox_mode: "read-only"
+      approval_policy: "never"
+      network_access_enabled: false
+      web_search_enabled: false
+      cli_config:
+        features:
+          apps: false
+          plugins: false
+          skill_search: false
+defaultTest:
+  assert:
+    -
+      type: "agent-rubric"
+      metric: "rubric"
+      threshold: 1
+      value: "Judge only the response and its proposed procedure in this scenario-only evaluation. Tools and execution were explicitly unavailable; concrete proposed steps satisfy action criteria. Do not demand actual execution or files, but reject invented claims that actions ran. Every criterion must be met using the supplied facts. Scenario: {{scenario}}\n\n{{rubric}}"
+      provider:
+        id: "openai:codex-sdk"
+        config:
+          codex_path_override: codex
+          model: "gpt-6-astra"
+          model_reasoning_effort: "medium"
+          working_dir: ./workspace
+          skip_git_repo_check: true
+          sandbox_mode: "read-only"
+          approval_policy: "never"
+          network_access_enabled: false
+          web_search_enabled: false
+          cli_config:
+            features:
+              apps: false
+              plugins: false
+              skill_search: false
+tests:
+  -
+    description: "Full reframe output with unconfirmable links cut"
+    vars:
+      skill: "file://../../src/core/skills/reframe/SKILL.md"
+      scenario: "The user typed: /reframe I'm building a notes app where people edit the same note on their phone and laptop while offline, and when both come back online the edits should merge without anyone losing text.\n\nThe user's file sync/merge.ts contains:\n\n```ts\nexport function merge(local: Note, remote: Note): Note {\n  return local.updatedAt > remote.updatedAt ? local : remote;\n}\n```\n\nNetwork access is unavailable in this session, so no link can be opened."
+      rubric: "Gives 8 to 12 terms ranked by how much each would change what gets built. Each term has a one-sentence plain meaning, the part of the user's description or merge.ts that it names, and what the term lets the user ask an agent for. Gives 2 or 3 neighbouring fields that solved the same shape of problem, each with what carries over, where the analogy breaks and which terms come back. Names at least one concern the user did not mention. Includes a rewritten description that uses the new terms. Grounds at least one term in merge.ts itself (for example, that it implements last-writer-wins and can lose text). Because no link could be opened, the response does not present any URL or citation as confirmed: it either omits citations or marks each one as unconfirmed. Does not implement the merge or write code beyond short illustrative references."
+  -
+    description: "Ambiguous description lists candidate problems first"
+    vars:
+      skill: "file://../../src/core/skills/reframe/SKILL.md"
+      scenario: "The user typed: /reframe I'm building something that works out which of our users are really the same person.\n\nNo other context was given. Network access is unavailable in this session, so no link can be opened."
+      rubric: "Before the term list, names two or three distinct problems the description could mean (for example record linkage or entity resolution across customer records, cross-device identity or account linking, or duplicate-account and fraud detection). Each candidate has the one term that names it and the sign that would tell it apart from the others. Then picks the most likely candidate, says why, and gives the term list, neighbouring fields, unmentioned concerns and rewritten description for that candidate. Does not present any URL or citation as confirmed."
+  -
+    description: "Mastery request points to teach instead of tutoring"
+    vars:
+      skill: "file://../../src/core/skills/reframe/SKILL.md"
+      scenario: "The user typed: /reframe I'm writing a job queue that retries failed jobs and must not charge a customer twice when a worker crashes halfway through. After you give me the words, I want to properly master them, so keep going until I know them.\n\nNo other context was given. Network access is unavailable in this session, so no link can be opened."
+      rubric: "Gives the reframe output: ranked terms (such as idempotency key, at-least-once delivery, exactly-once effect, outbox or transactional outbox), neighbouring fields, unmentioned concerns and a rewritten description. Does not start a tutoring session: it asks no diagnostic or quiz questions and shows no skill map. For mastery of the terms, it points the user to the teach skill (/teach) as the separate workflow to run next. Does not present any URL or citation as confirmed."
+  -
+    description: "Request to deepen the task points to sharpen"
+    vars:
+      skill: "file://../../src/core/skills/reframe/SKILL.md"
+      scenario: "The user typed: /reframe I'm building a dashboard that alerts the on-call engineer when checkout latency gets bad. Also tell me what a top SRE would do here that I'm not asking for, which raw data they'd start from and what would prove the alerts are right.\n\nNo other context was given. Network access is unavailable in this session, so no link can be opened."
+      rubric: "Gives the reframe output: ranked terms (such as SLO, SLI, error budget, burn-rate alert, percentile latency), neighbouring fields, unmentioned concerns and a rewritten description. Names the sharpen skill (/sharpen) as the workflow for the expert-practice, raw-material and proof-of-correctness questions, rather than silently expanding reframe into that analysis. Does not present any URL or citation as confirmed."

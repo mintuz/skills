@@ -10,6 +10,8 @@ Adaptations narrow triggers, remove provider dependencies, preserve scoped autho
 
 `sharpen` adapts the pstack `sharpen` skill at commit [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/tree/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/sharpen), which is later than the pinned commit. The skill does not exist at the pinned commit. The upstream `LICENSE` is unchanged at that commit.
 
+`reframe` adapts the pstack `reframe` skill at commit [`9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc`](https://github.com/cursor/plugins/tree/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/reframe), which is later than the pinned commit. The skill does not exist at the pinned commit. The upstream `LICENSE` is unchanged at that commit.
+
 `writing-for-humans` includes material covered by the Lauren Tan, Peter Yang and Addy Osmani MIT notices below.
 
 The formal-verification pair adapts the [pstack create and maintain workflows](https://github.com/cursor/plugins/tree/e58dd043600587dbaf58ba315e7f2b38373eeb43/pstack/skills) for the Everystate checker.
@@ -39,6 +41,7 @@ The formal-verification pair adapts the [pstack create and maintain workflows](h
 - `architect`
 - `arena`
 - `sharpen`
+- `reframe`
 - `in-your-own-words`
 - `principle-attack-the-premise`
 - `principle-build-the-lever`
